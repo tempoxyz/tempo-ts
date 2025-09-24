@@ -22,6 +22,7 @@
 		"@biomejs/biome": "^2.2.4",
 		"@types/bun": "latest",
 		"ox": "latest",
+		"prool": "latest",
 		"typescript": "^5.9.2",
 		"zshy": "^0.4.2"
 	}

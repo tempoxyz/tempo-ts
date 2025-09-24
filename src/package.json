@@ -10,7 +10,8 @@
 	"zshy": {
 		"exports": {
 			".": "./index.ts",
-			"./ox": "./ox/index.ts"
+			"./ox": "./ox/index.ts",
+			"./prool": "./prool/index.ts"
 		},
 		"cjs": false,
 		"conditions": {
@@ -18,7 +19,16 @@
 		}
 	},
 	"peerDependencies": {
-		"ox": "^0"
+		"ox": "^0",
+		"prool": "^0"
+	},
+	"peerDependenciesMeta": {
+		"ox": {
+			"optional": true
+		},
+		"prool": {
+			"optional": true
+		}
 	},
 	"author": "jxom <j@wevm.dev>",
 	"license": "MIT",
@@ -37,6 +47,11 @@
 			"src": "./ox/index.ts",
 			"types": "./dist/ox/index.d.ts",
 			"import": "./dist/ox/index.js"
+		},
+		"./prool": {
+			"src": "./prool/index.ts",
+			"types": "./dist/prool/index.d.ts",
+			"import": "./dist/prool/index.js"
 		}
 	}
 }
