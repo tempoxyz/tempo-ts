@@ -30,7 +30,24 @@ cargo install --path bin/tempo
 
 ### `tempo/viem`
 
-TODO
+```ts
+import { createClient, http, publicActions, walletActions } from 'viem'
+import { tempo } from 'tempo/chains'
+
+const client = createClient({
+  chain: tempo,
+  transport: http(),
+})
+  .extend(publicActions)
+  .extend(walletActions)
+
+const hash = await client.sendTransaction({
+  feeToken: '0x20c0000000000000000000000000000000000000',
+  to: '0x0000000000000000000000000000000000000000',
+})
+
+const transaction = await client.getTransaction({ hash })
+```
 
 ### `tempo/ox`
 
