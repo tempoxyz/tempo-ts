@@ -184,7 +184,9 @@ export function toRpc<pending extends boolean = false>(
   transaction: Transaction<pending>,
   _options?: toRpc.Options<pending>,
 ): Rpc<pending> {
-  const rpc = ox_Transaction.toRpc(transaction as ox_Transaction.Transaction<pending>) as Rpc<pending>
+  const rpc = ox_Transaction.toRpc(
+    transaction as ox_Transaction.Transaction<pending>,
+  ) as Rpc<pending>
 
   rpc.type = toRpcType[transaction.type as keyof typeof toRpcType]
   if (transaction.feeToken) rpc.feeToken = transaction.feeToken

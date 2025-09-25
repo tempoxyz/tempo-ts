@@ -10,8 +10,10 @@
 	"zshy": {
 		"exports": {
 			".": "./index.ts",
+			"./chains": "./chains.ts",
 			"./ox": "./ox/index.ts",
-			"./prool": "./prool/index.ts"
+			"./prool": "./prool/index.ts",
+			"./viem": "./viem/index.ts"
 		},
 		"cjs": false,
 		"conditions": {
@@ -20,7 +22,8 @@
 	},
 	"peerDependencies": {
 		"ox": "^0",
-		"prool": "^0"
+		"prool": "^0",
+		"viem": "^2"
 	},
 	"peerDependenciesMeta": {
 		"ox": {
@@ -43,6 +46,11 @@
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js"
 		},
+		"./chains": {
+			"src": "./chains.ts",
+			"types": "./dist/chains.d.ts",
+			"import": "./dist/chains.js"
+		},
 		"./ox": {
 			"src": "./ox/index.ts",
 			"types": "./dist/ox/index.d.ts",
@@ -52,6 +60,11 @@
 			"src": "./prool/index.ts",
 			"types": "./dist/prool/index.d.ts",
 			"import": "./dist/prool/index.js"
+		},
+		"./viem": {
+			"src": "./viem/index.ts",
+			"types": "./dist/viem/index.d.ts",
+			"import": "./dist/viem/index.js"
 		}
 	}
 }

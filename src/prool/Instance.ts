@@ -81,7 +81,7 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
               },
               authrpc: {
                 port: port! + 3,
-              }
+              },
             },
           )}`,
         {

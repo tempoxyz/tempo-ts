@@ -24,6 +24,7 @@
 		"ox": "latest",
 		"prool": "latest",
 		"typescript": "^5.9.2",
+		"viem": "latest",
 		"zshy": "^0.4.2"
 	}
 }
