@@ -3,7 +3,7 @@ import type { UnionOmit } from "../internal/types.js";
 import { feeManagerAbi } from "./abis.js";
 import type { GetAccountParameter } from "./types.js";
 /**
- * Sets the user's default fee token.
+ * Creates a new TIP20 token.
  *
  * @example
  * TODO

@@ -17,7 +17,7 @@ import { feeManagerAddress, tip20FactoryAddress } from './addresses.js'
 import type { GetAccountParameter } from './types.js'
 
 /**
- * Sets the user's default fee token.
+ * Creates a new TIP20 token.
  *
  * @example
  * TODO

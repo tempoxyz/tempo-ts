@@ -3,7 +3,7 @@ import { readContract, writeContract } from 'viem/actions';
 import { feeManagerAbi, tip20FactoryAbi } from "./abis.js";
 import { feeManagerAddress, tip20FactoryAddress } from "./addresses.js";
 /**
- * Sets the user's default fee token.
+ * Creates a new TIP20 token.
  *
  * @example
  * TODO
