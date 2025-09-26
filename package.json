@@ -16,7 +16,11 @@
 			"./chains": "./src/chains.ts",
 			"./ox": "./src/ox/index.ts",
 			"./prool": "./src/prool/index.ts",
-			"./viem": "./src/viem/index.ts"
+			"./viem": "./src/viem/index.ts",
+			"./viem/abis": "./src/viem/abis.ts",
+			"./viem/chain": "./src/viem/chain.ts",
+			"./viem/formatters": "./src/viem/formatters.ts",
+			"./viem/serializers": "./src/viem/serializers.ts"
 		},
 		"cjs": false,
 		"conditions": {
@@ -85,6 +89,26 @@
 			"src": "./src/viem/index.ts",
 			"types": "./dist/viem/index.d.ts",
 			"import": "./dist/viem/index.js"
+		},
+		"./viem/abis": {
+			"src": "./src/viem/abis.ts",
+			"types": "./dist/viem/abis.d.ts",
+			"import": "./dist/viem/abis.js"
+		},
+		"./viem/chain": {
+			"src": "./src/viem/chain.ts",
+			"types": "./dist/viem/chain.d.ts",
+			"import": "./dist/viem/chain.js"
+		},
+		"./viem/formatters": {
+			"src": "./src/viem/formatters.ts",
+			"types": "./dist/viem/formatters.d.ts",
+			"import": "./dist/viem/formatters.js"
+		},
+		"./viem/serializers": {
+			"src": "./src/viem/serializers.ts",
+			"types": "./dist/viem/serializers.d.ts",
+			"import": "./dist/viem/serializers.js"
 		}
 	},
 	"simple-git-hooks": {

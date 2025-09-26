@@ -1,21 +1,16 @@
-import { defineTransaction, defineTransactionRequest, serializeTransaction, } from 'viem';
-import * as Transaction from "../ox/Transaction.js";
-import * as TxFeeToken from "../ox/TransactionEnvelopeFeeToken.js";
-import * as TransactionRequest from "../ox/TransactionRequest.js";
-export const config = {
+import { defineTransaction, defineTransactionRequest, } from 'viem';
+import { formatTransaction, formatTransactionRequest } from "./formatters.js";
+import { serializeTransaction } from "./serializers.js";
+export const chainConfig = {
     blockTime: 1_000,
     formatters: {
-        transaction: defineTransaction({ format: Transaction.fromRpc }),
+        transaction: defineTransaction({ format: formatTransaction }),
         transactionRequest: defineTransactionRequest({
-            format: TransactionRequest.toRpc,
+            format: formatTransactionRequest,
         }),
     },
     serializers: {
-        transaction(transaction, signature) {
-            if (transaction.type === 'feeToken' || transaction.feeToken)
-                return TxFeeToken.serialize(transaction, { signature: signature });
-            return serializeTransaction(transaction, signature);
-        },
+        transaction: serializeTransaction,
     },
 };
 //# sourceMappingURL=chain.js.map

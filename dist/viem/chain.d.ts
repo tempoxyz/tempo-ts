@@ -1,6 +1,5 @@
-import { type OneOf, type Signature, type TransactionSerializable } from 'viem';
-import * as TxFeeToken from "../ox/TransactionEnvelopeFeeToken.js";
-export declare const config: {
+import { serializeTransaction } from "./serializers.js";
+export declare const chainConfig: {
     blockTime: number;
     formatters: {
         transaction: {
@@ -284,7 +283,7 @@ export declare const config: {
         };
     };
     serializers: {
-        transaction(transaction: OneOf<TxFeeToken.TransactionEnvelopeFeeToken | TransactionSerializable>, signature?: Signature | undefined): `0x77${string}` | `0x02${string}` | `0x01${string}` | `0x03${string}` | `0x04${string}` | import("viem").TransactionSerializedLegacy;
+        transaction: typeof serializeTransaction;
     };
 };
 //# sourceMappingURL=chain.d.ts.map
