@@ -101,7 +101,9 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
       )
     },
     async stop() {
-      fs.rmdirSync('./tmp', { recursive: true })
+      try {
+        fs.rmdirSync('./tmp', { recursive: true })
+      } catch {}
       await process.stop()
     },
   }

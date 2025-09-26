@@ -1,4 +1,8 @@
-import type { Signature, TransactionSerializable } from 'viem'
+import {
+  type Signature,
+  type TransactionSerializable,
+  serializeTransaction as viem_serializeTransaction,
+} from 'viem'
 import type { OneOf } from '../internal/types.js'
 import * as TxFeeToken from '../ox/TransactionEnvelopeFeeToken.js'
 
@@ -12,5 +16,5 @@ export function serializeTransaction(
     return TxFeeToken.serialize(transaction, {
       signature: signature as never,
     })
-  return serializeTransaction(transaction, signature)
+  return viem_serializeTransaction(transaction, signature)
 }

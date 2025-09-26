@@ -1,7 +1,7 @@
 import { defineChain } from 'viem';
-import * as chain from "./viem/chain.js";
+import { chainConfig } from "./viem/chain.js";
 export const tempoLocal = /*#__PURE__*/ defineChain({
-    ...chain.config,
+    ...chainConfig,
     id: 1337,
     name: 'Tempo',
     nativeCurrency: {
