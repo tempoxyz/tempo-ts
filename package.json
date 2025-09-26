@@ -6,6 +6,7 @@
 		"build": "zshy --project ./tsconfig.build.json",
 		"check": "biome check . --write --unsafe",
 		"check:types": "tsc -b",
+		"gen:abis": "forge build --config-path ./contracts/specs/foundry.toml && bun scripts/gen:abis.ts && bun run check",
 		"postinstall": "bun run build",
 		"test": "bun test --conditions=src"
 	},
@@ -49,6 +50,7 @@
 		"@types/bun": "latest",
 		"ox": "latest",
 		"prool": "latest",
+		"simple-git-hooks": "^2.13.1",
 		"typescript": "^5.9.2",
 		"viem": "latest",
 		"zshy": "^0.4.2"
@@ -84,5 +86,8 @@
 			"types": "./dist/viem/index.d.ts",
 			"import": "./dist/viem/index.js"
 		}
+	},
+	"simple-git-hooks": {
+		"pre-commit": "bun run check"
 	}
 }

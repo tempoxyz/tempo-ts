@@ -7,7 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["**", "!dist", "!contracts/lib"]
+		"includes": ["**", "!contracts", "!dist"]
 	},
 	"formatter": {
 		"enabled": true,

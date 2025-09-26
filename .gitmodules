@@ -1,0 +1,3 @@
+[submodule "contracts/specs"]
+	path = contracts/specs
+	url = git@github.com:tempoxyz/specs.git
