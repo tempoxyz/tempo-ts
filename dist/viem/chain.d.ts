@@ -1,6 +1,12 @@
 import { serializeTransaction } from "./serializers.js";
 export declare const chainConfig: {
     blockTime: number;
+    contracts: {
+        multicall3: {
+            address: "0xca11bde05977b3631167028862be2a173976ca11";
+            blockCreated: number;
+        };
+    };
     formatters: {
         transaction: {
             exclude: [] | undefined;

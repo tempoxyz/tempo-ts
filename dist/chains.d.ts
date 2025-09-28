@@ -12,15 +12,12 @@ export declare const tempoLocal: {
         };
     } | undefined | undefined;
     blockTime: number;
-    contracts?: {
-        [x: string]: import("viem").ChainContract | {
-            [sourceId: number]: import("viem").ChainContract | undefined;
-        } | undefined;
-        ensRegistry?: import("viem").ChainContract | undefined;
-        ensUniversalResolver?: import("viem").ChainContract | undefined;
-        multicall3?: import("viem").ChainContract | undefined;
-        erc6492Verifier?: import("viem").ChainContract | undefined;
-    } | undefined;
+    contracts: {
+        multicall3: {
+            address: "0xca11bde05977b3631167028862be2a173976ca11";
+            blockCreated: number;
+        };
+    };
     ensTlds?: readonly string[] | undefined;
     id: 1337;
     name: "Tempo";
