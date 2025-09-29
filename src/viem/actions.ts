@@ -1,7 +1,7 @@
 // TODO:
-// - `token` default JSDoc
 // - add `.call` to namespaces
 // - add `.simulate` to namespaces
+// - add `.estimateGas` to namespaces
 
 import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
@@ -89,7 +89,7 @@ export namespace approveTransferToken {
     amount: bigint
     /** Address of the spender. */
     spender: Address
-    /** Address or ID of the TIP20 token. */
+    /** Address or ID of the TIP20 token. @default `usdAddress` */
     token?: TokenId.TokenIdOrAddress | undefined
   }
 
@@ -180,7 +180,7 @@ export async function burnToken<
   const args = memo
     ? ({
         functionName: 'burnWithMemo',
-        args: [amount, memo],
+        args: [amount, Hex.padLeft(memo, 32)],
       } as const)
     : ({
         functionName: 'burn',
@@ -246,7 +246,7 @@ export async function changeTokenTransferPolicy<
     address: TokenId.toAddress(token),
     abi: tip20Abi,
     chain,
-    functionName: 'changeTokenTransferPolicy',
+    functionName: 'changeTransferPolicyId',
     args: [policyId],
   } as never)
 }
@@ -385,7 +385,7 @@ export namespace getTokenAllowance {
     'abi' | 'address' | 'functionName' | 'args'
   > &
     GetAccountParameter<account> & {
-      /** Address or ID of the TIP20 token. */
+      /** Address or ID of the TIP20 token. @default `usdAddress` */
       token?: TokenId.TokenIdOrAddress | undefined
       /** Address of the spender. */
       spender: Address
@@ -441,7 +441,7 @@ export namespace getTokenBalance {
     'abi' | 'address' | 'functionName' | 'args'
   > &
     GetAccountParameter<account> & {
-      /** Address or ID of the TIP20 token. */
+      /** Address or ID of the TIP20 token. @default `usdAddress` */
       token?: TokenId.TokenIdOrAddress | undefined
     }
 
@@ -541,7 +541,7 @@ export async function getTokenMetadata<chain extends Chain | undefined>(
 
 export namespace getTokenMetadata {
   export type Parameters = {
-    /** Address or ID of the TIP20 token. */
+    /** Address or ID of the TIP20 token. @default `usdAddress` */
     token?: TokenId.TokenIdOrAddress | undefined
   }
 
@@ -854,7 +854,7 @@ export namespace permitToken {
     signature: Signature.Signature
     /** Address of the spender. */
     spender: Address
-    /** Address or ID of the TIP20 token. */
+    /** Address or ID of the TIP20 token. @default `usdAddress` */
     token?: TokenId.TokenIdOrAddress | undefined
     /** Amount to approve. */
     value: bigint
@@ -1000,7 +1000,7 @@ export async function setTokenSupplyCap<
     address: TokenId.toAddress(token),
     abi: tip20Abi,
     chain,
-    functionName: 'setTokenSupplyCap',
+    functionName: 'setSupplyCap',
     args: [supplyCap],
   } as never)
 }
@@ -1167,12 +1167,12 @@ export async function transferToken<
     if (memo && from)
       return {
         functionName: 'transferFromWithMemo',
-        args: [from, to, amount, memo],
+        args: [from, to, amount, Hex.padLeft(memo, 32)],
       } as const
     if (memo)
       return {
         functionName: 'transferWithMemo',
-        args: [to, amount, memo],
+        args: [to, amount, Hex.padLeft(memo, 32)],
       } as const
     if (signature && v)
       return {
@@ -1216,7 +1216,7 @@ export namespace transferToken {
   > & {
     /** Amount of tokens to transfer. */
     amount: bigint
-    /** Address or ID of the TIP20 token. */
+    /** Address or ID of the TIP20 token. @default `usdAddress` */
     token?: TokenId.TokenIdOrAddress | undefined
     /** Address to transfer tokens to. */
     to: Address
