@@ -25,7 +25,7 @@ import {
   simulateContract,
   writeContract,
 } from 'viem/actions'
-import type { Compute, OneOf, UnionOmit } from '../internal/types.js'
+import type { Compute, UnionOmit } from '../internal/types.js'
 import * as TokenId from '../ox/TokenId.js'
 import * as TokenRole from '../ox/TokenRole.js'
 import { feeManagerAbi, tip20Abi, tip20FactoryAbi } from './abis.js'
@@ -1165,11 +1165,6 @@ export async function transferToken<
     ...rest
   } = parameters
 
-  const signature = parameters.signature
-    ? Signature.from(parameters.signature)
-    : undefined
-  const v = signature ? Signature.yParityToV(signature.yParity) : undefined
-
   const args = (() => {
     if (memo && from)
       return {
@@ -1180,17 +1175,6 @@ export async function transferToken<
       return {
         functionName: 'transferWithMemo',
         args: [to, amount, Hex.padLeft(memo, 32)],
-      } as const
-    if (signature && v)
-      return {
-        functionName: 'transferWithSig',
-        args: [
-          to,
-          amount,
-          v,
-          Hex.trimLeft(Hex.fromNumber(signature.r!)),
-          Hex.trimLeft(Hex.fromNumber(signature.s!)),
-        ],
       } as const
     if (from)
       return {
@@ -1223,22 +1207,15 @@ export namespace transferToken {
   > & {
     /** Amount of tokens to transfer. */
     amount: bigint
+    /** Address to transfer tokens from. */
+    from?: Address | undefined
+    /** Memo to include in the transfer. */
+    memo?: Hex.Hex | undefined
     /** Address or ID of the TIP20 token. @default `usdAddress` */
     token?: TokenId.TokenIdOrAddress | undefined
     /** Address to transfer tokens to. */
     to: Address
-  } & OneOf<
-      | {
-          /** Address to transfer tokens from. */
-          from?: Address | undefined
-          /** Memo to include in the transfer. */
-          memo?: Hex.Hex | undefined
-        }
-      | {
-          /** Signature to include in the transfer. */
-          signature?: Signature.Signature | undefined
-        }
-    >
+  }
 
   export type ReturnType = WriteContractReturnType
 }
