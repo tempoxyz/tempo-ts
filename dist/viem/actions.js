@@ -25,7 +25,7 @@ const transferPolicy = {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function approveTransferToken(client, parameters) {
+export async function approveToken(client, parameters) {
     const { account = client.account, amount, chain = client.chain, spender, token = usdAddress, ...rest } = parameters;
     return writeContract(client, {
         ...rest,
@@ -583,6 +583,54 @@ export async function unpauseToken(client, parameters) {
     });
 }
 /**
+ * Watches for TIP20 token approval events.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchApproveToken(client, parameters) {
+    const { onApproval, token = usdAddress, ...rest } = parameters;
+    return watchContractEvent(client, {
+        ...rest,
+        address: TokenId.toAddress(token),
+        abi: tip20Abi,
+        eventName: 'Approval',
+        onLogs: (logs) => {
+            for (const log of logs)
+                onApproval(log.args, log);
+        },
+        strict: true,
+    });
+}
+/**
+ * Watches for TIP20 token burn events.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchBurnToken(client, parameters) {
+    const { onBurn, token = usdAddress, ...rest } = parameters;
+    return watchContractEvent(client, {
+        ...rest,
+        address: TokenId.toAddress(token),
+        abi: tip20Abi,
+        eventName: 'Burn',
+        onLogs: (logs) => {
+            for (const log of logs)
+                onBurn(log.args, log);
+        },
+        strict: true,
+    });
+}
+/**
  * Watches for new TIP20 tokens created.
  *
  * @example
@@ -630,10 +678,84 @@ export function watchMintToken(client, parameters) {
         strict: true,
     });
 }
+/**
+ * Watches for user token set events.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchSetUserToken(client, parameters) {
+    const { onUserTokenSet, ...rest } = parameters;
+    return watchContractEvent(client, {
+        ...rest,
+        address: feeManagerAddress,
+        abi: feeManagerAbi,
+        eventName: 'UserTokenSet',
+        onLogs: (logs) => {
+            for (const log of logs)
+                onUserTokenSet(log.args, log);
+        },
+        strict: true,
+    });
+}
+/**
+ * Watches for TIP20 token role membership updates.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchTokenRole(client, parameters) {
+    const { onRoleMembershipUpdated, token = usdAddress, ...rest } = parameters;
+    return watchContractEvent(client, {
+        ...rest,
+        address: TokenId.toAddress(token),
+        abi: tip20Abi,
+        eventName: 'RoleMembershipUpdated',
+        onLogs: (logs) => {
+            for (const log of logs) {
+                const type = log.args.hasRole ? 'granted' : 'revoked';
+                onRoleMembershipUpdated({ ...log.args, type }, log);
+            }
+        },
+        strict: true,
+    });
+}
+/**
+ * Watches for TIP20 token transfer events.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchTransferToken(client, parameters) {
+    const { onTransfer, token = usdAddress, ...rest } = parameters;
+    return watchContractEvent(client, {
+        ...rest,
+        address: TokenId.toAddress(token),
+        abi: tip20Abi,
+        eventName: 'Transfer',
+        onLogs: (logs) => {
+            for (const log of logs)
+                onTransfer(log.args, log);
+        },
+        strict: true,
+    });
+}
 export function decorator() {
     return (client) => {
         return {
-            approveTransferToken: (parameters) => approveTransferToken(client, parameters),
+            approveToken: (parameters) => approveToken(client, parameters),
             burnBlockedToken: (parameters) => burnBlockedToken(client, parameters),
             burnToken: (parameters) => burnToken(client, parameters),
             changeTokenTransferPolicy: (parameters) => changeTokenTransferPolicy(client, parameters),
@@ -655,8 +777,13 @@ export function decorator() {
             setUserToken: (parameters) => setUserToken(client, parameters),
             transferToken: (parameters) => transferToken(client, parameters),
             unpauseToken: (parameters) => unpauseToken(client, parameters),
+            watchApproveToken: (parameters) => watchApproveToken(client, parameters),
+            watchBurnToken: (parameters) => watchBurnToken(client, parameters),
             watchCreateToken: (parameters) => watchCreateToken(client, parameters),
             watchMintToken: (parameters) => watchMintToken(client, parameters),
+            watchSetUserToken: (parameters) => watchSetUserToken(client, parameters),
+            watchTokenRole: (parameters) => watchTokenRole(client, parameters),
+            watchTransferToken: (parameters) => watchTransferToken(client, parameters),
         };
     };
 }
