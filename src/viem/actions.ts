@@ -1565,7 +1565,7 @@ export function watchTokenRole<
   client: Client<Transport, chain, account>,
   parameters: watchTokenRole.Parameters,
 ) {
-  const { onRoleMembershipUpdated, token = usdAddress, ...rest } = parameters
+  const { onRoleUpdated, token = usdAddress, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
     address: TokenId.toAddress(token),
@@ -1574,7 +1574,7 @@ export function watchTokenRole<
     onLogs: (logs) => {
       for (const log of logs) {
         const type = log.args.hasRole ? 'granted' : 'revoked'
-        onRoleMembershipUpdated({ ...log.args, type }, log)
+        onRoleUpdated({ ...log.args, type }, log)
       }
     },
     strict: true,
@@ -1608,7 +1608,7 @@ export namespace watchTokenRole {
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
     /** Callback to invoke when a role membership is updated. */
-    onRoleMembershipUpdated: (args: Args, log: Log) => void
+    onRoleUpdated: (args: Args, log: Log) => void
     /** Address or ID of the TIP20 token. @default `usdAddress` */
     token?: TokenId.TokenIdOrAddress | undefined
   }

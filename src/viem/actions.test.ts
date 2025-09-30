@@ -2128,7 +2128,7 @@ describe.skipIf(!!process.env.CI)('watchTokenRole', () => {
     // Start watching for role membership updates
     const unwatch = actions.watchTokenRole(client, {
       token: address,
-      onRoleMembershipUpdated: (args, log) => {
+      onRoleUpdated: (args, log) => {
         receivedRoleUpdates.push({ args, log })
       },
     })
@@ -2201,7 +2201,7 @@ describe.skipIf(!!process.env.CI)('watchTokenRole', () => {
       args: {
         account: account2.address,
       },
-      onRoleMembershipUpdated: (args, log) => {
+      onRoleUpdated: (args, log) => {
         receivedRoleUpdates.push({ args, log })
       },
     })
