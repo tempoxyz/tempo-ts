@@ -575,6 +575,30 @@ export declare namespace watchSetUserToken {
     };
 }
 /**
+ * Watches for TIP20 token role admin updates.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export declare function watchTokenAdminRole<chain extends Chain | undefined, account extends Account | undefined>(client: Client<Transport, chain, account>, parameters: watchTokenAdminRole.Parameters): import("viem").WatchContractEventReturnType;
+export declare namespace watchTokenAdminRole {
+    type Args = GetEventArgs<typeof tip20Abi, 'RoleAdminUpdated', {
+        IndexedOnly: false;
+        Required: true;
+    }>;
+    type Log = viem_Log<bigint, number, false, ExtractAbiItem<typeof tip20Abi, 'RoleAdminUpdated'>, true>;
+    type Parameters = UnionOmit<WatchContractEventParameters<typeof tip20Abi, 'RoleAdminUpdated', true>, 'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'> & {
+        /** Callback to invoke when a role admin is updated. */
+        onRoleAdminUpdated: (args: Args, log: Log) => void;
+        /** Address or ID of the TIP20 token. @default `usdAddress` */
+        token?: TokenId.TokenIdOrAddress | undefined;
+    };
+}
+/**
  * Watches for TIP20 token role membership updates.
  *
  * @example
@@ -901,6 +925,17 @@ export type Decorator<chain extends Chain | undefined = Chain | undefined, accou
      * @returns A function to unsubscribe from the event.
      */
     watchSetUserToken: (parameters: watchSetUserToken.Parameters) => () => void;
+    /**
+     * Watches for TIP20 token role admin updates.
+     *
+     * @example
+     * TODO
+     *
+     * @param client - Client.
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchTokenAdminRole: (parameters: watchTokenAdminRole.Parameters) => () => void;
     /**
      * Watches for TIP20 token role membership updates.
      *

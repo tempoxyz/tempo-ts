@@ -5586,6 +5586,7 @@ export declare function createTempoClient<transport extends Transport, chain ext
     watchCreateToken: (parameters: actions.watchCreateToken.Parameters) => () => void;
     watchMintToken: (parameters: actions.watchMintToken.Parameters) => () => void;
     watchSetUserToken: (parameters: actions.watchSetUserToken.Parameters) => () => void;
+    watchTokenAdminRole: (parameters: actions.watchTokenAdminRole.Parameters) => () => void;
     watchTokenRole: (parameters: actions.watchTokenRole.Parameters) => () => void;
     watchTransferToken: (parameters: actions.watchTransferToken.Parameters) => () => void;
 }>;

@@ -703,6 +703,30 @@ export function watchSetUserToken(client, parameters) {
     });
 }
 /**
+ * Watches for TIP20 token role admin updates.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchTokenAdminRole(client, parameters) {
+    const { onRoleAdminUpdated, token = usdAddress, ...rest } = parameters;
+    return watchContractEvent(client, {
+        ...rest,
+        address: TokenId.toAddress(token),
+        abi: tip20Abi,
+        eventName: 'RoleAdminUpdated',
+        onLogs: (logs) => {
+            for (const log of logs)
+                onRoleAdminUpdated(log.args, log);
+        },
+        strict: true,
+    });
+}
+/**
  * Watches for TIP20 token role membership updates.
  *
  * @example
@@ -782,6 +806,7 @@ export function decorator() {
             watchCreateToken: (parameters) => watchCreateToken(client, parameters),
             watchMintToken: (parameters) => watchMintToken(client, parameters),
             watchSetUserToken: (parameters) => watchSetUserToken(client, parameters),
+            watchTokenAdminRole: (parameters) => watchTokenAdminRole(client, parameters),
             watchTokenRole: (parameters) => watchTokenRole(client, parameters),
             watchTransferToken: (parameters) => watchTransferToken(client, parameters),
         };
