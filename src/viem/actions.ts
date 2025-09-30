@@ -1282,12 +1282,12 @@ export namespace unpauseToken {
  * @param parameters - Parameters.
  * @returns A function to unsubscribe from the event.
  */
-export function watchTokenCreated<
+export function watchCreateToken<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: watchTokenCreated.Parameters,
+  parameters: watchCreateToken.Parameters,
 ) {
   const { onTokenCreated, ...rest } = parameters
   return watchContractEvent(client, {
@@ -1302,7 +1302,7 @@ export function watchTokenCreated<
   })
 }
 
-export namespace watchTokenCreated {
+export namespace watchCreateToken {
   export type Args = GetEventArgs<
     typeof tip20FactoryAbi,
     'TokenCreated',
@@ -1323,6 +1323,62 @@ export namespace watchTokenCreated {
   > & {
     /** Callback to invoke when a new TIP20 token is created. */
     onTokenCreated: (args: Args, log: Log) => void
+  }
+}
+
+/**
+ * Watches for TIP20 token mint events.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchMintToken<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: watchMintToken.Parameters,
+) {
+  const { onMint, token = usdAddress, ...rest } = parameters
+  return watchContractEvent(client, {
+    ...rest,
+    address: TokenId.toAddress(token),
+    abi: tip20Abi,
+    eventName: 'Mint',
+    onLogs: (logs) => {
+      for (const log of logs) onMint(log.args, log)
+    },
+    strict: true,
+  })
+}
+
+export namespace watchMintToken {
+  export type Args = GetEventArgs<
+    typeof tip20Abi,
+    'Mint',
+    { IndexedOnly: false; Required: true }
+  >
+
+  export type Log = viem_Log<
+    bigint,
+    number,
+    false,
+    ExtractAbiItem<typeof tip20Abi, 'Mint'>,
+    true
+  >
+
+  export type Parameters = UnionOmit<
+    WatchContractEventParameters<typeof tip20Abi, 'Mint', true>,
+    'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
+  > & {
+    /** Callback to invoke when tokens are minted. */
+    onMint: (args: Args, log: Log) => void
+    /** Address or ID of the TIP20 token. @default `usdAddress` */
+    token?: TokenId.TokenIdOrAddress | undefined
   }
 }
 
@@ -1604,7 +1660,18 @@ export type Decorator<
    * @param parameters - Parameters.
    * @returns A function to unsubscribe from the event.
    */
-  watchTokenCreated: (parameters: watchTokenCreated.Parameters) => () => void
+  watchCreateToken: (parameters: watchCreateToken.Parameters) => () => void
+  /**
+   * Watches for TIP20 token mint events.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - Client.
+   * @param parameters - Parameters.
+   * @returns A function to unsubscribe from the event.
+   */
+  watchMintToken: (parameters: watchMintToken.Parameters) => () => void
 }
 
 export function decorator() {
@@ -1641,7 +1708,8 @@ export function decorator() {
       setUserToken: (parameters) => setUserToken(client, parameters),
       transferToken: (parameters) => transferToken(client, parameters),
       unpauseToken: (parameters) => unpauseToken(client, parameters),
-      watchTokenCreated: (parameters) => watchTokenCreated(client, parameters),
+      watchCreateToken: (parameters) => watchCreateToken(client, parameters),
+      watchMintToken: (parameters) => watchMintToken(client, parameters),
     }
   }
 }
