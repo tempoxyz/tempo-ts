@@ -1311,6 +1311,65 @@ describe.skip('renounceTokenRole', async () => {
 
 describe.todo('setTokenRoleAdmin')
 
+describe.skipIf(!!process.env.CI)('watchTokenCreated', () => {
+  test.only('default', async () => {
+    const receivedTokens: Array<{
+      args: actions.watchTokenCreated.Args
+      log: actions.watchTokenCreated.Log
+    }> = []
+
+    const unwatch = actions.watchTokenCreated(client, {
+      onTokenCreated: (args, log) => {
+        receivedTokens.push({ args, log })
+      },
+    })
+
+    try {
+      const { hash: hash1 } = await actions.createToken(client, {
+        currency: 'USD',
+        name: 'Watch Test Token 1',
+        symbol: 'WATCH1',
+      })
+      await waitForTransactionReceipt(client, { hash: hash1 })
+
+      const { hash: hash2 } = await actions.createToken(client, {
+        currency: 'USD',
+        name: 'Watch Test Token 2',
+        symbol: 'WATCH2',
+      })
+      await waitForTransactionReceipt(client, { hash: hash2 })
+
+      await setTimeout(2_000)
+
+      expect(receivedTokens).toHaveLength(2)
+
+      expect(receivedTokens.at(0)!.args).toMatchInlineSnapshot(`
+        {
+          "admin": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "currency": "USD",
+          "name": "Watch Test Token 1",
+          "symbol": "WATCH1",
+          "token": "0x20C0000000000000000000000000000000000001",
+          "tokenId": 1n,
+        }
+      `)
+      expect(receivedTokens.at(1)!.args).toMatchInlineSnapshot(`
+        {
+          "admin": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "currency": "USD",
+          "name": "Watch Test Token 2",
+          "symbol": "WATCH2",
+          "token": "0x20C0000000000000000000000000000000000002",
+          "tokenId": 2n,
+        }
+      `)
+    } finally {
+      // Clean up watcher
+      if (unwatch) unwatch()
+    }
+  })
+})
+
 describe.skipIf(!!process.env.CI)('decorator', () => {
   const client2 = createClient({
     chain: tempoLocal,

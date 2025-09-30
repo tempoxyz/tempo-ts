@@ -11,10 +11,14 @@ import type {
   Address,
   Chain,
   Client,
+  ExtractAbiItem,
+  GetEventArgs,
   ReadContractParameters,
   ReadContractReturnType,
   Transport,
   ValueOf,
+  Log as viem_Log,
+  WatchContractEventParameters,
   WriteContractParameters,
   WriteContractReturnType,
 } from 'viem'
@@ -23,6 +27,7 @@ import {
   multicall,
   readContract,
   simulateContract,
+  watchContractEvent,
   writeContract,
 } from 'viem/actions'
 import type { Compute, UnionOmit } from '../internal/types.js'
@@ -1267,6 +1272,60 @@ export namespace unpauseToken {
   export type ReturnType = WriteContractReturnType
 }
 
+/**
+ * Watches for new TIP20 tokens created.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchTokenCreated<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: watchTokenCreated.Parameters,
+) {
+  const { onTokenCreated, ...rest } = parameters
+  return watchContractEvent(client, {
+    ...rest,
+    address: tip20FactoryAddress,
+    abi: tip20FactoryAbi,
+    eventName: 'TokenCreated',
+    onLogs: (logs) => {
+      for (const log of logs) onTokenCreated(log.args, log)
+    },
+    strict: true,
+  })
+}
+
+export namespace watchTokenCreated {
+  export type Args = GetEventArgs<
+    typeof tip20FactoryAbi,
+    'TokenCreated',
+    { IndexedOnly: false; Required: true }
+  >
+
+  export type Log = viem_Log<
+    bigint,
+    number,
+    false,
+    ExtractAbiItem<typeof tip20FactoryAbi, 'TokenCreated'>,
+    true
+  >
+
+  export type Parameters = UnionOmit<
+    WatchContractEventParameters<typeof tip20FactoryAbi, 'TokenCreated', true>,
+    'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
+  > & {
+    /** Callback to invoke when a new TIP20 token is created. */
+    onTokenCreated: (args: Args, log: Log) => void
+  }
+}
+
 export type Decorator<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
@@ -1535,6 +1594,17 @@ export type Decorator<
   unpauseToken: (
     parameters: unpauseToken.Parameters<chain, account>,
   ) => Promise<unpauseToken.ReturnType>
+  /**
+   * Watches for new TIP20 tokens created.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - Client.
+   * @param parameters - Parameters.
+   * @returns A function to unsubscribe from the event.
+   */
+  watchTokenCreated: (parameters: watchTokenCreated.Parameters) => () => void
 }
 
 export function decorator() {
@@ -1571,6 +1641,7 @@ export function decorator() {
       setUserToken: (parameters) => setUserToken(client, parameters),
       transferToken: (parameters) => transferToken(client, parameters),
       unpauseToken: (parameters) => unpauseToken(client, parameters),
+      watchTokenCreated: (parameters) => watchTokenCreated(client, parameters),
     }
   }
 }
