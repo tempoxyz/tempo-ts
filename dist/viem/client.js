@@ -1,6 +1,6 @@
 import { createClient, http, } from 'viem';
 import { tempo } from "../chains.js";
-import * as actions from "./actions.js";
+import * as actions from "./decorator.js";
 /**
  * Instantiates a default Tempo client.
  *

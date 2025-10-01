@@ -17,7 +17,7 @@
 			"./ox": "./src/ox/index.ts",
 			"./prool": "./src/prool/index.ts",
 			"./viem": "./src/viem/index.ts",
-			"./viem/actions": "./src/viem/actions.ts",
+			"./viem/actions": "./src/viem/actions/index.ts",
 			"./viem/abis": "./src/viem/abis.ts",
 			"./viem/addresses": "./src/viem/addresses.ts",
 			"./viem/chain": "./src/viem/chain.ts",
@@ -96,9 +96,9 @@
 			"import": "./dist/viem/index.js"
 		},
 		"./viem/actions": {
-			"src": "./src/viem/actions.ts",
-			"types": "./dist/viem/actions.d.ts",
-			"import": "./dist/viem/actions.js"
+			"src": "./src/viem/actions/index.ts",
+			"types": "./dist/viem/actions/index.d.ts",
+			"import": "./dist/viem/actions/index.js"
 		},
 		"./viem/abis": {
 			"src": "./src/viem/abis.ts",

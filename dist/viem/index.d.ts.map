@@ -1,1 +1,1 @@
-{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../src/viem/index.ts"],"names":[],"mappings":"AAAA,0BAAyB;AACzB,6BAA4B;AAC5B,OAAO,EAAE,SAAS,IAAI,YAAY,EAAE,qBAAoB;AACxD,2BAA0B;AAC1B,4BAA2B;AAC3B,gCAA+B;AAC/B,iCAAgC"}
+{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../src/viem/index.ts"],"names":[],"mappings":"AAAA,0BAAyB;AACzB,OAAO,EAAE,SAAS,IAAI,YAAY,EAAE,uBAAsB;AAC1D,2BAA0B;AAC1B,4BAA2B;AAC3B,gCAA+B;AAC/B,iCAAgC"}

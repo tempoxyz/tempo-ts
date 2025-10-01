@@ -30,16 +30,16 @@ import {
   watchContractEvent,
   writeContract,
 } from 'viem/actions'
-import type { Compute, UnionOmit } from '../internal/types.js'
-import * as TokenId from '../ox/TokenId.js'
-import * as TokenRole from '../ox/TokenRole.js'
-import { feeManagerAbi, tip20Abi, tip20FactoryAbi } from './abis.js'
+import type { Compute, UnionOmit } from '../../internal/types.js'
+import * as TokenId from '../../ox/TokenId.js'
+import * as TokenRole from '../../ox/TokenRole.js'
+import { feeManagerAbi, tip20Abi, tip20FactoryAbi } from '../abis.js'
 import {
   feeManagerAddress,
   tip20FactoryAddress,
   usdAddress,
-} from './addresses.js'
-import type { GetAccountParameter } from './types.js'
+} from '../addresses.js'
+import type { GetAccountParameter } from '../types.js'
 
 const transferPolicy = {
   0: 'always-reject',
@@ -52,14 +52,18 @@ type TransferPolicy = ValueOf<typeof transferPolicy>
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const hash = await client.approveToken({
+ * const hash = await tokenActions.approve(client, {
  *   spender: '0x...',
  *   amount: 100n,
  * })
@@ -69,13 +73,13 @@ type TransferPolicy = ValueOf<typeof transferPolicy>
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function approveToken<
+export async function approve<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: approveToken.Parameters<chain, account>,
-): Promise<approveToken.ReturnType> {
+  parameters: approve.Parameters<chain, account>,
+): Promise<approve.ReturnType> {
   const {
     account = client.account,
     amount,
@@ -95,7 +99,7 @@ export async function approveToken<
   } as never)
 }
 
-export namespace approveToken {
+export namespace approve {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -119,14 +123,18 @@ export namespace approveToken {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const hash = await client.burnBlockedToken({
+ * const hash = await tokenActions.burnBlocked(client, {
  *   from: '0x...',
  *   amount: 100n,
  *   token: '0x...',
@@ -137,13 +145,13 @@ export namespace approveToken {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function burnBlockedToken<
+export async function burnBlocked<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: burnBlockedToken.Parameters<chain, account>,
-): Promise<burnBlockedToken.ReturnType> {
+  parameters: burnBlocked.Parameters<chain, account>,
+): Promise<burnBlocked.ReturnType> {
   const {
     account = client.account,
     amount,
@@ -163,7 +171,7 @@ export async function burnBlockedToken<
   } as never)
 }
 
-export namespace burnBlockedToken {
+export namespace burnBlocked {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -187,14 +195,18 @@ export namespace burnBlockedToken {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const hash = await client.burnToken({
+ * const hash = await tokenActions.burn(client, {
  *   amount: 100n,
  *   token: '0x...',
  * })
@@ -204,13 +216,13 @@ export namespace burnBlockedToken {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function burnToken<
+export async function burn<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: burnToken.Parameters<chain, account>,
-): Promise<burnToken.ReturnType> {
+  parameters: burn.Parameters<chain, account>,
+): Promise<burn.ReturnType> {
   const {
     account = client.account,
     amount,
@@ -240,7 +252,7 @@ export async function burnToken<
   } as never)
 }
 
-export namespace burnToken {
+export namespace burn {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -264,14 +276,18 @@ export namespace burnToken {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const hash = await client.changeTokenTransferPolicy({
+ * const hash = await tokenActions.changeTransferPolicy(client, {
  *   token: '0x...',
  *   policyId: 1n,
  * })
@@ -281,13 +297,13 @@ export namespace burnToken {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function changeTokenTransferPolicy<
+export async function changeTransferPolicy<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: changeTokenTransferPolicy.Parameters<chain, account>,
-): Promise<changeTokenTransferPolicy.ReturnType> {
+  parameters: changeTransferPolicy.Parameters<chain, account>,
+): Promise<changeTransferPolicy.ReturnType> {
   const {
     account = client.account,
     chain = client.chain,
@@ -306,7 +322,7 @@ export async function changeTokenTransferPolicy<
   } as never)
 }
 
-export namespace changeTokenTransferPolicy {
+export namespace changeTransferPolicy {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -328,14 +344,18 @@ export namespace changeTokenTransferPolicy {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const { hash, id, address } = await client.createToken({
+ * const { hash, id, address } = await tokenActions.create(client, {
  *   name: 'My Token',
  *   symbol: 'MTK',
  *   currency: 'USD',
@@ -346,13 +366,13 @@ export namespace changeTokenTransferPolicy {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function createToken<
+export async function create<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: createToken.Parameters<chain, account>,
-): Promise<createToken.ReturnType> {
+  parameters: create.Parameters<chain, account>,
+): Promise<create.ReturnType> {
   const {
     account = client.account,
     admin: admin_ = client.account,
@@ -384,7 +404,7 @@ export async function createToken<
   }
 }
 
-export namespace createToken {
+export namespace create {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -416,14 +436,18 @@ export namespace createToken {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const allowance = await client.getTokenAllowance({
+ * const allowance = await tokenActions.getAllowance(client, {
  *   spender: '0x...',
  * })
  * ```
@@ -432,13 +456,13 @@ export namespace createToken {
  * @param parameters - Parameters.
  * @returns The token allowance.
  */
-export async function getTokenAllowance<
+export async function getAllowance<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: getTokenAllowance.Parameters<account>,
-): Promise<getTokenAllowance.ReturnType> {
+  parameters: getAllowance.Parameters<account>,
+): Promise<getAllowance.ReturnType> {
   const {
     account = client.account,
     token = usdAddress,
@@ -456,7 +480,7 @@ export async function getTokenAllowance<
   })
 }
 
-export namespace getTokenAllowance {
+export namespace getAllowance {
   export type Parameters<
     account extends Account | undefined = Account | undefined,
   > = UnionOmit<
@@ -482,29 +506,35 @@ export namespace getTokenAllowance {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const balance = await client.getTokenBalance()
+ * const balance = await tokenActions.getBalance(client, {
+ *   token: '0x...',
+ * })
  * ```
  *
  * @param client - Client.
  * @param parameters - Parameters.
  * @returns The token balance.
  */
-export async function getTokenBalance<
+export async function getBalance<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
   ...parameters: account extends Account
-    ? [getTokenBalance.Parameters<account>] | []
-    : [getTokenBalance.Parameters<account>]
-): Promise<getTokenBalance.ReturnType> {
+    ? [getBalance.Parameters<account>] | []
+    : [getBalance.Parameters<account>]
+): Promise<getBalance.ReturnType> {
   const {
     account = client.account,
     token = usdAddress,
@@ -521,7 +551,7 @@ export async function getTokenBalance<
   })
 }
 
-export namespace getTokenBalance {
+export namespace getBalance {
   export type Parameters<
     account extends Account | undefined = Account | undefined,
   > = UnionOmit<
@@ -545,11 +575,18 @@ export namespace getTokenBalance {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient()
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
+ * })
  *
- * const metadata = await client.getTokenMetadata({
+ * const metadata = await tokenActions.getMetadata(client, {
  *   token: '0x...',
  * })
  * ```
@@ -558,10 +595,10 @@ export namespace getTokenBalance {
  * @param parameters - Parameters.
  * @returns The token metadata.
  */
-export async function getTokenMetadata<chain extends Chain | undefined>(
+export async function getMetadata<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  parameters: getTokenMetadata.Parameters = {},
-): Promise<getTokenMetadata.ReturnType> {
+  parameters: getMetadata.Parameters = {},
+): Promise<getMetadata.ReturnType> {
   const { token = usdAddress, ...rest } = parameters
   const address = TokenId.toAddress(token)
   const abi = tip20Abi
@@ -635,7 +672,7 @@ export async function getTokenMetadata<chain extends Chain | undefined>(
   )
 }
 
-export namespace getTokenMetadata {
+export namespace getMetadata {
   export type Parameters = {
     /** Address or ID of the TIP20 token. @default `usdAddress` */
     token?: TokenId.TokenIdOrAddress | undefined
@@ -666,14 +703,18 @@ export namespace getTokenMetadata {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const { address, id } = await client.getUserToken()
+ * const { address, id } = await tokenActions.getUserToken(client)
  * ```
  *
  * @param client - Client.
@@ -725,14 +766,18 @@ export namespace getUserToken {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const hash = await client.grantTokenRoles({
+ * const hash = await tokenActions.grantRoles(client, {
  *   token: '0x...',
  *   to: '0x...',
  *   roles: ['minter'],
@@ -743,13 +788,13 @@ export namespace getUserToken {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function grantTokenRoles<
+export async function grantRoles<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: grantTokenRoles.Parameters<chain, account>,
-): Promise<grantTokenRoles.ReturnType> {
+  parameters: grantRoles.Parameters<chain, account>,
+): Promise<grantRoles.ReturnType> {
   const {
     account = client.account,
     chain = client.chain,
@@ -771,7 +816,7 @@ export async function grantTokenRoles<
   } as never)
 }
 
-export namespace grantTokenRoles {
+export namespace grantRoles {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -795,14 +840,18 @@ export namespace grantTokenRoles {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const hash = await client.mintToken({
+ * const hash = await tokenActions.mint(client, {
  *   to: '0x...',
  *   amount: 100n,
  *   token: '0x...',
@@ -813,13 +862,13 @@ export namespace grantTokenRoles {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function mintToken<
+export async function mint<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: mintToken.Parameters<chain, account>,
-): Promise<mintToken.ReturnType> {
+  parameters: mint.Parameters<chain, account>,
+): Promise<mint.ReturnType> {
   const {
     account = client.account,
     amount,
@@ -852,7 +901,7 @@ export async function mintToken<
   } as never)
 }
 
-export namespace mintToken {
+export namespace mint {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -878,14 +927,18 @@ export namespace mintToken {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const hash = await client.pauseToken({
+ * const hash = await tokenActions.pause(client, {
  *   token: '0x...',
  * })
  * ```
@@ -894,13 +947,13 @@ export namespace mintToken {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function pauseToken<
+export async function pause<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: pauseToken.Parameters<chain, account>,
-): Promise<pauseToken.ReturnType> {
+  parameters: pause.Parameters<chain, account>,
+): Promise<pause.ReturnType> {
   const {
     account = client.account,
     chain = client.chain,
@@ -918,7 +971,7 @@ export async function pauseToken<
   } as never)
 }
 
-export namespace pauseToken {
+export namespace pause {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -938,14 +991,18 @@ export namespace pauseToken {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const hash = await client.permitToken({
+ * const hash = await tokenActions.permit(client, {
  *   owner: '0x...',
  *   spender: '0x...',
  *   value: 100n,
@@ -958,13 +1015,13 @@ export namespace pauseToken {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function permitToken<
+export async function permit<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: permitToken.Parameters<chain, account>,
-): Promise<permitToken.ReturnType> {
+  parameters: permit.Parameters<chain, account>,
+): Promise<permit.ReturnType> {
   const {
     account = client.account,
     chain = client.chain,
@@ -997,7 +1054,7 @@ export async function permitToken<
   } as never)
 }
 
-export namespace permitToken {
+export namespace permit {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -1027,14 +1084,18 @@ export namespace permitToken {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const hash = await client.renounceTokenRoles({
+ * const hash = await tokenActions.renounceRoles(client, {
  *   token: '0x...',
  *   roles: ['minter'],
  * })
@@ -1044,13 +1105,13 @@ export namespace permitToken {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function renounceTokenRoles<
+export async function renounceRoles<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: renounceTokenRoles.Parameters<chain, account>,
-): Promise<renounceTokenRoles.ReturnType> {
+  parameters: renounceRoles.Parameters<chain, account>,
+): Promise<renounceRoles.ReturnType> {
   const {
     account = client.account,
     chain = client.chain,
@@ -1071,7 +1132,7 @@ export async function renounceTokenRoles<
   } as never)
 }
 
-export namespace renounceTokenRoles {
+export namespace renounceRoles {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -1093,14 +1154,18 @@ export namespace renounceTokenRoles {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const hash = await client.revokeTokenRoles({
+ * const hash = await tokenActions.revokeRoles(client, {
  *   token: '0x...',
  *   from: '0x...',
  *   roles: ['minter'],
@@ -1111,13 +1176,13 @@ export namespace renounceTokenRoles {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function revokeTokenRoles<
+export async function revokeRoles<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: revokeTokenRoles.Parameters<chain, account>,
-): Promise<revokeTokenRoles.ReturnType> {
+  parameters: revokeRoles.Parameters<chain, account>,
+): Promise<revokeRoles.ReturnType> {
   const {
     account = client.account,
     chain = client.chain,
@@ -1139,7 +1204,7 @@ export async function revokeTokenRoles<
   } as never)
 }
 
-export namespace revokeTokenRoles {
+export namespace revokeRoles {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -1163,14 +1228,18 @@ export namespace revokeTokenRoles {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const hash = await client.setTokenSupplyCap({
+ * const hash = await tokenActions.setSupplyCap(client, {
  *   token: '0x...',
  *   supplyCap: 1000000n,
  * })
@@ -1180,13 +1249,13 @@ export namespace revokeTokenRoles {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function setTokenSupplyCap<
+export async function setSupplyCap<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: setTokenSupplyCap.Parameters<chain, account>,
-): Promise<setTokenSupplyCap.ReturnType> {
+  parameters: setSupplyCap.Parameters<chain, account>,
+): Promise<setSupplyCap.ReturnType> {
   const {
     account = client.account,
     chain = client.chain,
@@ -1205,7 +1274,7 @@ export async function setTokenSupplyCap<
   } as never)
 }
 
-export namespace setTokenSupplyCap {
+export namespace setSupplyCap {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -1227,14 +1296,18 @@ export namespace setTokenSupplyCap {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const hash = await client.setTokenRoleAdmin({
+ * const hash = await tokenActions.setRoleAdmin(client, {
  *   token: '0x...',
  *   role: 'minter',
  *   adminRole: 'admin',
@@ -1245,13 +1318,13 @@ export namespace setTokenSupplyCap {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function setTokenRoleAdmin<
+export async function setRoleAdmin<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: setTokenRoleAdmin.Parameters<chain, account>,
-): Promise<setTokenRoleAdmin.ReturnType> {
+  parameters: setRoleAdmin.Parameters<chain, account>,
+): Promise<setRoleAdmin.ReturnType> {
   const {
     account = client.account,
     adminRole,
@@ -1273,7 +1346,7 @@ export async function setTokenRoleAdmin<
   } as never)
 }
 
-export namespace setTokenRoleAdmin {
+export namespace setRoleAdmin {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -1297,14 +1370,18 @@ export namespace setTokenRoleAdmin {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const hash = await client.setUserToken({
+ * const hash = await tokenActions.setUserToken(client, {
  *   token: '0x...',
  * })
  * ```
@@ -1357,14 +1434,18 @@ export namespace setUserToken {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const hash = await client.transferToken({
+ * const hash = await tokenActions.transfer(client, {
  *   to: '0x...',
  *   amount: 100n,
  * })
@@ -1374,13 +1455,13 @@ export namespace setUserToken {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function transferToken<
+export async function transfer<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: transferToken.Parameters<chain, account>,
-): Promise<transferToken.ReturnType> {
+  parameters: transfer.Parameters<chain, account>,
+): Promise<transfer.ReturnType> {
   const {
     account = client.account,
     amount,
@@ -1424,7 +1505,7 @@ export async function transferToken<
   } as never)
 }
 
-export namespace transferToken {
+export namespace transfer {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -1452,14 +1533,18 @@ export namespace transferToken {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
- * const client = createTempoClient({
- *   account: privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
  * })
  *
- * const hash = await client.unpauseToken({
+ * const hash = await tokenActions.unpause(client, {
  *   token: '0x...',
  * })
  * ```
@@ -1468,13 +1553,13 @@ export namespace transferToken {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function unpauseToken<
+export async function unpause<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: unpauseToken.Parameters<chain, account>,
-): Promise<unpauseToken.ReturnType> {
+  parameters: unpause.Parameters<chain, account>,
+): Promise<unpause.ReturnType> {
   const {
     account = client.account,
     chain = client.chain,
@@ -1492,7 +1577,7 @@ export async function unpauseToken<
   } as never)
 }
 
-export namespace unpauseToken {
+export namespace unpause {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -1512,11 +1597,16 @@ export namespace unpauseToken {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  *
- * const client = createTempoClient()
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
  *
- * const unwatch = client.watchApproveToken({
+ * const unwatch = tokenActions.watchApprove(client, {
  *   onApproval: (args, log) => {
  *     console.log('Approval:', args)
  *   },
@@ -1527,12 +1617,12 @@ export namespace unpauseToken {
  * @param parameters - Parameters.
  * @returns A function to unsubscribe from the event.
  */
-export function watchApproveToken<
+export function watchApprove<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: watchApproveToken.Parameters,
+  parameters: watchApprove.Parameters,
 ) {
   const { onApproval, token = usdAddress, ...rest } = parameters
   return watchContractEvent(client, {
@@ -1547,7 +1637,7 @@ export function watchApproveToken<
   })
 }
 
-export namespace watchApproveToken {
+export namespace watchApprove {
   export type Args = GetEventArgs<
     typeof tip20Abi,
     'Approval',
@@ -1578,11 +1668,16 @@ export namespace watchApproveToken {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  *
- * const client = createTempoClient()
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
  *
- * const unwatch = client.watchBurnToken({
+ * const unwatch = tokenActions.watchBurn(client, {
  *   onBurn: (args, log) => {
  *     console.log('Burn:', args)
  *   },
@@ -1593,13 +1688,10 @@ export namespace watchApproveToken {
  * @param parameters - Parameters.
  * @returns A function to unsubscribe from the event.
  */
-export function watchBurnToken<
+export function watchBurn<
   chain extends Chain | undefined,
   account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: watchBurnToken.Parameters,
-) {
+>(client: Client<Transport, chain, account>, parameters: watchBurn.Parameters) {
   const { onBurn, token = usdAddress, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
@@ -1613,7 +1705,7 @@ export function watchBurnToken<
   })
 }
 
-export namespace watchBurnToken {
+export namespace watchBurn {
   export type Args = GetEventArgs<
     typeof tip20Abi,
     'Burn',
@@ -1644,11 +1736,16 @@ export namespace watchBurnToken {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  *
- * const client = createTempoClient()
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
  *
- * const unwatch = client.watchCreateToken({
+ * const unwatch = tokenActions.watchCreate(client, {
  *   onTokenCreated: (args, log) => {
  *     console.log('Token created:', args)
  *   },
@@ -1659,12 +1756,12 @@ export namespace watchBurnToken {
  * @param parameters - Parameters.
  * @returns A function to unsubscribe from the event.
  */
-export function watchCreateToken<
+export function watchCreate<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: watchCreateToken.Parameters,
+  parameters: watchCreate.Parameters,
 ) {
   const { onTokenCreated, ...rest } = parameters
   return watchContractEvent(client, {
@@ -1679,7 +1776,7 @@ export function watchCreateToken<
   })
 }
 
-export namespace watchCreateToken {
+export namespace watchCreate {
   export type Args = GetEventArgs<
     typeof tip20FactoryAbi,
     'TokenCreated',
@@ -1708,11 +1805,16 @@ export namespace watchCreateToken {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  *
- * const client = createTempoClient()
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
  *
- * const unwatch = client.watchMintToken({
+ * const unwatch = tokenActions.watchMint(client, {
  *   onMint: (args, log) => {
  *     console.log('Mint:', args)
  *   },
@@ -1723,13 +1825,10 @@ export namespace watchCreateToken {
  * @param parameters - Parameters.
  * @returns A function to unsubscribe from the event.
  */
-export function watchMintToken<
+export function watchMint<
   chain extends Chain | undefined,
   account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: watchMintToken.Parameters,
-) {
+>(client: Client<Transport, chain, account>, parameters: watchMint.Parameters) {
   const { onMint, token = usdAddress, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
@@ -1743,7 +1842,7 @@ export function watchMintToken<
   })
 }
 
-export namespace watchMintToken {
+export namespace watchMint {
   export type Args = GetEventArgs<
     typeof tip20Abi,
     'Mint',
@@ -1774,11 +1873,16 @@ export namespace watchMintToken {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  *
- * const client = createTempoClient()
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
  *
- * const unwatch = client.watchSetUserToken({
+ * const unwatch = tokenActions.watchSetUserToken(client, {
  *   onUserTokenSet: (args, log) => {
  *     console.log('User token set:', args)
  *   },
@@ -1838,11 +1942,16 @@ export namespace watchSetUserToken {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  *
- * const client = createTempoClient()
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
  *
- * const unwatch = client.watchTokenAdminRole({
+ * const unwatch = tokenActions.watchAdminRole(client, {
  *   onRoleAdminUpdated: (args, log) => {
  *     console.log('Role admin updated:', args)
  *   },
@@ -1853,12 +1962,12 @@ export namespace watchSetUserToken {
  * @param parameters - Parameters.
  * @returns A function to unsubscribe from the event.
  */
-export function watchTokenAdminRole<
+export function watchAdminRole<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: watchTokenAdminRole.Parameters,
+  parameters: watchAdminRole.Parameters,
 ) {
   const { onRoleAdminUpdated, token = usdAddress, ...rest } = parameters
   return watchContractEvent(client, {
@@ -1873,7 +1982,7 @@ export function watchTokenAdminRole<
   })
 }
 
-export namespace watchTokenAdminRole {
+export namespace watchAdminRole {
   export type Args = GetEventArgs<
     typeof tip20Abi,
     'RoleAdminUpdated',
@@ -1904,11 +2013,16 @@ export namespace watchTokenAdminRole {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  *
- * const client = createTempoClient()
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
  *
- * const unwatch = client.watchTokenRole({
+ * const unwatch = tokenActions.watchRole(client, {
  *   onRoleUpdated: (args, log) => {
  *     console.log('Role updated:', args)
  *   },
@@ -1919,13 +2033,10 @@ export namespace watchTokenAdminRole {
  * @param parameters - Parameters.
  * @returns A function to unsubscribe from the event.
  */
-export function watchTokenRole<
+export function watchRole<
   chain extends Chain | undefined,
   account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: watchTokenRole.Parameters,
-) {
+>(client: Client<Transport, chain, account>, parameters: watchRole.Parameters) {
   const { onRoleUpdated, token = usdAddress, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
@@ -1942,7 +2053,7 @@ export function watchTokenRole<
   })
 }
 
-export namespace watchTokenRole {
+export namespace watchRole {
   export type Args = GetEventArgs<
     typeof tip20Abi,
     'RoleMembershipUpdated',
@@ -1980,11 +2091,17 @@ export namespace watchTokenRole {
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo/chains'
+ * import { tokenActions } from 'tempo/viem'
  *
- * const client = createTempoClient()
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
+ * })
  *
- * const unwatch = client.watchTransferToken({
+ * const unwatch = tokenActions.watchTransfer(client, {
  *   onTransfer: (args, log) => {
  *     console.log('Transfer:', args)
  *   },
@@ -1995,12 +2112,12 @@ export namespace watchTokenRole {
  * @param parameters - Parameters.
  * @returns A function to unsubscribe from the event.
  */
-export function watchTransferToken<
+export function watchTransfer<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: watchTransferToken.Parameters,
+  parameters: watchTransfer.Parameters,
 ) {
   const { onTransfer, token = usdAddress, ...rest } = parameters
   return watchContractEvent(client, {
@@ -2015,7 +2132,7 @@ export function watchTransferToken<
   })
 }
 
-export namespace watchTransferToken {
+export namespace watchTransfer {
   export type Args = GetEventArgs<
     typeof tip20Abi,
     'Transfer',
@@ -2038,727 +2155,5 @@ export namespace watchTransferToken {
     onTransfer: (args: Args, log: Log) => void
     /** Address or ID of the TIP20 token. @default `usdAddress` */
     token?: TokenId.TokenIdOrAddress | undefined
-  }
-}
-
-export type Decorator<
-  chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = Account | undefined,
-> = {
-  /**
-   * Approves a spender to transfer TIP20 tokens on behalf of the caller.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const hash = await client.approveToken({
-   *   spender: '0x...',
-   *   amount: 100n,
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  approveToken: (
-    parameters: approveToken.Parameters<chain, account>,
-  ) => Promise<approveToken.ReturnType>
-  /**
-   * Burns TIP20 tokens from a blocked address.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const hash = await client.burnBlockedToken({
-   *   from: '0x...',
-   *   amount: 100n,
-   *   token: '0x...',
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  burnBlockedToken: (
-    parameters: burnBlockedToken.Parameters<chain, account>,
-  ) => Promise<burnBlockedToken.ReturnType>
-  /**
-   * Burns TIP20 tokens from the caller's balance.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const hash = await client.burnToken({
-   *   amount: 100n,
-   *   token: '0x...',
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  burnToken: (
-    parameters: burnToken.Parameters<chain, account>,
-  ) => Promise<burnToken.ReturnType>
-  /**
-   * Changes the transfer policy ID for a TIP20 token.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const hash = await client.changeTokenTransferPolicy({
-   *   token: '0x...',
-   *   policyId: 1n,
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  changeTokenTransferPolicy: (
-    parameters: changeTokenTransferPolicy.Parameters<chain, account>,
-  ) => Promise<changeTokenTransferPolicy.ReturnType>
-  /**
-   * Creates a new TIP20 token.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const { hash, id, address } = await client.createToken({
-   *   name: 'My Token',
-   *   symbol: 'MTK',
-   *   currency: 'USD',
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  createToken: (
-    parameters: createToken.Parameters<chain, account>,
-  ) => Promise<createToken.ReturnType>
-  /**
-   * Gets TIP20 token allowance.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const allowance = await client.getTokenAllowance({
-   *   spender: '0x...',
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The token allowance.
-   */
-  getTokenAllowance: (
-    parameters: getTokenAllowance.Parameters,
-  ) => Promise<getTokenAllowance.ReturnType>
-  /**
-   * Gets TIP20 token balance for an address.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const balance = await client.getTokenBalance()
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The token balance.
-   */
-  getTokenBalance: (
-    ...parameters: account extends Account
-      ? [getTokenBalance.Parameters<account>] | []
-      : [getTokenBalance.Parameters<account>]
-  ) => Promise<getTokenBalance.ReturnType>
-  /**
-   * Gets TIP20 token metadata including name, symbol, currency, decimals, and total supply.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   *
-   * const client = createTempoClient()
-   *
-   * const metadata = await client.getTokenMetadata({
-   *   token: '0x...',
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The token metadata.
-   */
-  getTokenMetadata: (
-    parameters: getTokenMetadata.Parameters,
-  ) => Promise<getTokenMetadata.ReturnType>
-  /**
-   * Gets the user's default fee token.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const { address, id } = await client.getUserToken()
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  getUserToken: (
-    ...parameters: account extends Account
-      ? [getUserToken.Parameters<account>] | []
-      : [getUserToken.Parameters<account>]
-  ) => Promise<getUserToken.ReturnType>
-  /**
-   * Grants a role for a TIP20 token.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const hash = await client.grantTokenRoles({
-   *   token: '0x...',
-   *   to: '0x...',
-   *   roles: ['minter'],
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  grantTokenRoles: (
-    parameters: grantTokenRoles.Parameters<chain, account>,
-  ) => Promise<grantTokenRoles.ReturnType>
-  /**
-   * Mints TIP20 tokens to an address.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const hash = await client.mintToken({
-   *   to: '0x...',
-   *   amount: 100n,
-   *   token: '0x...',
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  mintToken: (
-    parameters: mintToken.Parameters<chain, account>,
-  ) => Promise<mintToken.ReturnType>
-  /**
-   * Pauses a TIP20 token.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const hash = await client.pauseToken({
-   *   token: '0x...',
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  pauseToken: (
-    parameters: pauseToken.Parameters<chain, account>,
-  ) => Promise<pauseToken.ReturnType>
-  /**
-   * Approves a spender using a signed permit.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const hash = await client.permitToken({
-   *   owner: '0x...',
-   *   spender: '0x...',
-   *   value: 100n,
-   *   deadline: 1234567890n,
-   *   signature: { r: 0n, s: 0n, yParity: 0 },
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  permitToken: (
-    parameters: permitToken.Parameters<chain, account>,
-  ) => Promise<permitToken.ReturnType>
-  /**
-   * Renounces a role for a TIP20 token.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const hash = await client.renounceTokenRoles({
-   *   token: '0x...',
-   *   roles: ['minter'],
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  renounceTokenRoles: (
-    parameters: renounceTokenRoles.Parameters<chain, account>,
-  ) => Promise<renounceTokenRoles.ReturnType>
-  /**
-   * Revokes a role for a TIP20 token.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const hash = await client.revokeTokenRoles({
-   *   token: '0x...',
-   *   from: '0x...',
-   *   roles: ['minter'],
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  revokeTokenRoles: (
-    parameters: revokeTokenRoles.Parameters<chain, account>,
-  ) => Promise<revokeTokenRoles.ReturnType>
-  /**
-   * Sets the supply cap for a TIP20 token.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const hash = await client.setTokenSupplyCap({
-   *   token: '0x...',
-   *   supplyCap: 1000000n,
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  setTokenSupplyCap: (
-    parameters: setTokenSupplyCap.Parameters<chain, account>,
-  ) => Promise<setTokenSupplyCap.ReturnType>
-  /**
-   * Sets the admin role for a specific role in a TIP20 token.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const hash = await client.setTokenRoleAdmin({
-   *   token: '0x...',
-   *   role: 'minter',
-   *   adminRole: 'admin',
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  setTokenRoleAdmin: (
-    parameters: setTokenRoleAdmin.Parameters<chain, account>,
-  ) => Promise<setTokenRoleAdmin.ReturnType>
-  /**
-   * Sets the user's default fee token.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const hash = await client.setUserToken({
-   *   token: '0x...',
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  setUserToken: (
-    parameters: setUserToken.Parameters<chain, account>,
-  ) => Promise<setUserToken.ReturnType>
-  /**
-   * Transfers TIP20 tokens to another address.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const hash = await client.transferToken({
-   *   to: '0x...',
-   *   amount: 100n,
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  transferToken: (
-    parameters: transferToken.Parameters<chain, account>,
-  ) => Promise<transferToken.ReturnType>
-  /**
-   * Unpauses a TIP20 token.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   * import { privateKeyToAccount } from 'viem/accounts'
-   *
-   * const client = createTempoClient({
-   *   account: privateKeyToAccount('0x...')
-   * })
-   *
-   * const hash = await client.unpauseToken({
-   *   token: '0x...',
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The transaction hash.
-   */
-  unpauseToken: (
-    parameters: unpauseToken.Parameters<chain, account>,
-  ) => Promise<unpauseToken.ReturnType>
-  /**
-   * Watches for TIP20 token approval events.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   *
-   * const client = createTempoClient()
-   *
-   * const unwatch = client.watchApproveToken({
-   *   onApproval: (args, log) => {
-   *     console.log('Approval:', args)
-   *   },
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns A function to unsubscribe from the event.
-   */
-  watchApproveToken: (parameters: watchApproveToken.Parameters) => () => void
-  /**
-   * Watches for TIP20 token burn events.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   *
-   * const client = createTempoClient()
-   *
-   * const unwatch = client.watchBurnToken({
-   *   onBurn: (args, log) => {
-   *     console.log('Burn:', args)
-   *   },
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns A function to unsubscribe from the event.
-   */
-  watchBurnToken: (parameters: watchBurnToken.Parameters) => () => void
-  /**
-   * Watches for new TIP20 tokens created.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   *
-   * const client = createTempoClient()
-   *
-   * const unwatch = client.watchCreateToken({
-   *   onTokenCreated: (args, log) => {
-   *     console.log('Token created:', args)
-   *   },
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns A function to unsubscribe from the event.
-   */
-  watchCreateToken: (parameters: watchCreateToken.Parameters) => () => void
-  /**
-   * Watches for TIP20 token mint events.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   *
-   * const client = createTempoClient()
-   *
-   * const unwatch = client.watchMintToken({
-   *   onMint: (args, log) => {
-   *     console.log('Mint:', args)
-   *   },
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns A function to unsubscribe from the event.
-   */
-  watchMintToken: (parameters: watchMintToken.Parameters) => () => void
-  /**
-   * Watches for user token set events.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   *
-   * const client = createTempoClient()
-   *
-   * const unwatch = client.watchSetUserToken({
-   *   onUserTokenSet: (args, log) => {
-   *     console.log('User token set:', args)
-   *   },
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns A function to unsubscribe from the event.
-   */
-  watchSetUserToken: (parameters: watchSetUserToken.Parameters) => () => void
-  /**
-   * Watches for TIP20 token role admin updates.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   *
-   * const client = createTempoClient()
-   *
-   * const unwatch = client.watchTokenAdminRole({
-   *   onRoleAdminUpdated: (args, log) => {
-   *     console.log('Role admin updated:', args)
-   *   },
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns A function to unsubscribe from the event.
-   */
-  watchTokenAdminRole: (
-    parameters: watchTokenAdminRole.Parameters,
-  ) => () => void
-  /**
-   * Watches for TIP20 token role membership updates.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   *
-   * const client = createTempoClient()
-   *
-   * const unwatch = client.watchTokenRole({
-   *   onRoleUpdated: (args, log) => {
-   *     console.log('Role updated:', args)
-   *   },
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns A function to unsubscribe from the event.
-   */
-  watchTokenRole: (parameters: watchTokenRole.Parameters) => () => void
-  /**
-   * Watches for TIP20 token transfer events.
-   *
-   * @example
-   * ```ts
-   * import { createTempoClient } from 'tempo/viem'
-   *
-   * const client = createTempoClient()
-   *
-   * const unwatch = client.watchTransferToken({
-   *   onTransfer: (args, log) => {
-   *     console.log('Transfer:', args)
-   *   },
-   * })
-   * ```
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns A function to unsubscribe from the event.
-   */
-  watchTransferToken: (parameters: watchTransferToken.Parameters) => () => void
-}
-
-export function decorator() {
-  return <
-    transport extends Transport,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    client: Client<transport, chain, account>,
-  ): Decorator<chain, account> => {
-    return {
-      approveToken: (parameters) => approveToken(client, parameters),
-      burnBlockedToken: (parameters) => burnBlockedToken(client, parameters),
-      burnToken: (parameters) => burnToken(client, parameters),
-      changeTokenTransferPolicy: (parameters) =>
-        changeTokenTransferPolicy(client, parameters),
-      createToken: (parameters) => createToken(client, parameters),
-      getTokenAllowance: (parameters) => getTokenAllowance(client, parameters),
-      // @ts-expect-error
-      getTokenBalance: (parameters) => getTokenBalance(client, parameters),
-      getTokenMetadata: (parameters) => getTokenMetadata(client, parameters),
-      // @ts-expect-error
-      getUserToken: (parameters) => getUserToken(client, parameters),
-      grantTokenRoles: (parameters) => grantTokenRoles(client, parameters),
-      mintToken: (parameters) => mintToken(client, parameters),
-      pauseToken: (parameters) => pauseToken(client, parameters),
-      permitToken: (parameters) => permitToken(client, parameters),
-      renounceTokenRoles: (parameters) =>
-        renounceTokenRoles(client, parameters),
-      revokeTokenRoles: (parameters) => revokeTokenRoles(client, parameters),
-      setTokenSupplyCap: (parameters) => setTokenSupplyCap(client, parameters),
-      setTokenRoleAdmin: (parameters) => setTokenRoleAdmin(client, parameters),
-      setUserToken: (parameters) => setUserToken(client, parameters),
-      transferToken: (parameters) => transferToken(client, parameters),
-      unpauseToken: (parameters) => unpauseToken(client, parameters),
-      watchApproveToken: (parameters) => watchApproveToken(client, parameters),
-      watchBurnToken: (parameters) => watchBurnToken(client, parameters),
-      watchCreateToken: (parameters) => watchCreateToken(client, parameters),
-      watchMintToken: (parameters) => watchMintToken(client, parameters),
-      watchSetUserToken: (parameters) => watchSetUserToken(client, parameters),
-      watchTokenAdminRole: (parameters) =>
-        watchTokenAdminRole(client, parameters),
-      watchTokenRole: (parameters) => watchTokenRole(client, parameters),
-      watchTransferToken: (parameters) =>
-        watchTransferToken(client, parameters),
-    }
   }
 }

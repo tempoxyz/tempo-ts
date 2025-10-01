@@ -10,7 +10,7 @@ import {
 } from 'viem'
 import { tempo } from '../chains.js'
 import type { PartialBy } from '../internal/types.js'
-import * as actions from './actions.js'
+import * as actions from './decorator.js'
 
 /**
  * Instantiates a default Tempo client.
