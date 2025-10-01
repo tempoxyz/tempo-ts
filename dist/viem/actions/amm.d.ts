@@ -322,9 +322,9 @@ export declare namespace watchRebalanceSwap {
     type Parameters = UnionOmit<WatchContractEventParameters<typeof feeAmmAbi, 'RebalanceSwap', true>, 'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'> & {
         /** Callback to invoke when a rebalance swap occurs. */
         onRebalanceSwap: (args: Args, log: Log) => void;
-        /** Optional: Address or ID of the user token to filter events. */
+        /** Address or ID of the user token to filter events. */
         userToken?: TokenId.TokenIdOrAddress | undefined;
-        /** Optional: Address or ID of the validator token to filter events. */
+        /** Address or ID of the validator token to filter events. */
         validatorToken?: TokenId.TokenIdOrAddress | undefined;
     };
 }
@@ -363,9 +363,9 @@ export declare namespace watchFeeSwap {
     type Parameters = UnionOmit<WatchContractEventParameters<typeof feeAmmAbi, 'FeeSwap', true>, 'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'> & {
         /** Callback to invoke when a fee swap occurs. */
         onFeeSwap: (args: Args, log: Log) => void;
-        /** Optional: Address or ID of the user token to filter events. */
+        /** Address or ID of the user token to filter events. */
         userToken?: TokenId.TokenIdOrAddress | undefined;
-        /** Optional: Address or ID of the validator token to filter events. */
+        /** Address or ID of the validator token to filter events. */
         validatorToken?: TokenId.TokenIdOrAddress | undefined;
     };
 }
@@ -396,17 +396,27 @@ export declare namespace watchFeeSwap {
  */
 export declare function watchMint<chain extends Chain | undefined, account extends Account | undefined>(client: Client<Transport, chain, account>, parameters: watchMint.Parameters): import("viem").WatchContractEventReturnType;
 export declare namespace watchMint {
-    type Args = GetEventArgs<typeof feeAmmAbi, 'Mint', {
-        IndexedOnly: false;
-        Required: true;
-    }>;
+    type Args = {
+        liquidity: bigint;
+        sender: Address;
+        userToken: {
+            address: Address;
+            amount: bigint;
+        };
+        validatorToken: {
+            address: Address;
+            amount: bigint;
+        };
+    };
     type Log = viem_Log<bigint, number, false, ExtractAbiItem<typeof feeAmmAbi, 'Mint'>, true>;
     type Parameters = UnionOmit<WatchContractEventParameters<typeof feeAmmAbi, 'Mint', true>, 'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'> & {
         /** Callback to invoke when liquidity is added. */
         onMint: (args: Args, log: Log) => void;
-        /** Optional: Address or ID of the user token to filter events. */
+        /** Address or ID of the sender to filter events. */
+        sender?: TokenId.TokenIdOrAddress | undefined;
+        /** Address or ID of the user token to filter events. */
         userToken?: TokenId.TokenIdOrAddress | undefined;
-        /** Optional: Address or ID of the validator token to filter events. */
+        /** Address or ID of the validator token to filter events. */
         validatorToken?: TokenId.TokenIdOrAddress | undefined;
     };
 }
@@ -445,9 +455,9 @@ export declare namespace watchBurn {
     type Parameters = UnionOmit<WatchContractEventParameters<typeof feeAmmAbi, 'Burn', true>, 'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'> & {
         /** Callback to invoke when liquidity is removed. */
         onBurn: (args: Args, log: Log) => void;
-        /** Optional: Address or ID of the user token to filter events. */
+        /** Address or ID of the user token to filter events. */
         userToken?: TokenId.TokenIdOrAddress | undefined;
-        /** Optional: Address or ID of the validator token to filter events. */
+        /** Address or ID of the validator token to filter events. */
         validatorToken?: TokenId.TokenIdOrAddress | undefined;
     };
 }

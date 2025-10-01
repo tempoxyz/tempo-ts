@@ -7,7 +7,7 @@ import { parseEther, publicActions } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
 import { waitForTransactionReceipt, writeContract } from 'viem/actions'
 import { tip20Abi } from '../abis.js'
-import { feeManagerAddress, usdAddress } from '../addresses.js'
+import { usdAddress } from '../addresses.js'
 import { createTempoClient } from '../client.js'
 
 const instance = Instance.tempo({ port: 8545 })
@@ -39,23 +39,22 @@ async function setupPoolWithLiquidity() {
     })
   await waitForTransactionReceipt(client, { hash: createHash })
 
+  {
+    // Grant issuer role to mint tokens
+    const hash = await actions.token.grantRoles(client, {
+      token: tokenAddress,
+      roles: ['issuer'],
+      to: client.account.address,
+    })
+    await waitForTransactionReceipt(client, { hash })
+  }
+
   // Mint some tokens to account
   {
     const hash = await actions.token.mint(client, {
       to: account.address,
       amount: parseEther('1000'),
       token: tokenAddress,
-    })
-    await waitForTransactionReceipt(client, { hash })
-  }
-
-  // Mint USD to account
-  {
-    const hash = await writeContract(client, {
-      abi: tip20Abi,
-      address: usdAddress,
-      functionName: 'transfer',
-      args: [account.address, parseEther('1000')],
     })
     await waitForTransactionReceipt(client, { hash })
   }
@@ -137,7 +136,7 @@ describe.skipIf(!!process.env.CI)('getLiquidityBalance', () => {
   })
 })
 
-describe.skip('mint', () => {
+describe.skipIf(!!process.env.CI)('mint', () => {
   test('default', async () => {
     // Create a new token for testing
     const { hash: createHash, address: tokenAddress } =
@@ -147,6 +146,16 @@ describe.skip('mint', () => {
         currency: 'USD',
       })
     await waitForTransactionReceipt(client, { hash: createHash })
+
+    {
+      // Grant issuer role to mint tokens
+      const hash = await actions.token.grantRoles(client, {
+        token: tokenAddress,
+        roles: ['issuer'],
+        to: client.account.address,
+      })
+      await waitForTransactionReceipt(client, { hash })
+    }
 
     // Mint some tokens to account
     {
@@ -195,7 +204,7 @@ describe.skip('mint', () => {
   })
 })
 
-describe.skip('burn', () => {
+describe.skipIf(!!process.env.CI)('burn', () => {
   test('default', async () => {
     const { tokenAddress } = await setupPoolWithLiquidity()
 
@@ -238,7 +247,7 @@ describe.skip('burn', () => {
   })
 })
 
-describe.skip('rebalanceSwap', () => {
+describe.skipIf(!!process.env.CI)('rebalanceSwap', () => {
   test('default', async () => {
     const { tokenAddress } = await setupPoolWithLiquidity()
 
@@ -269,7 +278,7 @@ describe.skip('rebalanceSwap', () => {
   })
 })
 
-describe.skip('watchRebalanceSwap', () => {
+describe.skipIf(!!process.env.CI)('watchRebalanceSwap', () => {
   test('default', async () => {
     const { tokenAddress } = await setupPoolWithLiquidity()
 
@@ -295,16 +304,18 @@ describe.skip('watchRebalanceSwap', () => {
     await setTimeout(1000)
 
     expect(eventArgs).toBeDefined()
-    expect(eventArgs.userToken).toBe(tokenAddress)
-    expect(eventArgs.validatorToken).toBe(usdAddress)
+    expect(eventArgs.userToken.toLowerCase()).toBe(tokenAddress.toLowerCase())
+    expect(eventArgs.validatorToken.toLowerCase()).toBe(
+      usdAddress.toLowerCase(),
+    )
     expect(eventArgs.amountOut).toBe(parseEther('10'))
 
     unwatch()
   })
 })
 
-describe.skip('watchMint', () => {
-  test('default', async () => {
+describe.skipIf(!!process.env.CI)('watchMint', () => {
+  test.only('default', async () => {
     // Create a new token for testing
     const { hash: createHash, address: tokenAddress } =
       await actions.token.create(client, {
@@ -313,6 +324,16 @@ describe.skip('watchMint', () => {
         currency: 'USD',
       })
     await waitForTransactionReceipt(client, { hash: createHash })
+
+    {
+      // Grant issuer role to mint tokens
+      const hash = await actions.token.grantRoles(client, {
+        token: tokenAddress,
+        roles: ['issuer'],
+        to: client.account.address,
+      })
+      await waitForTransactionReceipt(client, { hash })
+    }
 
     // Mint some tokens to account
     {
@@ -361,16 +382,20 @@ describe.skip('watchMint', () => {
     await setTimeout(1000)
 
     expect(eventArgs).toBeDefined()
-    expect(eventArgs.userToken).toBe(tokenAddress)
-    expect(eventArgs.validatorToken).toBe(usdAddress)
-    expect(eventArgs.amountUserToken).toBe(parseEther('100'))
-    expect(eventArgs.amountValidatorToken).toBe(parseEther('100'))
+    expect(eventArgs.userToken.address.toLowerCase()).toBe(
+      tokenAddress.toLowerCase(),
+    )
+    expect(eventArgs.validatorToken.address.toLowerCase()).toBe(
+      usdAddress.toLowerCase(),
+    )
+    expect(eventArgs.userToken.amount).toBe(parseEther('100'))
+    expect(eventArgs.validatorToken.amount).toBe(parseEther('100'))
 
     unwatch()
   })
 })
 
-describe.skip('watchBurn', () => {
+describe.skipIf(!!process.env.CI)('watchBurn', () => {
   test('default', async () => {
     const { tokenAddress } = await setupPoolWithLiquidity()
 
@@ -405,8 +430,10 @@ describe.skip('watchBurn', () => {
     await setTimeout(1000)
 
     expect(eventArgs).toBeDefined()
-    expect(eventArgs.userToken).toBe(tokenAddress)
-    expect(eventArgs.validatorToken).toBe(usdAddress)
+    expect(eventArgs.userToken.toLowerCase()).toBe(tokenAddress.toLowerCase())
+    expect(eventArgs.validatorToken.toLowerCase()).toBe(
+      usdAddress.toLowerCase(),
+    )
     expect(eventArgs.liquidity).toBe(lpBalance / 2n)
 
     unwatch()

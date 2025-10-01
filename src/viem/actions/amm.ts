@@ -584,9 +584,9 @@ export namespace watchRebalanceSwap {
   > & {
     /** Callback to invoke when a rebalance swap occurs. */
     onRebalanceSwap: (args: Args, log: Log) => void
-    /** Optional: Address or ID of the user token to filter events. */
+    /** Address or ID of the user token to filter events. */
     userToken?: TokenId.TokenIdOrAddress | undefined
-    /** Optional: Address or ID of the validator token to filter events. */
+    /** Address or ID of the validator token to filter events. */
     validatorToken?: TokenId.TokenIdOrAddress | undefined
   }
 }
@@ -664,9 +664,9 @@ export namespace watchFeeSwap {
   > & {
     /** Callback to invoke when a fee swap occurs. */
     onFeeSwap: (args: Args, log: Log) => void
-    /** Optional: Address or ID of the user token to filter events. */
+    /** Address or ID of the user token to filter events. */
     userToken?: TokenId.TokenIdOrAddress | undefined
-    /** Optional: Address or ID of the validator token to filter events. */
+    /** Address or ID of the validator token to filter events. */
     validatorToken?: TokenId.TokenIdOrAddress | undefined
   }
 }
@@ -700,32 +700,58 @@ export function watchMint<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(client: Client<Transport, chain, account>, parameters: watchMint.Parameters) {
-  const { onMint, userToken, validatorToken, ...rest } = parameters
+  const { onMint, sender, userToken, validatorToken, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
     address: feeManagerAddress,
     abi: feeAmmAbi,
     eventName: 'Mint',
-    args:
-      userToken !== undefined && validatorToken !== undefined
-        ? {
-            userToken: TokenId.toAddress(userToken),
-            validatorToken: TokenId.toAddress(validatorToken),
-          }
-        : undefined,
+    args: {
+      ...(sender !== undefined && {
+        sender: TokenId.toAddress(sender),
+      }),
+      ...(userToken !== undefined && {
+        userToken: TokenId.toAddress(userToken),
+      }),
+      ...(validatorToken !== undefined && {
+        validatorToken: TokenId.toAddress(validatorToken),
+      }),
+    },
     onLogs: (logs) => {
-      for (const log of logs) onMint(log.args, log)
+      for (const log of logs)
+        onMint(
+          {
+            liquidity: log.args.liquidity,
+            sender: log.args.sender,
+            userToken: {
+              address: log.args.userToken,
+              amount: log.args.amountUserToken,
+            },
+            validatorToken: {
+              address: log.args.validatorToken,
+              amount: log.args.amountValidatorToken,
+            },
+          },
+          log,
+        )
     },
     strict: true,
   })
 }
 
 export namespace watchMint {
-  export type Args = GetEventArgs<
-    typeof feeAmmAbi,
-    'Mint',
-    { IndexedOnly: false; Required: true }
-  >
+  export type Args = {
+    liquidity: bigint
+    sender: Address
+    userToken: {
+      address: Address
+      amount: bigint
+    }
+    validatorToken: {
+      address: Address
+      amount: bigint
+    }
+  }
 
   export type Log = viem_Log<
     bigint,
@@ -741,9 +767,11 @@ export namespace watchMint {
   > & {
     /** Callback to invoke when liquidity is added. */
     onMint: (args: Args, log: Log) => void
-    /** Optional: Address or ID of the user token to filter events. */
+    /** Address or ID of the sender to filter events. */
+    sender?: TokenId.TokenIdOrAddress | undefined
+    /** Address or ID of the user token to filter events. */
     userToken?: TokenId.TokenIdOrAddress | undefined
-    /** Optional: Address or ID of the validator token to filter events. */
+    /** Address or ID of the validator token to filter events. */
     validatorToken?: TokenId.TokenIdOrAddress | undefined
   }
 }
@@ -818,9 +846,9 @@ export namespace watchBurn {
   > & {
     /** Callback to invoke when liquidity is removed. */
     onBurn: (args: Args, log: Log) => void
-    /** Optional: Address or ID of the user token to filter events. */
+    /** Address or ID of the user token to filter events. */
     userToken?: TokenId.TokenIdOrAddress | undefined
-    /** Optional: Address or ID of the validator token to filter events. */
+    /** Address or ID of the validator token to filter events. */
     validatorToken?: TokenId.TokenIdOrAddress | undefined
   }
 }

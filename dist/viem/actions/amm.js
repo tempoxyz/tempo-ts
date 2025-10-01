@@ -406,21 +406,37 @@ export function watchFeeSwap(client, parameters) {
  * @returns A function to unsubscribe from the event.
  */
 export function watchMint(client, parameters) {
-    const { onMint, userToken, validatorToken, ...rest } = parameters;
+    const { onMint, sender, userToken, validatorToken, ...rest } = parameters;
     return watchContractEvent(client, {
         ...rest,
         address: feeManagerAddress,
         abi: feeAmmAbi,
         eventName: 'Mint',
-        args: userToken !== undefined && validatorToken !== undefined
-            ? {
+        args: {
+            ...(sender !== undefined && {
+                sender: TokenId.toAddress(sender),
+            }),
+            ...(userToken !== undefined && {
                 userToken: TokenId.toAddress(userToken),
+            }),
+            ...(validatorToken !== undefined && {
                 validatorToken: TokenId.toAddress(validatorToken),
-            }
-            : undefined,
+            }),
+        },
         onLogs: (logs) => {
             for (const log of logs)
-                onMint(log.args, log);
+                onMint({
+                    liquidity: log.args.liquidity,
+                    sender: log.args.sender,
+                    userToken: {
+                        address: log.args.userToken,
+                        amount: log.args.amountUserToken,
+                    },
+                    validatorToken: {
+                        address: log.args.validatorToken,
+                        amount: log.args.amountValidatorToken,
+                    },
+                }, log);
         },
         strict: true,
     });
