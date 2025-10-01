@@ -11,8 +11,7 @@ export const tempo = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    // TODO: Change.
-    default: { http: ['http://localhost:8545'] },
+    default: { http: ['https://rpc-adagio.tempoxyz.dev'] },
   },
 })
 

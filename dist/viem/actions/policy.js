@@ -2,10 +2,10 @@
 // - add `.call` to namespaces
 // - add `.simulate` to namespaces
 // - add `.estimateGas` to namespaces
+import { parseAccount } from 'viem/accounts';
 import { readContract, simulateContract, watchContractEvent, writeContract, } from 'viem/actions';
 import { tip403RegistryAbi } from "../abis.js";
 import { tip403RegistryAddress } from "../addresses.js";
-import { parseAccount } from 'viem/accounts';
 const policyTypeMap = {
     whitelist: 0,
     blacklist: 1,

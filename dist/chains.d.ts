@@ -29,7 +29,7 @@ export declare const tempo: {
     experimental_preconfirmationTime?: number | undefined | undefined;
     rpcUrls: {
         readonly default: {
-            readonly http: readonly ["http://localhost:8545"];
+            readonly http: readonly ["https://rpc-adagio.tempoxyz.dev"];
         };
     };
     sourceId?: number | undefined | undefined;
