@@ -34,15 +34,14 @@ const client = createTempoClient({
 describe.skipIf(!!process.env.CI)('create', () => {
   test('default', async () => {
     // create whitelist policy
-    const hash = await actions.policy.create(client, {
-      admin: account.address,
+    const { hash, policyId } = await actions.policy.create(client, {
       type: 'whitelist',
     })
     await waitForTransactionReceipt(client, { hash })
 
-    // verify policy was created (policyId should be 2)
+    // verify policy was created
     const data = await actions.policy.getData(client, {
-      policyId: 2n,
+      policyId,
     })
     expect(data.admin).toBe(account.address)
     expect(data.type).toBe('whitelist')
@@ -50,15 +49,14 @@ describe.skipIf(!!process.env.CI)('create', () => {
 
   test('behavior: blacklist', async () => {
     // create blacklist policy
-    const hash = await actions.policy.create(client, {
-      admin: account.address,
+    const { hash, policyId } = await actions.policy.create(client, {
       type: 'blacklist',
     })
     await waitForTransactionReceipt(client, { hash })
 
     // verify policy was created
     const data = await actions.policy.getData(client, {
-      policyId: 2n,
+      policyId,
     })
     expect(data.admin).toBe(account.address)
     expect(data.type).toBe('blacklist')
@@ -66,8 +64,7 @@ describe.skipIf(!!process.env.CI)('create', () => {
 
   test.skip('behavior: with initial addresses', async () => {
     // create policy with initial addresses
-    const hash = await actions.policy.create(client, {
-      admin: account.address,
+    const { hash, policyId } = await actions.policy.create(client, {
       type: 'whitelist',
       addresses: [account2.address, account3.address],
     })
@@ -75,20 +72,20 @@ describe.skipIf(!!process.env.CI)('create', () => {
 
     // verify addresses are whitelisted
     const isAuthorized2 = await actions.policy.isAuthorized(client, {
-      policyId: 2n,
+      policyId,
       user: account2.address,
     })
     expect(isAuthorized2).toBe(true)
 
     const isAuthorized3 = await actions.policy.isAuthorized(client, {
-      policyId: 2n,
+      policyId,
       user: account3.address,
     })
     expect(isAuthorized3).toBe(true)
 
     // verify other address is not whitelisted
     const isAuthorized = await actions.policy.isAuthorized(client, {
-      policyId: 2n,
+      policyId,
       user: account.address,
     })
     expect(isAuthorized).toBe(false)
@@ -97,19 +94,16 @@ describe.skipIf(!!process.env.CI)('create', () => {
 
 describe.skipIf(!!process.env.CI)('setAdmin', () => {
   test('default', async () => {
-    {
-      // create policy
-      const hash = await actions.policy.create(client, {
-        admin: account.address,
-        type: 'whitelist',
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    // create policy
+    const { hash, policyId } = await actions.policy.create(client, {
+      type: 'whitelist',
+    })
+    await waitForTransactionReceipt(client, { hash })
 
     {
       // set new admin
       const hash = await actions.policy.setAdmin(client, {
-        policyId: 2n,
+        policyId,
         admin: account2.address,
       })
       await waitForTransactionReceipt(client, { hash })
@@ -118,7 +112,7 @@ describe.skipIf(!!process.env.CI)('setAdmin', () => {
     {
       // verify new admin
       const data = await actions.policy.getData(client, {
-        policyId: 2n,
+        policyId,
       })
       expect(data.admin).toBe(account2.address)
     }
@@ -127,19 +121,16 @@ describe.skipIf(!!process.env.CI)('setAdmin', () => {
 
 describe.skipIf(!!process.env.CI)('modifyWhitelist', () => {
   test('default', async () => {
-    {
-      // create whitelist policy
-      const hash = await actions.policy.create(client, {
-        admin: account.address,
-        type: 'whitelist',
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    // create whitelist policy
+    const { hash, policyId } = await actions.policy.create(client, {
+      type: 'whitelist',
+    })
+    await waitForTransactionReceipt(client, { hash })
 
     {
       // verify account2 is not authorized
       const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId: 2n,
+        policyId,
         user: account2.address,
       })
       expect(isAuthorized).toBe(false)
@@ -148,7 +139,7 @@ describe.skipIf(!!process.env.CI)('modifyWhitelist', () => {
     {
       // add account2 to whitelist
       const hash = await actions.policy.modifyWhitelist(client, {
-        policyId: 2n,
+        policyId,
         address: account2.address,
         allowed: true,
       })
@@ -158,7 +149,7 @@ describe.skipIf(!!process.env.CI)('modifyWhitelist', () => {
     {
       // verify account2 is authorized
       const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId: 2n,
+        policyId,
         user: account2.address,
       })
       expect(isAuthorized).toBe(true)
@@ -167,7 +158,7 @@ describe.skipIf(!!process.env.CI)('modifyWhitelist', () => {
     {
       // remove account2 from whitelist
       const hash = await actions.policy.modifyWhitelist(client, {
-        policyId: 2n,
+        policyId,
         address: account2.address,
         allowed: false,
       })
@@ -177,7 +168,7 @@ describe.skipIf(!!process.env.CI)('modifyWhitelist', () => {
     {
       // verify account2 is no longer authorized
       const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId: 2n,
+        policyId,
         user: account2.address,
       })
       expect(isAuthorized).toBe(false)
@@ -187,19 +178,16 @@ describe.skipIf(!!process.env.CI)('modifyWhitelist', () => {
 
 describe.skipIf(!!process.env.CI)('modifyBlacklist', () => {
   test('default', async () => {
-    {
-      // create blacklist policy
-      const hash = await actions.policy.create(client, {
-        admin: account.address,
-        type: 'blacklist',
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    // create blacklist policy
+    const { hash, policyId } = await actions.policy.create(client, {
+      type: 'blacklist',
+    })
+    await waitForTransactionReceipt(client, { hash })
 
     {
       // verify account2 is authorized (not blacklisted)
       const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId: 2n,
+        policyId,
         user: account2.address,
       })
       expect(isAuthorized).toBe(true)
@@ -208,7 +196,7 @@ describe.skipIf(!!process.env.CI)('modifyBlacklist', () => {
     {
       // add account2 to blacklist
       const hash = await actions.policy.modifyBlacklist(client, {
-        policyId: 2n,
+        policyId,
         address: account2.address,
         restricted: true,
       })
@@ -218,7 +206,7 @@ describe.skipIf(!!process.env.CI)('modifyBlacklist', () => {
     {
       // verify account2 is not authorized (blacklisted)
       const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId: 2n,
+        policyId,
         user: account2.address,
       })
       expect(isAuthorized).toBe(false)
@@ -227,7 +215,7 @@ describe.skipIf(!!process.env.CI)('modifyBlacklist', () => {
     {
       // remove account2 from blacklist
       const hash = await actions.policy.modifyBlacklist(client, {
-        policyId: 2n,
+        policyId,
         address: account2.address,
         restricted: false,
       })
@@ -237,7 +225,7 @@ describe.skipIf(!!process.env.CI)('modifyBlacklist', () => {
     {
       // verify account2 is authorized again
       const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId: 2n,
+        policyId,
         user: account2.address,
       })
       expect(isAuthorized).toBe(true)
@@ -247,19 +235,16 @@ describe.skipIf(!!process.env.CI)('modifyBlacklist', () => {
 
 describe.skipIf(!!process.env.CI)('getData', () => {
   test('default', async () => {
-    {
-      // create policy
-      const hash = await actions.policy.create(client, {
-        admin: account.address,
-        type: 'whitelist',
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    // create policy
+    const { hash, policyId } = await actions.policy.create(client, {
+      type: 'whitelist',
+    })
+    await waitForTransactionReceipt(client, { hash })
 
     {
       // get policy data
       const data = await actions.policy.getData(client, {
-        policyId: 2n,
+        policyId,
       })
       expect(data.admin).toBe(account.address)
       expect(data.type).toBe('whitelist')
@@ -267,19 +252,16 @@ describe.skipIf(!!process.env.CI)('getData', () => {
   })
 
   test('behavior: blacklist', async () => {
-    {
-      // create blacklist policy
-      const hash = await actions.policy.create(client, {
-        admin: account.address,
-        type: 'blacklist',
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    // create blacklist policy
+    const { hash, policyId } = await actions.policy.create(client, {
+      type: 'blacklist',
+    })
+    await waitForTransactionReceipt(client, { hash })
 
     {
       // get policy data
       const data = await actions.policy.getData(client, {
-        policyId: 2n,
+        policyId,
       })
       expect(data.admin).toBe(account.address)
       expect(data.type).toBe('blacklist')
@@ -305,20 +287,17 @@ describe.skipIf(!!process.env.CI)('isAuthorized', () => {
   })
 
   test.skip('whitelist policy', async () => {
-    {
-      // create whitelist policy
-      const hash = await actions.policy.create(client, {
-        admin: account.address,
-        type: 'whitelist',
-        addresses: [account2.address],
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    // create whitelist policy
+    const { hash, policyId } = await actions.policy.create(client, {
+      type: 'whitelist',
+      addresses: [account2.address],
+    })
+    await waitForTransactionReceipt(client, { hash })
 
     {
       // verify whitelisted address is authorized
       const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId: 2n,
+        policyId,
         user: account2.address,
       })
       expect(isAuthorized).toBe(true)
@@ -327,7 +306,7 @@ describe.skipIf(!!process.env.CI)('isAuthorized', () => {
     {
       // verify non-whitelisted address is not authorized
       const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId: 2n,
+        policyId,
         user: account.address,
       })
       expect(isAuthorized).toBe(false)
@@ -335,20 +314,17 @@ describe.skipIf(!!process.env.CI)('isAuthorized', () => {
   })
 
   test.skip('blacklist policy', async () => {
-    {
-      // create blacklist policy
-      const hash = await actions.policy.create(client, {
-        admin: account.address,
-        type: 'blacklist',
-        addresses: [account2.address],
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    // create blacklist policy
+    const { hash, policyId } = await actions.policy.create(client, {
+      type: 'blacklist',
+      addresses: [account2.address],
+    })
+    await waitForTransactionReceipt(client, { hash })
 
     {
       // verify blacklisted address is not authorized
       const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId: 2n,
+        policyId,
         user: account2.address,
       })
       expect(isAuthorized).toBe(false)
@@ -357,7 +333,7 @@ describe.skipIf(!!process.env.CI)('isAuthorized', () => {
     {
       // verify non-blacklisted address is authorized
       const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId: 2n,
+        policyId,
         user: account.address,
       })
       expect(isAuthorized).toBe(true)
@@ -374,14 +350,11 @@ describe.skipIf(!!process.env.CI)('watchCreate', () => {
       },
     })
 
-    {
-      // create policy
-      const hash = await actions.policy.create(client, {
-        admin: account.address,
-        type: 'whitelist',
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    // create policy
+    const { hash } = await actions.policy.create(client, {
+      type: 'whitelist',
+    })
+    await waitForTransactionReceipt(client, { hash })
 
     await setTimeout(500)
     unwatch()
@@ -395,14 +368,11 @@ describe.skipIf(!!process.env.CI)('watchCreate', () => {
 
 describe.skipIf(!!process.env.CI)('watchAdminUpdated', () => {
   test('default', async () => {
-    {
-      // create policy
-      const hash = await actions.policy.create(client, {
-        admin: account.address,
-        type: 'whitelist',
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    // create policy
+    const { hash, policyId } = await actions.policy.create(client, {
+      type: 'whitelist',
+    })
+    await waitForTransactionReceipt(client, { hash })
 
     const logs: any[] = []
     const unwatch = actions.policy.watchAdminUpdated(client, {
@@ -414,7 +384,7 @@ describe.skipIf(!!process.env.CI)('watchAdminUpdated', () => {
     {
       // set new admin
       const hash = await actions.policy.setAdmin(client, {
-        policyId: 2n,
+        policyId,
         admin: account2.address,
       })
       await waitForTransactionReceipt(client, { hash })
@@ -432,14 +402,11 @@ describe.skipIf(!!process.env.CI)('watchAdminUpdated', () => {
 
 describe.skipIf(!!process.env.CI)('watchWhitelistUpdated', () => {
   test('default', async () => {
-    {
-      // create whitelist policy
-      const hash = await actions.policy.create(client, {
-        admin: account.address,
-        type: 'whitelist',
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    // create whitelist policy
+    const { hash, policyId } = await actions.policy.create(client, {
+      type: 'whitelist',
+    })
+    await waitForTransactionReceipt(client, { hash })
 
     const logs: any[] = []
     const unwatch = actions.policy.watchWhitelistUpdated(client, {
@@ -451,7 +418,7 @@ describe.skipIf(!!process.env.CI)('watchWhitelistUpdated', () => {
     {
       // add address to whitelist
       const hash = await actions.policy.modifyWhitelist(client, {
-        policyId: 2n,
+        policyId,
         address: account2.address,
         allowed: true,
       })
@@ -461,7 +428,7 @@ describe.skipIf(!!process.env.CI)('watchWhitelistUpdated', () => {
     {
       // remove address from whitelist
       const hash = await actions.policy.modifyWhitelist(client, {
-        policyId: 2n,
+        policyId,
         address: account2.address,
         allowed: false,
       })
@@ -482,14 +449,11 @@ describe.skipIf(!!process.env.CI)('watchWhitelistUpdated', () => {
 
 describe.skipIf(!!process.env.CI)('watchBlacklistUpdated', () => {
   test('default', async () => {
-    {
-      // create blacklist policy
-      const hash = await actions.policy.create(client, {
-        admin: account.address,
-        type: 'blacklist',
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    // create blacklist policy
+    const { hash, policyId } = await actions.policy.create(client, {
+      type: 'blacklist',
+    })
+    await waitForTransactionReceipt(client, { hash })
 
     const logs: any[] = []
     const unwatch = actions.policy.watchBlacklistUpdated(client, {
@@ -501,7 +465,7 @@ describe.skipIf(!!process.env.CI)('watchBlacklistUpdated', () => {
     {
       // add address to blacklist
       const hash = await actions.policy.modifyBlacklist(client, {
-        policyId: 2n,
+        policyId,
         address: account2.address,
         restricted: true,
       })
@@ -511,7 +475,7 @@ describe.skipIf(!!process.env.CI)('watchBlacklistUpdated', () => {
     {
       // remove address from blacklist
       const hash = await actions.policy.modifyBlacklist(client, {
-        policyId: 2n,
+        policyId,
         address: account2.address,
         restricted: false,
       })

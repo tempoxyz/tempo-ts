@@ -34,11 +34,14 @@ export declare namespace create {
         /** Optional array of accounts to initialize the policy with. */
         addresses?: readonly Address[] | undefined;
         /** Address of the policy admin. */
-        admin: Address;
+        admin?: Address | undefined;
         /** Type of policy to create. */
         type: PolicyType;
     };
-    type ReturnType = WriteContractReturnType;
+    type ReturnType = {
+        hash: WriteContractReturnType;
+        policyId: bigint;
+    };
 }
 /**
  * Sets the admin for a policy.

@@ -18,10 +18,16 @@ import type {
   WriteContractParameters,
   WriteContractReturnType,
 } from 'viem'
-import { readContract, watchContractEvent, writeContract } from 'viem/actions'
+import {
+  readContract,
+  simulateContract,
+  watchContractEvent,
+  writeContract,
+} from 'viem/actions'
 import type { Compute } from '../../internal/types.js'
 import { tip403RegistryAbi } from '../abis.js'
 import { tip403RegistryAddress } from '../addresses.js'
+import { parseAccount } from 'viem/accounts'
 
 export type PolicyType = 'whitelist' | 'blacklist'
 
@@ -66,17 +72,20 @@ export async function create<
   const {
     account = client.account,
     addresses,
-    admin,
     chain = client.chain,
     type,
     ...rest
   } = parameters
 
+  if (!account) throw new Error('`account` is required')
+
+  const admin = parseAccount(account).address!
+
   const args = addresses
     ? ([admin, policyTypeMap[type], addresses] as const)
     : ([admin, policyTypeMap[type]] as const)
 
-  return writeContract(client, {
+  const { request, result } = await simulateContract(client, {
     ...rest,
     account,
     address: tip403RegistryAddress,
@@ -85,6 +94,8 @@ export async function create<
     functionName: 'createPolicy',
     args,
   } as never)
+  const hash = await writeContract(client, request as never)
+  return { hash, policyId: result }
 }
 
 export declare namespace create {
@@ -98,12 +109,12 @@ export declare namespace create {
     /** Optional array of accounts to initialize the policy with. */
     addresses?: readonly Address[] | undefined
     /** Address of the policy admin. */
-    admin: Address
+    admin?: Address | undefined
     /** Type of policy to create. */
     type: PolicyType
   }
 
-  type ReturnType = WriteContractReturnType
+  type ReturnType = { hash: WriteContractReturnType; policyId: bigint }
 }
 
 /**

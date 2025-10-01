@@ -2,9 +2,10 @@
 // - add `.call` to namespaces
 // - add `.simulate` to namespaces
 // - add `.estimateGas` to namespaces
-import { readContract, watchContractEvent, writeContract } from 'viem/actions';
+import { readContract, simulateContract, watchContractEvent, writeContract, } from 'viem/actions';
 import { tip403RegistryAbi } from "../abis.js";
 import { tip403RegistryAddress } from "../addresses.js";
+import { parseAccount } from 'viem/accounts';
 const policyTypeMap = {
     whitelist: 0,
     blacklist: 1,
@@ -36,11 +37,14 @@ const policyTypeMap = {
  * @returns The transaction hash and policy ID.
  */
 export async function create(client, parameters) {
-    const { account = client.account, addresses, admin, chain = client.chain, type, ...rest } = parameters;
+    const { account = client.account, addresses, chain = client.chain, type, ...rest } = parameters;
+    if (!account)
+        throw new Error('`account` is required');
+    const admin = parseAccount(account).address;
     const args = addresses
         ? [admin, policyTypeMap[type], addresses]
         : [admin, policyTypeMap[type]];
-    return writeContract(client, {
+    const { request, result } = await simulateContract(client, {
         ...rest,
         account,
         address: tip403RegistryAddress,
@@ -49,6 +53,8 @@ export async function create(client, parameters) {
         functionName: 'createPolicy',
         args,
     });
+    const hash = await writeContract(client, request);
+    return { hash, policyId: result };
 }
 /**
  * Sets the admin for a policy.
