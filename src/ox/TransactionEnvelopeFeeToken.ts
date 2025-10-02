@@ -5,6 +5,7 @@ import type * as Errors from 'ox/Errors'
 import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
 import * as Rlp from 'ox/Rlp'
+import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
 import * as TransactionEnvelope from 'ox/TransactionEnvelope'
 import * as TransactionEnvelopeEip1559 from 'ox/TransactionEnvelopeEip1559'
@@ -15,7 +16,6 @@ import type {
   UnionPartialBy,
 } from '../internal/types.js'
 import * as TokenId from './TokenId.js'
-import * as Secp256k1 from 'ox/Secp256k1'
 
 export type TransactionEnvelopeFeeToken<
   signed extends boolean = boolean,
@@ -200,10 +200,13 @@ export function deserialize(
     transaction.authorizationList = Authorization.fromTupleList(
       authorizationList as never,
     )
-  if (feePayerSignature !== '0x' && feePayerSignature !== undefined)
-    transaction.feePayerSignature = Signature.fromTuple(
-      feePayerSignature as never,
-    )
+  if (feePayerSignature !== '0x' && feePayerSignature !== undefined) {
+    if (feePayerSignature === '0x00') transaction.feePayerSignature = null
+    else
+      transaction.feePayerSignature = Signature.fromTuple(
+        feePayerSignature as never,
+      )
+  }
 
   const signature =
     r && s && yParity ? Signature.fromTuple([yParity, r, s]) : undefined
