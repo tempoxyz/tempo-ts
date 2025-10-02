@@ -5,12 +5,26 @@ import {
   type ClientConfig,
   createClient,
   http,
+  type JsonRpcAccount,
   type RpcSchema,
   type Transport,
+  type Client as viem_Client,
 } from 'viem'
 import { tempo } from '../chains.js'
 import type { PartialBy } from '../internal/types.js'
 import * as actions from './decorator.js'
+
+export type Client<
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  accountOrAddress extends Account | undefined = undefined,
+> = viem_Client<
+  transport,
+  chain,
+  accountOrAddress,
+  undefined,
+  actions.Decorator<chain, accountOrAddress>
+>
 
 /**
  * Instantiates a default Tempo client.
@@ -40,13 +54,19 @@ export function createTempoClient<
     accountOrAddress,
     rpcSchema
   > = {},
-) {
+): createTempoClient.ReturnType<
+  transport,
+  chain,
+  accountOrAddress extends Address
+    ? JsonRpcAccount<accountOrAddress>
+    : accountOrAddress
+> {
   const { chain = tempo, transport = http(), ...rest } = parameters
   return createClient({
     ...rest,
     chain,
     transport,
-  }).extend(actions.decorator())
+  }).extend(actions.decorator()) as never
 }
 
 export namespace createTempoClient {
@@ -62,4 +82,10 @@ export namespace createTempoClient {
     ClientConfig<transport, chain, accountOrAddress, rpcSchema>,
     'transport'
   >
+
+  export type ReturnType<
+    transport extends Transport = Transport,
+    chain extends Chain | undefined = Chain | undefined,
+    accountOrAddress extends Account | undefined = undefined,
+  > = Client<transport, chain, accountOrAddress>
 }

@@ -32,7 +32,7 @@
 	"peerDependencies": {
 		"ox": ">=0.9.8",
 		"prool": "^0",
-		"viem": "^2"
+		"viem": ">=2.37.11"
 	},
 	"peerDependenciesMeta": {
 		"ox": {
@@ -61,7 +61,7 @@
 		"prool": "latest",
 		"simple-git-hooks": "^2.13.1",
 		"typescript": "^5.9.2",
-		"viem": "latest",
+		"viem": "^2.37.11",
 		"zshy": "^0.4.2"
 	},
 	"files": [
