@@ -2,9 +2,12 @@ import type * as AccessList from 'ox/AccessList'
 import type * as Address from 'ox/Address'
 import type * as Authorization from 'ox/Authorization'
 import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
+import * as Hex from 'ox/Hex'
+import * as Secp256k1 from 'ox/Secp256k1'
+import * as Signature from 'ox/Signature'
 import * as ox_Transaction from 'ox/Transaction'
 import type { Compute, OneOf, UnionCompute } from '../internal/types.js'
+import * as TransactionEnvelopeFeeToken from './TransactionEnvelopeFeeToken.js'
 
 /**
  * A Transaction as defined in the [Execution API specification](https://github.com/ethereum/execution-apis/blob/main/src/schemas/transaction.yaml).
@@ -43,6 +46,21 @@ export type FeeToken<
     authorizationList: Authorization.ListSigned<bigintType, numberType>
     /** Fee token preference. */
     feeToken: Address.Address
+    /** Fee payer address. */
+    feePayer?: Address.Address | undefined
+    /** Fee payer signature. */
+    feePayerSignature?:
+      | {
+          /** ECDSA signature r. */
+          r: bigintType
+          /** ECDSA signature s. */
+          s: bigintType
+          /** ECDSA signature yParity. */
+          yParity: numberType
+          /** @deprecated ECDSA signature v (for backwards compatibility). */
+          v?: numberType | undefined
+        }
+      | undefined
     /** Effective gas price paid by the sender in wei. */
     gasPrice?: bigintType | undefined
     /** Total fee per gas in wei (gasPrice/baseFeePerGas + maxPriorityFeePerGas). */
@@ -131,6 +149,23 @@ export function fromRpc<
   ) as Transaction<pending>
 
   transaction_.type = fromRpcType[transaction.type as keyof typeof fromRpcType]
+  if (transaction.feePayerSignature) {
+    transaction_.feePayerSignature = Signature.fromRpc(
+      transaction.feePayerSignature,
+    )
+    ;(transaction_.feePayerSignature as any).v = Signature.yParityToV(
+      transaction_.feePayerSignature.yParity,
+    )
+
+    // TODO: remove once `feePayer` returned on `eth_getTxBy*`.
+    transaction_.feePayer = Secp256k1.recoverAddress({
+      payload: TransactionEnvelopeFeeToken.getSignPayload(
+        transaction_ as never,
+        { feePayer: true },
+      ),
+      signature: transaction_.feePayerSignature,
+    })
+  }
   if (transaction.feeToken) transaction_.feeToken = transaction.feeToken
 
   return transaction_ as never
@@ -190,6 +225,15 @@ export function toRpc<pending extends boolean = false>(
 
   rpc.type = toRpcType[transaction.type as keyof typeof toRpcType]
   if (transaction.feeToken) rpc.feeToken = transaction.feeToken
+  if (transaction.feePayerSignature) {
+    rpc.feePayerSignature = Signature.toRpc(
+      transaction.feePayerSignature,
+    ) as any
+    ;(rpc.feePayerSignature as any).v = Hex.fromNumber(
+      Signature.yParityToV(transaction.feePayerSignature?.yParity),
+    )
+    rpc.feePayer = transaction.feePayer
+  }
 
   return rpc as Rpc<pending>
 }
