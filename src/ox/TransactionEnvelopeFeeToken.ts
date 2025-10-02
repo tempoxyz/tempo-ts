@@ -15,6 +15,7 @@ import type {
   UnionPartialBy,
 } from '../internal/types.js'
 import * as TokenId from './TokenId.js'
+import * as Secp256k1 from 'ox/Secp256k1'
 
 export type TransactionEnvelopeFeeToken<
   signed extends boolean = boolean,
@@ -28,6 +29,11 @@ export type TransactionEnvelopeFeeToken<
     /** EIP-7702 Authorization List. */
     authorizationList?:
       | Authorization.ListSigned<bigintType, numberType>
+      | undefined
+    /** Fee payer signature. */
+    feePayerSignature?:
+      | Signature.Signature<true, bigintType, numberType>
+      | null
       | undefined
     /** Fee token preference. Address or ID of the TIP-20 token. */
     feeToken?: TokenId.TokenIdOrAddress | undefined
@@ -130,21 +136,22 @@ export function deserialize(
   const [
     chainId,
     nonce,
-    feeToken,
     maxPriorityFeePerGas,
     maxFeePerGas,
     gas,
     to,
     value,
+    data,
     accessList,
     authorizationList,
-    data,
+    feeToken,
+    feePayerSignature,
     yParity,
     r,
     s,
   ] = transactionArray as readonly Hex.Hex[]
 
-  if (!(transactionArray.length === 11 || transactionArray.length === 14))
+  if (!(transactionArray.length === 12 || transactionArray.length === 15))
     throw new TransactionEnvelope.InvalidSerializedError({
       attributes: {
         chainId,
@@ -158,6 +165,7 @@ export function deserialize(
         data,
         accessList,
         authorizationList,
+        feePayerSignature,
         ...(transactionArray.length > 9
           ? {
               yParity,
@@ -191,6 +199,10 @@ export function deserialize(
   if (authorizationList !== '0x' && (authorizationList?.length ?? 0) > 0)
     transaction.authorizationList = Authorization.fromTupleList(
       authorizationList as never,
+    )
+  if (feePayerSignature !== '0x' && feePayerSignature !== undefined)
+    transaction.feePayerSignature = Signature.fromTuple(
+      feePayerSignature as never,
     )
 
   const signature =
@@ -304,7 +316,7 @@ export function from<
     | Serialized,
   options: from.Options<signature> = {},
 ): from.ReturnType<envelope, signature> {
-  const { signature } = options
+  const { feePayerSignature, signature } = options
 
   const envelope_ = (
     typeof envelope === 'string' ? deserialize(envelope) : envelope
@@ -315,6 +327,9 @@ export function from<
   return {
     ...envelope_,
     ...(signature ? Signature.from(signature) : {}),
+    ...(feePayerSignature
+      ? { feePayerSignature: Signature.from(feePayerSignature) }
+      : {}),
     type: 'feeToken',
   } as never
 }
@@ -322,6 +337,7 @@ export function from<
 export declare namespace from {
   type Options<signature extends Signature.Signature | undefined = undefined> =
     {
+      feePayerSignature?: Signature.Signature | undefined
       signature?: signature | Signature.Signature | undefined
     }
 
@@ -380,11 +396,22 @@ export declare namespace from {
  */
 export function getSignPayload(
   envelope: TransactionEnvelopeFeeToken,
+  options: getSignPayload.Options = {},
 ): getSignPayload.ReturnType {
-  return hash(envelope, { presign: true })
+  const { feePayer } = options
+  return hash(envelope, { presign: feePayer ? 'feePayer' : true })
 }
 
 export declare namespace getSignPayload {
+  type Options = {
+    /**
+     * Whether to get the sign payload for the **fee payer** to sign.
+     *
+     * @default false
+     */
+    feePayer?: boolean | undefined
+  }
+
   type ReturnType = Hex.Hex
 
   type ErrorType = hash.ErrorType | Errors.GlobalErrorType
@@ -423,29 +450,49 @@ export declare namespace getSignPayload {
  * @param options - Options.
  * @returns The hash of the transaction envelope.
  */
-export function hash<presign extends boolean = false>(
+export function hash<presign extends boolean | 'feePayer' = false>(
   envelope: TransactionEnvelopeFeeToken<presign extends true ? false : true>,
   options: hash.Options<presign> = {},
 ): hash.ReturnType {
-  const { presign } = options
+  const signer = (() => {
+    if (typeof options.presign === 'string' && options.presign === 'feePayer')
+      return 'feePayer'
+    if (options.presign === true) return 'sender'
+    return undefined
+  })()
+  const serialized = serialize({
+    ...envelope,
+    ...(signer === 'feePayer'
+      ? {
+          feePayerSignature: null,
+        }
+      : {}),
+    ...(signer === 'sender'
+      ? {
+          r: undefined,
+          s: undefined,
+          yParity: undefined,
+        }
+      : {}),
+  })
   return Hash.keccak256(
-    serialize({
-      ...envelope,
-      ...(presign
-        ? {
-            r: undefined,
-            s: undefined,
-            yParity: undefined,
-          }
-        : {}),
-    }),
+    signer === 'feePayer' ? Hex.slice(serialized, 1) : serialized,
   )
 }
 
 export declare namespace hash {
-  type Options<presign extends boolean = false> = {
-    /** Whether to hash this transaction for signing. @default false */
-    presign?: presign | boolean | undefined
+  type Options<presign extends boolean | 'feePayer' = false> = {
+    /**
+     * Whether to hash this transaction for signing, and optionally
+     * who to presign for.
+     *
+     * - If `true`, the transaction will be hashed for _sender_ to sign.
+     * - If `'feePayer'`, the transaction will be hashed for _fee payer_ to sign.
+     * - If `false`, the transaction will _not_ be hashed for signing.
+     *
+     * @default false
+     */
+    presign?: presign | boolean | 'feePayer' | undefined
   }
 
   type ReturnType = Hex.Hex
@@ -534,29 +581,58 @@ export function serialize(
   const accessTupleList = AccessList.toTupleList(accessList)
   const authorizationTupleList = Authorization.toTupleList(authorizationList)
 
+  const feePayerSignature =
+    options.feePayerSignature ?? envelope.feePayerSignature
   const signature = Signature.extract(options.signature || envelope)
+
+  const feePayerSignatureOrSender = (() => {
+    if (feePayerSignature) return Signature.toTuple(feePayerSignature)
+
+    // If `feePayerSignature` is null, likely we are serializing the transaction for
+    // purposes of the presence of a fee payer.
+    if (feePayerSignature === null) {
+      // If the sender has signed the transaction, this means it is now the fee payer's
+      // turn to sign. They will need to sign over the sender address in this RLP slot,
+      // so we will recover the sender address.
+      if (signature)
+        return Secp256k1.recoverAddress({
+          payload: getSignPayload(envelope as never),
+          signature,
+        })
+      // If the sender is signing, and this transaction will have a fee payer, then
+      // the sender will need to sign over a zero byte in this RLP slot.
+      return '0x00'
+    }
+
+    return '0x'
+  })()
 
   const serialized = [
     Hex.fromNumber(chainId),
     nonce ? Hex.fromNumber(nonce) : '0x',
-    typeof feeToken !== 'undefined' ? TokenId.toAddress(feeToken) : '0x',
     maxPriorityFeePerGas ? Hex.fromNumber(maxPriorityFeePerGas) : '0x',
     maxFeePerGas ? Hex.fromNumber(maxFeePerGas) : '0x',
     gas ? Hex.fromNumber(gas) : '0x',
     to ?? '0x',
     value ? Hex.fromNumber(value) : '0x',
+    data ?? input ?? '0x',
     accessTupleList,
     authorizationTupleList,
-    data ?? input ?? '0x',
-    ...(signature ? Signature.toTuple(signature) : []),
-  ]
+    typeof feeToken !== 'undefined' ? TokenId.toAddress(feeToken) : '0x',
+    feePayerSignatureOrSender,
+    ...(signature && feePayerSignature !== null
+      ? Signature.toTuple(signature)
+      : []),
+  ] as const
 
   return Hex.concat(serializedType, Rlp.fromHex(serialized)) as Serialized
 }
 
 export declare namespace serialize {
   type Options = {
-    /** Signature to append to the serialized Transaction Envelope. */
+    /** Fee payer signature to append to the serialized Transaction Envelope. */
+    feePayerSignature?: Signature.Signature | null | undefined
+    /** Sender signature to append to the serialized Transaction Envelope. */
     signature?: Signature.Signature | undefined
   }
 
