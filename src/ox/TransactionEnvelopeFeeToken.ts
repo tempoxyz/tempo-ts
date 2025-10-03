@@ -621,7 +621,9 @@ export function serialize(
     data ?? input ?? '0x',
     accessTupleList,
     authorizationTupleList,
-    feeToken ? TokenId.toAddress(feeToken) : '0x',
+    typeof feeToken === 'bigint' || typeof feeToken === 'string'
+      ? TokenId.toAddress(feeToken)
+      : '0x',
     feePayerSignatureOrSender,
     ...(signature && feePayerSignature !== null
       ? Signature.toTuple(signature)

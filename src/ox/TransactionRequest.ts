@@ -4,7 +4,7 @@ import type * as Calls from 'ox/erc7821/Calls'
 import * as Execute from 'ox/erc7821/Execute'
 import type * as Hex from 'ox/Hex'
 import * as ox_TransactionRequest from 'ox/TransactionRequest'
-import type { Compute, OneOf, UnionOmit } from '../internal/types.js'
+import type { Compute } from '../internal/types.js'
 import * as TokenId from './TokenId.js'
 import * as Transaction from './Transaction.js'
 
@@ -14,22 +14,10 @@ export type TransactionRequest<
   numberType = number,
   type extends string = string,
 > = Compute<
-  OneOf<
-    | (ox_TransactionRequest.TransactionRequest<
-        bigintType,
-        numberType,
-        type
-      > & {
-        feeToken?: TokenId.TokenIdOrAddress | undefined
-      })
-    | (UnionOmit<
-        ox_TransactionRequest.TransactionRequest<bigintType, numberType, type>,
-        'data' | 'to' | 'value'
-      > & {
-        calls?: readonly Calls.Call[]
-        feeToken?: TokenId.TokenIdOrAddress | undefined
-      })
-  >
+  ox_TransactionRequest.TransactionRequest<bigintType, numberType, type> & {
+    calls?: readonly Calls.Call[] | undefined
+    feeToken?: TokenId.TokenIdOrAddress | undefined
+  }
 >
 
 /** RPC representation of a {@link ox#TransactionRequest.TransactionRequest}. */
@@ -80,10 +68,8 @@ export type Rpc = TransactionRequest<Hex.Hex, Hex.Hex, string>
  */
 export function toRpc(request: TransactionRequest): Rpc {
   const request_rpc = ox_TransactionRequest.toRpc(request) as Rpc
-  if (typeof request.feeToken !== 'undefined') {
+  if (typeof request.feeToken !== 'undefined')
     request_rpc.feeToken = TokenId.toAddress(request.feeToken)
-    request_rpc.type = Transaction.toRpcType.feeToken
-  }
   if (request.calls && request.from) {
     delete request_rpc.to
     delete request_rpc.value
@@ -91,6 +77,12 @@ export function toRpc(request: TransactionRequest): Rpc {
     request_rpc.to = request.from
     request_rpc.data = Execute.encodeData(request.calls)
   }
+  if (
+    request.calls ||
+    typeof request.feeToken !== 'undefined' ||
+    request.type === 'feeToken'
+  )
+    request_rpc.type = Transaction.toRpcType.feeToken
   return request_rpc
 }
 

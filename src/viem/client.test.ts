@@ -3,7 +3,7 @@ import { createTempoClient } from './client.js'
 
 test('createTempoClient', () => {
   const client = createTempoClient()
-  expect(client).toMatchInlineSnapshot(`
+  expect({ ...client, uid: null }).toMatchInlineSnapshot(`
     {
       "account": undefined,
       "amm": {
@@ -53,12 +53,12 @@ test('createTempoClient', () => {
         "rpcUrls": {
           "default": {
             "http": [
-              "http://localhost:8545",
+              "https://rpc-adagio.tempoxyz.dev",
             ],
           },
         },
         "serializers": {
-          "transaction": [Function: serializeTransaction],
+          "transaction": [Function: AsyncFunction],
         },
       },
       "extend": [Function],
@@ -69,6 +69,18 @@ test('createTempoClient', () => {
       },
       "key": "base",
       "name": "Base Client",
+      "policy": {
+        "create": [Function],
+        "getData": [Function],
+        "isAuthorized": [Function],
+        "modifyBlacklist": [Function],
+        "modifyWhitelist": [Function],
+        "setAdmin": [Function],
+        "watchAdminUpdated": [Function],
+        "watchBlacklistUpdated": [Function],
+        "watchCreate": [Function],
+        "watchWhitelistUpdated": [Function],
+      },
       "pollingInterval": 500,
       "request": [Function: AsyncFunction],
       "token": {
@@ -108,10 +120,10 @@ test('createTempoClient', () => {
         "retryDelay": 150,
         "timeout": 10000,
         "type": "http",
-        "url": "http://localhost:8545",
+        "url": "https://rpc-adagio.tempoxyz.dev",
       },
       "type": "base",
-      "uid": "27cc083316b",
+      "uid": null,
     }
   `)
 })

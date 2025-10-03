@@ -5,7 +5,7 @@ import {
   defineTransactionRequest,
 } from 'viem'
 import { formatTransaction, formatTransactionRequest } from './formatters.js'
-import { serializeTransaction } from './serializers.js'
+import { serializeTransaction } from './transaction.js'
 
 export const chainConfig = {
   blockTime: 1_000,

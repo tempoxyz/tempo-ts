@@ -27,6 +27,7 @@ describe.skipIf(!!process.env.CI)('decorator', () => {
         "extend",
         "amm",
         "fee",
+        "policy",
         "token",
       ]
     `)
