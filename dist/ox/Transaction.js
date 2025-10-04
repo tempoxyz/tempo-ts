@@ -58,7 +58,7 @@ export function fromRpc(transaction, _options = {}) {
         transaction_.feePayerSignature.v = Signature.yParityToV(transaction_.feePayerSignature.yParity);
         // TODO: remove once `feePayer` returned on `eth_getTxBy*`.
         transaction_.feePayer = Secp256k1.recoverAddress({
-            payload: TransactionEnvelopeFeeToken.getSignPayload(transaction_, { feePayer: true }),
+            payload: TransactionEnvelopeFeeToken.getFeePayerSignPayload(transaction_, { sender: transaction.from }),
             signature: transaction_.feePayerSignature,
         });
     }

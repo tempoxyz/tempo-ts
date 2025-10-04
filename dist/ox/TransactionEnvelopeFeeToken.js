@@ -4,7 +4,6 @@ import * as Authorization from 'ox/Authorization';
 import * as Hash from 'ox/Hash';
 import * as Hex from 'ox/Hex';
 import * as Rlp from 'ox/Rlp';
-import * as Secp256k1 from 'ox/Secp256k1';
 import * as Signature from 'ox/Signature';
 import * as TransactionEnvelope from 'ox/TransactionEnvelope';
 import * as TransactionEnvelopeEip1559 from 'ox/TransactionEnvelopeEip1559';
@@ -233,6 +232,23 @@ export function from(envelope, options = {}) {
     };
 }
 /**
+ * Returns the fee payer payload to sign for a {@link ox#TransactionEnvelopeFeeToken.TransactionEnvelopeFeeToken}.
+ *
+ * @example
+ * TODO
+ *
+ * @param envelope - The transaction envelope to get the fee payer sign payload for.
+ * @returns The fee payer sign payload.
+ */
+export function getFeePayerSignPayload(envelope, options) {
+    const { sender } = options;
+    const serialized = serialize({ ...envelope, r: undefined, s: undefined, yParity: undefined }, {
+        sender,
+        format: 'feePayer',
+    });
+    return Hash.keccak256(serialized);
+}
+/**
  * Returns the payload to sign for a {@link ox#TransactionEnvelopeFeeToken.TransactionEnvelopeFeeToken}.
  *
  * @example
@@ -263,9 +279,8 @@ export function from(envelope, options = {}) {
  * @param envelope - The transaction envelope to get the sign payload for.
  * @returns The sign payload.
  */
-export function getSignPayload(envelope, options = {}) {
-    const { feePayer } = options;
-    return hash(envelope, { presign: feePayer ? 'feePayer' : true });
+export function getSignPayload(envelope) {
+    return hash(envelope, { presign: true });
 }
 /**
  * Hashes a {@link ox#TransactionEnvelopeFeeToken.TransactionEnvelopeFeeToken}. This is the "transaction hash".
@@ -301,24 +316,9 @@ export function getSignPayload(envelope, options = {}) {
  * @returns The hash of the transaction envelope.
  */
 export function hash(envelope, options = {}) {
-    const excludes = (() => {
-        if (typeof options.presign === 'string' && options.presign === 'feePayer') {
-            if (envelope.r && envelope.s)
-                return ['feePayerSignature'];
-            return ['signature', 'feePayerSignature'];
-        }
-        if (options.presign === true)
-            return ['signature'];
-        return undefined;
-    })();
     const serialized = serialize({
         ...envelope,
-        ...(excludes?.includes('feePayerSignature')
-            ? {
-                feePayerSignature: null,
-            }
-            : {}),
-        ...(excludes?.includes('signature')
+        ...(options.presign
             ? {
                 r: undefined,
                 s: undefined,
@@ -326,9 +326,7 @@ export function hash(envelope, options = {}) {
             }
             : {}),
     });
-    return Hash.keccak256(excludes?.length === 1 && excludes[0] === 'feePayerSignature'
-        ? Hex.slice(serialized, 1)
-        : serialized);
+    return Hash.keccak256(serialized);
 }
 /**
  * Serializes a {@link ox#TransactionEnvelopeFeeToken.TransactionEnvelopeFeeToken}.
@@ -389,29 +387,18 @@ export function serialize(envelope, options = {}) {
     assert(envelope);
     const accessTupleList = AccessList.toTupleList(accessList);
     const authorizationTupleList = Authorization.toTupleList(authorizationList);
-    const feePayerSignature = options.feePayerSignature ?? envelope.feePayerSignature;
     const signature = Signature.extract(options.signature || envelope);
     const feePayerSignatureOrSender = (() => {
-        if (feePayerSignature === '0x00')
+        if (options.sender)
+            return options.sender;
+        const feePayerSignature = typeof options.feePayerSignature !== 'undefined'
+            ? options.feePayerSignature
+            : envelope.feePayerSignature;
+        if (feePayerSignature === null)
             return '0x00';
-        if (feePayerSignature)
-            return Signature.toTuple(feePayerSignature);
-        // If `feePayerSignature` is null, likely we are serializing the transaction for
-        // purposes of the presence of a fee payer.
-        if (feePayerSignature === null) {
-            // If the sender has signed the transaction, this means it is now the fee payer's
-            // turn to sign. They will need to sign over the sender address in this RLP slot,
-            // so we will recover the sender address.
-            if (signature)
-                return Secp256k1.recoverAddress({
-                    payload: getSignPayload(envelope),
-                    signature,
-                });
-            // If the sender is signing, and this transaction will have a fee payer, then
-            // the sender will need to sign over a zero byte in this RLP slot.
-            return '0x00';
-        }
-        return '0x';
+        if (!feePayerSignature)
+            return '0x';
+        return Signature.toTuple(feePayerSignature);
     })();
     const serialized = [
         Hex.fromNumber(chainId),
@@ -428,11 +415,9 @@ export function serialize(envelope, options = {}) {
             ? TokenId.toAddress(feeToken)
             : '0x',
         feePayerSignatureOrSender,
-        ...(signature && feePayerSignature !== null
-            ? Signature.toTuple(signature)
-            : []),
+        ...(signature ? Signature.toTuple(signature) : []),
     ];
-    return Hex.concat(serializedType, Rlp.fromHex(serialized));
+    return Hex.concat(options.format !== 'feePayer' ? serializedType : '0x', Rlp.fromHex(serialized));
 }
 /**
  * Validates a {@link ox#TransactionEnvelopeFeeToken.TransactionEnvelopeFeeToken}. Returns `true` if the envelope is valid, `false` otherwise.
