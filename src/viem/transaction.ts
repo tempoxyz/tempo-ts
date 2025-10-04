@@ -22,6 +22,8 @@ import {
   type Transaction as viem_Transaction,
   type TransactionRequest as viem_TransactionRequest,
   type TransactionSerializable as viem_TransactionSerializable,
+  type TransactionSerialized as viem_TransactionSerialized,
+  type TransactionType as viem_TransactionType,
 } from 'viem'
 import type { ExactPartial, OneOf } from '../internal/types.js'
 import * as TxFeeToken from '../ox/TransactionEnvelopeFeeToken.js'
@@ -81,7 +83,7 @@ export type TransactionRequestFeeToken<
     accessList?: AccessList | undefined
     authorizationList?: AuthorizationList<index, boolean> | undefined
     calls?: readonly Calls.Call[] | undefined
-    feePayer?: Account | undefined
+    feePayer?: Account | true | undefined
     feeToken?: Address | bigint | undefined
   }
 
@@ -103,6 +105,14 @@ export type TransactionSerializableFeeToken<
     yParity?: number | undefined
   }
 
+export type TransactionSerialized<
+  type extends TransactionType = TransactionType,
+> = viem_TransactionSerialized<type> | TransactionSerializedFeeToken
+
+export type TransactionSerializedFeeToken = `0x77${string}`
+
+export type TransactionType = viem_TransactionType | 'feeToken'
+
 export function isTempoTransaction(transaction: Record<string, unknown>) {
   if (transaction.type === 'feeToken') return true
   if (typeof transaction.calls !== 'undefined') return true
@@ -113,7 +123,7 @@ export function isTempoTransaction(transaction: Record<string, unknown>) {
 
 export function parseTransaction<
   const serialized extends TransactionSerializedGeneric,
->(serializedTransaction: serialized): ParseTransactionReturnType<serialized> {
+>(serializedTransaction: serialized): parseTransaction.ReturnType<serialized> {
   const type = Hex.slice(serializedTransaction, 0, 1)
   if (type === '0x77') {
     const { authorizationList, nonce, r, s, v, ...tx } = TxFeeToken.deserialize(
@@ -133,12 +143,21 @@ export function parseTransaction<
       ...(v ? { v: BigInt(v) } : {}),
     } satisfies TransactionSerializableGeneric as never
   }
-  return viem_parseTransaction(serializedTransaction)
+  return viem_parseTransaction(serializedTransaction) as never
+}
+
+export declare namespace parseTransaction {
+  export type ReturnType<
+    serialized extends
+      TransactionSerializedGeneric = TransactionSerializedGeneric,
+  > = serialized extends TransactionSerializedFeeToken
+    ? TransactionSerializableFeeToken
+    : ParseTransactionReturnType<serialized>
 }
 
 export async function serializeTransaction(
   transaction: TransactionSerializable & {
-    feePayer?: Account | undefined
+    feePayer?: Account | true | undefined
   },
   signature?: viem_Signature | undefined,
 ) {
@@ -148,9 +167,12 @@ export async function serializeTransaction(
   if (!isTempoTransaction(transaction))
     return viem_serializeTransaction(transaction as never, signature)
 
+  const signature_ = transaction.r && transaction.s ? transaction : signature
+
   const {
     authorizationList,
     chainId,
+    feePayer,
     feePayerSignature,
     nonce,
     r,
@@ -169,24 +191,24 @@ export async function serializeTransaction(
     })),
     chainId: Number(chainId),
     ...(nonce ? { nonce: BigInt(nonce) } : {}),
-    ...(feePayerSignature
+    feePayerSignature: feePayerSignature
       ? {
-          feePayerSignature: {
-            r: BigInt(feePayerSignature.r!),
-            s: BigInt(feePayerSignature.s!),
-            yParity: Number(feePayerSignature.yParity),
-          },
+          r: BigInt(feePayerSignature.r!),
+          s: BigInt(feePayerSignature.s!),
+          yParity: Number(feePayerSignature.yParity),
         }
-      : {}),
+      : feePayer
+        ? null
+        : undefined,
     ...(r ? { r: BigInt(r) } : {}),
     ...(s ? { s: BigInt(s) } : {}),
     ...(v ? { v: Number(v) } : {}),
     type: 'feeToken',
   } satisfies TxFeeToken.TransactionEnvelopeFeeToken
 
-  if (signature && transaction.feePayer) {
+  if (signature_ && typeof transaction.feePayer === 'object') {
     const tx = TxFeeToken.from(transaction_ox, {
-      signature: signature as never,
+      signature: signature_ as never,
     })
     const hash = TxFeeToken.getSignPayload(tx, {
       feePayer: true,
@@ -199,6 +221,8 @@ export async function serializeTransaction(
     })
   }
   return TxFeeToken.serialize(transaction_ox, {
+    // TODO: refactor to remove `"0x00"`
+    feePayerSignature: feePayer === true ? '0x00' : undefined,
     signature: signature as never,
   })
 }

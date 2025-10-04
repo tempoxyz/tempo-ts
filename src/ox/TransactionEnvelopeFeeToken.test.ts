@@ -319,7 +319,7 @@ describe('deserialize', () => {
         "Invalid serialized transaction of type "feeToken" was provided.
 
         Serialized Transaction: "0x77f84201000101019400000000000000000000000000000000000000000080e4e380e1a0000000000000000000000000000000000000000000000000000000000000000180"
-        Missing Attributes: feeToken, feePayerSignature, yParity, r, s"
+        Missing Attributes: feeToken, feePayerSignatureOrSender, yParity, r, s"
       `)
 
       expect(() =>
@@ -341,7 +341,7 @@ describe('deserialize', () => {
         "Invalid serialized transaction of type "feeToken" was provided.
 
         Serialized Transaction: "0x77e501000101019400000000000000000000000000000000000000000080c7c683123456c10080"
-        Missing Attributes: feeToken, feePayerSignature, yParity, r, s"
+        Missing Attributes: feeToken, feePayerSignatureOrSender, yParity, r, s"
       `)
     })
 
@@ -354,7 +354,7 @@ describe('deserialize', () => {
         "Invalid serialized transaction of type "feeToken" was provided.
 
         Serialized Transaction: "0x77c0"
-        Missing Attributes: chainId, nonce, feeToken, maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList, authorizationList, feePayerSignature"
+        Missing Attributes: chainId, nonce, feeToken, maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList, authorizationList, feePayerSignatureOrSender"
       `)
     })
 
@@ -367,7 +367,7 @@ describe('deserialize', () => {
         "Invalid serialized transaction of type "feeToken" was provided.
 
         Serialized Transaction: "0x77c20001"
-        Missing Attributes: feeToken, maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList, authorizationList, feePayerSignature"
+        Missing Attributes: feeToken, maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList, authorizationList, feePayerSignatureOrSender"
       `)
     })
 
@@ -1150,7 +1150,7 @@ describe.skipIf(!!process.env.CI)('e2e', () => {
     }
   })
 
-  test('behavior: feePayerSignature', async () => {
+  test('behavior: feePayerSignature (user → feePayer)', async () => {
     const address = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
     const privateKey =
       '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
@@ -1173,7 +1173,9 @@ describe.skipIf(!!process.env.CI)('e2e', () => {
     })
 
     const signature = Secp256k1.sign({
-      payload: TransactionEnvelopeFeeToken.getSignPayload(transaction),
+      payload: TransactionEnvelopeFeeToken.getSignPayload(transaction, {
+        feePayer: true,
+      }),
       privateKey:
         // unfunded PK
         '0xfe24691eff5297c76e847dc78a8966b96cf65a44140b9a0d3f5100ce71d74a59',
@@ -1217,28 +1219,28 @@ describe.skipIf(!!process.env.CI)('e2e', () => {
         "blockNumber": null,
         "chainId": "0x539",
         "feePayerSignature": {
-          "r": "0x12f4d9e9924f62b19de816252efc125006298f43e62d394151e62600e2c2f91e",
-          "s": "0x31daa78bb3e95dd22f6370e59617c60d109bf28e55c92b25994ddbed420e2a80",
-          "v": "0x0",
-          "yParity": "0x0",
+          "r": "0xe8032426741c6224613105f3a1438b59eaa24ba40740245668ae4a8ada5a165",
+          "s": "0x3181c5b2be3973dc9a4c867e0dff3c4980767f7f19a781ebb79c69174ccc21f8",
+          "v": "0x1",
+          "yParity": "0x1",
         },
         "feeToken": null,
-        "from": "0xe53b6938b1801bc7a2322958e634267595421105",
+        "from": "0x0a275bee91b39092dfd57089dee0eb0539020b90",
         "gas": "0x5208",
         "gasPrice": "0x59",
-        "hash": "0x979340fc0ff5abf5405908d5c89bbcddeebf5d52cdf22d3066fb94183741b2cc",
+        "hash": "0xb3d3223ffb7342aadd5b33d696d9a548d986d690910b93be25657285b28cf086",
         "input": "0x",
         "maxFeePerGas": "0x59",
         "maxPriorityFeePerGas": "0x59",
         "nonce": "0x0",
-        "r": "0x62eb5020795faaf44ccc405873bd5cf9ef33aac40c9adcbed277872617abf96c",
-        "s": "0x737f9669ce3980942a7f9fd9a5aeaf571ed7f8f2fd923f3822efe703be4381e1",
+        "r": "0xefe01851e57c9cb6401daced9013773302816a3c9280153c3ec1839650ac24d8",
+        "s": "0xa06f8aa8dce5f90da82f528c9c9e7f427ee40896427509f9f734b6b63fb59bc",
         "to": "0x0000000000000000000000000000000000000000",
         "transactionIndex": null,
         "type": "0x77",
-        "v": "0x0",
+        "v": "0x1",
         "value": "0x0",
-        "yParity": "0x0",
+        "yParity": "0x1",
       }
     `)
     }
@@ -1263,28 +1265,28 @@ describe.skipIf(!!process.env.CI)('e2e', () => {
           "authorizationList": [],
           "chainId": "0x539",
           "feePayerSignature": {
-            "r": "0x12f4d9e9924f62b19de816252efc125006298f43e62d394151e62600e2c2f91e",
-            "s": "0x31daa78bb3e95dd22f6370e59617c60d109bf28e55c92b25994ddbed420e2a80",
-            "v": "0x0",
-            "yParity": "0x0",
+            "r": "0xe8032426741c6224613105f3a1438b59eaa24ba40740245668ae4a8ada5a165",
+            "s": "0x3181c5b2be3973dc9a4c867e0dff3c4980767f7f19a781ebb79c69174ccc21f8",
+            "v": "0x1",
+            "yParity": "0x1",
           },
           "feeToken": null,
-          "from": "0xe53b6938b1801bc7a2322958e634267595421105",
+          "from": "0x0a275bee91b39092dfd57089dee0eb0539020b90",
           "gas": "0x5208",
           "gasPrice": "0x59",
-          "hash": "0x979340fc0ff5abf5405908d5c89bbcddeebf5d52cdf22d3066fb94183741b2cc",
+          "hash": "0xb3d3223ffb7342aadd5b33d696d9a548d986d690910b93be25657285b28cf086",
           "input": "0x",
           "maxFeePerGas": "0x59",
           "maxPriorityFeePerGas": "0x59",
           "nonce": "0x0",
-          "r": "0x62eb5020795faaf44ccc405873bd5cf9ef33aac40c9adcbed277872617abf96c",
-          "s": "0x737f9669ce3980942a7f9fd9a5aeaf571ed7f8f2fd923f3822efe703be4381e1",
+          "r": "0xefe01851e57c9cb6401daced9013773302816a3c9280153c3ec1839650ac24d8",
+          "s": "0xa06f8aa8dce5f90da82f528c9c9e7f427ee40896427509f9f734b6b63fb59bc",
           "to": "0x0000000000000000000000000000000000000000",
           "transactionIndex": "0x0",
           "type": "0x77",
-          "v": "0x0",
+          "v": "0x1",
           "value": "0x0",
-          "yParity": "0x0",
+          "yParity": "0x1",
         }
       `)
     }
@@ -1305,13 +1307,13 @@ describe.skipIf(!!process.env.CI)('e2e', () => {
         "contractAddress": null,
         "cumulativeGasUsed": "0x5208",
         "effectiveGasPrice": "0x59",
-        "from": "0xe53b6938b1801bc7a2322958e634267595421105",
+        "from": "0x0a275bee91b39092dfd57089dee0eb0539020b90",
         "gasUsed": "0x5208",
         "logs": [],
         "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
         "status": "0x1",
         "to": "0x0000000000000000000000000000000000000000",
-        "transactionHash": "0x979340fc0ff5abf5405908d5c89bbcddeebf5d52cdf22d3066fb94183741b2cc",
+        "transactionHash": "0xb3d3223ffb7342aadd5b33d696d9a548d986d690910b93be25657285b28cf086",
         "transactionIndex": "0x0",
         "type": "0x77",
       }

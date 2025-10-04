@@ -145,7 +145,7 @@ export function deserialize(
     accessList,
     authorizationList,
     feeToken,
-    feePayerSignature,
+    feePayerSignatureOrSender,
     yParity,
     r,
     s,
@@ -165,7 +165,7 @@ export function deserialize(
         data,
         accessList,
         authorizationList,
-        feePayerSignature,
+        feePayerSignatureOrSender,
         ...(transactionArray.length > 9
           ? {
               yParity,
@@ -200,11 +200,18 @@ export function deserialize(
     transaction.authorizationList = Authorization.fromTupleList(
       authorizationList as never,
     )
-  if (feePayerSignature !== '0x' && feePayerSignature !== undefined) {
-    if (feePayerSignature === '0x00') transaction.feePayerSignature = null
+  if (
+    feePayerSignatureOrSender !== '0x' &&
+    feePayerSignatureOrSender !== undefined
+  ) {
+    if (
+      feePayerSignatureOrSender === '0x00' ||
+      Address.validate(feePayerSignatureOrSender)
+    )
+      transaction.feePayerSignature = null
     else
       transaction.feePayerSignature = Signature.fromTuple(
-        feePayerSignature as never,
+        feePayerSignatureOrSender as never,
       )
   }
 
@@ -457,20 +464,22 @@ export function hash<presign extends boolean | 'feePayer' = false>(
   envelope: TransactionEnvelopeFeeToken<presign extends true ? false : true>,
   options: hash.Options<presign> = {},
 ): hash.ReturnType {
-  const signer = (() => {
-    if (typeof options.presign === 'string' && options.presign === 'feePayer')
-      return 'feePayer'
-    if (options.presign === true) return 'sender'
+  const excludes = (() => {
+    if (typeof options.presign === 'string' && options.presign === 'feePayer') {
+      if (envelope.r && envelope.s) return ['feePayerSignature']
+      return ['signature', 'feePayerSignature']
+    }
+    if (options.presign === true) return ['signature']
     return undefined
   })()
   const serialized = serialize({
     ...envelope,
-    ...(signer === 'feePayer'
+    ...(excludes?.includes('feePayerSignature')
       ? {
           feePayerSignature: null,
         }
       : {}),
-    ...(signer === 'sender'
+    ...(excludes?.includes('signature')
       ? {
           r: undefined,
           s: undefined,
@@ -479,7 +488,9 @@ export function hash<presign extends boolean | 'feePayer' = false>(
       : {}),
   })
   return Hash.keccak256(
-    signer === 'feePayer' ? Hex.slice(serialized, 1) : serialized,
+    excludes?.length === 1 && excludes[0] === 'feePayerSignature'
+      ? Hex.slice(serialized, 1)
+      : serialized,
   )
 }
 
@@ -589,6 +600,8 @@ export function serialize(
   const signature = Signature.extract(options.signature || envelope)
 
   const feePayerSignatureOrSender = (() => {
+    if (feePayerSignature === '0x00') return '0x00'
+
     if (feePayerSignature) return Signature.toTuple(feePayerSignature)
 
     // If `feePayerSignature` is null, likely we are serializing the transaction for
@@ -635,8 +648,9 @@ export function serialize(
 
 export declare namespace serialize {
   type Options = {
+    // TODO: refactor to remove `"0x00"`
     /** Fee payer signature to append to the serialized Transaction Envelope. */
-    feePayerSignature?: Signature.Signature | null | undefined
+    feePayerSignature?: Signature.Signature | '0x00' | null | undefined
     /** Sender signature to append to the serialized Transaction Envelope. */
     signature?: Signature.Signature | undefined
   }

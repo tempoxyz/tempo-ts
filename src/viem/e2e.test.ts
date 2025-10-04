@@ -104,30 +104,30 @@ describe.skipIf(!!process.env.CI)('sendTransaction', () => {
         "data": "0x",
         "feePayer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "feePayerSignature": {
-          "r": "0xac52dfb87fa6026cc207f19ab21cfdd8b7067ee091458883e32cf64c16e7652e",
-          "s": "0x3c2652f81cb51514c339d578daaddbf54a3398f08b3ae8b7a0e094547454a03a",
+          "r": "0x9af9c1a3501e45c6081cd34777786e5c5421deb7025a3ded958ed9e0bdd38764",
+          "s": "0x6feacd87d7b9a84fdb3acea2daec53ba46b1a426e38f9774a0aea088bfc9b70b",
           "v": 27n,
           "yParity": 0,
         },
         "feeToken": null,
-        "from": "0x5b856a229fe0aaa5d96470e600b6f0ee4f8fe0dc",
+        "from": "0x740474977e01d056f04a314b5537e4dd88f35952",
         "gas": 21000n,
         "gasPrice": 44n,
-        "hash": "0x6d083d6e7e0b06bb608cb1ae1c358fe0d88e8cb3d0e9508e1a56a6b328bad52d",
+        "hash": "0xa3bde2c4a6e21a9e3a9522ca4fe3fc54c73e33182778e73fe7faa650dbfe24a9",
         "input": "0x",
         "maxFeePerBlobGas": undefined,
         "maxFeePerGas": 52n,
         "maxPriorityFeePerGas": 0n,
         "nonce": 0,
-        "r": "0x41674b408d809bd8edbccf70b106d96071cff6b9496759a6ee0436678456eff4",
-        "s": "0x21aa6b6f528231cb5037ae4e3e09be8e9cf9fd569859ce5039dd93d92f27e217",
+        "r": "0x1f1297f1407dd0676e1c832c62838051927c0cdabdd5ff8e30a6946cd57adb79",
+        "s": "0x779c8374b9a22585f05d4484f1c4b2b022cc114cb7002b525f66873dd43e1fa9",
         "to": "0x0000000000000000000000000000000000000000",
         "transactionIndex": 0,
         "type": "feeToken",
         "typeHex": "0x77",
-        "v": 27n,
+        "v": 28n,
         "value": 0n,
-        "yParity": 0,
+        "yParity": 1,
       }
     `)
   })
@@ -153,6 +153,7 @@ describe.skipIf(!!process.env.CI)('signTransaction', () => {
 
     const request = await client.prepareTransactionRequest({
       data: '0xdeadbeef',
+      feePayer: true,
       to: '0xcafebabecafebabecafebabecafebabecafebabe',
       type: 'feeToken',
     })
@@ -182,23 +183,23 @@ describe.skipIf(!!process.env.CI)('signTransaction', () => {
         "data": "0xdeadbeef",
         "feePayer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "feePayerSignature": {
-          "r": "0x183cae594588d44b6436a35493246e134f3295e4dcf28ced4c4a209acf3f427d",
-          "s": "0x24ae9605dd1c75bd4d157a638df40b1eb15e7a278906370573c971b25c348f97",
+          "r": "0xd31da7c22cdee08fc8ffb145600ab18a887fdd722c4e21ecc8958ba318b6de77",
+          "s": "0x11fb20d393007ab42db33facc627a759ddbd38999cca08b6b26ac39c9947e9ae",
           "v": 27n,
           "yParity": 0,
         },
         "feeToken": null,
-        "from": "0xa8f1d09053a8e4c72445b032a8aa4228778f118c",
+        "from": "0x740474977e01d056f04a314b5537e4dd88f35952",
         "gas": 21326n,
         "gasPrice": 44n,
-        "hash": "0x7851d0c8c58a229f2ebdeda8805bf98a82f76a56960bcfc692d08c17de056cff",
+        "hash": "0xc9a7d0cf1f8abfebed688ebffceb838c47c61e9ef91ae073aaaa5e1467c05aae",
         "input": "0xdeadbeef",
         "maxFeePerBlobGas": undefined,
         "maxFeePerGas": 52n,
         "maxPriorityFeePerGas": 0n,
         "nonce": 0,
-        "r": "0x37dd9c584f676de7cb054c182cab39f5256921c1a2e768e7ba18699b1c93b2d0",
-        "s": "0x49ea80aa9fb1f54c9743e63411b5cf3859146e352af239e93ca4d918ec3a6008",
+        "r": "0xbb738db362d493d3d2674a1542ffc188b7ccc3e0cd162d571f382f2baa130180",
+        "s": "0x6fe0bbf76e60f89b4f9e3a94124c46d182e194a55caee95bef400ddb27974aea",
         "to": "0xcafebabecafebabecafebabecafebabecafebabe",
         "transactionIndex": 0,
         "type": "feeToken",
@@ -214,7 +215,7 @@ describe.skipIf(!!process.env.CI)('signTransaction', () => {
 describe.skipIf(!!process.env.CI)('relay', () => {
   test('default', async () => {
     const { url } = Bun.serve({
-      port: 8546,
+      port: 3000,
       async fetch(req) {
         const client = createClient({
           account: mnemonicToAccount(
@@ -252,10 +253,14 @@ describe.skipIf(!!process.env.CI)('relay', () => {
           )
 
         const transaction = parseTransaction(serialized)
-        const serializedTransaction = await client.signTransaction({
-          ...transaction,
-          feePayer: client.account,
-        })
+
+        const serializedTransaction =
+          transaction.feePayerSignature === null
+            ? await client.signTransaction({
+                ...transaction,
+                feePayer: client.account,
+              })
+            : serialized
         const hash = await client.sendRawTransaction({
           serializedTransaction,
         })
@@ -277,9 +282,18 @@ describe.skipIf(!!process.env.CI)('relay', () => {
       .extend(publicActions)
 
     const hash = await client.fee.setUserToken({
+      feePayer: true,
       token: 1n,
     })
     await client.waitForTransactionReceipt({ hash })
+
+    const userToken = await client.fee.getUserToken()
+    expect(userToken).toMatchInlineSnapshot(`
+      {
+        "address": "0x20C0000000000000000000000000000000000001",
+        "id": 1n,
+      }
+    `)
 
     const {
       blockHash: _,
@@ -295,23 +309,23 @@ describe.skipIf(!!process.env.CI)('relay', () => {
         "data": "0xe789744400000000000000000000000020c0000000000000000000000000000000000001",
         "feePayer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "feePayerSignature": {
-          "r": "0xcc7cb7625e176ed4cd8c4f7f0fe0179d651ff81f9b2e0aadcf76a384629a343c",
-          "s": "0x1f216b194605f37b8dd0f8c3c408ca56b5d775401da5af2e8368f847dea7fcdf",
+          "r": "0x189efff6fd7b2bbda6aa74f29a0de0068b09bf20836d47b1d5d1918e06cdabb4",
+          "s": "0x227ef79016c22db8070d62760c907f3f0cd6d5b7dbe40a74c21af0906d4c3605",
           "v": 27n,
           "yParity": 0,
         },
         "feeToken": null,
-        "from": "0x697c9fad5a9824020c01ed7ef2519f3dcc22a5d8",
+        "from": "0x740474977e01d056f04a314b5537e4dd88f35952",
         "gas": 22563n,
         "gasPrice": 44n,
-        "hash": "0x5a49ad5c4efacca483d7f4f76f08d7ed9828a71dcb5ecae52c10df094d944f85",
+        "hash": "0xe20b108a41cccbd03162184ca67a7dbb5d77cc8119a89a7ba589ffbe478e300d",
         "input": "0xe789744400000000000000000000000020c0000000000000000000000000000000000001",
         "maxFeePerBlobGas": undefined,
         "maxFeePerGas": 52n,
         "maxPriorityFeePerGas": 0n,
         "nonce": 0,
-        "r": "0x53e6d3139943b876dace108c6da435ae62b4f6bfee859ba42355d3c309241a19",
-        "s": "0x7da02ee7c649bfec235f87793ede9579da6dc23d0f411e1a5977762bcbaae987",
+        "r": "0x65b6e02e960b2e7dc5c04436d041a6f327180269303c5a897b669be783ddbc8c",
+        "s": "0x497a98ff1ca644dd98a25181044112868b46fedbbbc55b278ba4d8139a6b4b54",
         "to": "0xfeec000000000000000000000000000000000000",
         "transactionIndex": 0,
         "type": "feeToken",
