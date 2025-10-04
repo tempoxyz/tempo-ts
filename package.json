@@ -7,7 +7,6 @@
 		"check": "biome check . --write --unsafe",
 		"check:types": "tsc -b",
 		"gen:abis": "forge build --config-path ./contracts/specs/foundry.toml && bun scripts/gen:abis.ts && bun run check",
-		"postinstall": "bun run build",
 		"test": "bun test --conditions=src"
 	},
 	"zshy": {
