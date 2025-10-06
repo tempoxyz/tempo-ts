@@ -51,6 +51,9 @@ export type Rpc<signed extends boolean = boolean> = TransactionEnvelopeFeeToken<
   '0x77'
 >
 
+export const feePayerMagic = '0x78' as const
+export type FeePayerMagic = typeof feePayerMagic
+
 export type Serialized = `${SerializedType}${string}`
 
 export type Signed = TransactionEnvelopeFeeToken<true>
@@ -632,7 +635,7 @@ export function serialize(
   ] as const
 
   return Hex.concat(
-    options.format !== 'feePayer' ? serializedType : '0x',
+    options.format === 'feePayer' ? feePayerMagic : serializedType,
     Rlp.fromHex(serialized),
   ) as Serialized
 }

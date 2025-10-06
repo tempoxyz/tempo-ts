@@ -879,7 +879,7 @@ describe('serialize', () => {
     )
 
     expect(serialized_feePayer).toMatchInlineSnapshot(
-      `"0x77f8b90182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0c080f84301a0ab243bf211e2e385f0908cb249ece54343c765d56ba8945442452cecaaf8cc63a00cc809370128df77cd44cda1242a5d13f2036e09edc3413a9eb547dc1125304a01a069cf330f0a61a4d7712f2cbbb933eafc1ed6be732cf49b7269c782bb301c727ea0474916716fd0000d30e69a7b629697f04b542cc6abcb3c4e61dfdf3e9541dcc7"`,
+      `"0x77f8b90182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0c080f84380a0e64a93976c4cfd0ab07d40d58ef3f80f8c9dcc71c78c78b063654c7cab16326ba0090430ef7278d4d0ca33832eab5f92161cbf05e0b8b4db309ef9b5fe0b2a31ef01a069cf330f0a61a4d7712f2cbbb933eafc1ed6be732cf49b7269c782bb301c727ea0474916716fd0000d30e69a7b629697f04b542cc6abcb3c4e61dfdf3e9541dcc7"`,
     )
     expect(
       TransactionEnvelopeFeeToken.deserialize(serialized_feePayer),
@@ -914,7 +914,9 @@ test('exports', () => {
     [
       "assert",
       "deserialize",
+      "feePayerMagic",
       "from",
+      "getFeePayerSignPayload",
       "getSignPayload",
       "hash",
       "serialize",
@@ -1077,7 +1079,7 @@ describe.skipIf(!!process.env.CI)('e2e', () => {
     }
   })
 
-  test.only('behavior: feePayerSignature (user → feePayer)', async () => {
+  test('behavior: feePayerSignature (user → feePayer)', async () => {
     const feePayer = {
       address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
       privateKey:
@@ -1152,8 +1154,8 @@ describe.skipIf(!!process.env.CI)('e2e', () => {
         "blockNumber": null,
         "chainId": "0x539",
         "feePayerSignature": {
-          "r": "0xe8032426741c6224613105f3a1438b59eaa24ba40740245668ae4a8ada5a165",
-          "s": "0x3181c5b2be3973dc9a4c867e0dff3c4980767f7f19a781ebb79c69174ccc21f8",
+          "r": "0xffc8a1a6c9e4f8cb7e796ff0521d9172d29c87664365f25bb3fb599aee562040",
+          "s": "0x47f505ea8cf3ad98dc20864119c160bf3c5f706c13e0f13283d9dec869b3cb8e",
           "v": "0x1",
           "yParity": "0x1",
         },
@@ -1161,7 +1163,7 @@ describe.skipIf(!!process.env.CI)('e2e', () => {
         "from": "0x0a275bee91b39092dfd57089dee0eb0539020b90",
         "gas": "0x5208",
         "gasPrice": "0x59",
-        "hash": "0xb3d3223ffb7342aadd5b33d696d9a548d986d690910b93be25657285b28cf086",
+        "hash": "0x872e61efb1d53706b955f7a0dfc14de5a060bffb1237b32ca7ace529329d3ffd",
         "input": "0x",
         "maxFeePerGas": "0x59",
         "maxPriorityFeePerGas": "0x59",
@@ -1198,8 +1200,8 @@ describe.skipIf(!!process.env.CI)('e2e', () => {
           "authorizationList": [],
           "chainId": "0x539",
           "feePayerSignature": {
-            "r": "0xe8032426741c6224613105f3a1438b59eaa24ba40740245668ae4a8ada5a165",
-            "s": "0x3181c5b2be3973dc9a4c867e0dff3c4980767f7f19a781ebb79c69174ccc21f8",
+            "r": "0xffc8a1a6c9e4f8cb7e796ff0521d9172d29c87664365f25bb3fb599aee562040",
+            "s": "0x47f505ea8cf3ad98dc20864119c160bf3c5f706c13e0f13283d9dec869b3cb8e",
             "v": "0x1",
             "yParity": "0x1",
           },
@@ -1207,7 +1209,7 @@ describe.skipIf(!!process.env.CI)('e2e', () => {
           "from": "0x0a275bee91b39092dfd57089dee0eb0539020b90",
           "gas": "0x5208",
           "gasPrice": "0x59",
-          "hash": "0xb3d3223ffb7342aadd5b33d696d9a548d986d690910b93be25657285b28cf086",
+          "hash": "0x872e61efb1d53706b955f7a0dfc14de5a060bffb1237b32ca7ace529329d3ffd",
           "input": "0x",
           "maxFeePerGas": "0x59",
           "maxPriorityFeePerGas": "0x59",
@@ -1246,7 +1248,7 @@ describe.skipIf(!!process.env.CI)('e2e', () => {
         "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
         "status": "0x1",
         "to": "0x0000000000000000000000000000000000000000",
-        "transactionHash": "0xb3d3223ffb7342aadd5b33d696d9a548d986d690910b93be25657285b28cf086",
+        "transactionHash": "0x872e61efb1d53706b955f7a0dfc14de5a060bffb1237b32ca7ace529329d3ffd",
         "transactionIndex": "0x0",
         "type": "0x77",
       }
