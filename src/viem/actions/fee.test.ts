@@ -5,7 +5,7 @@ import { Instance } from 'tempo/prool'
 import * as actions from 'tempo/viem/actions'
 import { parseEther, publicActions } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
-import { waitForTransactionReceipt, writeContract } from 'viem/actions'
+import { writeContractSync } from 'viem/actions'
 import { tip20Abi } from '../abis.js'
 import { usdAddress } from '../addresses.js'
 import { createTempoClient } from '../client.js'
@@ -36,37 +36,30 @@ const client = createTempoClient({
 describe.skipIf(!!process.env.CI)('getUserToken', () => {
   test('default', async () => {
     // Fund accounts
-    await writeContract(client, {
+    await writeContractSync(client, {
       abi: tip20Abi,
       address: usdAddress,
       functionName: 'transfer',
       args: [account2.address, parseEther('100')],
     })
-    const hash = await writeContract(client, {
+    await writeContractSync(client, {
       abi: tip20Abi,
       address: usdAddress,
       functionName: 'transfer',
       args: [account3.address, parseEther('100')],
     })
-    await waitForTransactionReceipt(client, { hash })
 
-    {
-      // Set token (address)
-      const hash = await actions.fee.setUserToken(client, {
-        account: account2,
-        token: '0x20c0000000000000000000000000000000000001',
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    // Set token (address)
+    await actions.fee.setUserToken(client, {
+      account: account2,
+      token: '0x20c0000000000000000000000000000000000001',
+    })
 
-    {
-      // Set another token (id)
-      const hash = await actions.fee.setUserToken(client, {
-        account: account3,
-        token: 2n,
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    // Set another token (id)
+    await actions.fee.setUserToken(client, {
+      account: account3,
+      token: 2n,
+    })
 
     // Assert that account (with default) & account2 (with custom) tokens are set correctly.
     expect(
@@ -107,12 +100,17 @@ describe.skipIf(!!process.env.CI)('setUserToken', () => {
       `,
     )
 
-    {
-      const hash = await actions.fee.setUserToken(client, {
+    const { receipt: setReceipt, ...setResult } =
+      await actions.fee.setUserToken(client, {
         token: '0x20c0000000000000000000000000000000000001',
       })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    expect(setReceipt).toBeDefined()
+    expect(setResult).toMatchInlineSnapshot(`
+      {
+        "token": "0x20C0000000000000000000000000000000000001",
+        "user": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      }
+    `)
 
     expect(await actions.fee.getUserToken(client, {})).toMatchInlineSnapshot(
       `
@@ -123,13 +121,18 @@ describe.skipIf(!!process.env.CI)('setUserToken', () => {
       `,
     )
 
-    {
-      const hash = await actions.fee.setUserToken(client, {
+    const { receipt: resetReceipt, ...resetResult } =
+      await actions.fee.setUserToken(client, {
         feeToken: 0n,
         token: 0n,
       })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    expect(resetReceipt).toBeDefined()
+    expect(resetResult).toMatchInlineSnapshot(`
+      {
+        "token": "0x20C0000000000000000000000000000000000000",
+        "user": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      }
+    `)
 
     expect(await actions.fee.getUserToken(client, {})).toMatchInlineSnapshot(
       `
@@ -158,38 +161,30 @@ describe.skipIf(!!process.env.CI)('watchSetUserToken', () => {
 
     try {
       // Set token for account2
-      {
-        const hash = await writeContract(client, {
-          abi: tip20Abi,
-          address: usdAddress,
-          functionName: 'transfer',
-          args: [account2.address, parseEther('1')],
-        })
-        await waitForTransactionReceipt(client, { hash })
-      }
+      await writeContractSync(client, {
+        abi: tip20Abi,
+        address: usdAddress,
+        functionName: 'transfer',
+        args: [account2.address, parseEther('1')],
+      })
 
-      const hash1 = await actions.fee.setUserToken(client, {
+      await actions.fee.setUserToken(client, {
         account: account2,
         token: '0x20c0000000000000000000000000000000000001',
       })
-      await waitForTransactionReceipt(client, { hash: hash1 })
 
       // Set token for account3
-      {
-        const hash = await writeContract(client, {
-          abi: tip20Abi,
-          address: usdAddress,
-          functionName: 'transfer',
-          args: [account3.address, parseEther('1')],
-        })
-        await waitForTransactionReceipt(client, { hash })
-      }
+      await writeContractSync(client, {
+        abi: tip20Abi,
+        address: usdAddress,
+        functionName: 'transfer',
+        args: [account3.address, parseEther('1')],
+      })
 
-      const hash2 = await actions.fee.setUserToken(client, {
+      await actions.fee.setUserToken(client, {
         account: account3,
         token: '0x20c0000000000000000000000000000000000002',
       })
-      await waitForTransactionReceipt(client, { hash: hash2 })
 
       await setTimeout(100)
 
@@ -230,47 +225,38 @@ describe.skipIf(!!process.env.CI)('watchSetUserToken', () => {
 
     try {
       // Transfer gas to accounts
-      {
-        const hash = await writeContract(client, {
-          abi: tip20Abi,
-          address: usdAddress,
-          functionName: 'transfer',
-          args: [account2.address, parseEther('1')],
-        })
-        await waitForTransactionReceipt(client, { hash })
-      }
+      await writeContractSync(client, {
+        abi: tip20Abi,
+        address: usdAddress,
+        functionName: 'transfer',
+        args: [account2.address, parseEther('1')],
+      })
 
-      {
-        const hash = await writeContract(client, {
-          abi: tip20Abi,
-          address: usdAddress,
-          functionName: 'transfer',
-          args: [account3.address, parseEther('1')],
-        })
-        await waitForTransactionReceipt(client, { hash })
-      }
+      await writeContractSync(client, {
+        abi: tip20Abi,
+        address: usdAddress,
+        functionName: 'transfer',
+        args: [account3.address, parseEther('1')],
+      })
 
       // Set token for account2 (should be captured)
-      const hash1 = await actions.fee.setUserToken(client, {
+      await actions.fee.setUserToken(client, {
         account: account2,
         token: '0x20c0000000000000000000000000000000000001',
       })
-      await waitForTransactionReceipt(client, { hash: hash1 })
 
       // Set token for account3 (should NOT be captured)
-      const hash2 = await actions.fee.setUserToken(client, {
+      await actions.fee.setUserToken(client, {
         account: account3,
         token: '0x20c0000000000000000000000000000000000002',
       })
-      await waitForTransactionReceipt(client, { hash: hash2 })
 
       // Set token for account2 again (should be captured)
-      const hash3 = await actions.fee.setUserToken(client, {
+      await actions.fee.setUserToken(client, {
         account: account2,
         feeToken: 0n,
         token: 2n,
       })
-      await waitForTransactionReceipt(client, { hash: hash3 })
 
       await setTimeout(100)
 

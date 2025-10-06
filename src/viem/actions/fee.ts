@@ -1,17 +1,23 @@
-import type {
-  Account,
-  Address,
-  Chain,
-  Client,
-  ExtractAbiItem,
-  GetEventArgs,
-  Transport,
-  Log as viem_Log,
-  WatchContractEventParameters,
-  WriteContractReturnType,
+import {
+  type Account,
+  type Address,
+  type Chain,
+  type Client,
+  type ExtractAbiItem,
+  type GetEventArgs,
+  type Log,
+  parseEventLogs,
+  type TransactionReceipt,
+  type Transport,
+  type Log as viem_Log,
+  type WatchContractEventParameters,
 } from 'viem'
 import { parseAccount } from 'viem/accounts'
-import { readContract, watchContractEvent, writeContract } from 'viem/actions'
+import {
+  readContract,
+  watchContractEvent,
+  writeContractSync,
+} from 'viem/actions'
 import type { Compute, UnionOmit } from '../../internal/types.js'
 import * as TokenId from '../../ox/TokenId.js'
 import { feeManagerAbi } from '../abis.js'
@@ -133,10 +139,15 @@ export async function setUserToken<
   parameters: setUserToken.Parameters<chain, account>,
 ): Promise<setUserToken.ReturnType> {
   const call = setUserToken.call(parameters)
-  return writeContract(client, {
+  const receipt = await writeContractSync(client, {
     ...parameters,
     ...call,
   } as never)
+  const { args } = setUserToken.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
 }
 
 export namespace setUserToken {
@@ -150,7 +161,15 @@ export namespace setUserToken {
     token: TokenId.TokenIdOrAddress
   }
 
-  export type ReturnType = WriteContractReturnType
+  export type ReturnType = Compute<
+    GetEventArgs<
+      typeof feeManagerAbi,
+      'UserTokenSet',
+      { IndexedOnly: false; Required: true }
+    > & {
+      receipt: TransactionReceipt
+    }
+  >
 
   /**
    * Defines a call to the `setUserToken` function.
@@ -194,6 +213,17 @@ export namespace setUserToken {
       functionName: 'setUserToken',
       args: [TokenId.toAddress(token)],
     })
+  }
+
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: feeManagerAbi,
+      logs,
+      eventName: 'UserTokenSet',
+      strict: true,
+    })
+    if (!log) throw new Error('`UserTokenSet` event not found.')
+    return log
   }
 }
 

@@ -5,7 +5,7 @@ import { Instance } from 'tempo/prool'
 import * as actions from 'tempo/viem/actions'
 import { parseEther, publicActions } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
-import { waitForTransactionReceipt, writeContract } from 'viem/actions'
+import { writeContractSync } from 'viem/actions'
 import { tip20Abi } from '../abis.js'
 import { usdAddress } from '../addresses.js'
 import { createTempoClient } from '../client.js'
@@ -31,51 +31,40 @@ const client = createTempoClient({
 
 async function setupPoolWithLiquidity() {
   // Create a new token for testing
-  const { hash: createHash, address: tokenAddress } =
-    await actions.token.create(client, {
-      name: 'Test Token',
-      symbol: 'TEST',
-      currency: 'USD',
-    })
-  await waitForTransactionReceipt(client, { hash: createHash })
+  const { token } = await actions.token.create(client, {
+    name: 'Test Token',
+    symbol: 'TEST',
+    currency: 'USD',
+  })
 
-  {
-    // Grant issuer role to mint tokens
-    const hash = await actions.token.grantRoles(client, {
-      token: tokenAddress,
-      roles: ['issuer'],
-      to: client.account.address,
-    })
-    await waitForTransactionReceipt(client, { hash })
-  }
+  // Grant issuer role to mint tokens
+  await actions.token.grantRoles(client, {
+    token,
+    roles: ['issuer'],
+    to: client.account.address,
+  })
 
   // Mint some tokens to account
-  {
-    const hash = await actions.token.mint(client, {
-      to: account.address,
-      amount: parseEther('1000'),
-      token: tokenAddress,
-    })
-    await waitForTransactionReceipt(client, { hash })
-  }
+  await actions.token.mint(client, {
+    to: account.address,
+    amount: parseEther('1000'),
+    token,
+  })
 
   // Add liquidity to pool
-  {
-    const hash = await actions.amm.mint(client, {
-      userToken: {
-        address: tokenAddress,
-        amount: parseEther('100'),
-      },
-      validatorToken: {
-        address: usdAddress,
-        amount: parseEther('100'),
-      },
-      to: account.address,
-    })
-    await waitForTransactionReceipt(client, { hash })
-  }
+  await actions.amm.mint(client, {
+    userToken: {
+      address: token,
+      amount: parseEther('100'),
+    },
+    validatorToken: {
+      address: usdAddress,
+      amount: parseEther('100'),
+    },
+    to: account.address,
+  })
 
-  return { tokenAddress }
+  return { tokenAddress: token }
 }
 
 describe.skipIf(!!process.env.CI)('getPoolId', () => {
@@ -139,39 +128,32 @@ describe.skipIf(!!process.env.CI)('getLiquidityBalance', () => {
 describe.skipIf(!!process.env.CI)('mint', () => {
   test('default', async () => {
     // Create a new token for testing
-    const { hash: createHash, address: tokenAddress } =
-      await actions.token.create(client, {
-        name: 'Test Token',
-        symbol: 'TEST',
-        currency: 'USD',
-      })
-    await waitForTransactionReceipt(client, { hash: createHash })
+    const { token } = await actions.token.create(client, {
+      name: 'Test Token',
+      symbol: 'TEST',
+      currency: 'USD',
+    })
 
-    {
-      // Grant issuer role to mint tokens
-      const hash = await actions.token.grantRoles(client, {
-        token: tokenAddress,
-        roles: ['issuer'],
-        to: client.account.address,
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    // Grant issuer role to mint tokens
+    await actions.token.grantRoles(client, {
+      token,
+      roles: ['issuer'],
+      to: client.account.address,
+    })
 
     // Mint some tokens to account
-    {
-      const hash = await actions.token.mint(client, {
-        to: account.address,
-        amount: parseEther('1000'),
-        token: tokenAddress,
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    await actions.token.mint(client, {
+      to: account.address,
+      amount: parseEther('1000'),
+      token,
+    })
 
     // Add liquidity to pool
-    {
-      const hash = await actions.amm.mint(client, {
+    const { receipt: mintReceipt, ...mintResult } = await actions.amm.mint(
+      client,
+      {
         userToken: {
-          address: tokenAddress,
+          address: token,
           amount: parseEther('100'),
         },
         validatorToken: {
@@ -179,13 +161,23 @@ describe.skipIf(!!process.env.CI)('mint', () => {
           amount: parseEther('100'),
         },
         to: account.address,
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+      },
+    )
+    expect(mintReceipt).toBeDefined()
+    expect(mintResult).toMatchInlineSnapshot(`
+      {
+        "amountUserToken": 100000000000000000000n,
+        "amountValidatorToken": 100000000000000000000n,
+        "liquidity": 4999999999999999999999999999999999999000n,
+        "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "userToken": "0x20C0000000000000000000000000000000000001",
+        "validatorToken": "0x20C0000000000000000000000000000000000000",
+      }
+    `)
 
     // Verify pool reserves
     const pool = await actions.amm.getPool(client, {
-      userToken: tokenAddress,
+      userToken: token,
       validatorToken: usdAddress,
     })
     expect(pool.reserveUserToken).toBe(parseEther('100'))
@@ -193,7 +185,7 @@ describe.skipIf(!!process.env.CI)('mint', () => {
 
     // Verify LP token balance
     const poolId = await actions.amm.getPoolId(client, {
-      userToken: tokenAddress,
+      userToken: token,
       validatorToken: usdAddress,
     })
     const lpBalance = await actions.amm.getLiquidityBalance(client, {
@@ -219,15 +211,27 @@ describe.skipIf(!!process.env.CI)('burn', () => {
     })
 
     // Burn half of LP tokens
-    {
-      const hash = await actions.amm.burn(client, {
+    const { receipt: burnReceipt, ...burnResult } = await actions.amm.burn(
+      client,
+      {
         userToken: tokenAddress,
         validatorToken: usdAddress,
         liquidity: lpBalanceBefore / 2n,
         to: account.address,
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+      },
+    )
+    expect(burnReceipt).toBeDefined()
+    expect(burnResult).toMatchInlineSnapshot(`
+      {
+        "amountUserToken": 49999999999999999999n,
+        "amountValidatorToken": 49999999999999999999n,
+        "liquidity": 2499999999999999999999999999999999999500n,
+        "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "userToken": "0x20C0000000000000000000000000000000000001",
+        "validatorToken": "0x20C0000000000000000000000000000000000000",
+      }
+    `)
 
     // Verify LP balance decreased
     const lpBalanceAfter = await actions.amm.getLiquidityBalance(client, {
@@ -258,16 +262,24 @@ describe.skipIf(!!process.env.CI)('rebalanceSwap', () => {
     })
 
     // Perform rebalance swap
-    {
-      const hash = await actions.amm.rebalanceSwap(client, {
+    const { receipt: swapReceipt, ...swapResult } =
+      await actions.amm.rebalanceSwap(client, {
         userToken: tokenAddress,
         validatorToken: usdAddress,
         amountOut: parseEther('10'),
         to: account2.address,
         account: account,
       })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    expect(swapReceipt).toBeDefined()
+    expect(swapResult).toMatchInlineSnapshot(`
+      {
+        "amountIn": 9985000000000000001n,
+        "amountOut": 10000000000000000000n,
+        "swapper": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "userToken": "0x20C0000000000000000000000000000000000001",
+        "validatorToken": "0x20C0000000000000000000000000000000000000",
+      }
+    `)
 
     // Verify balance increased
     const balanceAfter = await actions.token.getBalance(client, {
@@ -290,16 +302,13 @@ describe.skipIf(!!process.env.CI)('watchRebalanceSwap', () => {
     })
 
     // Perform rebalance swap
-    {
-      const hash = await actions.amm.rebalanceSwap(client, {
-        userToken: tokenAddress,
-        validatorToken: usdAddress,
-        amountOut: parseEther('10'),
-        to: account2.address,
-        account: account,
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    await actions.amm.rebalanceSwap(client, {
+      userToken: tokenAddress,
+      validatorToken: usdAddress,
+      amountOut: parseEther('10'),
+      to: account2.address,
+      account: account,
+    })
 
     await setTimeout(1000)
 
@@ -317,44 +326,33 @@ describe.skipIf(!!process.env.CI)('watchRebalanceSwap', () => {
 describe.skipIf(!!process.env.CI)('watchMint', () => {
   test('default', async () => {
     // Create a new token for testing
-    const { hash: createHash, address: tokenAddress } =
-      await actions.token.create(client, {
-        name: 'Test Token 2',
-        symbol: 'TEST2',
-        currency: 'USD',
-      })
-    await waitForTransactionReceipt(client, { hash: createHash })
+    const { token } = await actions.token.create(client, {
+      name: 'Test Token 2',
+      symbol: 'TEST2',
+      currency: 'USD',
+    })
 
-    {
-      // Grant issuer role to mint tokens
-      const hash = await actions.token.grantRoles(client, {
-        token: tokenAddress,
-        roles: ['issuer'],
-        to: client.account.address,
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    // Grant issuer role to mint tokens
+    await actions.token.grantRoles(client, {
+      token,
+      roles: ['issuer'],
+      to: client.account.address,
+    })
 
     // Mint some tokens to account
-    {
-      const hash = await actions.token.mint(client, {
-        to: account.address,
-        amount: parseEther('1000'),
-        token: tokenAddress,
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    await actions.token.mint(client, {
+      to: account.address,
+      amount: parseEther('1000'),
+      token,
+    })
 
     // Mint USD to account
-    {
-      const hash = await writeContract(client, {
-        abi: tip20Abi,
-        address: usdAddress,
-        functionName: 'transfer',
-        args: [account.address, parseEther('1000')],
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    await writeContractSync(client, {
+      abi: tip20Abi,
+      address: usdAddress,
+      functionName: 'transfer',
+      args: [account.address, parseEther('1000')],
+    })
 
     let eventArgs: any = null
     const unwatch = actions.amm.watchMint(client, {
@@ -364,27 +362,22 @@ describe.skipIf(!!process.env.CI)('watchMint', () => {
     })
 
     // Add liquidity to pool
-    {
-      const hash = await actions.amm.mint(client, {
-        userToken: {
-          address: tokenAddress,
-          amount: parseEther('100'),
-        },
-        validatorToken: {
-          address: usdAddress,
-          amount: parseEther('100'),
-        },
-        to: account.address,
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    await actions.amm.mint(client, {
+      userToken: {
+        address: token,
+        amount: parseEther('100'),
+      },
+      validatorToken: {
+        address: usdAddress,
+        amount: parseEther('100'),
+      },
+      to: account.address,
+    })
 
     await setTimeout(1000)
 
     expect(eventArgs).toBeDefined()
-    expect(eventArgs.userToken.address.toLowerCase()).toBe(
-      tokenAddress.toLowerCase(),
-    )
+    expect(eventArgs.userToken.address.toLowerCase()).toBe(token.toLowerCase())
     expect(eventArgs.validatorToken.address.toLowerCase()).toBe(
       usdAddress.toLowerCase(),
     )
@@ -417,15 +410,12 @@ describe.skipIf(!!process.env.CI)('watchBurn', () => {
     })
 
     // Burn LP tokens
-    {
-      const hash = await actions.amm.burn(client, {
-        userToken: tokenAddress,
-        validatorToken: usdAddress,
-        liquidity: lpBalance / 2n,
-        to: account.address,
-      })
-      await waitForTransactionReceipt(client, { hash })
-    }
+    await actions.amm.burn(client, {
+      userToken: tokenAddress,
+      validatorToken: usdAddress,
+      liquidity: lpBalance / 2n,
+      to: account.address,
+    })
 
     await setTimeout(1000)
 

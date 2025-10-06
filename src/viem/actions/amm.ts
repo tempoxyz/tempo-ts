@@ -1,18 +1,24 @@
-import type {
-  Account,
-  Address,
-  Chain,
-  Client,
-  ExtractAbiItem,
-  GetEventArgs,
-  Hex,
-  ReadContractReturnType,
-  Transport,
-  Log as viem_Log,
-  WatchContractEventParameters,
-  WriteContractReturnType,
+import {
+  type Account,
+  type Address,
+  type Chain,
+  type Client,
+  type ExtractAbiItem,
+  type GetEventArgs,
+  type Hex,
+  type Log,
+  parseEventLogs,
+  type ReadContractReturnType,
+  type TransactionReceipt,
+  type Transport,
+  type Log as viem_Log,
+  type WatchContractEventParameters,
 } from 'viem'
-import { readContract, watchContractEvent, writeContract } from 'viem/actions'
+import {
+  readContract,
+  watchContractEvent,
+  writeContractSync,
+} from 'viem/actions'
 import type { Compute, UnionOmit } from '../../internal/types.js'
 import * as TokenId from '../../ox/TokenId.js'
 import { feeAmmAbi } from '../abis.js'
@@ -330,10 +336,15 @@ export async function rebalanceSwap<
   parameters: rebalanceSwap.Parameters<chain, account>,
 ): Promise<rebalanceSwap.ReturnType> {
   const call = rebalanceSwap.call(parameters)
-  return writeContract(client, {
+  const receipt = await writeContractSync(client, {
     ...parameters,
     ...call,
   } as never)
+  const { args } = rebalanceSwap.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
 }
 
 export namespace rebalanceSwap {
@@ -353,7 +364,16 @@ export namespace rebalanceSwap {
     validatorToken: TokenId.TokenIdOrAddress
   }
 
-  export type ReturnType = WriteContractReturnType
+  export type ReturnType = Compute<
+    GetEventArgs<
+      typeof feeAmmAbi,
+      'RebalanceSwap',
+      { IndexedOnly: false; Required: true }
+    > & {
+      /** Transaction receipt. */
+      receipt: TransactionReceipt
+    }
+  >
 
   /**
    * Defines a call to the `rebalanceSwap` function.
@@ -409,6 +429,23 @@ export namespace rebalanceSwap {
       ],
     })
   }
+
+  /**
+   * Extracts the `RebalanceSwap` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `RebalanceSwap` event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: feeAmmAbi,
+      logs,
+      eventName: 'RebalanceSwap',
+      strict: true,
+    })
+    if (!log) throw new Error('`RebalanceSwap` event not found.')
+    return log
+  }
 }
 
 /**
@@ -452,10 +489,15 @@ export async function mint<
   parameters: mint.Parameters<chain, account>,
 ): Promise<mint.ReturnType> {
   const call = mint.call(parameters)
-  return writeContract(client, {
+  const receipt = await writeContractSync(client, {
     ...parameters,
     ...call,
   } as never)
+  const { args } = mint.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
 }
 
 export namespace mint {
@@ -483,7 +525,16 @@ export namespace mint {
     }
   }
 
-  export type ReturnType = WriteContractReturnType
+  export type ReturnType = Compute<
+    GetEventArgs<
+      typeof feeAmmAbi,
+      'Mint',
+      { IndexedOnly: false; Required: true }
+    > & {
+      /** Transaction receipt. */
+      receipt: TransactionReceipt
+    }
+  >
 
   /**
    * Defines a call to the `mint` function.
@@ -550,6 +601,23 @@ export namespace mint {
       ],
     })
   }
+
+  /**
+   * Extracts the `Mint` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `Mint` event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: feeAmmAbi,
+      logs,
+      eventName: 'Mint',
+      strict: true,
+    })
+    if (!log) throw new Error('`Mint` event not found.')
+    return log
+  }
 }
 
 /**
@@ -588,10 +656,15 @@ export async function burn<
   parameters: burn.Parameters<chain, account>,
 ): Promise<burn.ReturnType> {
   const call = burn.call(parameters)
-  return writeContract(client, {
+  const receipt = await writeContractSync(client, {
     ...parameters,
     ...call,
   } as never)
+  const { args } = burn.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
 }
 
 export namespace burn {
@@ -611,7 +684,16 @@ export namespace burn {
     validatorToken: TokenId.TokenIdOrAddress
   }
 
-  export type ReturnType = WriteContractReturnType
+  export type ReturnType = Compute<
+    GetEventArgs<
+      typeof feeAmmAbi,
+      'Burn',
+      { IndexedOnly: false; Required: true }
+    > & {
+      /** Transaction receipt. */
+      receipt: TransactionReceipt
+    }
+  >
 
   /**
    * Defines a call to the `burn` function.
@@ -666,6 +748,23 @@ export namespace burn {
         to,
       ],
     })
+  }
+
+  /**
+   * Extracts the `Burn` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `Burn` event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: feeAmmAbi,
+      logs,
+      eventName: 'Burn',
+      strict: true,
+    })
+    if (!log) throw new Error('`Burn` event not found.')
+    return log
   }
 }
 

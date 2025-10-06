@@ -1,22 +1,23 @@
-import type {
-  Account,
-  Address,
-  Chain,
-  Client,
-  ExtractAbiItem,
-  GetEventArgs,
-  ReadContractReturnType,
-  Transport,
-  Log as viem_Log,
-  WatchContractEventParameters,
-  WriteContractReturnType,
+import {
+  type Account,
+  type Address,
+  type Chain,
+  type Client,
+  type ExtractAbiItem,
+  type GetEventArgs,
+  type Log,
+  parseEventLogs,
+  type ReadContractReturnType,
+  type TransactionReceipt,
+  type Transport,
+  type Log as viem_Log,
+  type WatchContractEventParameters,
 } from 'viem'
 import { parseAccount } from 'viem/accounts'
 import {
   readContract,
-  simulateContract,
   watchContractEvent,
-  writeContract,
+  writeContractSync,
 } from 'viem/actions'
 import type { Compute, UnionOmit } from '../../internal/types.js'
 import { tip403RegistryAbi } from '../abis.js'
@@ -77,14 +78,17 @@ export async function create<
   const admin = parseAccount(account).address!
 
   const call = create.call({ admin, type, addresses })
-  const { request, result } = await simulateContract(client, {
+  const receipt = await writeContractSync(client, {
     ...rest,
     account,
     chain,
     ...call,
   } as never)
-  const hash = await writeContract(client, request as never)
-  return { hash, policyId: result }
+  const { args } = create.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
 }
 
 export namespace create {
@@ -106,10 +110,15 @@ export namespace create {
     type: PolicyType
   }
 
-  export type ReturnType = Compute<{
-    hash: WriteContractReturnType
-    policyId: bigint
-  }>
+  export type ReturnType = Compute<
+    GetEventArgs<
+      typeof tip403RegistryAbi,
+      'PolicyCreated',
+      { IndexedOnly: false; Required: true }
+    > & {
+      receipt: TransactionReceipt
+    }
+  >
 
   /**
    * Defines a call to the `createPolicy` function.
@@ -160,6 +169,23 @@ export namespace create {
       args: callArgs,
     })
   }
+
+  /**
+   * Extracts the `PolicyCreated` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `PolicyCreated` event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: tip403RegistryAbi,
+      logs,
+      eventName: 'PolicyCreated',
+      strict: true,
+    })
+    if (!log) throw new Error('`PolicyCreated` event not found.')
+    return log
+  }
 }
 
 /**
@@ -196,10 +222,15 @@ export async function setAdmin<
   parameters: setAdmin.Parameters<chain, account>,
 ): Promise<setAdmin.ReturnType> {
   const call = setAdmin.call(parameters)
-  return writeContract(client, {
+  const receipt = await writeContractSync(client, {
     ...parameters,
     ...call,
   } as never)
+  const { args } = setAdmin.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
 }
 
 export namespace setAdmin {
@@ -215,7 +246,15 @@ export namespace setAdmin {
     policyId: bigint
   }
 
-  export type ReturnType = WriteContractReturnType
+  export type ReturnType = Compute<
+    GetEventArgs<
+      typeof tip403RegistryAbi,
+      'PolicyAdminUpdated',
+      { IndexedOnly: false; Required: true }
+    > & {
+      receipt: TransactionReceipt
+    }
+  >
 
   /**
    * Defines a call to the `setPolicyAdmin` function.
@@ -262,6 +301,23 @@ export namespace setAdmin {
       args: [policyId, admin],
     })
   }
+
+  /**
+   * Extracts the `PolicyAdminUpdated` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `PolicyAdminUpdated` event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: tip403RegistryAbi,
+      logs,
+      eventName: 'PolicyAdminUpdated',
+      strict: true,
+    })
+    if (!log) throw new Error('`PolicyAdminUpdated` event not found.')
+    return log
+  }
 }
 
 /**
@@ -300,10 +356,15 @@ export async function modifyWhitelist<
 ): Promise<modifyWhitelist.ReturnType> {
   const { address: targetAccount, ...rest } = parameters
   const call = modifyWhitelist.call({ ...rest, address: targetAccount })
-  return writeContract(client, {
+  const receipt = await writeContractSync(client, {
     ...parameters,
     ...call,
   } as never)
+  const { args } = modifyWhitelist.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
 }
 
 export namespace modifyWhitelist {
@@ -321,7 +382,15 @@ export namespace modifyWhitelist {
     policyId: bigint
   }
 
-  export type ReturnType = WriteContractReturnType
+  export type ReturnType = Compute<
+    GetEventArgs<
+      typeof tip403RegistryAbi,
+      'WhitelistUpdated',
+      { IndexedOnly: false; Required: true }
+    > & {
+      receipt: TransactionReceipt
+    }
+  >
 
   /**
    * Defines a call to the `modifyPolicyWhitelist` function.
@@ -370,6 +439,23 @@ export namespace modifyWhitelist {
       args: [policyId, address, allowed],
     })
   }
+
+  /**
+   * Extracts the `WhitelistUpdated` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `WhitelistUpdated` event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: tip403RegistryAbi,
+      logs,
+      eventName: 'WhitelistUpdated',
+      strict: true,
+    })
+    if (!log) throw new Error('`WhitelistUpdated` event not found.')
+    return log
+  }
 }
 
 /**
@@ -408,10 +494,15 @@ export async function modifyBlacklist<
 ): Promise<modifyBlacklist.ReturnType> {
   const { address: targetAccount, ...rest } = parameters
   const call = modifyBlacklist.call({ ...rest, address: targetAccount })
-  return writeContract(client, {
+  const receipt = await writeContractSync(client, {
     ...parameters,
     ...call,
   } as never)
+  const { args } = modifyBlacklist.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
 }
 
 export namespace modifyBlacklist {
@@ -429,7 +520,15 @@ export namespace modifyBlacklist {
     restricted: boolean
   }
 
-  export type ReturnType = WriteContractReturnType
+  export type ReturnType = Compute<
+    GetEventArgs<
+      typeof tip403RegistryAbi,
+      'BlacklistUpdated',
+      { IndexedOnly: false; Required: true }
+    > & {
+      receipt: TransactionReceipt
+    }
+  >
 
   /**
    * Defines a call to the `modifyPolicyBlacklist` function.
@@ -477,6 +576,23 @@ export namespace modifyBlacklist {
       functionName: 'modifyPolicyBlacklist',
       args: [policyId, address, restricted],
     })
+  }
+
+  /**
+   * Extracts the `BlacklistUpdated` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `BlacklistUpdated` event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: tip403RegistryAbi,
+      logs,
+      eventName: 'BlacklistUpdated',
+      strict: true,
+    })
+    if (!log) throw new Error('`BlacklistUpdated` event not found.')
+    return log
   }
 }
 
