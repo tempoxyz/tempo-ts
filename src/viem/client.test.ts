@@ -43,7 +43,7 @@ test('createTempoClient', () => {
             "type": "transactionRequest",
           },
         },
-        "id": 42424,
+        "id": 1337,
         "name": "Tempo",
         "nativeCurrency": {
           "decimals": 18,
@@ -53,7 +53,7 @@ test('createTempoClient', () => {
         "rpcUrls": {
           "default": {
             "http": [
-              "https://rpc-adagio.tempoxyz.dev",
+              "https://rpc-adagietto.tempoxyz.dev",
             ],
           },
         },
@@ -120,7 +120,7 @@ test('createTempoClient', () => {
         "retryDelay": 150,
         "timeout": 10000,
         "type": "http",
-        "url": "https://rpc-adagio.tempoxyz.dev",
+        "url": "https://rpc-adagietto.tempoxyz.dev",
       },
       "type": "base",
       "uid": null,

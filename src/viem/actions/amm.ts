@@ -1,8 +1,3 @@
-// TODO:
-// - add `.call` to namespaces
-// - add `.simulate` to namespaces
-// - add `.estimateGas` to namespaces
-
 import type {
   Account,
   Address,
@@ -21,9 +16,10 @@ import type {
 } from 'viem'
 import { readContract, watchContractEvent, writeContract } from 'viem/actions'
 import type { Compute, UnionOmit } from '../../internal/types.js'
-import { TokenId } from '../../ox/index.js'
+import * as TokenId from '../../ox/TokenId.js'
 import { feeAmmAbi } from '../abis.js'
 import { feeManagerAddress } from '../addresses.js'
+import { defineCall } from '../utils.js'
 
 /**
  * Gets the pool ID for a token pair.
@@ -53,13 +49,9 @@ export async function getPoolId<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getPoolId.Parameters,
 ): Promise<getPoolId.ReturnType> {
-  const { userToken, validatorToken, ...rest } = parameters
   return readContract(client, {
-    ...rest,
-    address: feeManagerAddress,
-    abi: feeAmmAbi,
-    functionName: 'getPoolId',
-    args: [TokenId.toAddress(userToken), TokenId.toAddress(validatorToken)],
+    ...parameters,
+    ...getPoolId.call(parameters),
   })
 }
 
@@ -67,7 +59,10 @@ export namespace getPoolId {
   export type Parameters = UnionOmit<
     ReadContractParameters<never, never, never>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Address or ID of the user token. */
     userToken: TokenId.TokenIdOrAddress
     /** Address or ID of the validator token. */
@@ -79,6 +74,22 @@ export namespace getPoolId {
     'getPoolId',
     never
   >
+
+  /**
+   * Defines a call to the `getPoolId` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { userToken, validatorToken } = args
+    return defineCall({
+      address: feeManagerAddress,
+      abi: feeAmmAbi,
+      args: [TokenId.toAddress(userToken), TokenId.toAddress(validatorToken)],
+      functionName: 'getPoolId',
+    })
+  }
 }
 
 /**
@@ -109,13 +120,9 @@ export async function getPool<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getPool.Parameters,
 ): Promise<getPool.ReturnType> {
-  const { userToken, validatorToken, ...rest } = parameters
   return readContract(client, {
-    ...rest,
-    address: feeManagerAddress,
-    abi: feeAmmAbi,
-    functionName: 'getPool',
-    args: [TokenId.toAddress(userToken), TokenId.toAddress(validatorToken)],
+    ...parameters,
+    ...getPool.call(parameters),
   })
 }
 
@@ -123,7 +130,10 @@ export namespace getPool {
   export type Parameters = UnionOmit<
     ReadContractParameters<never, never, never>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Address or ID of the user token. */
     userToken: TokenId.TokenIdOrAddress
     /** Address or ID of the validator token. */
@@ -136,6 +146,22 @@ export namespace getPool {
     /** Reserve of validator token. */
     reserveValidatorToken: bigint
   }>
+
+  /**
+   * Defines a call to the `getPool` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { userToken, validatorToken } = args
+    return defineCall({
+      address: feeManagerAddress,
+      abi: feeAmmAbi,
+      args: [TokenId.toAddress(userToken), TokenId.toAddress(validatorToken)],
+      functionName: 'getPool',
+    })
+  }
 }
 
 /**
@@ -168,13 +194,9 @@ export async function getTotalSupply<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getTotalSupply.Parameters,
 ): Promise<getTotalSupply.ReturnType> {
-  const { poolId, ...rest } = parameters
   return readContract(client, {
-    ...rest,
-    address: feeManagerAddress,
-    abi: feeAmmAbi,
-    functionName: 'totalSupply',
-    args: [poolId],
+    ...parameters,
+    ...getTotalSupply.call(parameters),
   })
 }
 
@@ -182,7 +204,10 @@ export namespace getTotalSupply {
   export type Parameters = UnionOmit<
     ReadContractParameters<never, never, never>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Pool ID. */
     poolId: Hex
   }
@@ -192,6 +217,22 @@ export namespace getTotalSupply {
     'totalSupply',
     never
   >
+
+  /**
+   * Defines a call to the `totalSupply` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { poolId } = args
+    return defineCall({
+      address: feeManagerAddress,
+      abi: feeAmmAbi,
+      args: [poolId],
+      functionName: 'totalSupply',
+    })
+  }
 }
 
 /**
@@ -227,13 +268,9 @@ export async function getLiquidityBalance<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getLiquidityBalance.Parameters,
 ): Promise<getLiquidityBalance.ReturnType> {
-  const { address, poolId, ...rest } = parameters
   return readContract(client, {
-    ...rest,
-    address: feeManagerAddress,
-    abi: feeAmmAbi,
-    functionName: 'liquidityBalances',
-    args: [poolId, address],
+    ...parameters,
+    ...getLiquidityBalance.call(parameters),
   })
 }
 
@@ -241,7 +278,10 @@ export namespace getLiquidityBalance {
   export type Parameters = UnionOmit<
     ReadContractParameters<never, never, never>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Address to check balance for. */
     address: Address
     /** Pool ID. */
@@ -253,6 +293,22 @@ export namespace getLiquidityBalance {
     'liquidityBalances',
     never
   >
+
+  /**
+   * Defines a call to the `liquidityBalances` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { address, poolId } = args
+    return defineCall({
+      address: feeManagerAddress,
+      abi: feeAmmAbi,
+      args: [poolId, address],
+      functionName: 'liquidityBalances',
+    })
+  }
 }
 
 /**
@@ -290,28 +346,10 @@ export async function rebalanceSwap<
   client: Client<Transport, chain, account>,
   parameters: rebalanceSwap.Parameters<chain, account>,
 ): Promise<rebalanceSwap.ReturnType> {
-  const {
-    account = client.account,
-    amountOut,
-    chain = client.chain,
-    to,
-    userToken,
-    validatorToken,
-    ...rest
-  } = parameters
+  const call = rebalanceSwap.call(parameters)
   return writeContract(client, {
-    ...rest,
-    account,
-    address: feeManagerAddress,
-    abi: feeAmmAbi,
-    chain,
-    functionName: 'rebalanceSwap',
-    args: [
-      TokenId.toAddress(userToken),
-      TokenId.toAddress(validatorToken),
-      amountOut,
-      to,
-    ],
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -322,7 +360,10 @@ export namespace rebalanceSwap {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Amount of user token to receive. */
     amountOut: bigint
     /** Address to send the user token to. */
@@ -334,6 +375,61 @@ export namespace rebalanceSwap {
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `rebalanceSwap` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.amm.rebalanceSwap.call({
+   *       userToken: '0x20c0...beef',
+   *       validatorToken: '0x20c0...babe',
+   *       amountOut: 100n,
+   *       to: '0xfeed...fede',
+   *     }),
+   *     actions.amm.rebalanceSwap.call({
+   *       userToken: '0x20c0...babe',
+   *       validatorToken: '0x20c0...babe',
+   *       amountOut: 100n,
+   *       to: '0xfeed...fede',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { userToken, validatorToken, amountOut, to } = args
+    return defineCall({
+      address: feeManagerAddress,
+      abi: feeAmmAbi,
+      functionName: 'rebalanceSwap',
+      args: [
+        TokenId.toAddress(userToken),
+        TokenId.toAddress(validatorToken),
+        amountOut,
+        to,
+      ],
+    })
+  }
 }
 
 /**
@@ -354,14 +450,14 @@ export namespace rebalanceSwap {
  *
  * const hash = await actions.amm.mint(client, {
  *   userToken: {
- *     address: '0x...',
+ *     address: '0x20c0...beef',
  *     amount: 100n,
  *   },
  *   validatorToken: {
- *     address: '0x...',
+ *     address: '0x20c0...babe',
  *     amount: 100n,
  *   },
- *   to: '0x...',
+ *   to: '0xfeed...fede',
  * })
  * ```
  *
@@ -376,28 +472,10 @@ export async function mint<
   client: Client<Transport, chain, account>,
   parameters: mint.Parameters<chain, account>,
 ): Promise<mint.ReturnType> {
-  const {
-    account = client.account,
-    chain = client.chain,
-    to,
-    userToken,
-    validatorToken,
-    ...rest
-  } = parameters
+  const call = mint.call(parameters)
   return writeContract(client, {
-    ...rest,
-    account,
-    address: feeManagerAddress,
-    abi: feeAmmAbi,
-    chain,
-    functionName: 'mint',
-    args: [
-      TokenId.toAddress(userToken.address),
-      TokenId.toAddress(validatorToken.address),
-      userToken.amount,
-      validatorToken.amount,
-      to,
-    ],
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -408,7 +486,10 @@ export namespace mint {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Address to mint LP tokens to. */
     to: Address
     /** User token address and amount. */
@@ -428,6 +509,72 @@ export namespace mint {
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `mint` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.amm.mint.call({
+   *       userToken: {
+   *         address: '0x20c0...beef',
+   *         amount: 100n,
+   *       },
+   *       validatorToken: {
+   *         address: '0x20c0...babe',
+   *         amount: 100n,
+   *       },
+   *       to: '0xfeed...fede',
+   *     }),
+   *     actions.amm.mint.call({
+   *       userToken: {
+   *         address: '0x20c0...babe',
+   *         amount: 100n,
+   *       },
+   *       validatorToken: {
+   *         address: '0x20c0...babe',
+   *         amount: 100n,
+   *       },
+   *       to: '0xfeed...fede',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { to, userToken, validatorToken } = args
+    return defineCall({
+      address: feeManagerAddress,
+      abi: feeAmmAbi,
+      functionName: 'mint',
+      args: [
+        TokenId.toAddress(userToken.address),
+        TokenId.toAddress(validatorToken.address),
+        userToken.amount,
+        validatorToken.amount,
+        to,
+      ],
+    })
+  }
 }
 
 /**
@@ -447,10 +594,10 @@ export namespace mint {
  * })
  *
  * const hash = await actions.amm.burn(client, {
- *   userToken: '0x...',
- *   validatorToken: '0x...',
+ *   userToken: '0x20c0...beef',
+ *   validatorToken: '0x20c0...babe',
  *   liquidity: 50n,
- *   to: '0x...',
+ *   to: '0xfeed...fede',
  * })
  * ```
  *
@@ -465,28 +612,10 @@ export async function burn<
   client: Client<Transport, chain, account>,
   parameters: burn.Parameters<chain, account>,
 ): Promise<burn.ReturnType> {
-  const {
-    account = client.account,
-    chain = client.chain,
-    liquidity,
-    to,
-    userToken,
-    validatorToken,
-    ...rest
-  } = parameters
+  const call = burn.call(parameters)
   return writeContract(client, {
-    ...rest,
-    account,
-    address: feeManagerAddress,
-    abi: feeAmmAbi,
-    chain,
-    functionName: 'burn',
-    args: [
-      TokenId.toAddress(userToken),
-      TokenId.toAddress(validatorToken),
-      liquidity,
-      to,
-    ],
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -497,7 +626,10 @@ export namespace burn {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Amount of LP tokens to burn. */
     liquidity: bigint
     /** Address to send tokens to. */
@@ -509,6 +641,61 @@ export namespace burn {
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `burn` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.amm.burn.call({
+   *       liquidity: 100n,
+   *       to: '0xfeed...fede',
+   *       userToken: '0x20c0...beef',
+   *       validatorToken: '0x20c0...babe',
+   *     }),
+   *     actions.amm.burn.call({
+   *       liquidity: 100n,
+   *       to: '0xfeed...fede',
+   *       userToken: '0x20c0...babe',
+   *       validatorToken: '0x20c0...babe',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { liquidity, to, userToken, validatorToken } = args
+    return defineCall({
+      address: feeManagerAddress,
+      abi: feeAmmAbi,
+      functionName: 'burn',
+      args: [
+        TokenId.toAddress(userToken),
+        TokenId.toAddress(validatorToken),
+        liquidity,
+        to,
+      ],
+    })
+  }
 }
 
 /**
@@ -563,7 +750,7 @@ export function watchRebalanceSwap<
   })
 }
 
-export namespace watchRebalanceSwap {
+export declare namespace watchRebalanceSwap {
   export type Args = GetEventArgs<
     typeof feeAmmAbi,
     'RebalanceSwap',
@@ -643,7 +830,7 @@ export function watchFeeSwap<
   })
 }
 
-export namespace watchFeeSwap {
+export declare namespace watchFeeSwap {
   export type Args = GetEventArgs<
     typeof feeAmmAbi,
     'FeeSwap',
@@ -739,7 +926,7 @@ export function watchMint<
   })
 }
 
-export namespace watchMint {
+export declare namespace watchMint {
   export type Args = {
     liquidity: bigint
     sender: Address
@@ -825,7 +1012,7 @@ export function watchBurn<
   })
 }
 
-export namespace watchBurn {
+export declare namespace watchBurn {
   export type Args = GetEventArgs<
     typeof feeAmmAbi,
     'Burn',

@@ -1,8 +1,8 @@
 import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { toArgs } from 'prool'
 import { defineInstance } from 'prool/instances'
 import { execa } from 'prool/processes'
-import chainJson from './internal/chain.json' with { type: 'json' }
 
 /**
  * Defines a Tempo instance.
@@ -19,7 +19,11 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
   const {
     binary = 'tempo',
     builder,
-    chain = './tmp/chain.json',
+    chain = path.resolve(import.meta.dirname, './internal/chain.json'),
+    consensusConfig = path.resolve(
+      import.meta.dirname,
+      './internal/consensus.toml',
+    ),
     dev,
     faucet,
     ...args
@@ -50,7 +54,6 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
         fs.rmdirSync('./tmp', { recursive: true })
       } catch {}
       fs.mkdirSync('./tmp', { recursive: true })
-      fs.writeFileSync('./tmp/chain.json', JSON.stringify(chainJson, null, 2))
       return await process.start(
         ($) =>
           $`${binary} node --http --dev --engine.disable-precompile-cache --faucet.enabled ${toArgs(
@@ -62,6 +65,7 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
                 maxTasks,
               },
               chain,
+              consensusConfig,
               datadir: './tmp/data',
               dev: {
                 blockTime,
@@ -109,7 +113,7 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
   }
 })
 
-export namespace tempo {
+export declare namespace tempo {
   export type Parameters = {
     /**
      * Path or alias to the Tempo binary.
@@ -138,6 +142,10 @@ export namespace tempo {
      * Chain this node is running.
      */
     chain?: string | undefined
+    /**
+     * Consensus configuration for this node.
+     */
+    consensusConfig?: string | undefined
     /**
      * Development options.
      */

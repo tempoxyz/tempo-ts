@@ -37,7 +37,7 @@ export function withFeePayer(
   }
 }
 
-export namespace withFeePayer {
+export declare namespace withFeePayer {
   export const type = 'feePayer'
 
   export type ReturnType = Relay

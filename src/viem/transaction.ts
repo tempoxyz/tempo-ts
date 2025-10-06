@@ -1,4 +1,5 @@
 import type * as Calls from 'ox/erc7821/Calls'
+import * as Execute from 'ox/erc7821/Execute'
 import * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
@@ -158,7 +159,9 @@ export declare namespace parseTransaction {
 
 export async function serializeTransaction(
   transaction: TransactionSerializable & {
+    calls?: readonly Calls.Call[] | undefined
     feePayer?: Account | true | undefined
+    from?: Address | undefined
   },
   signature?: viem_Signature | undefined,
 ) {
@@ -170,14 +173,32 @@ export async function serializeTransaction(
   const {
     authorizationList,
     chainId,
+    calls,
     feePayer,
     feePayerSignature,
+    from,
     nonce,
     r,
     s,
     v,
     ...rest
   } = transaction
+
+  // TODO: remove once native transaction type has `calls`.
+  const { data, to, value } = (() => {
+    if (calls && from)
+      return {
+        data: Execute.encodeData(calls),
+        to: from,
+        value: 0n,
+      } as const
+    return {
+      data: transaction.data,
+      to: transaction.to,
+      value: transaction.value,
+    } as const
+  })()
+
   const transaction_ox = {
     ...rest,
     authorizationList: authorizationList?.map((auth) => ({
@@ -188,6 +209,7 @@ export async function serializeTransaction(
       yParity: Number(auth.yParity),
     })),
     chainId: Number(chainId),
+    data,
     feePayerSignature: feePayerSignature
       ? {
           r: BigInt(feePayerSignature.r!),
@@ -197,11 +219,13 @@ export async function serializeTransaction(
       : feePayer
         ? null
         : undefined,
+    to,
+    type: 'feeToken',
+    value,
     ...(nonce ? { nonce: BigInt(nonce) } : {}),
     ...(r ? { r: BigInt(r) } : {}),
     ...(s ? { s: BigInt(s) } : {}),
     ...(v ? { v: Number(v) } : {}),
-    type: 'feeToken',
   } satisfies TxFeeToken.TransactionEnvelopeFeeToken
 
   if (signature_ && typeof transaction.feePayer === 'object') {

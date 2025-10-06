@@ -69,7 +69,7 @@ export function createTempoClient<
   }).extend(actions.decorator()) as never
 }
 
-export namespace createTempoClient {
+export declare namespace createTempoClient {
   export type Parameters<
     transport extends Transport = Transport,
     chain extends Chain | undefined = Chain | undefined,

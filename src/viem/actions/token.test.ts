@@ -1133,7 +1133,9 @@ describe.skipIf(!!process.env.CI)('revokeTokenRole', async () => {
       roles: ['issuer'],
       to: account2.address,
     })
-    await waitForTransactionReceipt(client, { hash: grantHash })
+    await waitForTransactionReceipt(client, {
+      hash: grantHash,
+    })
 
     const revokeHash = await actions.token.revokeRoles(client, {
       from: account2.address,
@@ -1149,8 +1151,7 @@ describe.skipIf(!!process.env.CI)('revokeTokenRole', async () => {
   })
 })
 
-// TODO: fix
-describe.skip('renounceTokenRole', async () => {
+describe.skipIf(!!process.env.CI)('renounceTokenRole', async () => {
   test('default', async () => {
     const { address, hash } = await actions.token.create(client, {
       admin: client.account,

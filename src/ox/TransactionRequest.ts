@@ -68,8 +68,12 @@ export type Rpc = TransactionRequest<Hex.Hex, Hex.Hex, string>
  */
 export function toRpc(request: TransactionRequest): Rpc {
   const request_rpc = ox_TransactionRequest.toRpc(request) as Rpc
+
+  request_rpc.calls = request.calls
+
   if (typeof request.feeToken !== 'undefined')
     request_rpc.feeToken = TokenId.toAddress(request.feeToken)
+
   if (request.calls && request.from) {
     delete request_rpc.to
     delete request_rpc.value
@@ -77,12 +81,14 @@ export function toRpc(request: TransactionRequest): Rpc {
     request_rpc.to = request.from
     request_rpc.data = Execute.encodeData(request.calls)
   }
+
   if (
     request.calls ||
     typeof request.feeToken !== 'undefined' ||
     request.type === 'feeToken'
   )
     request_rpc.type = Transaction.toRpcType.feeToken
+
   return request_rpc
 }
 

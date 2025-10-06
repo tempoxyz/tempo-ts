@@ -1,31 +1,28 @@
-// TODO:
-// - add `.call` to namespaces
-// - add `.simulate` to namespaces
-// - add `.estimateGas` to namespaces
-// - add "watch" actions for events
-
 import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
-import type {
-  Account,
-  Address,
-  Chain,
-  Client,
-  ExtractAbiItem,
-  GetEventArgs,
-  ReadContractParameters,
-  ReadContractReturnType,
-  Transport,
-  ValueOf,
-  Log as viem_Log,
-  WatchContractEventParameters,
-  WriteContractParameters,
-  WriteContractReturnType,
+import {
+  type Account,
+  type Address,
+  type Chain,
+  type Client,
+  type ExtractAbiItem,
+  encodeFunctionData,
+  type GetEventArgs,
+  type ReadContractParameters,
+  type ReadContractReturnType,
+  type SendTransactionParameters,
+  type Transport,
+  type ValueOf,
+  type Log as viem_Log,
+  type WatchContractEventParameters,
+  type WriteContractParameters,
+  type WriteContractReturnType,
 } from 'viem'
 import { parseAccount } from 'viem/accounts'
 import {
   multicall,
   readContract,
+  sendTransaction,
   simulateContract,
   watchContractEvent,
   writeContract,
@@ -36,6 +33,7 @@ import * as TokenRole from '../../ox/TokenRole.js'
 import { tip20Abi, tip20FactoryAbi } from '../abis.js'
 import { tip20FactoryAddress, usdAddress } from '../addresses.js'
 import type { GetAccountParameter } from '../types.js'
+import { defineCall } from '../utils.js'
 
 const transferPolicy = {
   0: 'always-reject',
@@ -76,22 +74,11 @@ export async function approve<
   client: Client<Transport, chain, account>,
   parameters: approve.Parameters<chain, account>,
 ): Promise<approve.ReturnType> {
-  const {
-    account = client.account,
-    amount,
-    chain = client.chain,
-    spender,
-    token = usdAddress,
-    ...rest
-  } = parameters
+  const { token = usdAddress, ...rest } = parameters
+  const call = approve.call({ ...rest, token })
   return writeContract(client, {
-    ...rest,
-    account,
-    address: TokenId.toAddress(token),
-    abi: tip20Abi,
-    chain,
-    functionName: 'approve',
-    args: [spender, amount],
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -102,7 +89,10 @@ export namespace approve {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Amount of tokens to approve. */
     amount: bigint
     /** Address of the spender. */
@@ -112,6 +102,49 @@ export namespace approve {
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `approve` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.approve.call({
+   *       spender: '0x20c0...beef',
+   *       amount: 100n,
+   *       token: '0x20c0...babe',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { spender, amount, token = usdAddress } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      functionName: 'approve',
+      args: [spender, amount],
+    })
+  }
 }
 
 /**
@@ -148,22 +181,10 @@ export async function burnBlocked<
   client: Client<Transport, chain, account>,
   parameters: burnBlocked.Parameters<chain, account>,
 ): Promise<burnBlocked.ReturnType> {
-  const {
-    account = client.account,
-    amount,
-    chain = client.chain,
-    from,
-    token,
-    ...rest
-  } = parameters
+  const call = burnBlocked.call(parameters)
   return writeContract(client, {
-    ...rest,
-    account,
-    address: TokenId.toAddress(token),
-    abi: tip20Abi,
-    chain,
-    functionName: 'burnBlocked',
-    args: [from, amount],
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -174,7 +195,10 @@ export namespace burnBlocked {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Amount of tokens to burn. */
     amount: bigint
     /** Address to burn tokens from. */
@@ -184,6 +208,49 @@ export namespace burnBlocked {
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `burnBlocked` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.burnBlocked.call({
+   *       from: '0x20c0...beef',
+   *       amount: 100n,
+   *       token: '0x20c0...babe',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { from, amount, token } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      functionName: 'burnBlocked',
+      args: [from, amount],
+    })
+  }
 }
 
 /**
@@ -219,32 +286,10 @@ export async function burn<
   client: Client<Transport, chain, account>,
   parameters: burn.Parameters<chain, account>,
 ): Promise<burn.ReturnType> {
-  const {
-    account = client.account,
-    amount,
-    chain = client.chain,
-    memo,
-    token,
-    ...rest
-  } = parameters
-
-  const args = memo
-    ? ({
-        functionName: 'burnWithMemo',
-        args: [amount, Hex.padLeft(memo, 32)],
-      } as const)
-    : ({
-        functionName: 'burn',
-        args: [amount],
-      } as const)
-
+  const call = burn.call(parameters)
   return writeContract(client, {
-    ...rest,
-    account,
-    address: TokenId.toAddress(token),
-    abi: tip20Abi,
-    chain,
-    ...args,
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -255,7 +300,10 @@ export namespace burn {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Amount of tokens to burn. */
     amount: bigint
     /** Memo to include in the transfer. */
@@ -265,6 +313,56 @@ export namespace burn {
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `burn` or `burnWithMemo` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.burn.call({
+   *       amount: 100n,
+   *       token: '0x20c0...babe',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { amount, memo, token } = args
+    const callArgs = memo
+      ? ({
+          functionName: 'burnWithMemo',
+          args: [amount, Hex.padLeft(memo, 32)],
+        } as const)
+      : ({
+          functionName: 'burn',
+          args: [amount],
+        } as const)
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      ...callArgs,
+    })
+  }
 }
 
 /**
@@ -300,21 +398,10 @@ export async function changeTransferPolicy<
   client: Client<Transport, chain, account>,
   parameters: changeTransferPolicy.Parameters<chain, account>,
 ): Promise<changeTransferPolicy.ReturnType> {
-  const {
-    account = client.account,
-    chain = client.chain,
-    token,
-    policyId,
-    ...rest
-  } = parameters
+  const call = changeTransferPolicy.call(parameters)
   return writeContract(client, {
-    ...rest,
-    account,
-    address: TokenId.toAddress(token),
-    abi: tip20Abi,
-    chain,
-    functionName: 'changeTransferPolicyId',
-    args: [policyId],
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -325,7 +412,10 @@ export namespace changeTransferPolicy {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** New transfer policy ID. */
     policyId: bigint
     /** Address or ID of the TIP20 token. */
@@ -333,6 +423,48 @@ export namespace changeTransferPolicy {
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `changeTransferPolicyId` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.changeTransferPolicy.call({
+   *       token: '0x20c0...babe',
+   *       policyId: 1n,
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { token, policyId } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      functionName: 'changeTransferPolicyId',
+      args: [policyId],
+    })
+  }
 }
 
 /**
@@ -373,21 +505,17 @@ export async function create<
     account = client.account,
     admin: admin_ = client.account,
     chain = client.chain,
-    name,
-    symbol,
-    currency,
     ...rest
   } = parameters
   const admin = admin_ ? parseAccount(admin_) : undefined
   if (!admin) throw new Error('admin is required.')
+
+  const call = create.call({ ...rest, admin: admin.address })
   const { request, result } = await simulateContract(client, {
     ...rest,
     account,
-    address: tip20FactoryAddress,
-    abi: tip20FactoryAbi,
     chain,
-    functionName: 'createToken',
-    args: [name, symbol, currency, admin.address],
+    ...call,
   } as never)
   const hash = await writeContract(client as never, request as never)
   const id = Hex.toBigInt(result as Hex.Hex)
@@ -407,15 +535,24 @@ export namespace create {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
-    currency: string
-    name: string
-    symbol: string
-  } & (account extends Account
+  > &
+    Omit<Args, 'admin'> &
+    (account extends Account
       ? { admin?: Account | Address | undefined }
       : { admin: Account | Address })
 
-  export type ReturnType = {
+  export type Args = {
+    /** Admin address. */
+    admin: Address
+    /** Currency (e.g. "USD"). */
+    currency: string
+    /** Token name. */
+    name: string
+    /** Token symbol. */
+    symbol: string
+  }
+
+  export type ReturnType = Compute<{
     /** Address of the created TIP20 token. */
     address: Address
     /** Admin of the token. */
@@ -424,6 +561,50 @@ export namespace create {
     hash: Hex.Hex
     /** ID of the TIP20 token. */
     id: bigint
+  }>
+
+  /**
+   * Defines a call to the `createToken` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.create.call({
+   *       name: 'My Token',
+   *       symbol: 'MTK',
+   *       currency: 'USD',
+   *       admin: '0xfeed...fede',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { name, symbol, currency, admin } = args
+    return defineCall({
+      address: tip20FactoryAddress,
+      abi: tip20FactoryAbi,
+      args: [name, symbol, currency, admin],
+      functionName: 'createToken',
+    })
   }
 }
 
@@ -459,20 +640,12 @@ export async function getAllowance<
   client: Client<Transport, chain, account>,
   parameters: getAllowance.Parameters<account>,
 ): Promise<getAllowance.ReturnType> {
-  const {
-    account = client.account,
-    token = usdAddress,
-    spender,
-    ...rest
-  } = parameters
+  const { account = client.account, ...rest } = parameters
   const address = account ? parseAccount(account).address : undefined
   if (!address) throw new Error('account is required.')
   return readContract(client, {
     ...rest,
-    address: TokenId.toAddress(token),
-    abi: tip20Abi,
-    functionName: 'allowance',
-    args: [address, spender],
+    ...getAllowance.call({ account: address, ...rest }),
   })
 }
 
@@ -483,18 +656,39 @@ export namespace getAllowance {
     ReadContractParameters<never, never, never>,
     'abi' | 'address' | 'functionName' | 'args'
   > &
-    GetAccountParameter<account> & {
-      /** Address or ID of the TIP20 token. @default `usdAddress` */
-      token?: TokenId.TokenIdOrAddress | undefined
-      /** Address of the spender. */
-      spender: Address
-    }
+    GetAccountParameter<account> &
+    Omit<Args, 'account'> & {}
+
+  export type Args = {
+    /** Account address. */
+    account: Address
+    /** Address of the spender. */
+    spender: Address
+    /** Address or ID of the TIP20 token. @default `usdAddress` */
+    token?: TokenId.TokenIdOrAddress | undefined
+  }
 
   export type ReturnType = ReadContractReturnType<
     typeof tip20Abi,
     'allowance',
     never
   >
+
+  /**
+   * Defines a call to the `allowance` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { account, spender, token = usdAddress } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      functionName: 'allowance',
+      args: [account, spender],
+    })
+  }
 }
 
 /**
@@ -531,19 +725,12 @@ export async function getBalance<
     ? [getBalance.Parameters<account>] | []
     : [getBalance.Parameters<account>]
 ): Promise<getBalance.ReturnType> {
-  const {
-    account = client.account,
-    token = usdAddress,
-    ...rest
-  } = parameters[0] ?? {}
+  const { account = client.account, ...rest } = parameters[0] ?? {}
   const address = account ? parseAccount(account).address : undefined
   if (!address) throw new Error('account is required.')
   return readContract(client, {
     ...rest,
-    address: TokenId.toAddress(token),
-    abi: tip20Abi,
-    functionName: 'balanceOf',
-    args: [address],
+    ...getBalance.call({ account: address, ...rest }),
   })
 }
 
@@ -554,16 +741,37 @@ export namespace getBalance {
     ReadContractParameters<never, never, never>,
     'abi' | 'address' | 'functionName' | 'args'
   > &
-    GetAccountParameter<account> & {
-      /** Address or ID of the TIP20 token. @default `usdAddress` */
-      token?: TokenId.TokenIdOrAddress | undefined
-    }
+    GetAccountParameter<account> &
+    Omit<Args, 'account'>
+
+  export type Args = {
+    /** Account address. */
+    account: Address
+    /** Address or ID of the TIP20 token. @default `usdAddress` */
+    token?: TokenId.TokenIdOrAddress | undefined
+  }
 
   export type ReturnType = ReadContractReturnType<
     typeof tip20Abi,
     'balanceOf',
     never
   >
+
+  /**
+   * Defines a call to the `balanceOf` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { account, token = usdAddress } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      functionName: 'balanceOf',
+      args: [account],
+    })
+  }
 }
 
 /**
@@ -668,7 +876,7 @@ export async function getMetadata<chain extends Chain | undefined>(
   )
 }
 
-export namespace getMetadata {
+export declare namespace getMetadata {
   export type Parameters = {
     /** Address or ID of the TIP20 token. @default `usdAddress` */
     token?: TokenId.TokenIdOrAddress | undefined
@@ -728,24 +936,15 @@ export async function grantRoles<
   client: Client<Transport, chain, account>,
   parameters: grantRoles.Parameters<chain, account>,
 ): Promise<grantRoles.ReturnType> {
-  const {
-    account = client.account,
-    chain = client.chain,
-    token,
-    to,
-    ...rest
-  } = parameters
-  if (parameters.roles.length > 1)
-    throw new Error('granting multiple roles is not supported yet.')
-  const [role] = parameters.roles.map((role) => TokenRole.serialize(role))
-  return writeContract(client, {
-    ...rest,
-    account,
-    address: TokenId.toAddress(token),
-    abi: tip20Abi,
-    chain,
-    functionName: 'grantRole',
-    args: [role, to],
+  return sendTransaction(client, {
+    ...parameters,
+    calls: parameters.roles.map((role) => {
+      const call = grantRoles.call({ ...parameters, role })
+      return {
+        ...call,
+        data: encodeFunctionData(call),
+      }
+    }),
   } as never)
 }
 
@@ -756,16 +955,66 @@ export namespace grantRoles {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Omit<Args, 'role'> & {
+      /** Role to grant. */
+      roles: readonly TokenRole.TokenRole[]
+    }
+
+  export type Args = {
+    /** Role to grant. */
+    role: TokenRole.TokenRole
     /** Address or ID of the TIP20 token. */
     token: TokenId.TokenIdOrAddress
-    /** Role to grant. */
-    roles: readonly TokenRole.TokenRole[]
     /** Address to grant the role to. */
     to: Address
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `grantRole` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.grantRoles.call({
+   *       token: '0x20c0...babe',
+   *       to: '0x20c0...beef',
+   *       role: 'minter',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { token, to, role } = args
+    const roleHash = TokenRole.serialize(role)
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      functionName: 'grantRole',
+      args: [roleHash, to],
+    })
+  }
 }
 
 /**
@@ -802,35 +1051,12 @@ export async function mint<
   client: Client<Transport, chain, account>,
   parameters: mint.Parameters<chain, account>,
 ): Promise<mint.ReturnType> {
-  const {
-    account = client.account,
-    amount,
-    chain = client.chain,
-    memo,
-    token,
-    to,
-    ...rest
-  } = parameters
-
-  const args = memo
-    ? ({
-        functionName: 'mintWithMemo',
-        args: [to, amount, Hex.padLeft(memo, 32)],
-      } as const)
-    : ({
-        functionName: 'mint',
-        args: [to, amount],
-      } as const)
-
+  const call = mint.call(parameters)
   return writeContract(client, {
-    ...rest,
-    account,
-    address: TokenId.toAddress(token),
-    abi: tip20Abi,
-    chain,
+    ...parameters,
     // TODO: fix
     gas: 30_000n,
-    ...args,
+    ...call,
   } as never)
 }
 
@@ -841,7 +1067,10 @@ export namespace mint {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Amount of tokens to mint. */
     amount: bigint
     /** Memo to include in the mint. */
@@ -853,6 +1082,57 @@ export namespace mint {
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `mint` or `mintWithMemo` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.mint.call({
+   *       to: '0x20c0...beef',
+   *       amount: 100n,
+   *       token: '0x20c0...babe',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { to, amount, memo, token } = args
+    const callArgs = memo
+      ? ({
+          functionName: 'mintWithMemo',
+          args: [to, amount, Hex.padLeft(memo, 32)],
+        } as const)
+      : ({
+          functionName: 'mint',
+          args: [to, amount],
+        } as const)
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      ...callArgs,
+    })
+  }
 }
 
 /**
@@ -887,20 +1167,10 @@ export async function pause<
   client: Client<Transport, chain, account>,
   parameters: pause.Parameters<chain, account>,
 ): Promise<pause.ReturnType> {
-  const {
-    account = client.account,
-    chain = client.chain,
-    token,
-    ...rest
-  } = parameters
+  const call = pause.call(parameters)
   return writeContract(client, {
-    ...rest,
-    account,
-    address: TokenId.toAddress(token),
-    abi: tip20Abi,
-    chain,
-    functionName: 'pause',
-    args: [],
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -911,12 +1181,56 @@ export namespace pause {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Address or ID of the TIP20 token. */
     token: TokenId.TokenIdOrAddress
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `pause` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.pause.call({
+   *       token: '0x20c0...babe',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { token } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      functionName: 'pause',
+      args: [],
+    })
+  }
 }
 
 /**
@@ -955,35 +1269,10 @@ export async function permit<
   client: Client<Transport, chain, account>,
   parameters: permit.Parameters<chain, account>,
 ): Promise<permit.ReturnType> {
-  const {
-    account = client.account,
-    chain = client.chain,
-    token = usdAddress,
-    owner,
-    spender,
-    value,
-    deadline,
-    signature,
-    ...rest
-  } = parameters
-  const { r, s, yParity } = Signature.from(signature)
-  const v = Signature.yParityToV(yParity)
+  const call = permit.call(parameters)
   return writeContract(client, {
-    ...rest,
-    account,
-    address: TokenId.toAddress(token),
-    abi: tip20Abi,
-    chain,
-    functionName: 'permit',
-    args: [
-      owner,
-      spender,
-      value,
-      deadline,
-      v,
-      Hex.trimLeft(Hex.fromNumber(r!)),
-      Hex.trimLeft(Hex.fromNumber(s!)),
-    ],
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -994,7 +1283,10 @@ export namespace permit {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Deadline for the permit. */
     deadline: bigint
     /** Address of the owner. */
@@ -1010,6 +1302,69 @@ export namespace permit {
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `permit` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.permit.call({
+   *       owner: '0x20c0...beef',
+   *       spender: '0x20c0...babe',
+   *       value: 100n,
+   *       deadline: 1234567890n,
+   *       signature: { r: 0n, s: 0n, yParity: 0 },
+   *       token: '0x20c0...cafe',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const {
+      owner,
+      spender,
+      value,
+      deadline,
+      signature,
+      token = usdAddress,
+    } = args
+    const { r, s, yParity } = Signature.from(signature)
+    const v = Signature.yParityToV(yParity)
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      functionName: 'permit',
+      args: [
+        owner,
+        spender,
+        value,
+        deadline,
+        v,
+        Hex.trimLeft(Hex.fromNumber(r!)),
+        Hex.trimLeft(Hex.fromNumber(s!)),
+      ],
+    })
+  }
 }
 
 /**
@@ -1045,23 +1400,15 @@ export async function renounceRoles<
   client: Client<Transport, chain, account>,
   parameters: renounceRoles.Parameters<chain, account>,
 ): Promise<renounceRoles.ReturnType> {
-  const {
-    account = client.account,
-    chain = client.chain,
-    token,
-    ...rest
-  } = parameters
-  if (parameters.roles.length > 1)
-    throw new Error('renouncing multiple roles is not supported yet.')
-  const [role] = parameters.roles.map(TokenRole.serialize)
-  return writeContract(client, {
-    ...rest,
-    account,
-    address: TokenId.toAddress(token),
-    abi: tip20Abi,
-    chain,
-    functionName: 'renounceRole',
-    args: [role],
+  return sendTransaction(client, {
+    ...parameters,
+    calls: parameters.roles.map((role) => {
+      const call = renounceRoles.call({ ...parameters, role })
+      return {
+        ...call,
+        data: encodeFunctionData(call),
+      }
+    }),
   } as never)
 }
 
@@ -1072,14 +1419,63 @@ export namespace renounceRoles {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Omit<Args, 'role'> & {
+      /** Roles to renounce. */
+      roles: readonly TokenRole.TokenRole[]
+    }
+
+  export type Args = {
+    /** Role to renounce. */
+    role: TokenRole.TokenRole
     /** Address or ID of the TIP20 token. */
     token: TokenId.TokenIdOrAddress
-    /** Roles to renounce. */
-    roles: readonly TokenRole.TokenRole[]
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `renounceRole` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.renounceRoles.call({
+   *       token: '0x20c0...babe',
+   *       role: 'minter',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { token, role } = args
+    const roleHash = TokenRole.serialize(role)
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      functionName: 'renounceRole',
+      args: [roleHash],
+    })
+  }
 }
 
 /**
@@ -1116,24 +1512,15 @@ export async function revokeRoles<
   client: Client<Transport, chain, account>,
   parameters: revokeRoles.Parameters<chain, account>,
 ): Promise<revokeRoles.ReturnType> {
-  const {
-    account = client.account,
-    chain = client.chain,
-    token,
-    from,
-    ...rest
-  } = parameters
-  if (parameters.roles.length > 1)
-    throw new Error('revoking multiple roles is not supported yet.')
-  const [role] = parameters.roles.map(TokenRole.serialize)
-  return writeContract(client, {
-    ...rest,
-    account,
-    address: TokenId.toAddress(token),
-    abi: tip20Abi,
-    chain,
-    functionName: 'revokeRole',
-    args: [role, from],
+  return sendTransaction(client, {
+    ...parameters,
+    calls: parameters.roles.map((role) => {
+      const call = revokeRoles.call({ ...parameters, role })
+      return {
+        ...call,
+        data: encodeFunctionData(call),
+      }
+    }),
   } as never)
 }
 
@@ -1141,19 +1528,66 @@ export namespace revokeRoles {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = UnionOmit<
-    WriteContractParameters<never, never, never, chain, account>,
-    'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > = SendTransactionParameters<chain, account> &
+    Omit<Args, 'role'> & {
+      /** Role to revoke. */
+      roles: readonly TokenRole.TokenRole[]
+    }
+
+  export type Args = {
     /** Address to revoke the role from. */
     from: Address
     /** Role to revoke. */
-    roles: readonly TokenRole.TokenRole[]
+    role: TokenRole.TokenRole
     /** Address or ID of the TIP20 token. */
     token: TokenId.TokenIdOrAddress
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `revokeRole` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.revokeRoles.call({
+   *       token: '0x20c0...babe',
+   *       from: '0x20c0...beef',
+   *       role: 'minter',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { token, from, role } = args
+    const roleHash = TokenRole.serialize(role)
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      functionName: 'revokeRole',
+      args: [roleHash, from],
+    })
+  }
 }
 
 /**
@@ -1189,21 +1623,10 @@ export async function setSupplyCap<
   client: Client<Transport, chain, account>,
   parameters: setSupplyCap.Parameters<chain, account>,
 ): Promise<setSupplyCap.ReturnType> {
-  const {
-    account = client.account,
-    chain = client.chain,
-    token,
-    supplyCap,
-    ...rest
-  } = parameters
+  const call = setSupplyCap.call(parameters)
   return writeContract(client, {
-    ...rest,
-    account,
-    address: TokenId.toAddress(token),
-    abi: tip20Abi,
-    chain,
-    functionName: 'setSupplyCap',
-    args: [supplyCap],
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -1214,7 +1637,10 @@ export namespace setSupplyCap {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** New supply cap. */
     supplyCap: bigint
     /** Address or ID of the TIP20 token. */
@@ -1222,6 +1648,48 @@ export namespace setSupplyCap {
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `setSupplyCap` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.setSupplyCap.call({
+   *       token: '0x20c0...babe',
+   *       supplyCap: 1000000n,
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { token, supplyCap } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      functionName: 'setSupplyCap',
+      args: [supplyCap],
+    })
+  }
 }
 
 /**
@@ -1258,24 +1726,10 @@ export async function setRoleAdmin<
   client: Client<Transport, chain, account>,
   parameters: setRoleAdmin.Parameters<chain, account>,
 ): Promise<setRoleAdmin.ReturnType> {
-  const {
-    account = client.account,
-    adminRole,
-    chain = client.chain,
-    token,
-    role,
-    ...rest
-  } = parameters
-  const roleHash = TokenRole.serialize(role)
-  const adminRoleHash = TokenRole.serialize(adminRole)
+  const call = setRoleAdmin.call(parameters)
   return writeContract(client, {
-    ...rest,
-    account,
-    address: TokenId.toAddress(token),
-    abi: tip20Abi,
-    chain,
-    functionName: 'setRoleAdmin',
-    args: [roleHash, adminRoleHash],
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -1286,7 +1740,10 @@ export namespace setRoleAdmin {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** New admin role. */
     adminRole: TokenRole.TokenRole
     /** Role to set admin for. */
@@ -1296,6 +1753,51 @@ export namespace setRoleAdmin {
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `setRoleAdmin` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.setRoleAdmin.call({
+   *       token: '0x20c0...babe',
+   *       role: 'minter',
+   *       adminRole: 'admin',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { token, role, adminRole } = args
+    const roleHash = TokenRole.serialize(role)
+    const adminRoleHash = TokenRole.serialize(adminRole)
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      functionName: 'setRoleAdmin',
+      args: [roleHash, adminRoleHash],
+    })
+  }
 }
 
 /**
@@ -1331,46 +1833,10 @@ export async function transfer<
   client: Client<Transport, chain, account>,
   parameters: transfer.Parameters<chain, account>,
 ): Promise<transfer.ReturnType> {
-  const {
-    account = client.account,
-    amount,
-    chain = client.chain,
-    from,
-    memo,
-    token = usdAddress,
-    to,
-    ...rest
-  } = parameters
-
-  const args = (() => {
-    if (memo && from)
-      return {
-        functionName: 'transferFromWithMemo',
-        args: [from, to, amount, Hex.padLeft(memo, 32)],
-      } as const
-    if (memo)
-      return {
-        functionName: 'transferWithMemo',
-        args: [to, amount, Hex.padLeft(memo, 32)],
-      } as const
-    if (from)
-      return {
-        functionName: 'transferFrom',
-        args: [from, to, amount],
-      } as const
-    return {
-      functionName: 'transfer',
-      args: [to, amount],
-    } as const
-  })()
-
+  const call = transfer.call(parameters)
   return writeContract(client, {
-    ...rest,
-    account,
-    address: TokenId.toAddress(token),
-    abi: tip20Abi,
-    chain,
-    ...args,
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -1381,7 +1847,10 @@ export namespace transfer {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Amount of tokens to transfer. */
     amount: bigint
     /** Address to transfer tokens from. */
@@ -1395,6 +1864,69 @@ export namespace transfer {
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `transfer`, `transferFrom`, `transferWithMemo`, or `transferFromWithMemo` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.transfer.call({
+   *       to: '0x20c0...beef',
+   *       amount: 100n,
+   *       token: '0x20c0...babe',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { amount, from, memo, token = usdAddress, to } = args
+    const callArgs = (() => {
+      if (memo && from)
+        return {
+          functionName: 'transferFromWithMemo',
+          args: [from, to, amount, Hex.padLeft(memo, 32)],
+        } as const
+      if (memo)
+        return {
+          functionName: 'transferWithMemo',
+          args: [to, amount, Hex.padLeft(memo, 32)],
+        } as const
+      if (from)
+        return {
+          functionName: 'transferFrom',
+          args: [from, to, amount],
+        } as const
+      return {
+        functionName: 'transfer',
+        args: [to, amount],
+      } as const
+    })()
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      ...callArgs,
+    })
+  }
 }
 
 /**
@@ -1429,20 +1961,10 @@ export async function unpause<
   client: Client<Transport, chain, account>,
   parameters: unpause.Parameters<chain, account>,
 ): Promise<unpause.ReturnType> {
-  const {
-    account = client.account,
-    chain = client.chain,
-    token,
-    ...rest
-  } = parameters
+  const call = unpause.call(parameters)
   return writeContract(client, {
-    ...rest,
-    account,
-    address: TokenId.toAddress(token),
-    abi: tip20Abi,
-    chain,
-    functionName: 'unpause',
-    args: [],
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -1453,12 +1975,56 @@ export namespace unpause {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Address or ID of the TIP20 token. */
     token: TokenId.TokenIdOrAddress
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `unpause` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.unpause.call({
+   *       token: '0x20c0...babe',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { token } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      functionName: 'unpause',
+      args: [],
+    })
+  }
 }
 
 /**
@@ -1506,7 +2072,7 @@ export function watchApprove<
   })
 }
 
-export namespace watchApprove {
+export declare namespace watchApprove {
   export type Args = GetEventArgs<
     typeof tip20Abi,
     'Approval',
@@ -1574,7 +2140,7 @@ export function watchBurn<
   })
 }
 
-export namespace watchBurn {
+export declare namespace watchBurn {
   export type Args = GetEventArgs<
     typeof tip20Abi,
     'Burn',
@@ -1645,7 +2211,7 @@ export function watchCreate<
   })
 }
 
-export namespace watchCreate {
+export declare namespace watchCreate {
   export type Args = GetEventArgs<
     typeof tip20FactoryAbi,
     'TokenCreated',
@@ -1711,7 +2277,7 @@ export function watchMint<
   })
 }
 
-export namespace watchMint {
+export declare namespace watchMint {
   export type Args = GetEventArgs<
     typeof tip20Abi,
     'Mint',
@@ -1782,7 +2348,7 @@ export function watchAdminRole<
   })
 }
 
-export namespace watchAdminRole {
+export declare namespace watchAdminRole {
   export type Args = GetEventArgs<
     typeof tip20Abi,
     'RoleAdminUpdated',
@@ -1853,7 +2419,7 @@ export function watchRole<
   })
 }
 
-export namespace watchRole {
+export declare namespace watchRole {
   export type Args = GetEventArgs<
     typeof tip20Abi,
     'RoleMembershipUpdated',
@@ -1932,7 +2498,7 @@ export function watchTransfer<
   })
 }
 
-export namespace watchTransfer {
+export declare namespace watchTransfer {
   export type Args = GetEventArgs<
     typeof tip20Abi,
     'Transfer',

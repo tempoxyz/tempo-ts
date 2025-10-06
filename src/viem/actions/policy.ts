@@ -1,8 +1,3 @@
-// TODO:
-// - add `.call` to namespaces
-// - add `.simulate` to namespaces
-// - add `.estimateGas` to namespaces
-
 import type {
   Account,
   Address,
@@ -25,9 +20,10 @@ import {
   watchContractEvent,
   writeContract,
 } from 'viem/actions'
-import type { Compute } from '../../internal/types.js'
+import type { Compute, UnionOmit } from '../../internal/types.js'
 import { tip403RegistryAbi } from '../abis.js'
 import { tip403RegistryAddress } from '../addresses.js'
+import { defineCall } from '../utils.js'
 
 export type PolicyType = 'whitelist' | 'blacklist'
 
@@ -81,40 +77,93 @@ export async function create<
 
   const admin = parseAccount(account).address!
 
-  const args = addresses
-    ? ([admin, policyTypeMap[type], addresses] as const)
-    : ([admin, policyTypeMap[type]] as const)
-
+  const call = create.call({ admin, type, addresses })
   const { request, result } = await simulateContract(client, {
     ...rest,
     account,
-    address: tip403RegistryAddress,
-    abi: tip403RegistryAbi,
     chain,
-    functionName: 'createPolicy',
-    args,
+    ...call,
   } as never)
   const hash = await writeContract(client, request as never)
   return { hash, policyId: result }
 }
 
-export declare namespace create {
-  type Parameters<
+export namespace create {
+  export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = Omit<
+  > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args' | 'type'
-  > & {
+  > &
+    Omit<Args, 'admin'> & {
+      /** Address of the policy admin. */
+      admin?: Address | undefined
+    }
+
+  export type Args = {
     /** Optional array of accounts to initialize the policy with. */
     addresses?: readonly Address[] | undefined
     /** Address of the policy admin. */
-    admin?: Address | undefined
+    admin: Address
     /** Type of policy to create. */
     type: PolicyType
   }
 
-  type ReturnType = { hash: WriteContractReturnType; policyId: bigint }
+  export type ReturnType = Compute<{
+    hash: WriteContractReturnType
+    policyId: bigint
+  }>
+
+  /**
+   * Defines a call to the `createPolicy` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.policy.create.call({
+   *       admin: '0xfeed...fede',
+   *       type: 'whitelist',
+   *     }),
+   *     actions.policy.create.call({
+   *       admin: '0xfeed...fede',
+   *       type: 'blacklist',
+   *       addresses: ['0x20c0...beef', '0x20c0...babe'],
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { admin, type, addresses } = args
+    const callArgs = addresses
+      ? ([admin, policyTypeMap[type], addresses] as const)
+      : ([admin, policyTypeMap[type]] as const)
+    return defineCall({
+      address: tip403RegistryAddress,
+      abi: tip403RegistryAbi,
+      functionName: 'createPolicy',
+      args: callArgs,
+    })
+  }
 }
 
 /**
@@ -150,21 +199,10 @@ export async function setAdmin<
   client: Client<Transport, chain, account>,
   parameters: setAdmin.Parameters<chain, account>,
 ): Promise<setAdmin.ReturnType> {
-  const {
-    account = client.account,
-    admin,
-    chain = client.chain,
-    policyId,
-    ...rest
-  } = parameters
+  const call = setAdmin.call(parameters)
   return writeContract(client, {
-    ...rest,
-    account,
-    address: tip403RegistryAddress,
-    abi: tip403RegistryAbi,
-    chain,
-    functionName: 'setPolicyAdmin',
-    args: [policyId, admin],
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -172,10 +210,13 @@ export namespace setAdmin {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = Omit<
+  > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** New admin address. */
     admin: Address
     /** Policy ID. */
@@ -183,6 +224,52 @@ export namespace setAdmin {
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `setPolicyAdmin` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.policy.setAdmin.call({
+   *       policyId: 2n,
+   *       admin: '0xfeed...fede',
+   *     }),
+   *     actions.policy.setAdmin.call({
+   *       policyId: 3n,
+   *       admin: '0xfeed...babe',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { policyId, admin } = args
+    return defineCall({
+      address: tip403RegistryAddress,
+      abi: tip403RegistryAbi,
+      functionName: 'setPolicyAdmin',
+      args: [policyId, admin],
+    })
+  }
 }
 
 /**
@@ -219,22 +306,11 @@ export async function modifyWhitelist<
   client: Client<Transport, chain, account>,
   parameters: modifyWhitelist.Parameters<chain, account>,
 ): Promise<modifyWhitelist.ReturnType> {
-  const {
-    account = client.account,
-    address: targetAccount,
-    allowed,
-    chain = client.chain,
-    policyId,
-    ...rest
-  } = parameters
+  const { address: targetAccount, ...rest } = parameters
+  const call = modifyWhitelist.call({ ...rest, address: targetAccount })
   return writeContract(client, {
-    ...rest,
-    account,
-    address: tip403RegistryAddress,
-    abi: tip403RegistryAbi,
-    chain,
-    functionName: 'modifyPolicyWhitelist',
-    args: [policyId, targetAccount, allowed],
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -242,10 +318,13 @@ export namespace modifyWhitelist {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = Omit<
+  > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Target account address. */
     address: Address
     /** Whether the account is allowed. */
@@ -255,6 +334,54 @@ export namespace modifyWhitelist {
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `modifyPolicyWhitelist` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.policy.modifyWhitelist.call({
+   *       policyId: 2n,
+   *       address: '0x20c0...beef',
+   *       allowed: true,
+   *     }),
+   *     actions.policy.modifyWhitelist.call({
+   *       policyId: 2n,
+   *       address: '0x20c0...babe',
+   *       allowed: false,
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { policyId, address, allowed } = args
+    return defineCall({
+      address: tip403RegistryAddress,
+      abi: tip403RegistryAbi,
+      functionName: 'modifyPolicyWhitelist',
+      args: [policyId, address, allowed],
+    })
+  }
 }
 
 /**
@@ -291,22 +418,11 @@ export async function modifyBlacklist<
   client: Client<Transport, chain, account>,
   parameters: modifyBlacklist.Parameters<chain, account>,
 ): Promise<modifyBlacklist.ReturnType> {
-  const {
-    account = client.account,
-    address: targetAccount,
-    chain = client.chain,
-    policyId,
-    restricted,
-    ...rest
-  } = parameters
+  const { address: targetAccount, ...rest } = parameters
+  const call = modifyBlacklist.call({ ...rest, address: targetAccount })
   return writeContract(client, {
-    ...rest,
-    account,
-    address: tip403RegistryAddress,
-    abi: tip403RegistryAbi,
-    chain,
-    functionName: 'modifyPolicyBlacklist',
-    args: [policyId, targetAccount, restricted],
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -314,10 +430,13 @@ export namespace modifyBlacklist {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = Omit<
+  > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Target account address. */
     address: Address
     /** Policy ID. */
@@ -327,6 +446,54 @@ export namespace modifyBlacklist {
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `modifyPolicyBlacklist` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.policy.modifyBlacklist.call({
+   *       policyId: 2n,
+   *       address: '0x20c0...beef',
+   *       restricted: true,
+   *     }),
+   *     actions.policy.modifyBlacklist.call({
+   *       policyId: 2n,
+   *       address: '0x20c0...babe',
+   *       restricted: false,
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { policyId, address, restricted } = args
+    return defineCall({
+      address: tip403RegistryAddress,
+      abi: tip403RegistryAbi,
+      functionName: 'modifyPolicyBlacklist',
+      args: [policyId, address, restricted],
+    })
+  }
 }
 
 /**
@@ -356,13 +523,9 @@ export async function getData<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getData.Parameters,
 ): Promise<getData.ReturnType> {
-  const { policyId, ...rest } = parameters
   const result = await readContract(client, {
-    ...rest,
-    address: tip403RegistryAddress,
-    abi: tip403RegistryAbi,
-    functionName: 'policyData',
-    args: [policyId],
+    ...parameters,
+    ...getData.call(parameters),
   })
   return {
     admin: result[1],
@@ -371,10 +534,13 @@ export async function getData<chain extends Chain | undefined>(
 }
 
 export namespace getData {
-  export type Parameters = Omit<
+  export type Parameters = UnionOmit<
     ReadContractParameters<never, never, never>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Policy ID. */
     policyId: bigint
   }
@@ -385,6 +551,22 @@ export namespace getData {
     /** Policy type. */
     type: PolicyType
   }>
+
+  /**
+   * Defines a call to the `policyData` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { policyId } = args
+    return defineCall({
+      address: tip403RegistryAddress,
+      abi: tip403RegistryAbi,
+      args: [policyId],
+      functionName: 'policyData',
+    })
+  }
 }
 
 /**
@@ -415,21 +597,20 @@ export async function isAuthorized<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: isAuthorized.Parameters,
 ): Promise<isAuthorized.ReturnType> {
-  const { policyId, user, ...rest } = parameters
   return readContract(client, {
-    ...rest,
-    address: tip403RegistryAddress,
-    abi: tip403RegistryAbi,
-    functionName: 'isAuthorized',
-    args: [policyId, user],
+    ...parameters,
+    ...isAuthorized.call(parameters),
   })
 }
 
 export namespace isAuthorized {
-  export type Parameters = Omit<
+  export type Parameters = UnionOmit<
     ReadContractParameters<never, never, never>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Policy ID. */
     policyId: bigint
     /** User address to check. */
@@ -441,6 +622,22 @@ export namespace isAuthorized {
     'isAuthorized',
     never
   >
+
+  /**
+   * Defines a call to the `isAuthorized` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { policyId, user } = args
+    return defineCall({
+      address: tip403RegistryAddress,
+      abi: tip403RegistryAbi,
+      args: [policyId, user],
+      functionName: 'isAuthorized',
+    })
+  }
 }
 
 /**
@@ -495,12 +692,12 @@ export function watchCreate<
   })
 }
 
-export namespace watchCreate {
-  export type Args = {
+export declare namespace watchCreate {
+  export type Args = Compute<{
     policyId: bigint
     updater: Address
     type: PolicyType
-  }
+  }>
 
   export type Log = viem_Log<
     bigint,
@@ -510,7 +707,7 @@ export namespace watchCreate {
     true
   >
 
-  export type Parameters = Omit<
+  export type Parameters = UnionOmit<
     WatchContractEventParameters<
       typeof tip403RegistryAbi,
       'PolicyCreated',
@@ -568,7 +765,7 @@ export function watchAdminUpdated<
   })
 }
 
-export namespace watchAdminUpdated {
+export declare namespace watchAdminUpdated {
   export type Args = GetEventArgs<
     typeof tip403RegistryAbi,
     'PolicyAdminUpdated',
@@ -583,7 +780,7 @@ export namespace watchAdminUpdated {
     true
   >
 
-  export type Parameters = Omit<
+  export type Parameters = UnionOmit<
     WatchContractEventParameters<
       typeof tip403RegistryAbi,
       'PolicyAdminUpdated',
@@ -641,7 +838,7 @@ export function watchWhitelistUpdated<
   })
 }
 
-export namespace watchWhitelistUpdated {
+export declare namespace watchWhitelistUpdated {
   export type Args = GetEventArgs<
     typeof tip403RegistryAbi,
     'WhitelistUpdated',
@@ -656,7 +853,7 @@ export namespace watchWhitelistUpdated {
     true
   >
 
-  export type Parameters = Omit<
+  export type Parameters = UnionOmit<
     WatchContractEventParameters<
       typeof tip403RegistryAbi,
       'WhitelistUpdated',
@@ -714,7 +911,7 @@ export function watchBlacklistUpdated<
   })
 }
 
-export namespace watchBlacklistUpdated {
+export declare namespace watchBlacklistUpdated {
   export type Args = GetEventArgs<
     typeof tip403RegistryAbi,
     'BlacklistUpdated',
@@ -729,7 +926,7 @@ export namespace watchBlacklistUpdated {
     true
   >
 
-  export type Parameters = Omit<
+  export type Parameters = UnionOmit<
     WatchContractEventParameters<
       typeof tip403RegistryAbi,
       'BlacklistUpdated',

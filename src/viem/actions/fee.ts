@@ -1,8 +1,3 @@
-// TODO:
-// - add `.call` to namespaces
-// - add `.simulate` to namespaces
-// - add `.estimateGas` to namespaces
-
 import type {
   Account,
   Address,
@@ -19,11 +14,12 @@ import type {
 } from 'viem'
 import { parseAccount } from 'viem/accounts'
 import { readContract, watchContractEvent, writeContract } from 'viem/actions'
-import type { UnionOmit } from '../../internal/types.js'
+import type { Compute, UnionOmit } from '../../internal/types.js'
 import * as TokenId from '../../ox/TokenId.js'
 import { feeManagerAbi } from '../abis.js'
 import { feeManagerAddress } from '../addresses.js'
 import type { GetAccountParameter } from '../types.js'
+import { defineCall } from '../utils.js'
 
 /**
  * Gets the user's default fee token.
@@ -62,10 +58,7 @@ export async function getUserToken<
   const account = parseAccount(account_)
   const address = await readContract(client, {
     ...rest,
-    address: feeManagerAddress,
-    abi: feeManagerAbi,
-    functionName: 'userTokens',
-    args: [account.address],
+    ...getUserToken.call({ account: account.address }),
   })
   return {
     address,
@@ -82,9 +75,30 @@ export namespace getUserToken {
   > &
     GetAccountParameter<account>
 
-  export type ReturnType = {
+  export type Args = {
+    /** Account address. */
+    account: Address
+  }
+
+  export type ReturnType = Compute<{
     address: Address
     id: bigint
+  }>
+
+  /**
+   * Defines a call to the `userTokens` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { account } = args
+    return defineCall({
+      address: feeManagerAddress,
+      abi: feeManagerAbi,
+      args: [account],
+      functionName: 'userTokens',
+    })
   }
 }
 
@@ -120,20 +134,10 @@ export async function setUserToken<
   client: Client<Transport, chain, account>,
   parameters: setUserToken.Parameters<chain, account>,
 ): Promise<setUserToken.ReturnType> {
-  const {
-    account = client.account,
-    chain = client.chain,
-    token,
-    ...rest
-  } = parameters
+  const call = setUserToken.call(parameters)
   return writeContract(client, {
-    ...rest,
-    account,
-    address: feeManagerAddress,
-    abi: feeManagerAbi,
-    chain,
-    functionName: 'setUserToken',
-    args: [TokenId.toAddress(token)],
+    ...parameters,
+    ...call,
   } as never)
 }
 
@@ -144,12 +148,59 @@ export namespace setUserToken {
   > = UnionOmit<
     WriteContractParameters<never, never, never, chain, account>,
     'abi' | 'address' | 'functionName' | 'args'
-  > & {
+  > &
+    Args
+
+  export type Args = {
     /** Address or ID of the TIP20 token. */
     token: TokenId.TokenIdOrAddress
   }
 
   export type ReturnType = WriteContractReturnType
+
+  /**
+   * Defines a call to the `setUserToken` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo/chains'
+   * import * as actions from 'tempo/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.fee.setUserToken.call({
+   *       token: '0x20c0...beef',
+   *     }),
+   *     actions.fee.setUserToken.call({
+   *       token: '0x20c0...babe',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { token } = args
+    return defineCall({
+      address: feeManagerAddress,
+      abi: feeManagerAbi,
+      functionName: 'setUserToken',
+      args: [TokenId.toAddress(token)],
+    })
+  }
 }
 
 /**
@@ -197,7 +248,7 @@ export function watchSetUserToken<
   })
 }
 
-export namespace watchSetUserToken {
+export declare namespace watchSetUserToken {
   export type Args = GetEventArgs<
     typeof feeManagerAbi,
     'UserTokenSet',
