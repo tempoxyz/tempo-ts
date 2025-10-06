@@ -15,6 +15,20 @@ export const tempoAdagietto = /*#__PURE__*/ defineChain({
   },
 })
 
+export const tempoLento = /*#__PURE__*/ defineChain({
+  ...chainConfig,
+  id: 42426,
+  name: 'Tempo',
+  nativeCurrency: {
+    name: 'USD',
+    symbol: 'USD',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: { http: ['https://rpc-lento.tempoxyz.dev'] },
+  },
+})
+
 export const tempoLocal = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 1337,
