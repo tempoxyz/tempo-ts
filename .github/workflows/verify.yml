@@ -54,7 +54,11 @@ jobs:
         shell: bash
         run: bun run test:install
 
+      - name: Add Tempo binary to PATH
+        shell: bash
+        run: echo "$GITHUB_WORKSPACE/test/tempo/target/release" >> $GITHUB_PATH
+
       - name: Run tests
-        run: bun run test
+        run: bun run test --bail=1
         env:
           CI: true

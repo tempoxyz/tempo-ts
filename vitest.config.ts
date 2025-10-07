@@ -10,6 +10,7 @@ export default defineConfig({
   test: {
     retry: 3,
     testTimeout: 20_000,
+    reporters: process.env.CI ? ['verbose'] : [],
     projects: [
       {
         extends: true,
