@@ -17,13 +17,13 @@ import * as actions from './decorator.js'
 export type Client<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
-  accountOrAddress extends Account | undefined = undefined,
+  account extends Account | undefined = undefined,
 > = viem_Client<
   transport,
   chain,
-  accountOrAddress,
+  account,
   undefined,
-  actions.Decorator<chain, accountOrAddress>
+  actions.Decorator<chain, account>
 >
 
 /**
@@ -86,6 +86,6 @@ export declare namespace createTempoClient {
   export type ReturnValue<
     transport extends Transport = Transport,
     chain extends Chain | undefined = Chain | undefined,
-    accountOrAddress extends Account | undefined = undefined,
-  > = Client<transport, chain, accountOrAddress>
+    account extends Account | undefined = undefined,
+  > = Client<transport, chain, account>
 }
