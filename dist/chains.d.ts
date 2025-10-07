@@ -388,7 +388,7 @@ export declare const tempoLento: {
         };
     };
     ensTlds?: readonly string[] | undefined;
-    id: 42426;
+    id: 4246;
     name: "Tempo";
     nativeCurrency: {
         readonly name: "USD";
@@ -1126,7 +1126,7 @@ export declare const tempo: {
         };
     };
     ensTlds?: readonly string[] | undefined;
-    id: 1337;
+    id: 4246;
     name: "Tempo";
     nativeCurrency: {
         readonly name: "USD";
@@ -1136,7 +1136,7 @@ export declare const tempo: {
     experimental_preconfirmationTime?: number | undefined | undefined;
     rpcUrls: {
         readonly default: {
-            readonly http: readonly ["https://rpc-adagietto.tempoxyz.dev"];
+            readonly http: readonly ["https://rpc-lento.tempoxyz.dev"];
         };
     };
     sourceId?: number | undefined | undefined;

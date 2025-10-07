@@ -15,7 +15,7 @@ export const tempoAdagietto = /*#__PURE__*/ defineChain({
 });
 export const tempoLento = /*#__PURE__*/ defineChain({
     ...chainConfig,
-    id: 42426,
+    id: 4246,
     name: 'Tempo',
     nativeCurrency: {
         name: 'USD',
@@ -39,5 +39,5 @@ export const tempoLocal = /*#__PURE__*/ defineChain({
         default: { http: ['http://localhost:8545'] },
     },
 });
-export const tempo = tempoAdagietto;
+export const tempo = /*#__PURE__*/ defineChain(tempoLento);
 //# sourceMappingURL=chains.js.map

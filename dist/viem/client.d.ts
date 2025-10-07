@@ -2,7 +2,7 @@ import { type Account, type Address, type Chain, type ClientConfig, type JsonRpc
 import { tempo } from "../chains.js";
 import type { PartialBy } from "../internal/types.js";
 import * as actions from "./decorator.js";
-export type Client<transport extends Transport = Transport, chain extends Chain | undefined = Chain | undefined, accountOrAddress extends Account | undefined = undefined> = viem_Client<transport, chain, accountOrAddress, undefined, actions.Decorator<chain, accountOrAddress>>;
+export type Client<transport extends Transport = Transport, chain extends Chain | undefined = Chain | undefined, account extends Account | undefined = undefined> = viem_Client<transport, chain, account, undefined, actions.Decorator<chain, account>>;
 /**
  * Instantiates a default Tempo client.
  *
@@ -22,6 +22,6 @@ export type Client<transport extends Transport = Transport, chain extends Chain 
 export declare function createTempoClient<transport extends Transport, chain extends Chain | undefined = typeof tempo, accountOrAddress extends Account | Address | undefined = undefined, rpcSchema extends RpcSchema | undefined = undefined>(parameters?: createTempoClient.Parameters<transport, chain, accountOrAddress, rpcSchema>): createTempoClient.ReturnValue<transport, chain, accountOrAddress extends Address ? JsonRpcAccount<accountOrAddress> : accountOrAddress>;
 export declare namespace createTempoClient {
     type Parameters<transport extends Transport = Transport, chain extends Chain | undefined = Chain | undefined, accountOrAddress extends Account | Address | undefined = Account | Address | undefined, rpcSchema extends RpcSchema | undefined = undefined> = PartialBy<ClientConfig<transport, chain, accountOrAddress, rpcSchema>, 'transport'>;
-    type ReturnValue<transport extends Transport = Transport, chain extends Chain | undefined = Chain | undefined, accountOrAddress extends Account | undefined = undefined> = Client<transport, chain, accountOrAddress>;
+    type ReturnValue<transport extends Transport = Transport, chain extends Chain | undefined = Chain | undefined, account extends Account | undefined = undefined> = Client<transport, chain, account>;
 }
 //# sourceMappingURL=client.d.ts.map
