@@ -33,7 +33,7 @@
 	},
 	"peerDependencies": {
 		"prool": "^0",
-		"viem": ">=2.37.12"
+		"viem": ">=2.38"
 	},
 	"peerDependenciesMeta": {
 		"prool": {
@@ -58,7 +58,7 @@
 		"prool": "latest",
 		"simple-git-hooks": "^2.13.1",
 		"typescript": "^5.9.2",
-		"viem": "2.37.12",
+		"viem": "^2.38.0",
 		"zshy": "^0.4.2"
 	},
 	"files": [
