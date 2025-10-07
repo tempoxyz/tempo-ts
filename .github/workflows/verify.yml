@@ -10,7 +10,6 @@ jobs:
   checks:
     name: Checks
     runs-on: ubuntu-latest
-    timeout-minutes: 5
 
     steps:
       - name: Clone repository
@@ -40,6 +39,20 @@ jobs:
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
+
+      - name: Cache Tempo binary
+        id: cache-tempo
+        uses: actions/cache@v4
+        with:
+          path: test/tempo/target/release
+          key: tempo-binary-${{ runner.os }}-${{ hashFiles('test/tempo/Cargo.lock', 'test/tempo/**/*.rs', 'test/tempo/**/Cargo.toml') }}
+          restore-keys: |
+            tempo-binary-${{ runner.os }}-
+
+      - name: Install Tempo binary
+        if: steps.cache-tempo.outputs.cache-hit != 'true'
+        shell: bash
+        run: bun run test:install
 
       - name: Run tests
         run: bun run test
