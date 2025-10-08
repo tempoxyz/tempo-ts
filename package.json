@@ -1,10 +1,11 @@
 {
-	"name": "tempo",
+	"name": "tempo.ts",
 	"type": "module",
-	"version": "0.0.1",
+	"version": "0.0.0",
 	"scripts": {
 		"build": "zshy --project ./tsconfig.build.json",
-		"bump": "bun run build && git add . && npm version patch --force && git tag -d latest && git tag latest && git push && git push --tags",
+		"changeset:publish": "bun run build && changeset publish",
+		"changeset:version": "changeset version && bun run check",
 		"check": "biome check . --write --unsafe",
 		"check:types": "tsc -b",
 		"gen:abis": "forge build --config-path ./contracts/specs/foundry.toml && bun scripts/gen:abis.ts && bun run check",
@@ -18,13 +19,7 @@
 			"./ox": "./src/ox/index.ts",
 			"./prool": "./src/prool/index.ts",
 			"./viem": "./src/viem/index.ts",
-			"./viem/actions": "./src/viem/actions/index.ts",
-			"./viem/abis": "./src/viem/abis.ts",
-			"./viem/addresses": "./src/viem/addresses.ts",
-			"./viem/chain": "./src/viem/chain.ts",
-			"./viem/formatters": "./src/viem/formatters.ts",
-			"./viem/transaction": "./src/viem/transaction.ts",
-			"./viem/transport": "./src/viem/transport.ts"
+			"./viem/actions": "./src/viem/actions/index.ts"
 		},
 		"cjs": false,
 		"conditions": {
@@ -58,6 +53,8 @@
 	"devDependencies": {
 		"@ark/attest": "^0.49.0",
 		"@biomejs/biome": "^2.2.4",
+		"@changesets/changelog-github": "^0.5.0",
+		"@changesets/cli": "^2.27.7",
 		"@elysiajs/node": "^1.4.1",
 		"@types/bun": "latest",
 		"elysia": "latest",
@@ -103,36 +100,6 @@
 			"src": "./src/viem/actions/index.ts",
 			"types": "./dist/viem/actions/index.d.ts",
 			"import": "./dist/viem/actions/index.js"
-		},
-		"./viem/abis": {
-			"src": "./src/viem/abis.ts",
-			"types": "./dist/viem/abis.d.ts",
-			"import": "./dist/viem/abis.js"
-		},
-		"./viem/addresses": {
-			"src": "./src/viem/addresses.ts",
-			"types": "./dist/viem/addresses.d.ts",
-			"import": "./dist/viem/addresses.js"
-		},
-		"./viem/chain": {
-			"src": "./src/viem/chain.ts",
-			"types": "./dist/viem/chain.d.ts",
-			"import": "./dist/viem/chain.js"
-		},
-		"./viem/formatters": {
-			"src": "./src/viem/formatters.ts",
-			"types": "./dist/viem/formatters.d.ts",
-			"import": "./dist/viem/formatters.js"
-		},
-		"./viem/transaction": {
-			"src": "./src/viem/transaction.ts",
-			"types": "./dist/viem/transaction.d.ts",
-			"import": "./dist/viem/transaction.js"
-		},
-		"./viem/transport": {
-			"src": "./src/viem/transport.ts",
-			"types": "./dist/viem/transport.d.ts",
-			"import": "./dist/viem/transport.js"
 		}
 	},
 	"simple-git-hooks": {
