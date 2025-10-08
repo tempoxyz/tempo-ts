@@ -1,5 +1,6 @@
 .attest
 data
+dist
 node_modules
 tmp
 tsconfig*.tsbuildinfo
