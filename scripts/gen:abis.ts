@@ -11,12 +11,13 @@ Fs.writeFileSync(
 
 // Build all contracts in `contracts/`.
 for (const file of Fs.globSync(
-  Path.resolve(import.meta.dirname, '../contracts/*/src/**/*.sol'),
+  Path.resolve(import.meta.dirname, '../contracts/**/src/**/*.sol'),
 )) {
+  if (file.includes('lib/')) continue
   const name = Path.basename(file)
-  const contractsDir = Path.resolve(import.meta.dirname, '../contracts')
-  const project = Path.relative(contractsDir, file).split('/')[0]!
-  const outPath = Path.resolve(contractsDir, project, 'out', name)
+  // Extract project path up to (and including) what the first ** matched
+  const project = file.slice(0, file.indexOf('/src/'))
+  const outPath = Path.resolve(project, 'out', name)
 
   for (const file of Fs.readdirSync(outPath)) {
     const path = Path.resolve(outPath, file)
