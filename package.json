@@ -4,7 +4,7 @@
 	"version": "0.0.1",
 	"scripts": {
 		"build": "zshy --project ./tsconfig.build.json",
-		"bump": "bun run build && git add . && npm version patch --force && git push && git push --tags",
+		"bump": "bun run build && git add . && npm version patch --force && git tag -d latest && git tag latest && git push && git push --tags",
 		"check": "biome check . --write --unsafe",
 		"check:types": "tsc -b",
 		"gen:abis": "forge build --config-path ./contracts/specs/foundry.toml && bun scripts/gen:abis.ts && bun run check",

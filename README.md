@@ -7,7 +7,7 @@
 ## Install
 
 ```sh
-pnpm i tempo@github:tempoxyz/tempo-ts#main
+pnpm i tempo@github:tempoxyz/tempo-ts#latest
 ```
 
 If you wish to use `tempo/prool` for programmatic Tempo node instances, you will need
@@ -20,10 +20,10 @@ cargo install --path bin/tempo
 
 ## Entrypoints
 
-| Entrypoint | Description |
-| ---------- | ----------- |
-| `tempo/viem` | Tempo extension for Viem. |
-| `tempo/ox` | Tempo primitives for Ox. |
+| Entrypoint    | Description                              |
+| ------------- | ---------------------------------------- |
+| `tempo/viem`  | Tempo extension for Viem.                |
+| `tempo/ox`    | Tempo primitives for Ox.                 |
 | `tempo/prool` | Tempo instance for pooled HTTP/WS tests. |
 
 ## Usage
@@ -31,32 +31,32 @@ cargo install --path bin/tempo
 ### `tempo/viem`
 
 ```ts
-import { createClient, http, publicActions, walletActions } from 'viem'
-import { tempo } from 'tempo/chains'
+import { createClient, http, publicActions, walletActions } from 'viem';
+import { tempo } from 'tempo/chains';
 
 const client = createClient({
   chain: tempo,
   transport: http(),
 })
   .extend(publicActions)
-  .extend(walletActions)
+  .extend(walletActions);
 
 const hash = await client.sendTransaction({
   calls: [
     { data: '0x...', to: '0x...' },
-    { data: '0x...', to: '0x...' }
+    { data: '0x...', to: '0x...' },
   ],
   feeToken: '0x20c0000000000000000000000000000000000000',
-})
+});
 
-const transaction = await client.getTransaction({ hash })
+const transaction = await client.getTransaction({ hash });
 ```
 
 ### `tempo/ox`
 
 ```ts
-import { Secp256k1, Value } from 'ox'
-import { TransactionEnvelopeFeeToken as TxFeeToken } from 'tempo/ox'
+import { Secp256k1, Value } from 'ox';
+import { TransactionEnvelopeFeeToken as TxFeeToken } from 'tempo/ox';
 
 const envelope = TxFeeToken.from({
   chainId: 1,
@@ -65,16 +65,16 @@ const envelope = TxFeeToken.from({
   maxPriorityFeePerGas: Value.fromGwei('1'),
   to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
   value: Value.fromEther('1'),
-})
+});
 
 const signature = Secp256k1.sign({
   payload: TxFeeToken.getSignPayload(envelope),
   privateKey: '0x...',
-})
+});
 
 const envelope_signed = TxFeeToken.from(envelope, {
   signature,
-})
+});
 ```
 
 ### `tempo/prool`
@@ -82,11 +82,11 @@ const envelope_signed = TxFeeToken.from(envelope, {
 You can programmatically start a Tempo node instance in TypeScript using `Instance.tempo`:
 
 ```ts
-import { Instance } from 'tempo/prool'
+import { Instance } from 'tempo/prool';
 
-const instance = Instance.tempo()
+const instance = Instance.tempo();
 
-await instance.start()
+await instance.start();
 // ...
-await instance.stop()
+await instance.stop();
 ```
