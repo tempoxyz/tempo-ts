@@ -137,5 +137,8 @@
 	},
 	"simple-git-hooks": {
 		"pre-commit": "bun run check"
+	},
+	"publishConfig": {
+		"@tempoxyz:registry": "https://npm.pkg.github.com"
 	}
 }
