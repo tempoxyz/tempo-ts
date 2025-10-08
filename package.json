@@ -1,7 +1,7 @@
 {
 	"name": "tempo",
 	"type": "module",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"scripts": {
 		"build": "zshy --project ./tsconfig.build.json",
 		"bump": "bun run build && git add . && npm version patch --force && git push && git push --tags",

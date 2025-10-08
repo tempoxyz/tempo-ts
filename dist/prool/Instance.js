@@ -21,6 +21,7 @@ export const tempo = defineInstance((parameters = {}) => {
     const { address = '0x20c0000000000000000000000000000000000000', amount = 1000000000000000, privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80', } = faucet ?? {};
     const name = 'tempo';
     const process = execa({ name });
+    const tmp = `./tmp/${crypto.randomUUID()}`;
     return {
         _internal: {
             args,
@@ -33,10 +34,10 @@ export const tempo = defineInstance((parameters = {}) => {
         port: args.port ?? 8545,
         async start({ port = args.port }, options) {
             try {
-                fs.rmdirSync('./tmp', { recursive: true });
+                fs.rmSync(tmp, { recursive: true });
             }
             catch { }
-            fs.mkdirSync('./tmp', { recursive: true });
+            fs.mkdirSync(tmp, { recursive: true });
             return await process.start(($) => $ `${binary} node --http --dev --engine.disable-precompile-cache --faucet.enabled ${toArgs({
                 ...args,
                 builder: {
@@ -46,7 +47,7 @@ export const tempo = defineInstance((parameters = {}) => {
                 },
                 chain,
                 consensusConfig,
-                datadir: './tmp/data',
+                datadir: `${tmp}/data`,
                 dev: {
                     blockTime,
                 },
@@ -85,7 +86,7 @@ export const tempo = defineInstance((parameters = {}) => {
         },
         async stop() {
             try {
-                fs.rmdirSync('./tmp', { recursive: true });
+                fs.rmSync(tmp, { recursive: true });
             }
             catch { }
             await process.stop();
