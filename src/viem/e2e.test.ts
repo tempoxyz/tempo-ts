@@ -4,8 +4,8 @@ import { RpcRequest, RpcResponse } from 'ox'
 import * as actions from 'tempo/viem/actions'
 import { createClient, http, publicActions, walletActions } from 'viem'
 import { mnemonicToAccount, privateKeyToAccount } from 'viem/accounts'
-import { describe, expect, test } from 'vitest'
-import { tempoTest } from '../../test/config.js'
+import { afterAll, beforeAll, describe, expect, test } from 'vitest'
+import { tempoTest } from '../../test/viem/config.js'
 import { tempoActions } from './index.js'
 import { parseTransaction } from './transaction.js'
 import { withFeePayer } from './transport.js'
@@ -270,8 +270,10 @@ describe('signTransaction', () => {
 })
 
 describe('relay', () => {
-  test('default', async () => {
-    new Elysia({ adapter: node() })
+  let server: Elysia
+
+  beforeAll(async () => {
+    server = new Elysia({ adapter: node() })
       .post('/', async ({ body }) => {
         const client = createClient({
           account: mnemonicToAccount(
@@ -325,7 +327,20 @@ describe('relay', () => {
         return Response.json(RpcResponse.from({ result }, { request }))
       })
       .listen(3000)
+  })
 
+  afterAll(() => {
+    process.on('SIGINT', () => {
+      server.stop()
+      process.exit(0)
+    })
+    process.on('SIGTERM', () => {
+      server.stop()
+      process.exit(0)
+    })
+  })
+
+  test('default', async () => {
     const client = createClient({
       account: privateKeyToAccount(
         // unfunded PK

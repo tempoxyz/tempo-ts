@@ -3,7 +3,7 @@ import * as actions from 'tempo/viem/actions'
 import { publicActions } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
 import { describe, expect, test } from 'vitest'
-import { tempoTest } from '../../../test/config.js'
+import { tempoTest } from '../../../test/viem/config.js'
 import { createTempoClient } from '../client.js'
 
 const account = mnemonicToAccount(

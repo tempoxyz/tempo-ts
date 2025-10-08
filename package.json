@@ -55,6 +55,7 @@
 	"author": "jxom <j@wevm.dev>",
 	"license": "MIT",
 	"devDependencies": {
+		"@ark/attest": "^0.49.0",
 		"@biomejs/biome": "^2.2.4",
 		"@elysiajs/node": "^1.4.1",
 		"@types/bun": "latest",

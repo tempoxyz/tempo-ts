@@ -31,11 +31,25 @@ export default defineConfig({
       {
         extends: true,
         test: {
-          globalSetup: [join(import.meta.dirname, './test/setup.global.ts')],
-          setupFiles: [join(import.meta.dirname, './test/setup.ts')],
+          globalSetup: [
+            join(import.meta.dirname, './test/viem/setup.global.ts'),
+          ],
+          setupFiles: [join(import.meta.dirname, './test/viem/setup.ts')],
           name: 'viem',
           root: './src/viem',
           environment: 'node',
+        },
+      },
+      {
+        extends: true,
+        test: {
+          globalSetup: [
+            join(import.meta.dirname, './test/viem-attest/setup.global.ts'),
+          ],
+          name: 'attest/viem',
+          root: './src/viem',
+          environment: 'node',
+          include: ['**/*.bench-d.ts'],
         },
       },
     ],
