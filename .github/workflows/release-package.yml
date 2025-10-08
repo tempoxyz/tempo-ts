@@ -17,8 +17,18 @@ jobs:
           submodules: 'recursive'
           token: ${{ secrets.GH_PAT }}
 
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: https://npm.pkg.github.com/
+
       - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
+        shell: bash
+        run: bun install
 
       - run: bun publish
         env:
