@@ -6,7 +6,7 @@ import { writeContractSync } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import { tempoTest } from '../../../test/viem/config.js'
 import { tip20Abi } from '../abis.js'
-import { usdAddress } from '../addresses.js'
+import { defaultFeeTokenAddress } from '../addresses.js'
 import { createTempoClient } from '../client.js'
 
 const account = mnemonicToAccount(
@@ -52,7 +52,7 @@ async function setupPoolWithLiquidity() {
       amount: parseEther('100'),
     },
     validatorToken: {
-      address: usdAddress,
+      address: defaultFeeTokenAddress,
       amount: parseEther('100'),
     },
     to: account.address,
@@ -64,7 +64,7 @@ async function setupPoolWithLiquidity() {
 describe('getPoolId', () => {
   test('default', async () => {
     const poolId = await actions.amm.getPoolId(client, {
-      userToken: usdAddress,
+      userToken: defaultFeeTokenAddress,
       validatorToken: '0x20c0000000000000000000000000000000000001',
     })
     expect(poolId).toBeDefined()
@@ -84,7 +84,7 @@ describe('getPoolId', () => {
 describe('getPool', () => {
   test('default', async () => {
     const pool = await actions.amm.getPool(client, {
-      userToken: usdAddress,
+      userToken: defaultFeeTokenAddress,
       validatorToken: '0x20c0000000000000000000000000000000000001',
     })
     expect(pool).toMatchObject({
@@ -97,7 +97,7 @@ describe('getPool', () => {
 describe('getTotalSupply', () => {
   test('default', async () => {
     const poolId = await actions.amm.getPoolId(client, {
-      userToken: usdAddress,
+      userToken: defaultFeeTokenAddress,
       validatorToken: '0x20c0000000000000000000000000000000000001',
     })
     const totalSupply = await actions.amm.getTotalSupply(client, { poolId })
@@ -108,7 +108,7 @@ describe('getTotalSupply', () => {
 describe('getLiquidityBalance', () => {
   test('default', async () => {
     const poolId = await actions.amm.getPoolId(client, {
-      userToken: usdAddress,
+      userToken: defaultFeeTokenAddress,
       validatorToken: '0x20c0000000000000000000000000000000000001',
     })
     const balance = await actions.amm.getLiquidityBalance(client, {
@@ -151,7 +151,7 @@ describe('mint', () => {
           amount: parseEther('100'),
         },
         validatorToken: {
-          address: usdAddress,
+          address: defaultFeeTokenAddress,
           amount: parseEther('100'),
         },
         to: account.address,
@@ -164,15 +164,15 @@ describe('mint', () => {
         "amountValidatorToken": 100000000000000000000n,
         "liquidity": 4999999999999999999999999999999999999000n,
         "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "userToken": "0x20C0000000000000000000000000000000000001",
-        "validatorToken": "0x20C0000000000000000000000000000000000000",
+        "userToken": "0x20C0000000000000000000000000000000000004",
+        "validatorToken": "0x20C0000000000000000000000000000000000001",
       }
     `)
 
     // Verify pool reserves
     const pool = await actions.amm.getPool(client, {
       userToken: token,
-      validatorToken: usdAddress,
+      validatorToken: defaultFeeTokenAddress,
     })
     expect(pool.reserveUserToken).toBe(parseEther('100'))
     expect(pool.reserveValidatorToken).toBe(parseEther('100'))
@@ -180,7 +180,7 @@ describe('mint', () => {
     // Verify LP token balance
     const poolId = await actions.amm.getPoolId(client, {
       userToken: token,
-      validatorToken: usdAddress,
+      validatorToken: defaultFeeTokenAddress,
     })
     const lpBalance = await actions.amm.getLiquidityBalance(client, {
       poolId,
@@ -197,7 +197,7 @@ describe('burn', () => {
     // Get LP balance before burn
     const poolId = await actions.amm.getPoolId(client, {
       userToken: tokenAddress,
-      validatorToken: usdAddress,
+      validatorToken: defaultFeeTokenAddress,
     })
     const lpBalanceBefore = await actions.amm.getLiquidityBalance(client, {
       poolId,
@@ -209,7 +209,7 @@ describe('burn', () => {
       client,
       {
         userToken: tokenAddress,
-        validatorToken: usdAddress,
+        validatorToken: defaultFeeTokenAddress,
         liquidity: lpBalanceBefore / 2n,
         to: account.address,
       },
@@ -222,8 +222,8 @@ describe('burn', () => {
         "liquidity": 2499999999999999999999999999999999999500n,
         "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "userToken": "0x20C0000000000000000000000000000000000001",
-        "validatorToken": "0x20C0000000000000000000000000000000000000",
+        "userToken": "0x20C0000000000000000000000000000000000004",
+        "validatorToken": "0x20C0000000000000000000000000000000000001",
       }
     `)
 
@@ -238,7 +238,7 @@ describe('burn', () => {
     // Verify pool reserves decreased
     const pool = await actions.amm.getPool(client, {
       userToken: tokenAddress,
-      validatorToken: usdAddress,
+      validatorToken: defaultFeeTokenAddress,
     })
     expect(pool.reserveUserToken).toBeLessThan(parseEther('100'))
     expect(pool.reserveValidatorToken).toBeLessThan(parseEther('100'))
@@ -259,7 +259,7 @@ describe('rebalanceSwap', () => {
     const { receipt: swapReceipt, ...swapResult } =
       await actions.amm.rebalanceSwapSync(client, {
         userToken: tokenAddress,
-        validatorToken: usdAddress,
+        validatorToken: defaultFeeTokenAddress,
         amountOut: parseEther('10'),
         to: account2.address,
         account: account,
@@ -270,8 +270,8 @@ describe('rebalanceSwap', () => {
         "amountIn": 9985000000000000001n,
         "amountOut": 10000000000000000000n,
         "swapper": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "userToken": "0x20C0000000000000000000000000000000000001",
-        "validatorToken": "0x20C0000000000000000000000000000000000000",
+        "userToken": "0x20C0000000000000000000000000000000000004",
+        "validatorToken": "0x20C0000000000000000000000000000000000001",
       }
     `)
 
@@ -298,7 +298,7 @@ describe('watchRebalanceSwap', () => {
     // Perform rebalance swap
     await actions.amm.rebalanceSwapSync(client, {
       userToken: tokenAddress,
-      validatorToken: usdAddress,
+      validatorToken: defaultFeeTokenAddress,
       amountOut: parseEther('10'),
       to: account2.address,
       account: account,
@@ -309,7 +309,7 @@ describe('watchRebalanceSwap', () => {
     expect(eventArgs).toBeDefined()
     expect(eventArgs.userToken.toLowerCase()).toBe(tokenAddress.toLowerCase())
     expect(eventArgs.validatorToken.toLowerCase()).toBe(
-      usdAddress.toLowerCase(),
+      defaultFeeTokenAddress.toLowerCase(),
     )
     expect(eventArgs.amountOut).toBe(parseEther('10'))
 
@@ -343,7 +343,7 @@ describe('watchMint', () => {
     // Mint USD to account
     await writeContractSync(client, {
       abi: tip20Abi,
-      address: usdAddress,
+      address: defaultFeeTokenAddress,
       functionName: 'transfer',
       args: [account.address, parseEther('1000')],
     })
@@ -362,7 +362,7 @@ describe('watchMint', () => {
         amount: parseEther('100'),
       },
       validatorToken: {
-        address: usdAddress,
+        address: defaultFeeTokenAddress,
         amount: parseEther('100'),
       },
       to: account.address,
@@ -373,7 +373,7 @@ describe('watchMint', () => {
     expect(eventArgs).toBeDefined()
     expect(eventArgs.userToken.address.toLowerCase()).toBe(token.toLowerCase())
     expect(eventArgs.validatorToken.address.toLowerCase()).toBe(
-      usdAddress.toLowerCase(),
+      defaultFeeTokenAddress.toLowerCase(),
     )
     expect(eventArgs.userToken.amount).toBe(parseEther('100'))
     expect(eventArgs.validatorToken.amount).toBe(parseEther('100'))
@@ -389,7 +389,7 @@ describe('watchBurn', () => {
     // Get LP balance
     const poolId = await actions.amm.getPoolId(client, {
       userToken: tokenAddress,
-      validatorToken: usdAddress,
+      validatorToken: defaultFeeTokenAddress,
     })
     const lpBalance = await actions.amm.getLiquidityBalance(client, {
       poolId,
@@ -406,7 +406,7 @@ describe('watchBurn', () => {
     // Burn LP tokens
     await actions.amm.burnSync(client, {
       userToken: tokenAddress,
-      validatorToken: usdAddress,
+      validatorToken: defaultFeeTokenAddress,
       liquidity: lpBalance / 2n,
       to: account.address,
     })
@@ -416,7 +416,7 @@ describe('watchBurn', () => {
     expect(eventArgs).toBeDefined()
     expect(eventArgs.userToken.toLowerCase()).toBe(tokenAddress.toLowerCase())
     expect(eventArgs.validatorToken.toLowerCase()).toBe(
-      usdAddress.toLowerCase(),
+      defaultFeeTokenAddress.toLowerCase(),
     )
     expect(eventArgs.liquidity).toBe(lpBalance / 2n)
 

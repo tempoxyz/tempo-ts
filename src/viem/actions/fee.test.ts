@@ -6,7 +6,7 @@ import { writeContractSync } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import { tempoTest } from '../../../test/viem/config.js'
 import { tip20Abi } from '../abis.js'
-import { usdAddress } from '../addresses.js'
+import { defaultFeeTokenAddress } from '../addresses.js'
 import { createTempoClient } from '../client.js'
 
 const account = mnemonicToAccount(
@@ -32,13 +32,13 @@ describe('getUserToken', () => {
     // Fund accounts
     await writeContractSync(client, {
       abi: tip20Abi,
-      address: usdAddress,
+      address: defaultFeeTokenAddress,
       functionName: 'transfer',
       args: [account2.address, parseEther('100')],
     })
     await writeContractSync(client, {
       abi: tip20Abi,
-      address: usdAddress,
+      address: defaultFeeTokenAddress,
       functionName: 'transfer',
       args: [account3.address, parseEther('100')],
     })
@@ -60,8 +60,8 @@ describe('getUserToken', () => {
       await actions.fee.getUserToken(client, { account }),
     ).toMatchInlineSnapshot(`
       {
-        "address": "0x20C0000000000000000000000000000000000000",
-        "id": 0n,
+        "address": "0x20C0000000000000000000000000000000000001",
+        "id": 1n,
       }
     `)
     expect(
@@ -87,19 +87,41 @@ describe('setUserToken', () => {
   test('default', async () => {
     expect(await actions.fee.getUserToken(client)).toMatchInlineSnapshot(
       `
-        {
-          "address": "0x20C0000000000000000000000000000000000000",
-          "id": 0n,
-        }
-      `,
+      {
+        "address": "0x20C0000000000000000000000000000000000001",
+        "id": 1n,
+      }
+    `,
     )
 
     const { receipt: setReceipt, ...setResult } =
       await actions.fee.setUserTokenSync(client, {
-        token: '0x20c0000000000000000000000000000000000001',
+        token: 2n,
       })
     expect(setReceipt).toBeDefined()
     expect(setResult).toMatchInlineSnapshot(`
+      {
+        "token": "0x20C0000000000000000000000000000000000002",
+        "user": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      }
+    `)
+
+    expect(await actions.fee.getUserToken(client, {})).toMatchInlineSnapshot(
+      `
+        {
+          "address": "0x20C0000000000000000000000000000000000002",
+          "id": 2n,
+        }
+      `,
+    )
+
+    const { receipt: resetReceipt, ...resetResult } =
+      await actions.fee.setUserTokenSync(client, {
+        feeToken: 1n,
+        token: 1n,
+      })
+    expect(resetReceipt).toBeDefined()
+    expect(resetResult).toMatchInlineSnapshot(`
       {
         "token": "0x20C0000000000000000000000000000000000001",
         "user": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -108,33 +130,11 @@ describe('setUserToken', () => {
 
     expect(await actions.fee.getUserToken(client, {})).toMatchInlineSnapshot(
       `
-        {
-          "address": "0x20C0000000000000000000000000000000000001",
-          "id": 1n,
-        }
-      `,
-    )
-
-    const { receipt: resetReceipt, ...resetResult } =
-      await actions.fee.setUserTokenSync(client, {
-        feeToken: 0n,
-        token: 0n,
-      })
-    expect(resetReceipt).toBeDefined()
-    expect(resetResult).toMatchInlineSnapshot(`
       {
-        "token": "0x20C0000000000000000000000000000000000000",
-        "user": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "address": "0x20C0000000000000000000000000000000000001",
+        "id": 1n,
       }
-    `)
-
-    expect(await actions.fee.getUserToken(client, {})).toMatchInlineSnapshot(
-      `
-        {
-          "address": "0x20C0000000000000000000000000000000000000",
-          "id": 0n,
-        }
-      `,
+    `,
     )
   })
 })
@@ -157,7 +157,7 @@ describe('watchSetUserToken', () => {
       // Set token for account2
       await writeContractSync(client, {
         abi: tip20Abi,
-        address: usdAddress,
+        address: defaultFeeTokenAddress,
         functionName: 'transfer',
         args: [account2.address, parseEther('1')],
       })
@@ -170,7 +170,7 @@ describe('watchSetUserToken', () => {
       // Set token for account3
       await writeContractSync(client, {
         abi: tip20Abi,
-        address: usdAddress,
+        address: defaultFeeTokenAddress,
         functionName: 'transfer',
         args: [account3.address, parseEther('1')],
       })
@@ -221,14 +221,14 @@ describe('watchSetUserToken', () => {
       // Transfer gas to accounts
       await writeContractSync(client, {
         abi: tip20Abi,
-        address: usdAddress,
+        address: defaultFeeTokenAddress,
         functionName: 'transfer',
         args: [account2.address, parseEther('1')],
       })
 
       await writeContractSync(client, {
         abi: tip20Abi,
-        address: usdAddress,
+        address: defaultFeeTokenAddress,
         functionName: 'transfer',
         args: [account3.address, parseEther('1')],
       })
@@ -248,7 +248,7 @@ describe('watchSetUserToken', () => {
       // Set token for account2 again (should be captured)
       await actions.fee.setUserTokenSync(client, {
         account: account2,
-        feeToken: 0n,
+        feeToken: 1n,
         token: 2n,
       })
 

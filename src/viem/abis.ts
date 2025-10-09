@@ -888,7 +888,7 @@ export const linkingUsdAbi = Abi.from([
   },
   {
     type: 'function',
-    name: 'completeLinkingTokenUpdate',
+    name: 'completeQuoteTokenUpdate',
     inputs: [],
     outputs: [],
     stateMutability: 'nonpayable',
@@ -926,13 +926,6 @@ export const linkingUsdAbi = Abi.from([
   },
   {
     type: 'function',
-    name: 'linkingToken',
-    inputs: [],
-    outputs: [{ name: '', type: 'address', internalType: 'contract TIP20' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
     name: 'mint',
     inputs: [
       { name: 'to', type: 'address', internalType: 'address' },
@@ -961,7 +954,7 @@ export const linkingUsdAbi = Abi.from([
   },
   {
     type: 'function',
-    name: 'nextLinkingToken',
+    name: 'nextQuoteToken',
     inputs: [],
     outputs: [{ name: '', type: 'address', internalType: 'contract TIP20' }],
     stateMutability: 'view',
@@ -1004,6 +997,13 @@ export const linkingUsdAbi = Abi.from([
   },
   {
     type: 'function',
+    name: 'quoteToken',
+    inputs: [],
+    outputs: [{ name: '', type: 'address', internalType: 'contract TIP20' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'renounceRole',
     inputs: [{ name: 'role', type: 'bytes32', internalType: 'bytes32' }],
     outputs: [],
@@ -1021,10 +1021,10 @@ export const linkingUsdAbi = Abi.from([
   },
   {
     type: 'function',
-    name: 'setNextLinkingToken',
+    name: 'setNextQuoteToken',
     inputs: [
       {
-        name: 'newLinkingToken',
+        name: 'newQuoteToken',
         type: 'address',
         internalType: 'contract TIP20',
       },
@@ -1217,25 +1217,6 @@ export const linkingUsdAbi = Abi.from([
   },
   {
     type: 'event',
-    name: 'LinkingTokenUpdate',
-    inputs: [
-      {
-        name: 'updater',
-        type: 'address',
-        indexed: true,
-        internalType: 'address',
-      },
-      {
-        name: 'newLinkingToken',
-        type: 'address',
-        indexed: true,
-        internalType: 'contract TIP20',
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
     name: 'Mint',
     inputs: [
       { name: 'to', type: 'address', indexed: true, internalType: 'address' },
@@ -1250,7 +1231,7 @@ export const linkingUsdAbi = Abi.from([
   },
   {
     type: 'event',
-    name: 'NextLinkingTokenSet',
+    name: 'NextQuoteTokenSet',
     inputs: [
       {
         name: 'updater',
@@ -1259,7 +1240,7 @@ export const linkingUsdAbi = Abi.from([
         internalType: 'address',
       },
       {
-        name: 'nextLinkingToken',
+        name: 'nextQuoteToken',
         type: 'address',
         indexed: true,
         internalType: 'contract TIP20',
@@ -1278,6 +1259,25 @@ export const linkingUsdAbi = Abi.from([
         internalType: 'address',
       },
       { name: 'isPaused', type: 'bool', indexed: false, internalType: 'bool' },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'QuoteTokenUpdate',
+    inputs: [
+      {
+        name: 'updater',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'newQuoteToken',
+        type: 'address',
+        indexed: true,
+        internalType: 'contract TIP20',
+      },
     ],
     anonymous: false,
   },
@@ -1396,7 +1396,7 @@ export const linkingUsdAbi = Abi.from([
   { type: 'error', name: 'InsufficientAllowance', inputs: [] },
   { type: 'error', name: 'InsufficientBalance', inputs: [] },
   { type: 'error', name: 'InvalidCurrency', inputs: [] },
-  { type: 'error', name: 'InvalidLinkingToken', inputs: [] },
+  { type: 'error', name: 'InvalidQuoteToken', inputs: [] },
   { type: 'error', name: 'InvalidRecipient', inputs: [] },
   { type: 'error', name: 'InvalidSignature', inputs: [] },
   { type: 'error', name: 'PolicyForbids', inputs: [] },
@@ -1412,11 +1412,7 @@ export const tip20Abi = Abi.from([
       { name: '_name', type: 'string', internalType: 'string' },
       { name: '_symbol', type: 'string', internalType: 'string' },
       { name: '_currency', type: 'string', internalType: 'string' },
-      {
-        name: '_linkingToken',
-        type: 'address',
-        internalType: 'contract TIP20',
-      },
+      { name: '_quoteToken', type: 'address', internalType: 'contract TIP20' },
       { name: 'admin', type: 'address', internalType: 'address' },
     ],
     stateMutability: 'nonpayable',
@@ -1519,7 +1515,7 @@ export const tip20Abi = Abi.from([
   },
   {
     type: 'function',
-    name: 'completeLinkingTokenUpdate',
+    name: 'completeQuoteTokenUpdate',
     inputs: [],
     outputs: [],
     stateMutability: 'nonpayable',
@@ -1557,13 +1553,6 @@ export const tip20Abi = Abi.from([
   },
   {
     type: 'function',
-    name: 'linkingToken',
-    inputs: [],
-    outputs: [{ name: '', type: 'address', internalType: 'contract TIP20' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
     name: 'mint',
     inputs: [
       { name: 'to', type: 'address', internalType: 'address' },
@@ -1592,7 +1581,7 @@ export const tip20Abi = Abi.from([
   },
   {
     type: 'function',
-    name: 'nextLinkingToken',
+    name: 'nextQuoteToken',
     inputs: [],
     outputs: [{ name: '', type: 'address', internalType: 'contract TIP20' }],
     stateMutability: 'view',
@@ -1635,6 +1624,13 @@ export const tip20Abi = Abi.from([
   },
   {
     type: 'function',
+    name: 'quoteToken',
+    inputs: [],
+    outputs: [{ name: '', type: 'address', internalType: 'contract TIP20' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'renounceRole',
     inputs: [{ name: 'role', type: 'bytes32', internalType: 'bytes32' }],
     outputs: [],
@@ -1652,10 +1648,10 @@ export const tip20Abi = Abi.from([
   },
   {
     type: 'function',
-    name: 'setNextLinkingToken',
+    name: 'setNextQuoteToken',
     inputs: [
       {
-        name: 'newLinkingToken',
+        name: 'newQuoteToken',
         type: 'address',
         internalType: 'contract TIP20',
       },
@@ -1848,25 +1844,6 @@ export const tip20Abi = Abi.from([
   },
   {
     type: 'event',
-    name: 'LinkingTokenUpdate',
-    inputs: [
-      {
-        name: 'updater',
-        type: 'address',
-        indexed: true,
-        internalType: 'address',
-      },
-      {
-        name: 'newLinkingToken',
-        type: 'address',
-        indexed: true,
-        internalType: 'contract TIP20',
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
     name: 'Mint',
     inputs: [
       { name: 'to', type: 'address', indexed: true, internalType: 'address' },
@@ -1881,7 +1858,7 @@ export const tip20Abi = Abi.from([
   },
   {
     type: 'event',
-    name: 'NextLinkingTokenSet',
+    name: 'NextQuoteTokenSet',
     inputs: [
       {
         name: 'updater',
@@ -1890,7 +1867,7 @@ export const tip20Abi = Abi.from([
         internalType: 'address',
       },
       {
-        name: 'nextLinkingToken',
+        name: 'nextQuoteToken',
         type: 'address',
         indexed: true,
         internalType: 'contract TIP20',
@@ -1909,6 +1886,25 @@ export const tip20Abi = Abi.from([
         internalType: 'address',
       },
       { name: 'isPaused', type: 'bool', indexed: false, internalType: 'bool' },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'QuoteTokenUpdate',
+    inputs: [
+      {
+        name: 'updater',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'newQuoteToken',
+        type: 'address',
+        indexed: true,
+        internalType: 'contract TIP20',
+      },
     ],
     anonymous: false,
   },
@@ -2027,7 +2023,7 @@ export const tip20Abi = Abi.from([
   { type: 'error', name: 'InsufficientAllowance', inputs: [] },
   { type: 'error', name: 'InsufficientBalance', inputs: [] },
   { type: 'error', name: 'InvalidCurrency', inputs: [] },
-  { type: 'error', name: 'InvalidLinkingToken', inputs: [] },
+  { type: 'error', name: 'InvalidQuoteToken', inputs: [] },
   { type: 'error', name: 'InvalidRecipient', inputs: [] },
   { type: 'error', name: 'InvalidSignature', inputs: [] },
   { type: 'error', name: 'PolicyForbids', inputs: [] },
@@ -2043,7 +2039,7 @@ export const tip20FactoryAbi = Abi.from([
       { name: 'name', type: 'string', internalType: 'string' },
       { name: 'symbol', type: 'string', internalType: 'string' },
       { name: 'currency', type: 'string', internalType: 'string' },
-      { name: 'linkingToken', type: 'address', internalType: 'contract TIP20' },
+      { name: 'quoteToken', type: 'address', internalType: 'contract TIP20' },
       { name: 'admin', type: 'address', internalType: 'address' },
     ],
     outputs: [{ name: '', type: 'address', internalType: 'address' }],
@@ -2093,7 +2089,7 @@ export const tip20FactoryAbi = Abi.from([
         internalType: 'string',
       },
       {
-        name: 'linkingToken',
+        name: 'quoteToken',
         type: 'address',
         indexed: false,
         internalType: 'contract TIP20',
@@ -2107,7 +2103,7 @@ export const tip20FactoryAbi = Abi.from([
     ],
     anonymous: false,
   },
-  { type: 'error', name: 'InvalidLinkingToken', inputs: [] },
+  { type: 'error', name: 'InvalidQuoteToken', inputs: [] },
 ])
 
 export const tip4217RegistryAbi = Abi.from([

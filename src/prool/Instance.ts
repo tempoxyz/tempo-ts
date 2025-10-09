@@ -31,7 +31,7 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
   const { deadline = 3, gaslimit = 3000000000, maxTasks = 8 } = builder ?? {}
   const { blockTime = '2ms' } = dev ?? {}
   const {
-    address = '0x20c0000000000000000000000000000000000000',
+    address = '0x20c0000000000000000000000000000000000001',
     amount = 1000000000000000,
     privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
   } = faucet ?? {}
@@ -79,6 +79,7 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
               },
               port: port! + 1,
               http: {
+                api: 'all',
                 addr: '0.0.0.0',
                 port: port!,
               },
@@ -96,7 +97,8 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
             process.stdout.on('data', (data) => {
               const message = data.toString()
               if (message.includes('shutting down')) reject(message)
-              if (message.includes('RPC HTTP server started')) resolve()
+              if (message.includes('RPC HTTP server started'))
+                setTimeout(() => resolve(), 500)
             })
             process.stderr.on('data', (data) => {
               const message = data.toString()
