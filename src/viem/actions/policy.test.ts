@@ -1,5 +1,5 @@
 import { setTimeout } from 'node:timers/promises'
-import * as actions from 'tempo/viem/actions'
+import * as actions from 'tempo.ts/viem/actions'
 import { publicActions } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
 import { describe, expect, test } from 'vitest'

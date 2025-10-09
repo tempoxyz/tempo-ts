@@ -7,10 +7,10 @@
 ## Install
 
 ```sh
-pnpm i tempo@github:tempoxyz/tempo-ts#latest
+pnpm i tempo.ts
 ```
 
-If you wish to use `tempo/prool` for programmatic Tempo node instances, you will need
+If you wish to use `tempo.ts/prool` for programmatic Tempo node instances, you will need
 to have the `tempo` binary installed:
 
 ```sh
@@ -20,19 +20,19 @@ cargo install --path bin/tempo
 
 ## Entrypoints
 
-| Entrypoint    | Description                              |
-| ------------- | ---------------------------------------- |
-| `tempo/viem`  | Tempo extension for Viem.                |
-| `tempo/ox`    | Tempo primitives for Ox.                 |
-| `tempo/prool` | Tempo instance for pooled HTTP/WS tests. |
+| Entrypoint       | Description                              |
+| ---------------- | ---------------------------------------- |
+| `tempo.ts/viem`  | Tempo extension for Viem.                |
+| `tempo.ts/ox`    | Tempo primitives for Ox.                 |
+| `tempo.ts/prool` | Tempo instance for pooled HTTP/WS tests. |
 
 ## Usage
 
-### `tempo/viem`
+### `tempo.ts/viem`
 
 ```ts
 import { createClient, http, publicActions, walletActions } from 'viem';
-import { tempo } from 'tempo/chains';
+import { tempo } from 'tempo.ts/chains';
 
 const client = createClient({
   chain: tempo,
@@ -52,11 +52,11 @@ const hash = await client.sendTransaction({
 const transaction = await client.getTransaction({ hash });
 ```
 
-### `tempo/ox`
+### `tempo.ts/ox`
 
 ```ts
 import { Secp256k1, Value } from 'ox';
-import { TransactionEnvelopeFeeToken as TxFeeToken } from 'tempo/ox';
+import { TransactionEnvelopeFeeToken as TxFeeToken } from 'tempo.ts/ox';
 
 const envelope = TxFeeToken.from({
   chainId: 1,
@@ -77,12 +77,12 @@ const envelope_signed = TxFeeToken.from(envelope, {
 });
 ```
 
-### `tempo/prool`
+### `tempo.ts/prool`
 
 You can programmatically start a Tempo node instance in TypeScript using `Instance.tempo`:
 
 ```ts
-import { Instance } from 'tempo/prool';
+import { Instance } from 'tempo.ts/prool';
 
 const instance = Instance.tempo();
 

@@ -1,4 +1,4 @@
-import { Transaction } from 'tempo/ox'
+import { Transaction } from 'tempo.ts/ox'
 import { describe, expect, test } from 'vitest'
 
 describe('fromRpc', () => {

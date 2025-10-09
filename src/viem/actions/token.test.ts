@@ -1,6 +1,6 @@
 import { setTimeout } from 'node:timers/promises'
 import { Hex } from 'ox'
-import * as actions from 'tempo/viem/actions'
+import * as actions from 'tempo.ts/viem/actions'
 import { parseEther, publicActions } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
 import { getCode, writeContractSync } from 'viem/actions'

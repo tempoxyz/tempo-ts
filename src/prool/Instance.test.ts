@@ -1,5 +1,5 @@
 import type { Instance as prool_Instance } from 'prool/instances'
-import { Instance } from 'tempo/prool'
+import { Instance } from 'tempo.ts/prool'
 import { afterEach, describe, expect, test } from 'vitest'
 
 const instances: prool_Instance[] = []

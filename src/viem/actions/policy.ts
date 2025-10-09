@@ -40,8 +40,8 @@ const policyTypeMap = {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -133,8 +133,8 @@ export namespace create {
    * @example
    * ```ts
    * import { createClient, http, walletActions } from 'viem'
-   * import { tempo } from 'tempo/chains'
-   * import * as actions from 'tempo/viem/actions'
+   * import { tempo } from 'tempo.ts/chains'
+   * import * as actions from 'tempo.ts/viem/actions'
    *
    * const client = createClient({
    *   chain: tempo,
@@ -196,8 +196,8 @@ export namespace create {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -256,8 +256,8 @@ export namespace createSync {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -329,8 +329,8 @@ export namespace setAdmin {
    * @example
    * ```ts
    * import { createClient, http, walletActions } from 'viem'
-   * import { tempo } from 'tempo/chains'
-   * import * as actions from 'tempo/viem/actions'
+   * import { tempo } from 'tempo.ts/chains'
+   * import * as actions from 'tempo.ts/viem/actions'
    *
    * const client = createClient({
    *   chain: tempo,
@@ -388,8 +388,8 @@ export namespace setAdmin {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -448,8 +448,8 @@ export namespace setAdminSync {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -525,8 +525,8 @@ export namespace modifyWhitelist {
    * @example
    * ```ts
    * import { createClient, http, walletActions } from 'viem'
-   * import { tempo } from 'tempo/chains'
-   * import * as actions from 'tempo/viem/actions'
+   * import { tempo } from 'tempo.ts/chains'
+   * import * as actions from 'tempo.ts/viem/actions'
    *
    * const client = createClient({
    *   chain: tempo,
@@ -586,8 +586,8 @@ export namespace modifyWhitelist {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -651,8 +651,8 @@ export namespace modifyWhitelistSync {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -728,8 +728,8 @@ export namespace modifyBlacklist {
    * @example
    * ```ts
    * import { createClient, http, walletActions } from 'viem'
-   * import { tempo } from 'tempo/chains'
-   * import * as actions from 'tempo/viem/actions'
+   * import { tempo } from 'tempo.ts/chains'
+   * import * as actions from 'tempo.ts/viem/actions'
    *
    * const client = createClient({
    *   chain: tempo,
@@ -789,8 +789,8 @@ export namespace modifyBlacklist {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -854,8 +854,8 @@ export namespace modifyBlacklistSync {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  *
  * const client = createClient({
  *   chain: tempo,
@@ -923,8 +923,8 @@ export namespace getData {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  *
  * const client = createClient({
  *   chain: tempo,
@@ -990,8 +990,8 @@ export namespace isAuthorized {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  *
  * const client = createClient({
  *   chain: tempo,
@@ -1070,8 +1070,8 @@ export declare namespace watchCreate {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  *
  * const client = createClient({
  *   chain: tempo,
@@ -1143,8 +1143,8 @@ export declare namespace watchAdminUpdated {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  *
  * const client = createClient({
  *   chain: tempo,
@@ -1216,8 +1216,8 @@ export declare namespace watchWhitelistUpdated {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  *
  * const client = createClient({
  *   chain: tempo,

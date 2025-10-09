@@ -31,7 +31,7 @@ export type Client<
  *
  * @example
  * ```ts
- * import { createTempoClient } from 'tempo/viem'
+ * import { createTempoClient } from 'tempo.ts/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createTempoClient({

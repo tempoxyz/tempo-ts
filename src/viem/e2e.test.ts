@@ -1,7 +1,7 @@
 import { node } from '@elysiajs/node'
 import { Elysia } from 'elysia'
 import { RpcRequest, RpcResponse } from 'ox'
-import * as actions from 'tempo/viem/actions'
+import * as actions from 'tempo.ts/viem/actions'
 import { createClient, http, publicActions, walletActions } from 'viem'
 import { mnemonicToAccount, privateKeyToAccount } from 'viem/accounts'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'

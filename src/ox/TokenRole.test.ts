@@ -1,5 +1,5 @@
 import { Hash, Hex } from 'ox'
-import { TokenRole } from 'tempo/ox'
+import { TokenRole } from 'tempo.ts/ox'
 import { expect, test } from 'vitest'
 
 test('serialize', () => {

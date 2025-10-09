@@ -37,8 +37,8 @@ import { defineCall } from '../utils.js'
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -114,8 +114,8 @@ export namespace getUserToken {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -184,8 +184,8 @@ export namespace setUserToken {
    * @example
    * ```ts
    * import { createClient, http, walletActions } from 'viem'
-   * import { tempo } from 'tempo/chains'
-   * import * as actions from 'tempo/viem/actions'
+   * import { tempo } from 'tempo.ts/chains'
+   * import * as actions from 'tempo.ts/viem/actions'
    *
    * const client = createClient({
    *   chain: tempo,
@@ -235,8 +235,8 @@ export namespace setUserToken {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -298,8 +298,8 @@ export namespace setUserTokenSync {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo/chains'
- * import * as actions from 'tempo/viem/actions'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
  *
  * const client = createClient({
  *   chain: tempo,

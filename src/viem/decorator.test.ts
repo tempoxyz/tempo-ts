@@ -1,5 +1,5 @@
-import { tempoLocal } from 'tempo/chains'
-import { tempoActions } from 'tempo/viem'
+import { tempoLocal } from 'tempo.ts/chains'
+import { tempoActions } from 'tempo.ts/viem'
 import { createClient, http } from 'viem'
 import { describe, expect, test } from 'vitest'
 

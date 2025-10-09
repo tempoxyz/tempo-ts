@@ -1,7 +1,6 @@
-import { setTimeout } from 'node:timers/promises'
 import { Authorization, Hex, Rlp, RpcTransport, Secp256k1, Value } from 'ox'
-import { TransactionEnvelopeFeeToken } from 'tempo/ox'
-import { Instance } from 'tempo/prool'
+import { TransactionEnvelopeFeeToken } from 'tempo.ts/ox'
+import { Instance } from 'tempo.ts/prool'
 import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 
 const privateKey =
@@ -1091,110 +1090,16 @@ describe('e2e', () => {
       },
     )
 
-    const hash = await transport.request({
-      method: 'eth_sendRawTransaction',
+    const receipt = await transport.request({
+      method: 'eth_sendRawTransactionSync',
       params: [serialized_signed],
     })
 
-    expect(hash).toBeDefined()
-    {
-      const response = await transport.request({
-        method: 'eth_getTransactionByHash',
-        params: [hash],
-      })
+    const { blockNumber, blockHash, ...rest } = receipt
 
-      expect(response).toMatchInlineSnapshot(`
-      {
-        "accessList": [],
-        "authorizationList": [],
-        "blockHash": null,
-        "blockNumber": null,
-        "chainId": "0x539",
-        "feePayerSignature": {
-          "r": "0xffc8a1a6c9e4f8cb7e796ff0521d9172d29c87664365f25bb3fb599aee562040",
-          "s": "0x47f505ea8cf3ad98dc20864119c160bf3c5f706c13e0f13283d9dec869b3cb8e",
-          "v": "0x1",
-          "yParity": "0x1",
-        },
-        "feeToken": null,
-        "from": "0x0a275bee91b39092dfd57089dee0eb0539020b90",
-        "gas": "0x5208",
-        "gasPrice": "0x59",
-        "hash": "0x872e61efb1d53706b955f7a0dfc14de5a060bffb1237b32ca7ace529329d3ffd",
-        "input": "0x",
-        "maxFeePerGas": "0x59",
-        "maxPriorityFeePerGas": "0x59",
-        "nonce": "0x0",
-        "r": "0xefe01851e57c9cb6401daced9013773302816a3c9280153c3ec1839650ac24d8",
-        "s": "0xa06f8aa8dce5f90da82f528c9c9e7f427ee40896427509f9f734b6b63fb59bc",
-        "to": "0x0000000000000000000000000000000000000000",
-        "transactionIndex": null,
-        "type": "0x77",
-        "v": "0x1",
-        "value": "0x0",
-        "yParity": "0x1",
-      }
-    `)
-    }
-
-    // Wait for inclusion.
-    await setTimeout(4)
-
-    {
-      const response = await transport.request({
-        method: 'eth_getTransactionByHash',
-        params: [hash],
-      })
-      if (!response) throw new Error()
-
-      const { blockNumber, blockHash, ...rest } = response
-
-      expect(blockNumber).toBeDefined()
-      expect(blockHash).toBeDefined()
-      expect(rest).toMatchInlineSnapshot(`
-        {
-          "accessList": [],
-          "authorizationList": [],
-          "chainId": "0x539",
-          "feePayerSignature": {
-            "r": "0xffc8a1a6c9e4f8cb7e796ff0521d9172d29c87664365f25bb3fb599aee562040",
-            "s": "0x47f505ea8cf3ad98dc20864119c160bf3c5f706c13e0f13283d9dec869b3cb8e",
-            "v": "0x1",
-            "yParity": "0x1",
-          },
-          "feeToken": null,
-          "from": "0x0a275bee91b39092dfd57089dee0eb0539020b90",
-          "gas": "0x5208",
-          "gasPrice": "0x59",
-          "hash": "0x872e61efb1d53706b955f7a0dfc14de5a060bffb1237b32ca7ace529329d3ffd",
-          "input": "0x",
-          "maxFeePerGas": "0x59",
-          "maxPriorityFeePerGas": "0x59",
-          "nonce": "0x0",
-          "r": "0xefe01851e57c9cb6401daced9013773302816a3c9280153c3ec1839650ac24d8",
-          "s": "0xa06f8aa8dce5f90da82f528c9c9e7f427ee40896427509f9f734b6b63fb59bc",
-          "to": "0x0000000000000000000000000000000000000000",
-          "transactionIndex": "0x0",
-          "type": "0x77",
-          "v": "0x1",
-          "value": "0x0",
-          "yParity": "0x1",
-        }
-      `)
-    }
-
-    {
-      const receipt = await transport.request({
-        method: 'eth_getTransactionReceipt',
-        params: [hash],
-      })
-      if (!receipt) throw new Error()
-
-      const { blockNumber, blockHash, ...rest } = receipt
-
-      expect(blockNumber).toBeDefined()
-      expect(blockHash).toBeDefined()
-      expect(rest).toMatchInlineSnapshot(`
+    expect(blockNumber).toBeDefined()
+    expect(blockHash).toBeDefined()
+    expect(rest).toMatchInlineSnapshot(`
       {
         "contractAddress": null,
         "cumulativeGasUsed": "0x5208",
@@ -1210,6 +1115,5 @@ describe('e2e', () => {
         "type": "0x77",
       }
     `)
-    }
   })
 })

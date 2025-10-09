@@ -14,7 +14,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -35,7 +35,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -56,7 +56,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -79,7 +79,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -105,7 +105,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -131,7 +131,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -157,7 +157,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -188,7 +188,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -219,7 +219,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -245,7 +245,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -271,7 +271,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -293,7 +293,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -313,7 +313,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -333,7 +333,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -355,7 +355,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -379,7 +379,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -403,7 +403,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -426,7 +426,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -451,7 +451,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -475,7 +475,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -499,7 +499,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -523,7 +523,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -547,7 +547,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -572,7 +572,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -597,7 +597,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -622,7 +622,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -647,7 +647,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -667,7 +667,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -688,7 +688,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -710,7 +710,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -732,7 +732,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -754,7 +754,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -778,7 +778,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -803,7 +803,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -828,7 +828,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -854,7 +854,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -880,7 +880,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -905,7 +905,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -930,7 +930,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -955,7 +955,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -983,7 +983,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1009,7 +1009,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1035,7 +1035,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1059,7 +1059,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1083,7 +1083,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -1104,7 +1104,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1130,8 +1130,8 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
-     * import { tempo } from 'tempo/chains'
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { tempo } from 'tempo.ts/chains'
      * import { http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
@@ -1159,7 +1159,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1185,7 +1185,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1211,7 +1211,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1235,7 +1235,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1259,7 +1259,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1287,7 +1287,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1315,7 +1315,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1340,8 +1340,8 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
-     * import { tempo } from 'tempo/chains'
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { tempo } from 'tempo.ts/chains'
      * import { http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
@@ -1368,7 +1368,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1394,8 +1394,8 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
-     * import { tempo } from 'tempo/chains'
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { tempo } from 'tempo.ts/chains'
      * import { http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
@@ -1423,7 +1423,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1448,7 +1448,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1473,7 +1473,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1499,7 +1499,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1525,7 +1525,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1550,7 +1550,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1575,7 +1575,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1599,7 +1599,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createTempoClient({
@@ -1623,7 +1623,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -1646,7 +1646,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -1667,7 +1667,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -1688,7 +1688,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -1709,7 +1709,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -1732,7 +1732,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *
@@ -1753,7 +1753,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo/viem'
+     * import { createTempoClient } from 'tempo.ts/viem'
      *
      * const client = createTempoClient()
      *

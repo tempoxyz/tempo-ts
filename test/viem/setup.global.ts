@@ -1,5 +1,5 @@
 import { createServer } from 'prool'
-import { Instance } from 'tempo/prool'
+import { Instance } from 'tempo.ts/prool'
 
 export default async function () {
   const server = createServer({

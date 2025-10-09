@@ -1,4 +1,4 @@
-import { TokenId } from 'tempo/ox'
+import { TokenId } from 'tempo.ts/ox'
 import { expect, test } from 'vitest'
 
 test('fromAddress', () => {

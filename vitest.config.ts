@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   resolve: {
     alias: {
-      tempo: join(import.meta.dirname, './src'),
+      'tempo.ts': join(import.meta.dirname, './src'),
     },
   },
   test: {
