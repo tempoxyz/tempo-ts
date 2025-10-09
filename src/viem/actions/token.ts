@@ -33,7 +33,11 @@ import type { Compute, UnionOmit } from '../../internal/types.js'
 import * as TokenId from '../../ox/TokenId.js'
 import * as TokenRole from '../../ox/TokenRole.js'
 import { tip20Abi, tip20FactoryAbi } from '../abis.js'
-import { defaultFeeTokenAddress, tip20FactoryAddress } from '../addresses.js'
+import {
+  defaultFeeTokenAddress,
+  linkingTokenAddress,
+  tip20FactoryAddress,
+} from '../addresses.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -885,8 +889,8 @@ export namespace create {
     currency: string
     /** Token name. */
     name: string
-    /** Quote token. */
-    quoteToken?: Address | undefined
+    /** Linking token. */
+    linkingToken?: Address | undefined
     /** Token symbol. */
     symbol: string
   }
@@ -964,13 +968,13 @@ export namespace create {
       name,
       symbol,
       currency,
-      quoteToken = defaultFeeTokenAddress,
+      linkingToken = linkingTokenAddress,
       admin,
     } = args
     return defineCall({
       address: tip20FactoryAddress,
       abi: tip20FactoryAbi,
-      args: [name, symbol, currency, quoteToken, admin],
+      args: [name, symbol, currency, linkingToken, admin],
       functionName: 'createToken',
     })
   }
