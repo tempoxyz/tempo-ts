@@ -1,5 +1,6 @@
 export * from './abis.js'
 export * as actions from './actions/index.js'
+export * from './addresses.js'
 export * from './chain.js'
 export * from './client.js'
 export { decorator as tempoActions } from './decorator.js'
