@@ -1232,8 +1232,8 @@ describe('watchCreate', () => {
           "currency": "USD",
           "name": "Watch Test Token 1",
           "symbol": "WATCH1",
-          "token": "0x20C0000000000000000000000000000000000001",
-          "tokenId": 1n,
+          "token": "0x20C0000000000000000000000000000000000004",
+          "tokenId": 4n,
         }
       `)
       expect(receivedTokens.at(1)!.args).toMatchInlineSnapshot(`
@@ -1242,8 +1242,8 @@ describe('watchCreate', () => {
           "currency": "USD",
           "name": "Watch Test Token 2",
           "symbol": "WATCH2",
-          "token": "0x20C0000000000000000000000000000000000002",
-          "tokenId": 2n,
+          "token": "0x20c0000000000000000000000000000000000005",
+          "tokenId": 5n,
         }
       `)
     } finally {
@@ -1313,8 +1313,8 @@ describe('watchCreate', () => {
           "currency": "USD",
           "name": "Filtered Watch Token 2",
           "symbol": "FWATCH2",
-          "token": "0x20C0000000000000000000000000000000000003",
-          "tokenId": 3n,
+          "token": "0x20C0000000000000000000000000000000000006",
+          "tokenId": 6n,
         }
       `)
 

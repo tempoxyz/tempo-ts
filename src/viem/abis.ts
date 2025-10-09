@@ -2088,12 +2088,12 @@ export const tip20FactoryAbi = Abi.from([
         indexed: false,
         internalType: 'string',
       },
-      {
-        name: 'quoteToken',
-        type: 'address',
-        indexed: false,
-        internalType: 'contract TIP20',
-      },
+      // {
+      //   name: 'quoteToken',
+      //   type: 'address',
+      //   indexed: false,
+      //   internalType: 'contract TIP20',
+      // },
       {
         name: 'admin',
         type: 'address',

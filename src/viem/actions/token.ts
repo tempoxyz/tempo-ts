@@ -9,7 +9,6 @@ import {
   encodeFunctionData,
   type GetEventArgs,
   type Log,
-  parseAbi,
   parseEventLogs,
   type ReadContractReturnType,
   type SendTransactionSyncParameters,
@@ -984,10 +983,7 @@ export namespace create {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      // TODO: ITIP20Factory.sol is out-of-sync.
-      abi: parseAbi([
-        'event TokenCreated(address indexed token, uint256 indexed tokenId, string name, string symbol, string currency, address admin)',
-      ]),
+      abi: tip20FactoryAbi,
       logs,
       eventName: 'TokenCreated',
       strict: true,
