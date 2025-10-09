@@ -2,6 +2,260 @@
 
 import * as Abi from 'ox/Abi'
 
+export const stablecoinExchangeAbi = Abi.from([
+  {
+    type: 'function',
+    name: 'MAX_TICK_RANGE',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint16', internalType: 'uint16' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'PRICE_SCALE',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint32', internalType: 'uint32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'balanceOf',
+    inputs: [
+      { name: 'user', type: 'address', internalType: 'address' },
+      { name: 'token', type: 'address', internalType: 'address' },
+    ],
+    outputs: [{ name: '', type: 'uint128', internalType: 'uint128' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'buy',
+    inputs: [
+      { name: 'tokenIn', type: 'address', internalType: 'address' },
+      { name: 'tokenOut', type: 'address', internalType: 'address' },
+      { name: 'amountOut', type: 'uint128', internalType: 'uint128' },
+      { name: 'maxAmountIn', type: 'uint128', internalType: 'uint128' },
+    ],
+    outputs: [{ name: 'amountIn', type: 'uint128', internalType: 'uint128' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'cancel',
+    inputs: [{ name: 'orderId', type: 'uint128', internalType: 'uint128' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'createPair',
+    inputs: [
+      { name: 'base', type: 'address', internalType: 'address' },
+      { name: 'pegPrice', type: 'uint32', internalType: 'uint32' },
+    ],
+    outputs: [{ name: 'key', type: 'bytes32', internalType: 'bytes32' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'executeBlock',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'place',
+    inputs: [
+      { name: 'base', type: 'address', internalType: 'address' },
+      { name: 'amount', type: 'uint128', internalType: 'uint128' },
+      { name: 'isBid', type: 'bool', internalType: 'bool' },
+      { name: 'tick', type: 'int16', internalType: 'int16' },
+    ],
+    outputs: [{ name: 'orderId', type: 'uint128', internalType: 'uint128' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'placeFlip',
+    inputs: [
+      { name: 'token', type: 'address', internalType: 'address' },
+      { name: 'amount', type: 'uint128', internalType: 'uint128' },
+      { name: 'isBid', type: 'bool', internalType: 'bool' },
+      { name: 'tick', type: 'int16', internalType: 'int16' },
+      { name: 'flipTick', type: 'int16', internalType: 'int16' },
+    ],
+    outputs: [{ name: 'orderId', type: 'uint128', internalType: 'uint128' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'quoteBuy',
+    inputs: [
+      { name: 'tokenIn', type: 'address', internalType: 'address' },
+      { name: 'tokenOut', type: 'address', internalType: 'address' },
+      { name: 'amountOut', type: 'uint128', internalType: 'uint128' },
+    ],
+    outputs: [{ name: 'amountIn', type: 'uint128', internalType: 'uint128' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'quoteSell',
+    inputs: [
+      { name: 'tokenIn', type: 'address', internalType: 'address' },
+      { name: 'tokenOut', type: 'address', internalType: 'address' },
+      { name: 'amountIn', type: 'uint128', internalType: 'uint128' },
+    ],
+    outputs: [{ name: 'amountOut', type: 'uint128', internalType: 'uint128' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'sell',
+    inputs: [
+      { name: 'tokenIn', type: 'address', internalType: 'address' },
+      { name: 'tokenOut', type: 'address', internalType: 'address' },
+      { name: 'amountIn', type: 'uint128', internalType: 'uint128' },
+      { name: 'minAmountOut', type: 'uint128', internalType: 'uint128' },
+    ],
+    outputs: [{ name: 'amountOut', type: 'uint128', internalType: 'uint128' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'withdraw',
+    inputs: [
+      { name: 'token', type: 'address', internalType: 'address' },
+      { name: 'amount', type: 'uint128', internalType: 'uint128' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    name: 'FlipOrderPlaced',
+    inputs: [
+      {
+        name: 'orderId',
+        type: 'uint128',
+        indexed: true,
+        internalType: 'uint128',
+      },
+      {
+        name: 'maker',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'token',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'amount',
+        type: 'uint128',
+        indexed: false,
+        internalType: 'uint128',
+      },
+      { name: 'isBid', type: 'bool', indexed: false, internalType: 'bool' },
+      { name: 'tick', type: 'int16', indexed: false, internalType: 'int16' },
+      {
+        name: 'flipTick',
+        type: 'int16',
+        indexed: false,
+        internalType: 'int16',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OrderCancelled',
+    inputs: [
+      {
+        name: 'orderId',
+        type: 'uint128',
+        indexed: true,
+        internalType: 'uint128',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OrderFilled',
+    inputs: [
+      {
+        name: 'orderId',
+        type: 'uint128',
+        indexed: true,
+        internalType: 'uint128',
+      },
+      {
+        name: 'maker',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'taker',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'amountFilled',
+        type: 'uint128',
+        indexed: false,
+        internalType: 'uint128',
+      },
+      {
+        name: 'partialFill',
+        type: 'bool',
+        indexed: false,
+        internalType: 'bool',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OrderPlaced',
+    inputs: [
+      {
+        name: 'orderId',
+        type: 'uint128',
+        indexed: true,
+        internalType: 'uint128',
+      },
+      {
+        name: 'maker',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'token',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'amount',
+        type: 'uint128',
+        indexed: false,
+        internalType: 'uint128',
+      },
+      { name: 'isBid', type: 'bool', indexed: false, internalType: 'bool' },
+      { name: 'tick', type: 'int16', indexed: false, internalType: 'int16' },
+    ],
+    anonymous: false,
+  },
+])
+
 export const feeAmmAbi = Abi.from([
   { type: 'constructor', inputs: [], stateMutability: 'nonpayable' },
   {
