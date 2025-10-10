@@ -4,5 +4,5 @@ import { createTempoClient } from './client.js'
 
 test('createTempoClient', () => {
   createTempoClient()
-  attest.instantiations([45545, 'instantiations'])
+  attest.instantiations([45889, 'instantiations'])
 })

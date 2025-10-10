@@ -20,10 +20,6 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
     binary = 'tempo',
     builder,
     chain = path.resolve(import.meta.dirname, './internal/chain.json'),
-    consensusConfig = path.resolve(
-      import.meta.dirname,
-      './internal/consensus.toml',
-    ),
     dev,
     faucet,
     ...args
@@ -58,7 +54,7 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
       fs.mkdirSync(tmp, { recursive: true })
       return await process.start(
         ($) =>
-          $`${binary} node --http --dev --engine.disable-precompile-cache --faucet.enabled ${toArgs(
+          $`${binary} node --http --dev --no-consensus --engine.disable-precompile-cache --faucet.enabled ${toArgs(
             {
               ...args,
               builder: {
@@ -67,7 +63,7 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
                 maxTasks,
               },
               chain,
-              consensusConfig,
+              consensusConfig: 'a',
               datadir: `${tmp}/data`,
               dev: {
                 blockTime,
@@ -145,10 +141,6 @@ export declare namespace tempo {
      * Chain this node is running.
      */
     chain?: string | undefined
-    /**
-     * Consensus configuration for this node.
-     */
-    consensusConfig?: string | undefined
     /**
      * Development options.
      */

@@ -1,5 +1,6 @@
 import * as Fs from 'node:fs'
 import * as Path from 'node:path'
+import * as Abi from 'ox/Abi'
 
 const extensions: Record<string, string[]> = {
   ITIP20: ['IRolesAuth'],
@@ -205,11 +206,13 @@ for (const [interfaceName, interfaceData] of interfaces.entries()) {
     .join('')}Abi`
 
   // Format items as array of strings
-  const formattedItems = allItems.map((item) => `  '${item}',`).join('\n')
+  const items = allItems.map((item) => {
+    return item.replace('external bool', 'external returns (bool)')
+  })
 
   Fs.appendFileSync(
     out,
-    `export const ${exportName} = Abi.from([\n${formattedItems}\n])\n\n`,
+    `export const ${exportName} = ${JSON.stringify(Abi.from(items))} as const\n\n`,
   )
 
   processedInterfaces.add(interfaceName)
