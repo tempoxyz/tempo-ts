@@ -312,6 +312,7 @@ describe('getMetadata', () => {
       {
         "currency": "USD",
         "decimals": 6,
+        "linkingToken": "0x20C0000000000000000000000000000000000000",
         "name": "AlphaUSD",
         "paused": false,
         "supplyCap": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
@@ -337,6 +338,7 @@ describe('getMetadata', () => {
       {
         "currency": "USD",
         "decimals": 6,
+        "linkingToken": "0x20C0000000000000000000000000000000000000",
         "name": "Test USD",
         "paused": false,
         "supplyCap": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
@@ -362,6 +364,7 @@ describe('getMetadata', () => {
       {
         "currency": "USD",
         "decimals": 6,
+        "linkingToken": "0x20C0000000000000000000000000000000000000",
         "name": "Test USD",
         "paused": false,
         "supplyCap": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
@@ -1082,6 +1085,230 @@ describe('unpause', () => {
       token: address,
     })
     expect(metadata.paused).toBe(false)
+  })
+})
+
+describe('updateLinkingToken', () => {
+  test('default', async () => {
+    // Create two tokens - one to be the new linking token
+    const { token: linkingTokenAddress } = await actions.token.createSync(
+      client,
+      {
+        currency: 'USD',
+        name: 'Linking Token',
+        symbol: 'LINK',
+      },
+    )
+
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Main Token',
+      symbol: 'MAIN',
+    })
+
+    // Update linking token
+    const { receipt: updateReceipt, ...updateResult } =
+      await actions.token.updateLinkingTokenSync(client, {
+        token: address,
+        linkingToken: linkingTokenAddress,
+      })
+
+    expect(updateReceipt).toBeDefined()
+    expect(updateResult).toMatchInlineSnapshot(`
+      {
+        "newLinkingToken": "0x20C0000000000000000000000000000000000004",
+        "updater": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      }
+    `)
+
+    // Verify the event was emitted with correct linking token
+    expect(updateResult.newLinkingToken).toBe(linkingTokenAddress)
+  })
+
+  test('behavior: requires admin role', async () => {
+    // Create linking token
+    const { token: linkingTokenAddress } = await actions.token.createSync(
+      client,
+      {
+        currency: 'USD',
+        name: 'Linking Token 2',
+        symbol: 'LINK2',
+      },
+    )
+
+    // Create main token where client.account is admin
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Restricted Token',
+      symbol: 'RESTR',
+    })
+
+    // Transfer gas to account2
+    await writeContractSync(client, {
+      abi: tip20Abi,
+      address: defaultFeeTokenAddress,
+      functionName: 'transfer',
+      args: [account2.address, parseEther('1')],
+    })
+
+    // Try to update linking token from account2 (not admin) - should fail
+    await expect(
+      actions.token.updateLinkingTokenSync(client, {
+        account: account2,
+        token: address,
+        linkingToken: linkingTokenAddress,
+      }),
+    ).rejects.toThrow()
+  })
+
+  test('behavior: with token ID', async () => {
+    // Create linking token
+    const { token: linkingTokenAddress } = await actions.token.createSync(
+      client,
+      {
+        currency: 'USD',
+        name: 'Linking Token 3',
+        symbol: 'LINK3',
+      },
+    )
+
+    // Create main token using token ID
+    const { tokenId: mainTokenId } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Main Token ID',
+      symbol: 'MAINID',
+    })
+
+    // Update linking token using token ID for main token, address for linking token
+    const { receipt: updateReceipt, ...updateResult } =
+      await actions.token.updateLinkingTokenSync(client, {
+        token: mainTokenId,
+        linkingToken: linkingTokenAddress,
+      })
+
+    expect(updateReceipt.status).toBe('success')
+    expect(updateResult.updater).toBe(client.account.address)
+  })
+})
+
+describe('finalizeUpdateLinkingToken', () => {
+  test('default', async () => {
+    // Create linking token
+    const { token: linkingTokenAddress } = await actions.token.createSync(
+      client,
+      {
+        currency: 'USD',
+        name: 'Linking Token',
+        symbol: 'LINK',
+      },
+    )
+
+    // Create main token
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Main Token',
+      symbol: 'MAIN',
+    })
+
+    // Update linking token (step 1)
+    await actions.token.updateLinkingTokenSync(client, {
+      token: address,
+      linkingToken: linkingTokenAddress,
+    })
+
+    // Finalize the update (step 2)
+    const { receipt: finalizeReceipt, ...finalizeResult } =
+      await actions.token.finalizeUpdateLinkingTokenSync(client, {
+        token: address,
+      })
+
+    expect(finalizeReceipt).toBeDefined()
+    expect(finalizeResult).toMatchInlineSnapshot(`
+      {
+        "newLinkingToken": "0x20C0000000000000000000000000000000000004",
+        "updater": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      }
+    `)
+
+    // Verify the linking token was updated
+    expect(finalizeResult.newLinkingToken).toBe(linkingTokenAddress)
+
+    // Verify it's reflected in metadata
+    const metadata = await actions.token.getMetadata(client, {
+      token: address,
+    })
+    expect(metadata.linkingToken).toBe(linkingTokenAddress)
+  })
+
+  test('behavior: requires admin role', async () => {
+    // Create linking token
+    const { token: linkingTokenAddress } = await actions.token.createSync(
+      client,
+      {
+        currency: 'USD',
+        name: 'Linking Token 2',
+        symbol: 'LINK2',
+      },
+    )
+
+    // Create main token
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Restricted Token',
+      symbol: 'RESTR',
+    })
+
+    // Update linking token as admin
+    await actions.token.updateLinkingTokenSync(client, {
+      token: address,
+      linkingToken: linkingTokenAddress,
+    })
+
+    // Transfer gas to account2
+    await writeContractSync(client, {
+      abi: tip20Abi,
+      address: defaultFeeTokenAddress,
+      functionName: 'transfer',
+      args: [account2.address, parseEther('1')],
+    })
+
+    // Try to finalize as non-admin - should fail
+    await expect(
+      actions.token.finalizeUpdateLinkingTokenSync(client, {
+        account: account2,
+        token: address,
+      }),
+    ).rejects.toThrow()
+  })
+
+  test('behavior: prevents circular references', async () => {
+    // Create token B
+    const { token: tokenBAddress } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Token B',
+      symbol: 'TKB',
+    })
+
+    // Create token A that links to token B
+    const { token: tokenAAddress } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Token A',
+      symbol: 'TKA',
+      linkingToken: tokenBAddress,
+    })
+
+    // Try to make token B link to token A (would create A -> B -> A loop)
+    await actions.token.updateLinkingTokenSync(client, {
+      token: tokenBAddress,
+      linkingToken: tokenAAddress,
+    })
+
+    // Finalize should fail due to circular reference detection
+    await expect(
+      actions.token.finalizeUpdateLinkingTokenSync(client, {
+        token: tokenBAddress,
+      }),
+    ).rejects.toThrow()
   })
 })
 

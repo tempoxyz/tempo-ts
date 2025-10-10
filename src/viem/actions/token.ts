@@ -890,7 +890,7 @@ export namespace create {
     /** Token name. */
     name: string
     /** Linking token. */
-    linkingToken?: Address | undefined
+    linkingToken?: TokenId.TokenIdOrAddress | undefined
     /** Token symbol. */
     symbol: string
   }
@@ -974,7 +974,7 @@ export namespace create {
     return defineCall({
       address: tip20FactoryAddress,
       abi: tip20FactoryAbi,
-      args: [name, symbol, currency, linkingToken, admin],
+      args: [name, symbol, currency, TokenId.toAddress(linkingToken), admin],
       functionName: 'createToken',
     })
   }
@@ -1056,6 +1056,195 @@ export namespace createSync {
       { IndexedOnly: false; Required: true }
     > & {
       /** Transaction receipt. */
+      receipt: TransactionReceipt
+    }
+  >
+}
+
+/**
+ * Finalizes the linking token update for a TIP20 token.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const result = await actions.token.finalizeUpdateLinkingToken(client, {
+ *   token: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function finalizeUpdateLinkingToken<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: finalizeUpdateLinkingToken.Parameters<chain, account>,
+): Promise<finalizeUpdateLinkingToken.ReturnValue> {
+  return finalizeUpdateLinkingToken.inner(writeContract, client, parameters)
+}
+
+export namespace finalizeUpdateLinkingToken {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type Args = {
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
+  }
+
+  export type ReturnValue = WriteContractReturnType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: finalizeUpdateLinkingToken.Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const call = finalizeUpdateLinkingToken.call(parameters)
+    return (await action(client, {
+      ...parameters,
+      ...call,
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `finalizeLinkingTokenUpdate` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo.ts/chains'
+   * import * as actions from 'tempo.ts/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.finalizeUpdateLinkingToken.call({
+   *       token: '0x20c0...babe',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { token } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      functionName: 'finalizeLinkingTokenUpdate',
+      args: [],
+    })
+  }
+
+  /**
+   * Extracts the event from the logs.
+   *
+   * @param logs - Logs.
+   * @returns The event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: tip20Abi,
+      logs,
+      eventName: 'LinkingTokenUpdateFinalized',
+    })
+    if (!log) throw new Error('`LinkingTokenUpdateFinalized` event not found.')
+    return log
+  }
+}
+
+/**
+ * Finalizes the linking token update for a TIP20 token.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const result = await actions.token.finalizeUpdateLinkingTokenSync(client, {
+ *   token: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt and event data.
+ */
+export async function finalizeUpdateLinkingTokenSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: finalizeUpdateLinkingTokenSync.Parameters<chain, account>,
+): Promise<finalizeUpdateLinkingTokenSync.ReturnValue> {
+  const receipt = await finalizeUpdateLinkingToken.inner(
+    writeContractSync,
+    client,
+    parameters,
+  )
+  const { args } = finalizeUpdateLinkingToken.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
+}
+
+export namespace finalizeUpdateLinkingTokenSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = finalizeUpdateLinkingToken.Parameters<chain, account>
+
+  export type Args = finalizeUpdateLinkingToken.Args
+
+  export type ReturnValue = Compute<
+    GetEventArgs<
+      typeof tip20Abi,
+      'LinkingTokenUpdateFinalized',
+      {
+        IndexedOnly: false
+        Required: true
+      }
+    > & {
       receipt: TransactionReceipt
     }
   >
@@ -1265,6 +1454,11 @@ export async function getMetadata<chain extends Chain | undefined>(
       {
         address,
         abi,
+        functionName: 'linkingToken',
+      },
+      {
+        address,
+        abi,
         functionName: 'name',
       },
       {
@@ -1299,6 +1493,7 @@ export async function getMetadata<chain extends Chain | undefined>(
     ([
       currency,
       decimals,
+      linkingToken,
       name,
       paused,
       supplyCap,
@@ -1310,6 +1505,7 @@ export async function getMetadata<chain extends Chain | undefined>(
       symbol,
       currency,
       decimals,
+      linkingToken,
       totalSupply,
       paused,
       supplyCap,
@@ -1330,6 +1526,8 @@ export declare namespace getMetadata {
     currency: string
     /** Decimals. */
     decimals: number
+    /** Linking token. */
+    linkingToken: Address
     /** Name. */
     name: string
     /** Whether the token is paused. */
@@ -3342,6 +3540,200 @@ export namespace unpauseSync {
   > & {
     receipt: TransactionReceipt
   }
+}
+
+/**
+ * Updates the linking token for a TIP20 token.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const result = await actions.token.updateLinkingToken(client, {
+ *   token: '0x...',
+ *   linkingToken: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function updateLinkingToken<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: updateLinkingToken.Parameters<chain, account>,
+): Promise<updateLinkingToken.ReturnValue> {
+  return updateLinkingToken.inner(writeContract, client, parameters)
+}
+
+export namespace updateLinkingToken {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type Args = {
+    /** New linking token address. */
+    linkingToken: TokenId.TokenIdOrAddress
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
+  }
+
+  export type ReturnValue = WriteContractReturnType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: updateLinkingToken.Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const call = updateLinkingToken.call(parameters)
+    return (await action(client, {
+      ...parameters,
+      ...call,
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `updateLinkingToken` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo.ts/chains'
+   * import * as actions from 'tempo.ts/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.updateLinkingToken.call({
+   *       token: '0x20c0...babe',
+   *       linkingToken: '0x20c0...cafe',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { token, linkingToken } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      functionName: 'updateLinkingToken',
+      args: [TokenId.toAddress(linkingToken)],
+    })
+  }
+
+  /**
+   * Extracts the event from the logs.
+   *
+   * @param logs - Logs.
+   * @returns The event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: tip20Abi,
+      logs,
+      eventName: 'UpdateLinkingToken',
+    })
+    if (!log) throw new Error('`UpdateLinkingToken` event not found.')
+    return log
+  }
+}
+
+/**
+ * Updates the linking token for a TIP20 token.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const result = await actions.token.updateLinkingTokenSync(client, {
+ *   token: '0x...',
+ *   linkingToken: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt and event data.
+ */
+export async function updateLinkingTokenSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: updateLinkingTokenSync.Parameters<chain, account>,
+): Promise<updateLinkingTokenSync.ReturnValue> {
+  const receipt = await updateLinkingToken.inner(
+    writeContractSync,
+    client,
+    parameters,
+  )
+  const { args } = updateLinkingToken.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
+}
+
+export namespace updateLinkingTokenSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = updateLinkingToken.Parameters<chain, account>
+
+  export type Args = updateLinkingToken.Args
+
+  export type ReturnValue = Compute<
+    GetEventArgs<
+      typeof tip20Abi,
+      'UpdateLinkingToken',
+      {
+        IndexedOnly: false
+        Required: true
+      }
+    > & {
+      receipt: TransactionReceipt
+    }
+  >
 }
 
 /**
