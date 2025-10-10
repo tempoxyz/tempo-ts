@@ -2397,3 +2397,122 @@ describe('watchTransfer', () => {
     }
   })
 })
+
+describe('watchUpdateLinkingToken', () => {
+  test('default', async () => {
+    // Create linking token
+    const { token: linkingTokenAddress } = await actions.token.createSync(
+      client,
+      {
+        currency: 'USD',
+        name: 'Watch Linking Token',
+        symbol: 'WLINK',
+      },
+    )
+
+    // Create main token
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Watch Main Token',
+      symbol: 'WMAIN',
+    })
+
+    const receivedUpdates: Array<{
+      args: actions.token.watchUpdateLinkingToken.Args
+      log: actions.token.watchUpdateLinkingToken.Log
+    }> = []
+
+    // Start watching for linking token update events
+    const unwatch = actions.token.watchUpdateLinkingToken(client, {
+      token: address,
+      onUpdateLinkingToken: (args, log) => {
+        receivedUpdates.push({ args, log })
+      },
+    })
+
+    try {
+      // Step 1: Update linking token (should emit UpdateLinkingToken)
+      await actions.token.updateLinkingTokenSync(client, {
+        token: address,
+        linkingToken: linkingTokenAddress,
+      })
+
+      // Step 2: Finalize the update (should emit LinkingTokenUpdateFinalized)
+      await actions.token.finalizeUpdateLinkingTokenSync(client, {
+        token: address,
+      })
+
+      await setTimeout(100)
+
+      // Should receive 2 events: one for update, one for finalized
+      expect(receivedUpdates).toHaveLength(2)
+
+      // First event: update proposed (not finalized)
+      expect(receivedUpdates.at(0)!.args.finalized).toBe(false)
+      expect(receivedUpdates.at(0)!.args.newLinkingToken).toBe(
+        linkingTokenAddress,
+      )
+      expect(receivedUpdates.at(0)!.args.updater).toBe(client.account.address)
+
+      // Second event: update finalized
+      expect(receivedUpdates.at(1)!.args.finalized).toBe(true)
+      expect(receivedUpdates.at(1)!.args.newLinkingToken).toBe(
+        linkingTokenAddress,
+      )
+      expect(receivedUpdates.at(1)!.args.updater).toBe(client.account.address)
+    } finally {
+      if (unwatch) unwatch()
+    }
+  })
+
+  test('behavior: only proposed updates', async () => {
+    // Create linking token
+    const { token: linkingTokenAddress } = await actions.token.createSync(
+      client,
+      {
+        currency: 'USD',
+        name: 'Proposed Linking Token',
+        symbol: 'PLINK',
+      },
+    )
+
+    // Create main token
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Proposed Main Token',
+      symbol: 'PMAIN',
+    })
+
+    const receivedUpdates: Array<{
+      args: actions.token.watchUpdateLinkingToken.Args
+      log: actions.token.watchUpdateLinkingToken.Log
+    }> = []
+
+    // Start watching
+    const unwatch = actions.token.watchUpdateLinkingToken(client, {
+      token: address,
+      onUpdateLinkingToken: (args, log) => {
+        receivedUpdates.push({ args, log })
+      },
+    })
+
+    try {
+      // Only update (don't finalize)
+      await actions.token.updateLinkingTokenSync(client, {
+        token: address,
+        linkingToken: linkingTokenAddress,
+      })
+
+      await setTimeout(100)
+
+      // Should only receive 1 event (not finalized)
+      expect(receivedUpdates).toHaveLength(1)
+      expect(receivedUpdates.at(0)!.args.finalized).toBe(false)
+      expect(receivedUpdates.at(0)!.args.newLinkingToken).toBe(
+        linkingTokenAddress,
+      )
+    } finally {
+      if (unwatch) unwatch()
+    }
+  })
+})

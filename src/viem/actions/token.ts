@@ -29,7 +29,7 @@ import {
   writeContract,
   writeContractSync,
 } from 'viem/actions'
-import type { Compute, UnionOmit } from '../../internal/types.js'
+import type { Compute, OneOf, UnionOmit } from '../../internal/types.js'
 import * as TokenId from '../../ox/TokenId.js'
 import * as TokenRole from '../../ox/TokenRole.js'
 import { tip20Abi, tip20FactoryAbi } from '../abis.js'
@@ -4232,6 +4232,114 @@ export declare namespace watchTransfer {
   > & {
     /** Callback to invoke when tokens are transferred. */
     onTransfer: (args: Args, log: Log) => void
+    /** Address or ID of the TIP20 token. @default `defaultFeeTokenAddress` */
+    token?: TokenId.TokenIdOrAddress | undefined
+  }
+}
+
+/**
+ * Watches for TIP20 token linking token update events.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const unwatch = actions.token.watchUpdateLinkingToken(client, {
+ *   onUpdateLinkingToken: (args, log) => {
+ *     if (args.finalized)
+ *       console.log('Linking token update finalized:', args.newLinkingToken)
+ *     else
+ *       console.log('Linking token update proposed:', args.newLinkingToken)
+ *   },
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchUpdateLinkingToken<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: watchUpdateLinkingToken.Parameters,
+) {
+  const {
+    onUpdateLinkingToken,
+    token = defaultFeeTokenAddress,
+    ...rest
+  } = parameters
+  const address = TokenId.toAddress(token)
+
+  return watchContractEvent(client, {
+    ...rest,
+    address,
+    abi: tip20Abi,
+    onLogs: (
+      logs: viem_Log<
+        bigint,
+        number,
+        false,
+        ExtractAbiItem<
+          typeof tip20Abi,
+          'UpdateLinkingToken' | 'LinkingTokenUpdateFinalized'
+        >,
+        true
+      >[],
+    ) => {
+      for (const log of logs) {
+        if (
+          log.eventName !== 'UpdateLinkingToken' &&
+          log.eventName !== 'LinkingTokenUpdateFinalized'
+        )
+          continue
+
+        onUpdateLinkingToken(
+          {
+            ...log.args,
+            finalized: log.eventName === 'LinkingTokenUpdateFinalized',
+          },
+          log,
+        )
+      }
+    },
+    strict: true,
+  } as never)
+}
+
+export declare namespace watchUpdateLinkingToken {
+  export type Args = OneOf<
+    | GetEventArgs<
+        typeof tip20Abi,
+        'UpdateLinkingToken',
+        { IndexedOnly: false; Required: true }
+      >
+    | GetEventArgs<
+        typeof tip20Abi,
+        'LinkingTokenUpdateFinalized',
+        { IndexedOnly: false; Required: true }
+      >
+  > & {
+    /** Whether the update has been finalized. */
+    finalized: boolean
+  }
+
+  export type Log = viem_Log
+
+  export type Parameters = UnionOmit<
+    WatchContractEventParameters<typeof tip20Abi, any, true>,
+    'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
+  > & {
+    /** Callback to invoke when a linking token update is proposed or finalized. */
+    onUpdateLinkingToken: (args: Args, log: Log) => void
     /** Address or ID of the TIP20 token. @default `defaultFeeTokenAddress` */
     token?: TokenId.TokenIdOrAddress | undefined
   }
