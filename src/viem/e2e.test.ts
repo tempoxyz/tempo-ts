@@ -1,14 +1,14 @@
 import { node } from '@elysiajs/node'
 import { Elysia } from 'elysia'
 import { RpcRequest, RpcResponse } from 'ox'
-import * as actions from 'tempo.ts/viem/actions'
+import { Transaction } from 'tempo.ts/viem'
 import { createClient, http, publicActions, walletActions } from 'viem'
 import { mnemonicToAccount, privateKeyToAccount } from 'viem/accounts'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { tempoTest } from '../../test/viem/config.js'
+import * as actions from './Actions/index.js'
 import { tempoActions } from './index.js'
-import { parseTransaction } from './transaction.js'
-import { withFeePayer } from './transport.js'
+import { withFeePayer } from './Transport.js'
 
 describe('sendTransaction', () => {
   test('default', async () => {
@@ -217,7 +217,7 @@ describe('signTransaction', () => {
     let transaction = await client.signTransaction(request)
 
     transaction = await client.signTransaction({
-      ...parseTransaction(transaction),
+      ...Transaction.deserialize(transaction),
       feePayer,
     })
     const hash = await client.sendRawTransaction({
@@ -314,7 +314,7 @@ describe('relay', () => {
             ),
           )
 
-        const transaction = parseTransaction(serialized)
+        const transaction = Transaction.deserialize(serialized)
         const serializedTransaction = await client.signTransaction({
           ...transaction,
           feePayer: client.account,

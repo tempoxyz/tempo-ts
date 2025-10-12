@@ -198,12 +198,12 @@ for (const [interfaceName, interfaceData] of interfaces.entries()) {
     }
   }
 
-  const exportName = `${cleanName
+  const exportName = cleanName
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
     .toLowerCase()
     .split(/[_\-. \s]+/)
     .map((w, i) => (i ? w[0]!.toUpperCase() + w.slice(1) : w))
-    .join('')}Abi`
+    .join('')
 
   // Format items as array of strings
   const items = allItems.map((item) => {

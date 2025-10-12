@@ -1,6 +1,6 @@
 import { attest } from '@ark/attest'
 import { test } from 'vitest'
-import { createTempoClient } from './client.js'
+import { createTempoClient } from './Client.js'
 
 test('createTempoClient', () => {
   createTempoClient()

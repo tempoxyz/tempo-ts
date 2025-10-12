@@ -12,7 +12,7 @@ import {
 } from 'viem'
 import { tempo } from '../chains.js'
 import type { PartialBy } from '../internal/types.js'
-import * as actions from './decorator.js'
+import * as actions from './Decorator.js'
 
 export type Client<
   transport extends Transport = Transport,

@@ -22,14 +22,14 @@ import {
 } from 'viem/actions'
 import type { Compute, UnionOmit } from '../../internal/types.js'
 import * as TokenId from '../../ox/TokenId.js'
-import { feeManagerAbi } from '../abis.js'
-import { feeManagerAddress } from '../addresses.js'
+import * as Abis from '../Abis.js'
+import * as Addresses from '../Addresses.js'
 import type {
   GetAccountParameter,
   ReadParameters,
   WriteParameters,
-} from '../types.js'
-import { defineCall } from '../utils.js'
+} from '../internal/types.js'
+import { defineCall } from '../internal/utils.js'
 
 /**
  * Gets the user's default fee token.
@@ -100,8 +100,8 @@ export namespace getUserToken {
   export function call(args: Args) {
     const { account } = args
     return defineCall({
-      address: feeManagerAddress,
-      abi: feeManagerAbi,
+      address: Addresses.feeManager,
+      abi: Abis.feeManager,
       args: [account],
       functionName: 'userTokens',
     })
@@ -210,8 +210,8 @@ export namespace setUserToken {
   export function call(args: Args) {
     const { token } = args
     return defineCall({
-      address: feeManagerAddress,
-      abi: feeManagerAbi,
+      address: Addresses.feeManager,
+      abi: Abis.feeManager,
       functionName: 'setUserToken',
       args: [TokenId.toAddress(token)],
     })
@@ -219,7 +219,7 @@ export namespace setUserToken {
 
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: feeManagerAbi,
+      abi: Abis.feeManager,
       logs,
       eventName: 'UserTokenSet',
       strict: true,
@@ -283,7 +283,7 @@ export namespace setUserTokenSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof feeManagerAbi,
+      typeof Abis.feeManager,
       'UserTokenSet',
       { IndexedOnly: false; Required: true }
     > & {
@@ -327,8 +327,8 @@ export function watchSetUserToken<
   const { onUserTokenSet, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: feeManagerAddress,
-    abi: feeManagerAbi,
+    address: Addresses.feeManager,
+    abi: Abis.feeManager,
     eventName: 'UserTokenSet',
     onLogs: (logs) => {
       for (const log of logs) onUserTokenSet(log.args, log)
@@ -339,7 +339,7 @@ export function watchSetUserToken<
 
 export declare namespace watchSetUserToken {
   export type Args = GetEventArgs<
-    typeof feeManagerAbi,
+    typeof Abis.feeManager,
     'UserTokenSet',
     { IndexedOnly: false; Required: true }
   >
@@ -348,12 +348,12 @@ export declare namespace watchSetUserToken {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof feeManagerAbi, 'UserTokenSet'>,
+    ExtractAbiItem<typeof Abis.feeManager, 'UserTokenSet'>,
     true
   >
 
   export type Parameters = UnionOmit<
-    WatchContractEventParameters<typeof feeManagerAbi, 'UserTokenSet', true>,
+    WatchContractEventParameters<typeof Abis.feeManager, 'UserTokenSet', true>,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
     /** Callback to invoke when a user token is set. */

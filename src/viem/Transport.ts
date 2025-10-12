@@ -1,7 +1,7 @@
 import { createTransport, type Transport } from 'viem'
-import { parseTransaction } from './transaction.js'
+import * as Transaction from './Transaction.js'
 
-export type Relay = Transport<typeof withFeePayer.type>
+export type FeePayer = Transport<typeof withFeePayer.type>
 
 /**
  * Creates a fee payer transport that routes requests between
@@ -28,7 +28,7 @@ export function withFeePayer(
           method === 'eth_sendRawTransaction'
         ) {
           const serialized = (params as any)[0] as `0x77${string}`
-          const transaction = parseTransaction(serialized)
+          const transaction = Transaction.deserialize(serialized)
           // If the transaction is intended to be sponsored, forward it to the relay.
           if (transaction.feePayerSignature === null)
             return transport_relay.request({ method, params }, options) as never
@@ -43,5 +43,5 @@ export function withFeePayer(
 export declare namespace withFeePayer {
   export const type = 'feePayer'
 
-  export type ReturnValue = Relay
+  export type ReturnValue = FeePayer
 }

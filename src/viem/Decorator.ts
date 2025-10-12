@@ -1,8 +1,8 @@
 import type { Account, Chain, Client, Transport } from 'viem'
-import * as ammActions from './actions/amm.js'
-import * as feeActions from './actions/fee.js'
-import * as policyActions from './actions/policy.js'
-import * as tokenActions from './actions/token.js'
+import * as ammActions from './Actions/amm.js'
+import * as feeActions from './Actions/fee.js'
+import * as policyActions from './Actions/policy.js'
+import * as tokenActions from './Actions/token.js'
 
 export type Decorator<
   chain extends Chain | undefined = Chain | undefined,

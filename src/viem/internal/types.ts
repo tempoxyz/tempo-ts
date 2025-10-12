@@ -9,8 +9,8 @@ import type {
   IsUndefined,
   MaybeRequired,
   UnionPick,
-} from '../internal/types.js'
-import type { TransactionRequestFeeToken } from './transaction.js'
+} from '../../internal/types.js'
+import type { TransactionRequestFeeToken } from '../Transaction.js'
 
 export type GetAccountParameter<
   account extends Account | undefined = Account | undefined,

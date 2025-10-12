@@ -1,6 +1,6 @@
 // Generated with `bun run gen:abis`. Do not modify manually.
 
-export const tip20Abi = [
+export const tip20 = [
   {
     name: 'name',
     type: 'function',
@@ -454,7 +454,7 @@ export const tip20Abi = [
   { name: 'Unauthorized', type: 'error', inputs: [] },
 ] as const
 
-export const tip20FactoryAbi = [
+export const tip20Factory = [
   {
     name: 'createToken',
     type: 'function',
@@ -489,7 +489,7 @@ export const tip20FactoryAbi = [
   },
 ] as const
 
-export const tip403RegistryAbi = [
+export const tip403Registry = [
   {
     name: 'policyIdCounter',
     type: 'function',
@@ -613,7 +613,7 @@ export const tip403RegistryAbi = [
   { name: 'SelfOwnedPolicyMustBeWhitelist', type: 'error', inputs: [] },
 ] as const
 
-export const tip4217RegistryAbi = [
+export const tip4217Registry = [
   {
     name: 'getCurrencyDecimals',
     type: 'function',
@@ -623,7 +623,7 @@ export const tip4217RegistryAbi = [
   },
 ] as const
 
-export const tipAccountRegistrarAbi = [
+export const tipAccountRegistrar = [
   {
     name: 'delegateToDefault',
     type: 'function',
@@ -646,7 +646,7 @@ export const tipAccountRegistrarAbi = [
   { name: 'NonceNotZero', type: 'error', inputs: [] },
 ] as const
 
-export const feeAmmAbi = [
+export const feeAmm = [
   {
     name: 'getPoolId',
     type: 'function',
@@ -826,7 +826,7 @@ export const feeAmmAbi = [
   { name: 'InternalError', type: 'error', inputs: [] },
 ] as const
 
-export const feeManagerAbi = [
+export const feeManager = [
   {
     name: 'BASIS_POINTS',
     type: 'function',

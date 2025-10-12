@@ -1,8 +1,8 @@
 import { defineChain } from 'viem'
-import { chainConfig } from './viem/chain.js'
+import * as Chain from './viem/Chain.js'
 
 export const tempoAdagietto = /*#__PURE__*/ defineChain({
-  ...chainConfig,
+  ...Chain.config,
   id: 1337,
   name: 'Tempo',
   nativeCurrency: {
@@ -16,7 +16,7 @@ export const tempoAdagietto = /*#__PURE__*/ defineChain({
 })
 
 export const tempoLento = /*#__PURE__*/ defineChain({
-  ...chainConfig,
+  ...Chain.config,
   id: 4246,
   name: 'Tempo',
   nativeCurrency: {
@@ -30,7 +30,7 @@ export const tempoLento = /*#__PURE__*/ defineChain({
 })
 
 export const tempoLocal = /*#__PURE__*/ defineChain({
-  ...chainConfig,
+  ...Chain.config,
   id: 1337,
   name: 'Tempo',
   nativeCurrency: {

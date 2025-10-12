@@ -1,13 +1,11 @@
 import { setTimeout } from 'node:timers/promises'
-import * as actions from 'tempo.ts/viem/actions'
+import { Abis, Addresses, createTempoClient } from 'tempo.ts/viem'
 import { parseEther, publicActions } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
 import { writeContractSync } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import { tempoTest } from '../../../test/viem/config.js'
-import { tip20Abi } from '../abis.js'
-import { defaultFeeTokenAddress } from '../addresses.js'
-import { createTempoClient } from '../client.js'
+import * as actions from './index.js'
 
 const account = mnemonicToAccount(
   'test test test test test test test test test test test junk',
@@ -31,14 +29,14 @@ describe('getUserToken', () => {
   test('default', async () => {
     // Fund accounts
     await writeContractSync(client, {
-      abi: tip20Abi,
-      address: defaultFeeTokenAddress,
+      abi: Abis.tip20,
+      address: Addresses.defaultFeeToken,
       functionName: 'transfer',
       args: [account2.address, parseEther('100')],
     })
     await writeContractSync(client, {
-      abi: tip20Abi,
-      address: defaultFeeTokenAddress,
+      abi: Abis.tip20,
+      address: Addresses.defaultFeeToken,
       functionName: 'transfer',
       args: [account3.address, parseEther('100')],
     })
@@ -156,8 +154,8 @@ describe('watchSetUserToken', () => {
     try {
       // Set token for account2
       await writeContractSync(client, {
-        abi: tip20Abi,
-        address: defaultFeeTokenAddress,
+        abi: Abis.tip20,
+        address: Addresses.defaultFeeToken,
         functionName: 'transfer',
         args: [account2.address, parseEther('1')],
       })
@@ -169,8 +167,8 @@ describe('watchSetUserToken', () => {
 
       // Set token for account3
       await writeContractSync(client, {
-        abi: tip20Abi,
-        address: defaultFeeTokenAddress,
+        abi: Abis.tip20,
+        address: Addresses.defaultFeeToken,
         functionName: 'transfer',
         args: [account3.address, parseEther('1')],
       })
@@ -220,15 +218,15 @@ describe('watchSetUserToken', () => {
     try {
       // Transfer gas to accounts
       await writeContractSync(client, {
-        abi: tip20Abi,
-        address: defaultFeeTokenAddress,
+        abi: Abis.tip20,
+        address: Addresses.defaultFeeToken,
         functionName: 'transfer',
         args: [account2.address, parseEther('1')],
       })
 
       await writeContractSync(client, {
-        abi: tip20Abi,
-        address: defaultFeeTokenAddress,
+        abi: Abis.tip20,
+        address: Addresses.defaultFeeToken,
         functionName: 'transfer',
         args: [account3.address, parseEther('1')],
       })

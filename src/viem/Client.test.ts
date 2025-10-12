@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { createTempoClient } from './client.js'
+import { createTempoClient } from './Client.js'
 
 test('createTempoClient', () => {
   const client = createTempoClient()

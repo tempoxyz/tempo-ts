@@ -1,5 +1,5 @@
 ---
-"tempo.ts": patch
+'tempo.ts': patch
 ---
 
-Added `updateLinkingToken` and `finalizeUpdateLinkingToken`.
+Added `token.updateLinkingToken` and `token.finalizeUpdateLinkingToken` Actions.

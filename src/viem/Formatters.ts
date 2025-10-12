@@ -13,7 +13,7 @@ import {
   type TransactionRequestFeeToken,
   type TransactionRequestRpc,
   type TransactionRpc,
-} from './transaction.js'
+} from './Transaction.js'
 
 export const formatTransaction = (
   transaction: TransactionRpc,

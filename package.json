@@ -19,8 +19,7 @@
 			"./chains": "./src/chains.ts",
 			"./ox": "./src/ox/index.ts",
 			"./prool": "./src/prool/index.ts",
-			"./viem": "./src/viem/index.ts",
-			"./viem/actions": "./src/viem/actions/index.ts"
+			"./viem": "./src/viem/index.ts"
 		},
 		"cjs": false,
 		"conditions": {
@@ -42,6 +41,7 @@
 			"optional": true
 		}
 	},
+	"packageManager": "bun@1.3.0",
 	"author": "jxom <j@wevm.dev>",
 	"license": "MIT",
 	"devDependencies": {

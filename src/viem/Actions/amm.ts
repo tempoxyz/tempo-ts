@@ -23,10 +23,10 @@ import {
 } from 'viem/actions'
 import type { Compute, UnionOmit } from '../../internal/types.js'
 import * as TokenId from '../../ox/TokenId.js'
-import { feeAmmAbi } from '../abis.js'
-import { feeManagerAddress } from '../addresses.js'
-import type { ReadParameters, WriteParameters } from '../types.js'
-import { defineCall } from '../utils.js'
+import * as Abis from '../Abis.js'
+import * as Addresses from '../Addresses.js'
+import type { ReadParameters, WriteParameters } from '../internal/types.js'
+import { defineCall } from '../internal/utils.js'
 
 /**
  * Gets the pool ID for a token pair.
@@ -73,7 +73,7 @@ export namespace getPoolId {
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof feeAmmAbi,
+    typeof Abis.feeAmm,
     'getPoolId',
     never
   >
@@ -87,8 +87,8 @@ export namespace getPoolId {
   export function call(args: Args) {
     const { userToken, validatorToken } = args
     return defineCall({
-      address: feeManagerAddress,
-      abi: feeAmmAbi,
+      address: Addresses.feeManager,
+      abi: Abis.feeAmm,
       args: [TokenId.toAddress(userToken), TokenId.toAddress(validatorToken)],
       functionName: 'getPoolId',
     })
@@ -155,8 +155,8 @@ export namespace getPool {
   export function call(args: Args) {
     const { userToken, validatorToken } = args
     return defineCall({
-      address: feeManagerAddress,
-      abi: feeAmmAbi,
+      address: Addresses.feeManager,
+      abi: Abis.feeAmm,
       args: [TokenId.toAddress(userToken), TokenId.toAddress(validatorToken)],
       functionName: 'getPool',
     })
@@ -208,7 +208,7 @@ export namespace getTotalSupply {
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof feeAmmAbi,
+    typeof Abis.feeAmm,
     'totalSupply',
     never
   >
@@ -222,8 +222,8 @@ export namespace getTotalSupply {
   export function call(args: Args) {
     const { poolId } = args
     return defineCall({
-      address: feeManagerAddress,
-      abi: feeAmmAbi,
+      address: Addresses.feeManager,
+      abi: Abis.feeAmm,
       args: [poolId],
       functionName: 'totalSupply',
     })
@@ -280,7 +280,7 @@ export namespace getLiquidityBalance {
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof feeAmmAbi,
+    typeof Abis.feeAmm,
     'liquidityBalances',
     never
   >
@@ -294,8 +294,8 @@ export namespace getLiquidityBalance {
   export function call(args: Args) {
     const { address, poolId } = args
     return defineCall({
-      address: feeManagerAddress,
-      abi: feeAmmAbi,
+      address: Addresses.feeManager,
+      abi: Abis.feeAmm,
       args: [poolId, address],
       functionName: 'liquidityBalances',
     })
@@ -419,8 +419,8 @@ export namespace rebalanceSwap {
   export function call(args: Args) {
     const { userToken, validatorToken, amountOut, to } = args
     return defineCall({
-      address: feeManagerAddress,
-      abi: feeAmmAbi,
+      address: Addresses.feeManager,
+      abi: Abis.feeAmm,
       functionName: 'rebalanceSwap',
       args: [
         TokenId.toAddress(userToken),
@@ -439,7 +439,7 @@ export namespace rebalanceSwap {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: feeAmmAbi,
+      abi: Abis.feeAmm,
       logs,
       eventName: 'RebalanceSwap',
       strict: true,
@@ -506,7 +506,7 @@ export namespace rebalanceSwapSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof feeAmmAbi,
+      typeof Abis.feeAmm,
       'RebalanceSwap',
       { IndexedOnly: false; Required: true }
     > & {
@@ -656,8 +656,8 @@ export namespace mint {
   export function call(args: Args) {
     const { to, userToken, validatorToken } = args
     return defineCall({
-      address: feeManagerAddress,
-      abi: feeAmmAbi,
+      address: Addresses.feeManager,
+      abi: Abis.feeAmm,
       functionName: 'mint',
       args: [
         TokenId.toAddress(userToken.address),
@@ -677,7 +677,7 @@ export namespace mint {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: feeAmmAbi,
+      abi: Abis.feeAmm,
       logs,
       eventName: 'Mint',
       strict: true,
@@ -745,7 +745,7 @@ export namespace mintSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof feeAmmAbi,
+      typeof Abis.feeAmm,
       'Mint',
       { IndexedOnly: false; Required: true }
     > & {
@@ -872,8 +872,8 @@ export namespace burn {
   export function call(args: Args) {
     const { liquidity, to, userToken, validatorToken } = args
     return defineCall({
-      address: feeManagerAddress,
-      abi: feeAmmAbi,
+      address: Addresses.feeManager,
+      abi: Abis.feeAmm,
       functionName: 'burn',
       args: [
         TokenId.toAddress(userToken),
@@ -892,7 +892,7 @@ export namespace burn {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: feeAmmAbi,
+      abi: Abis.feeAmm,
       logs,
       eventName: 'Burn',
       strict: true,
@@ -955,7 +955,7 @@ export namespace burnSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof feeAmmAbi,
+      typeof Abis.feeAmm,
       'Burn',
       { IndexedOnly: false; Required: true }
     > & {
@@ -1000,8 +1000,8 @@ export function watchRebalanceSwap<
   const { onRebalanceSwap, userToken, validatorToken, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: feeManagerAddress,
-    abi: feeAmmAbi,
+    address: Addresses.feeManager,
+    abi: Abis.feeAmm,
     eventName: 'RebalanceSwap',
     args:
       userToken !== undefined && validatorToken !== undefined
@@ -1019,7 +1019,7 @@ export function watchRebalanceSwap<
 
 export declare namespace watchRebalanceSwap {
   export type Args = GetEventArgs<
-    typeof feeAmmAbi,
+    typeof Abis.feeAmm,
     'RebalanceSwap',
     { IndexedOnly: false; Required: true }
   >
@@ -1028,12 +1028,12 @@ export declare namespace watchRebalanceSwap {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof feeAmmAbi, 'RebalanceSwap'>,
+    ExtractAbiItem<typeof Abis.feeAmm, 'RebalanceSwap'>,
     true
   >
 
   export type Parameters = UnionOmit<
-    WatchContractEventParameters<typeof feeAmmAbi, 'RebalanceSwap', true>,
+    WatchContractEventParameters<typeof Abis.feeAmm, 'RebalanceSwap', true>,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
     /** Callback to invoke when a rebalance swap occurs. */
@@ -1080,8 +1080,8 @@ export function watchFeeSwap<
   const { onFeeSwap, userToken, validatorToken, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: feeManagerAddress,
-    abi: feeAmmAbi,
+    address: Addresses.feeManager,
+    abi: Abis.feeAmm,
     eventName: 'FeeSwap',
     args:
       userToken !== undefined && validatorToken !== undefined
@@ -1099,7 +1099,7 @@ export function watchFeeSwap<
 
 export declare namespace watchFeeSwap {
   export type Args = GetEventArgs<
-    typeof feeAmmAbi,
+    typeof Abis.feeAmm,
     'FeeSwap',
     { IndexedOnly: false; Required: true }
   >
@@ -1108,12 +1108,12 @@ export declare namespace watchFeeSwap {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof feeAmmAbi, 'FeeSwap'>,
+    ExtractAbiItem<typeof Abis.feeAmm, 'FeeSwap'>,
     true
   >
 
   export type Parameters = UnionOmit<
-    WatchContractEventParameters<typeof feeAmmAbi, 'FeeSwap', true>,
+    WatchContractEventParameters<typeof Abis.feeAmm, 'FeeSwap', true>,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
     /** Callback to invoke when a fee swap occurs. */
@@ -1157,8 +1157,8 @@ export function watchMint<
   const { onMint, sender, userToken, validatorToken, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: feeManagerAddress,
-    abi: feeAmmAbi,
+    address: Addresses.feeManager,
+    abi: Abis.feeAmm,
     eventName: 'Mint',
     args: {
       ...(sender !== undefined && {
@@ -1211,12 +1211,12 @@ export declare namespace watchMint {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof feeAmmAbi, 'Mint'>,
+    ExtractAbiItem<typeof Abis.feeAmm, 'Mint'>,
     true
   >
 
   export type Parameters = UnionOmit<
-    WatchContractEventParameters<typeof feeAmmAbi, 'Mint', true>,
+    WatchContractEventParameters<typeof Abis.feeAmm, 'Mint', true>,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
     /** Callback to invoke when liquidity is added. */
@@ -1262,8 +1262,8 @@ export function watchBurn<
   const { onBurn, userToken, validatorToken, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: feeManagerAddress,
-    abi: feeAmmAbi,
+    address: Addresses.feeManager,
+    abi: Abis.feeAmm,
     eventName: 'Burn',
     args:
       userToken !== undefined && validatorToken !== undefined
@@ -1281,7 +1281,7 @@ export function watchBurn<
 
 export declare namespace watchBurn {
   export type Args = GetEventArgs<
-    typeof feeAmmAbi,
+    typeof Abis.feeAmm,
     'Burn',
     { IndexedOnly: false; Required: true }
   >
@@ -1290,12 +1290,12 @@ export declare namespace watchBurn {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof feeAmmAbi, 'Burn'>,
+    ExtractAbiItem<typeof Abis.feeAmm, 'Burn'>,
     true
   >
 
   export type Parameters = UnionOmit<
-    WatchContractEventParameters<typeof feeAmmAbi, 'Burn', true>,
+    WatchContractEventParameters<typeof Abis.feeAmm, 'Burn', true>,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
     /** Callback to invoke when liquidity is removed. */

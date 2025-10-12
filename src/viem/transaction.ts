@@ -123,9 +123,9 @@ export function isTempoTransaction(transaction: Record<string, unknown>) {
   return false
 }
 
-export function parseTransaction<
+export function deserialize<
   const serialized extends TransactionSerializedGeneric,
->(serializedTransaction: serialized): parseTransaction.ReturnValue<serialized> {
+>(serializedTransaction: serialized): deserialize.ReturnValue<serialized> {
   const type = Hex.slice(serializedTransaction, 0, 1)
   if (type === '0x77') {
     const { authorizationList, nonce, r, s, v, ...tx } = TxFeeToken.deserialize(
@@ -148,7 +148,7 @@ export function parseTransaction<
   return viem_parseTransaction(serializedTransaction) as never
 }
 
-export declare namespace parseTransaction {
+export declare namespace deserialize {
   export type ReturnValue<
     serialized extends
       TransactionSerializedGeneric = TransactionSerializedGeneric,
@@ -157,7 +157,7 @@ export declare namespace parseTransaction {
     : ParseTransactionReturnType<serialized>
 }
 
-export async function serializeTransaction(
+export async function serialize(
   transaction: TransactionSerializable & {
     calls?: readonly Calls.Call[] | undefined
     feePayer?: Account | true | undefined

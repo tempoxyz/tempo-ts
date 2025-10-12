@@ -4,10 +4,10 @@ import {
   defineTransaction,
   defineTransactionRequest,
 } from 'viem'
-import { formatTransaction, formatTransactionRequest } from './formatters.js'
-import { serializeTransaction } from './transaction.js'
+import * as Formatters from './Formatters.js'
+import * as Transaction from './Transaction.js'
 
-export const chainConfig = {
+export const config = {
   blockTime: 1_000,
   contracts: {
     multicall3: {
@@ -16,12 +16,12 @@ export const chainConfig = {
     },
   },
   formatters: {
-    transaction: defineTransaction({ format: formatTransaction }),
+    transaction: defineTransaction({ format: Formatters.formatTransaction }),
     transactionRequest: defineTransactionRequest({
-      format: formatTransactionRequest,
+      format: Formatters.formatTransactionRequest,
     }),
   },
   serializers: {
-    transaction: serializeTransaction,
+    transaction: Transaction.serialize,
   },
 } satisfies Pick<Chain, 'blockTime' | 'contracts'> & ChainConfig

@@ -1,7 +1,7 @@
 import { attest } from '@ark/attest'
 import { createClient, http } from 'viem'
 import { test } from 'vitest'
-import { decorator } from './decorator.js'
+import { decorator } from './Decorator.js'
 
 test('decorator', () => {
   createClient({

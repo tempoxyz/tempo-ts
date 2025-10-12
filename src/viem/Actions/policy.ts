@@ -22,10 +22,10 @@ import {
   writeContractSync,
 } from 'viem/actions'
 import type { Compute, UnionOmit } from '../../internal/types.js'
-import { tip403RegistryAbi } from '../abis.js'
-import { tip403RegistryAddress } from '../addresses.js'
-import type { ReadParameters, WriteParameters } from '../types.js'
-import { defineCall } from '../utils.js'
+import * as Abis from '../Abis.js'
+import * as Addresses from '../Addresses.js'
+import type { ReadParameters, WriteParameters } from '../internal/types.js'
+import { defineCall } from '../internal/utils.js'
 
 export type PolicyType = 'whitelist' | 'blacklist'
 
@@ -173,8 +173,8 @@ export namespace create {
       } as const
     })()
     return defineCall({
-      address: tip403RegistryAddress,
-      abi: tip403RegistryAbi,
+      address: Addresses.tip403Registry,
+      abi: Abis.tip403Registry,
       ...config,
     })
   }
@@ -187,7 +187,7 @@ export namespace create {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip403RegistryAbi,
+      abi: Abis.tip403Registry,
       logs,
       eventName: 'PolicyCreated',
       strict: true,
@@ -248,7 +248,7 @@ export namespace createSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof tip403RegistryAbi,
+      typeof Abis.tip403Registry,
       'PolicyCreated',
       { IndexedOnly: false; Required: true }
     > & {
@@ -364,8 +364,8 @@ export namespace setAdmin {
   export function call(args: Args) {
     const { policyId, admin } = args
     return defineCall({
-      address: tip403RegistryAddress,
-      abi: tip403RegistryAbi,
+      address: Addresses.tip403Registry,
+      abi: Abis.tip403Registry,
       functionName: 'setPolicyAdmin',
       args: [policyId, admin],
     })
@@ -379,7 +379,7 @@ export namespace setAdmin {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip403RegistryAbi,
+      abi: Abis.tip403Registry,
       logs,
       eventName: 'PolicyAdminUpdated',
       strict: true,
@@ -440,7 +440,7 @@ export namespace setAdminSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof tip403RegistryAbi,
+      typeof Abis.tip403Registry,
       'PolicyAdminUpdated',
       { IndexedOnly: false; Required: true }
     > & {
@@ -562,8 +562,8 @@ export namespace modifyWhitelist {
   export function call(args: Args) {
     const { policyId, address, allowed } = args
     return defineCall({
-      address: tip403RegistryAddress,
-      abi: tip403RegistryAbi,
+      address: Addresses.tip403Registry,
+      abi: Abis.tip403Registry,
       functionName: 'modifyPolicyWhitelist',
       args: [policyId, address, allowed],
     })
@@ -577,7 +577,7 @@ export namespace modifyWhitelist {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip403RegistryAbi,
+      abi: Abis.tip403Registry,
       logs,
       eventName: 'WhitelistUpdated',
       strict: true,
@@ -643,7 +643,7 @@ export namespace modifyWhitelistSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof tip403RegistryAbi,
+      typeof Abis.tip403Registry,
       'WhitelistUpdated',
       { IndexedOnly: false; Required: true }
     > & {
@@ -765,8 +765,8 @@ export namespace modifyBlacklist {
   export function call(args: Args) {
     const { policyId, address, restricted } = args
     return defineCall({
-      address: tip403RegistryAddress,
-      abi: tip403RegistryAbi,
+      address: Addresses.tip403Registry,
+      abi: Abis.tip403Registry,
       functionName: 'modifyPolicyBlacklist',
       args: [policyId, address, restricted],
     })
@@ -780,7 +780,7 @@ export namespace modifyBlacklist {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip403RegistryAbi,
+      abi: Abis.tip403Registry,
       logs,
       eventName: 'BlacklistUpdated',
       strict: true,
@@ -846,7 +846,7 @@ export namespace modifyBlacklistSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof tip403RegistryAbi,
+      typeof Abis.tip403Registry,
       'BlacklistUpdated',
       { IndexedOnly: false; Required: true }
     > & {
@@ -916,8 +916,8 @@ export namespace getData {
   export function call(args: Args) {
     const { policyId } = args
     return defineCall({
-      address: tip403RegistryAddress,
-      abi: tip403RegistryAbi,
+      address: Addresses.tip403Registry,
+      abi: Abis.tip403Registry,
       args: [policyId],
       functionName: 'policyData',
     })
@@ -969,7 +969,7 @@ export namespace isAuthorized {
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof tip403RegistryAbi,
+    typeof Abis.tip403Registry,
     'isAuthorized',
     never
   >
@@ -983,8 +983,8 @@ export namespace isAuthorized {
   export function call(args: Args) {
     const { policyId, user } = args
     return defineCall({
-      address: tip403RegistryAddress,
-      abi: tip403RegistryAbi,
+      address: Addresses.tip403Registry,
+      abi: Abis.tip403Registry,
       args: [policyId, user],
       functionName: 'isAuthorized',
     })
@@ -1026,8 +1026,8 @@ export function watchCreate<
   const { onPolicyCreated, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: tip403RegistryAddress,
-    abi: tip403RegistryAbi,
+    address: Addresses.tip403Registry,
+    abi: Abis.tip403Registry,
     eventName: 'PolicyCreated',
     onLogs: (logs) => {
       for (const log of logs)
@@ -1054,13 +1054,13 @@ export declare namespace watchCreate {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof tip403RegistryAbi, 'PolicyCreated'>,
+    ExtractAbiItem<typeof Abis.tip403Registry, 'PolicyCreated'>,
     true
   >
 
   export type Parameters = UnionOmit<
     WatchContractEventParameters<
-      typeof tip403RegistryAbi,
+      typeof Abis.tip403Registry,
       'PolicyCreated',
       true
     >,
@@ -1106,8 +1106,8 @@ export function watchAdminUpdated<
   const { onAdminUpdated, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: tip403RegistryAddress,
-    abi: tip403RegistryAbi,
+    address: Addresses.tip403Registry,
+    abi: Abis.tip403Registry,
     eventName: 'PolicyAdminUpdated',
     onLogs: (logs) => {
       for (const log of logs) onAdminUpdated(log.args, log)
@@ -1118,7 +1118,7 @@ export function watchAdminUpdated<
 
 export declare namespace watchAdminUpdated {
   export type Args = GetEventArgs<
-    typeof tip403RegistryAbi,
+    typeof Abis.tip403Registry,
     'PolicyAdminUpdated',
     { IndexedOnly: false; Required: true }
   >
@@ -1127,13 +1127,13 @@ export declare namespace watchAdminUpdated {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof tip403RegistryAbi, 'PolicyAdminUpdated'>,
+    ExtractAbiItem<typeof Abis.tip403Registry, 'PolicyAdminUpdated'>,
     true
   >
 
   export type Parameters = UnionOmit<
     WatchContractEventParameters<
-      typeof tip403RegistryAbi,
+      typeof Abis.tip403Registry,
       'PolicyAdminUpdated',
       true
     >,
@@ -1179,8 +1179,8 @@ export function watchWhitelistUpdated<
   const { onWhitelistUpdated, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: tip403RegistryAddress,
-    abi: tip403RegistryAbi,
+    address: Addresses.tip403Registry,
+    abi: Abis.tip403Registry,
     eventName: 'WhitelistUpdated',
     onLogs: (logs) => {
       for (const log of logs) onWhitelistUpdated(log.args, log)
@@ -1191,7 +1191,7 @@ export function watchWhitelistUpdated<
 
 export declare namespace watchWhitelistUpdated {
   export type Args = GetEventArgs<
-    typeof tip403RegistryAbi,
+    typeof Abis.tip403Registry,
     'WhitelistUpdated',
     { IndexedOnly: false; Required: true }
   >
@@ -1200,13 +1200,13 @@ export declare namespace watchWhitelistUpdated {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof tip403RegistryAbi, 'WhitelistUpdated'>,
+    ExtractAbiItem<typeof Abis.tip403Registry, 'WhitelistUpdated'>,
     true
   >
 
   export type Parameters = UnionOmit<
     WatchContractEventParameters<
-      typeof tip403RegistryAbi,
+      typeof Abis.tip403Registry,
       'WhitelistUpdated',
       true
     >,
@@ -1252,8 +1252,8 @@ export function watchBlacklistUpdated<
   const { onBlacklistUpdated, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: tip403RegistryAddress,
-    abi: tip403RegistryAbi,
+    address: Addresses.tip403Registry,
+    abi: Abis.tip403Registry,
     eventName: 'BlacklistUpdated',
     onLogs: (logs) => {
       for (const log of logs) onBlacklistUpdated(log.args, log)
@@ -1264,7 +1264,7 @@ export function watchBlacklistUpdated<
 
 export declare namespace watchBlacklistUpdated {
   export type Args = GetEventArgs<
-    typeof tip403RegistryAbi,
+    typeof Abis.tip403Registry,
     'BlacklistUpdated',
     { IndexedOnly: false; Required: true }
   >
@@ -1273,13 +1273,13 @@ export declare namespace watchBlacklistUpdated {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof tip403RegistryAbi, 'BlacklistUpdated'>,
+    ExtractAbiItem<typeof Abis.tip403Registry, 'BlacklistUpdated'>,
     true
   >
 
   export type Parameters = UnionOmit<
     WatchContractEventParameters<
-      typeof tip403RegistryAbi,
+      typeof Abis.tip403Registry,
       'BlacklistUpdated',
       true
     >,

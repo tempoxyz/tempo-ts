@@ -32,18 +32,14 @@ import {
 import type { Compute, OneOf, UnionOmit } from '../../internal/types.js'
 import * as TokenId from '../../ox/TokenId.js'
 import * as TokenRole from '../../ox/TokenRole.js'
-import { tip20Abi, tip20FactoryAbi } from '../abis.js'
-import {
-  defaultFeeTokenAddress,
-  linkingTokenAddress,
-  tip20FactoryAddress,
-} from '../addresses.js'
+import * as Abis from '../Abis.js'
+import * as Addresses from '../Addresses.js'
 import type {
   GetAccountParameter,
   ReadParameters,
   WriteParameters,
-} from '../types.js'
-import { defineCall } from '../utils.js'
+} from '../internal/types.js'
+import { defineCall } from '../internal/utils.js'
 
 const transferPolicy = {
   0: 'always-reject',
@@ -84,7 +80,7 @@ export async function approve<
   client: Client<Transport, chain, account>,
   parameters: approve.Parameters<chain, account>,
 ): Promise<approve.ReturnValue> {
-  const { token = defaultFeeTokenAddress, ...rest } = parameters
+  const { token = Addresses.defaultFeeToken, ...rest } = parameters
   return approve.inner(writeContract, client, parameters, { ...rest, token })
 }
 
@@ -99,7 +95,7 @@ export namespace approve {
     amount: bigint
     /** Address of the spender. */
     spender: Address
-    /** Address or ID of the TIP20 token. @default `defaultFeeTokenAddress` */
+    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined
   }
 
@@ -157,10 +153,10 @@ export namespace approve {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { spender, amount, token = defaultFeeTokenAddress } = args
+    const { spender, amount, token = Addresses.defaultFeeToken } = args
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       functionName: 'approve',
       args: [spender, amount],
     })
@@ -168,7 +164,7 @@ export namespace approve {
 
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip20Abi,
+      abi: Abis.tip20,
       logs,
       eventName: 'Approval',
     })
@@ -210,7 +206,7 @@ export async function approveSync<
   client: Client<Transport, chain, account>,
   parameters: approveSync.Parameters<chain, account>,
 ): Promise<approveSync.ReturnValue> {
-  const { token = defaultFeeTokenAddress, ...rest } = parameters
+  const { token = Addresses.defaultFeeToken, ...rest } = parameters
   const receipt = await approve.inner(writeContractSync, client, parameters, {
     ...rest,
     token,
@@ -232,7 +228,7 @@ export namespace approveSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof tip20Abi,
+      typeof Abis.tip20,
       'Approval',
       {
         IndexedOnly: false
@@ -353,7 +349,7 @@ export namespace burnBlocked {
     const { from, amount, token } = args
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       functionName: 'burnBlocked',
       args: [from, amount],
     })
@@ -367,7 +363,7 @@ export namespace burnBlocked {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip20Abi,
+      abi: Abis.tip20,
       logs,
       eventName: 'BurnBlocked',
     })
@@ -428,7 +424,7 @@ export namespace burnBlockedSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof tip20Abi,
+      typeof Abis.tip20,
       'BurnBlocked',
       {
         IndexedOnly: false
@@ -556,7 +552,7 @@ export namespace burn {
         } as const)
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       ...callArgs,
     })
   }
@@ -569,7 +565,7 @@ export namespace burn {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip20Abi,
+      abi: Abis.tip20,
       logs,
       eventName: 'Burn',
     })
@@ -629,7 +625,7 @@ export namespace burnSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof tip20Abi,
+      typeof Abis.tip20,
       'Burn',
       {
         IndexedOnly: false
@@ -745,7 +741,7 @@ export namespace changeTransferPolicy {
     const { token, policyId } = args
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       functionName: 'changeTransferPolicyId',
       args: [policyId],
     })
@@ -759,7 +755,7 @@ export namespace changeTransferPolicy {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip20Abi,
+      abi: Abis.tip20,
       logs,
       eventName: 'TransferPolicyUpdate',
     })
@@ -823,7 +819,7 @@ export namespace changeTransferPolicySync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof tip20Abi,
+      typeof Abis.tip20,
       'TransferPolicyUpdate',
       {
         IndexedOnly: false
@@ -968,12 +964,12 @@ export namespace create {
       name,
       symbol,
       currency,
-      linkingToken = linkingTokenAddress,
+      linkingToken = Addresses.linkingToken,
       admin,
     } = args
     return defineCall({
-      address: tip20FactoryAddress,
-      abi: tip20FactoryAbi,
+      address: Addresses.tip20Factory,
+      abi: Abis.tip20Factory,
       args: [name, symbol, currency, TokenId.toAddress(linkingToken), admin],
       functionName: 'createToken',
     })
@@ -987,7 +983,7 @@ export namespace create {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip20FactoryAbi,
+      abi: Abis.tip20Factory,
       logs,
       eventName: 'TokenCreated',
       strict: true,
@@ -1051,7 +1047,7 @@ export namespace createSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof tip20FactoryAbi,
+      typeof Abis.tip20Factory,
       'TokenCreated',
       { IndexedOnly: false; Required: true }
     > & {
@@ -1161,7 +1157,7 @@ export namespace finalizeUpdateLinkingToken {
     const { token } = args
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       functionName: 'finalizeLinkingTokenUpdate',
       args: [],
     })
@@ -1175,7 +1171,7 @@ export namespace finalizeUpdateLinkingToken {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip20Abi,
+      abi: Abis.tip20,
       logs,
       eventName: 'LinkingTokenUpdateFinalized',
     })
@@ -1238,7 +1234,7 @@ export namespace finalizeUpdateLinkingTokenSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof tip20Abi,
+      typeof Abis.tip20,
       'LinkingTokenUpdateFinalized',
       {
         IndexedOnly: false
@@ -1301,12 +1297,12 @@ export namespace getAllowance {
     account: Address
     /** Address of the spender. */
     spender: Address
-    /** Address or ID of the TIP20 token. @default `defaultFeeTokenAddress` */
+    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof tip20Abi,
+    typeof Abis.tip20,
     'allowance',
     never
   >
@@ -1318,10 +1314,10 @@ export namespace getAllowance {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { account, spender, token = defaultFeeTokenAddress } = args
+    const { account, spender, token = Addresses.defaultFeeToken } = args
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       functionName: 'allowance',
       args: [account, spender],
     })
@@ -1379,12 +1375,12 @@ export namespace getBalance {
   export type Args = {
     /** Account address. */
     account: Address
-    /** Address or ID of the TIP20 token. @default `defaultFeeTokenAddress` */
+    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof tip20Abi,
+    typeof Abis.tip20,
     'balanceOf',
     never
   >
@@ -1396,10 +1392,10 @@ export namespace getBalance {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { account, token = defaultFeeTokenAddress } = args
+    const { account, token = Addresses.defaultFeeToken } = args
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       functionName: 'balanceOf',
       args: [account],
     })
@@ -1435,9 +1431,9 @@ export async function getMetadata<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getMetadata.Parameters = {},
 ): Promise<getMetadata.ReturnValue> {
-  const { token = defaultFeeTokenAddress, ...rest } = parameters
+  const { token = Addresses.defaultFeeToken, ...rest } = parameters
   const address = TokenId.toAddress(token)
-  const abi = tip20Abi
+  const abi = Abis.tip20
   return multicall(client, {
     ...rest,
     contracts: [
@@ -1517,7 +1513,7 @@ export async function getMetadata<chain extends Chain | undefined>(
 
 export declare namespace getMetadata {
   export type Parameters = {
-    /** Address or ID of the TIP20 token. @default `defaultFeeTokenAddress` */
+    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined
   }
 
@@ -1661,7 +1657,7 @@ export namespace grantRoles {
     const roleHash = TokenRole.serialize(role)
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       functionName: 'grantRole',
       args: [roleHash, to],
     })
@@ -1675,7 +1671,7 @@ export namespace grantRoles {
    */
   export function extractEvents(logs: Log[]) {
     const events = parseEventLogs({
-      abi: tip20Abi,
+      abi: Abis.tip20,
       logs,
       eventName: 'RoleMembershipUpdated',
     })
@@ -1743,7 +1739,7 @@ export namespace grantRolesSync {
   export type ReturnValue = {
     receipt: TransactionReceipt
     value: readonly GetEventArgs<
-      typeof tip20Abi,
+      typeof Abis.tip20,
       'RoleMembershipUpdated',
       { IndexedOnly: false; Required: true }
     >[]
@@ -1870,7 +1866,7 @@ export namespace mint {
         } as const)
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       ...callArgs,
     })
   }
@@ -1883,7 +1879,7 @@ export namespace mint {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip20Abi,
+      abi: Abis.tip20,
       logs,
       eventName: 'Mint',
     })
@@ -1944,7 +1940,7 @@ export namespace mintSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof tip20Abi,
+      typeof Abis.tip20,
       'Mint',
       {
         IndexedOnly: false
@@ -2056,7 +2052,7 @@ export namespace pause {
     const { token } = args
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       functionName: 'pause',
       args: [],
     })
@@ -2070,7 +2066,7 @@ export namespace pause {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip20Abi,
+      abi: Abis.tip20,
       logs,
       eventName: 'PauseStateUpdate',
     })
@@ -2128,7 +2124,7 @@ export namespace pauseSync {
   export type Args = pause.Args
 
   export type ReturnValue = GetEventArgs<
-    typeof tip20Abi,
+    typeof Abis.tip20,
     'PauseStateUpdate',
     { IndexedOnly: false; Required: true }
   > & {
@@ -2190,7 +2186,7 @@ export namespace permit {
     signature: Signature.Signature
     /** Address of the spender. */
     spender: Address
-    /** Address or ID of the TIP20 token. @default `defaultFeeTokenAddress` */
+    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined
     /** Amount to approve. */
     value: bigint
@@ -2258,13 +2254,13 @@ export namespace permit {
       value,
       deadline,
       signature,
-      token = defaultFeeTokenAddress,
+      token = Addresses.defaultFeeToken,
     } = args
     const { r, s, yParity } = Signature.from(signature)
     const v = Signature.yParityToV(yParity)
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       functionName: 'permit',
       args: [
         owner,
@@ -2286,7 +2282,7 @@ export namespace permit {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip20Abi,
+      abi: Abis.tip20,
       logs,
       eventName: 'Approval',
     })
@@ -2348,7 +2344,7 @@ export namespace permitSync {
   export type Args = permit.Args
 
   export type ReturnValue = GetEventArgs<
-    typeof tip20Abi,
+    typeof Abis.tip20,
     'Approval',
     { IndexedOnly: false; Required: true }
   > & {
@@ -2470,7 +2466,7 @@ export namespace renounceRoles {
     const roleHash = TokenRole.serialize(role)
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       functionName: 'renounceRole',
       args: [roleHash],
     })
@@ -2484,7 +2480,7 @@ export namespace renounceRoles {
    */
   export function extractEvents(logs: Log[]) {
     const events = parseEventLogs({
-      abi: tip20Abi,
+      abi: Abis.tip20,
       logs,
       eventName: 'RoleMembershipUpdated',
     })
@@ -2551,7 +2547,7 @@ export namespace renounceRolesSync {
   export type ReturnValue = {
     receipt: TransactionReceipt
     value: readonly GetEventArgs<
-      typeof tip20Abi,
+      typeof Abis.tip20,
       'RoleMembershipUpdated',
       { IndexedOnly: false; Required: true }
     >[]
@@ -2676,7 +2672,7 @@ export namespace revokeRoles {
     const roleHash = TokenRole.serialize(role)
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       functionName: 'revokeRole',
       args: [roleHash, from],
     })
@@ -2690,7 +2686,7 @@ export namespace revokeRoles {
    */
   export function extractEvents(logs: Log[]) {
     const events = parseEventLogs({
-      abi: tip20Abi,
+      abi: Abis.tip20,
       logs,
       eventName: 'RoleMembershipUpdated',
     })
@@ -2758,7 +2754,7 @@ export namespace revokeRolesSync {
   export type ReturnValue = {
     receipt: TransactionReceipt
     value: readonly GetEventArgs<
-      typeof tip20Abi,
+      typeof Abis.tip20,
       'RoleMembershipUpdated',
       { IndexedOnly: false; Required: true }
     >[]
@@ -2869,7 +2865,7 @@ export namespace setSupplyCap {
     const { token, supplyCap } = args
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       functionName: 'setSupplyCap',
       args: [supplyCap],
     })
@@ -2883,7 +2879,7 @@ export namespace setSupplyCap {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip20Abi,
+      abi: Abis.tip20,
       logs,
       eventName: 'SupplyCapUpdate',
     })
@@ -2946,7 +2942,7 @@ export namespace setSupplyCapSync {
   export type Args = setSupplyCap.Args
 
   export type ReturnValue = GetEventArgs<
-    typeof tip20Abi,
+    typeof Abis.tip20,
     'SupplyCapUpdate',
     { IndexedOnly: false; Required: true }
   > & {
@@ -3064,7 +3060,7 @@ export namespace setRoleAdmin {
     const adminRoleHash = TokenRole.serialize(adminRole)
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       functionName: 'setRoleAdmin',
       args: [roleHash, adminRoleHash],
     })
@@ -3078,7 +3074,7 @@ export namespace setRoleAdmin {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip20Abi,
+      abi: Abis.tip20,
       logs,
       eventName: 'RoleAdminUpdated',
     })
@@ -3142,7 +3138,7 @@ export namespace setRoleAdminSync {
   export type Args = setRoleAdmin.Args
 
   export type ReturnValue = GetEventArgs<
-    typeof tip20Abi,
+    typeof Abis.tip20,
     'RoleAdminUpdated',
     { IndexedOnly: false; Required: true }
   > & {
@@ -3199,7 +3195,7 @@ export namespace transfer {
     from?: Address | undefined
     /** Memo to include in the transfer. */
     memo?: Hex.Hex | undefined
-    /** Address or ID of the TIP20 token. @default `defaultFeeTokenAddress` */
+    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined
     /** Address to transfer tokens to. */
     to: Address
@@ -3258,7 +3254,7 @@ export namespace transfer {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { amount, from, memo, token = defaultFeeTokenAddress, to } = args
+    const { amount, from, memo, token = Addresses.defaultFeeToken, to } = args
     const callArgs = (() => {
       if (memo && from)
         return {
@@ -3282,7 +3278,7 @@ export namespace transfer {
     })()
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       ...callArgs,
     })
   }
@@ -3295,7 +3291,7 @@ export namespace transfer {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip20Abi,
+      abi: Abis.tip20,
       logs,
       eventName: 'Transfer',
     })
@@ -3354,7 +3350,7 @@ export namespace transferSync {
   export type Args = transfer.Args
 
   export type ReturnValue = GetEventArgs<
-    typeof tip20Abi,
+    typeof Abis.tip20,
     'Transfer',
     { IndexedOnly: false; Required: true }
   > & {
@@ -3462,7 +3458,7 @@ export namespace unpause {
     const { token } = args
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       functionName: 'unpause',
       args: [],
     })
@@ -3476,7 +3472,7 @@ export namespace unpause {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip20Abi,
+      abi: Abis.tip20,
       logs,
       eventName: 'PauseStateUpdate',
     })
@@ -3534,7 +3530,7 @@ export namespace unpauseSync {
   export type Args = unpause.Args
 
   export type ReturnValue = GetEventArgs<
-    typeof tip20Abi,
+    typeof Abis.tip20,
     'PauseStateUpdate',
     { IndexedOnly: false; Required: true }
   > & {
@@ -3646,7 +3642,7 @@ export namespace updateLinkingToken {
     const { token, linkingToken } = args
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       functionName: 'updateLinkingToken',
       args: [TokenId.toAddress(linkingToken)],
     })
@@ -3660,7 +3656,7 @@ export namespace updateLinkingToken {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: tip20Abi,
+      abi: Abis.tip20,
       logs,
       eventName: 'UpdateLinkingToken',
     })
@@ -3724,7 +3720,7 @@ export namespace updateLinkingTokenSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof tip20Abi,
+      typeof Abis.tip20,
       'UpdateLinkingToken',
       {
         IndexedOnly: false
@@ -3768,11 +3764,11 @@ export function watchApprove<
   client: Client<Transport, chain, account>,
   parameters: watchApprove.Parameters,
 ) {
-  const { onApproval, token = defaultFeeTokenAddress, ...rest } = parameters
+  const { onApproval, token = Addresses.defaultFeeToken, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
     address: TokenId.toAddress(token),
-    abi: tip20Abi,
+    abi: Abis.tip20,
     eventName: 'Approval',
     onLogs: (logs) => {
       for (const log of logs) onApproval(log.args, log)
@@ -3783,7 +3779,7 @@ export function watchApprove<
 
 export declare namespace watchApprove {
   export type Args = GetEventArgs<
-    typeof tip20Abi,
+    typeof Abis.tip20,
     'Approval',
     { IndexedOnly: false; Required: true }
   >
@@ -3792,17 +3788,17 @@ export declare namespace watchApprove {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof tip20Abi, 'Approval'>,
+    ExtractAbiItem<typeof Abis.tip20, 'Approval'>,
     true
   >
 
   export type Parameters = UnionOmit<
-    WatchContractEventParameters<typeof tip20Abi, 'Approval', true>,
+    WatchContractEventParameters<typeof Abis.tip20, 'Approval', true>,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
     /** Callback to invoke when tokens are approved. */
     onApproval: (args: Args, log: Log) => void
-    /** Address or ID of the TIP20 token. @default `defaultFeeTokenAddress` */
+    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined
   }
 }
@@ -3836,11 +3832,11 @@ export function watchBurn<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(client: Client<Transport, chain, account>, parameters: watchBurn.Parameters) {
-  const { onBurn, token = defaultFeeTokenAddress, ...rest } = parameters
+  const { onBurn, token = Addresses.defaultFeeToken, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
     address: TokenId.toAddress(token),
-    abi: tip20Abi,
+    abi: Abis.tip20,
     eventName: 'Burn',
     onLogs: (logs) => {
       for (const log of logs) onBurn(log.args, log)
@@ -3851,7 +3847,7 @@ export function watchBurn<
 
 export declare namespace watchBurn {
   export type Args = GetEventArgs<
-    typeof tip20Abi,
+    typeof Abis.tip20,
     'Burn',
     { IndexedOnly: false; Required: true }
   >
@@ -3860,17 +3856,17 @@ export declare namespace watchBurn {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof tip20Abi, 'Burn'>,
+    ExtractAbiItem<typeof Abis.tip20, 'Burn'>,
     true
   >
 
   export type Parameters = UnionOmit<
-    WatchContractEventParameters<typeof tip20Abi, 'Burn', true>,
+    WatchContractEventParameters<typeof Abis.tip20, 'Burn', true>,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
     /** Callback to invoke when tokens are burned. */
     onBurn: (args: Args, log: Log) => void
-    /** Address or ID of the TIP20 token. @default `defaultFeeTokenAddress` */
+    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined
   }
 }
@@ -3910,8 +3906,8 @@ export function watchCreate<
   const { onTokenCreated, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: tip20FactoryAddress,
-    abi: tip20FactoryAbi,
+    address: Addresses.tip20Factory,
+    abi: Abis.tip20Factory,
     eventName: 'TokenCreated',
     onLogs: (logs) => {
       for (const log of logs) onTokenCreated(log.args, log)
@@ -3922,7 +3918,7 @@ export function watchCreate<
 
 export declare namespace watchCreate {
   export type Args = GetEventArgs<
-    typeof tip20FactoryAbi,
+    typeof Abis.tip20Factory,
     'TokenCreated',
     { IndexedOnly: false; Required: true }
   >
@@ -3931,12 +3927,16 @@ export declare namespace watchCreate {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof tip20FactoryAbi, 'TokenCreated'>,
+    ExtractAbiItem<typeof Abis.tip20Factory, 'TokenCreated'>,
     true
   >
 
   export type Parameters = UnionOmit<
-    WatchContractEventParameters<typeof tip20FactoryAbi, 'TokenCreated', true>,
+    WatchContractEventParameters<
+      typeof Abis.tip20Factory,
+      'TokenCreated',
+      true
+    >,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
     /** Callback to invoke when a new TIP20 token is created. */
@@ -3973,11 +3973,11 @@ export function watchMint<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(client: Client<Transport, chain, account>, parameters: watchMint.Parameters) {
-  const { onMint, token = defaultFeeTokenAddress, ...rest } = parameters
+  const { onMint, token = Addresses.defaultFeeToken, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
     address: TokenId.toAddress(token),
-    abi: tip20Abi,
+    abi: Abis.tip20,
     eventName: 'Mint',
     onLogs: (logs) => {
       for (const log of logs) onMint(log.args, log)
@@ -3988,7 +3988,7 @@ export function watchMint<
 
 export declare namespace watchMint {
   export type Args = GetEventArgs<
-    typeof tip20Abi,
+    typeof Abis.tip20,
     'Mint',
     { IndexedOnly: false; Required: true }
   >
@@ -3997,17 +3997,17 @@ export declare namespace watchMint {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof tip20Abi, 'Mint'>,
+    ExtractAbiItem<typeof Abis.tip20, 'Mint'>,
     true
   >
 
   export type Parameters = UnionOmit<
-    WatchContractEventParameters<typeof tip20Abi, 'Mint', true>,
+    WatchContractEventParameters<typeof Abis.tip20, 'Mint', true>,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
     /** Callback to invoke when tokens are minted. */
     onMint: (args: Args, log: Log) => void
-    /** Address or ID of the TIP20 token. @default `defaultFeeTokenAddress` */
+    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined
   }
 }
@@ -4046,13 +4046,13 @@ export function watchAdminRole<
 ) {
   const {
     onRoleAdminUpdated,
-    token = defaultFeeTokenAddress,
+    token = Addresses.defaultFeeToken,
     ...rest
   } = parameters
   return watchContractEvent(client, {
     ...rest,
     address: TokenId.toAddress(token),
-    abi: tip20Abi,
+    abi: Abis.tip20,
     eventName: 'RoleAdminUpdated',
     onLogs: (logs) => {
       for (const log of logs) onRoleAdminUpdated(log.args, log)
@@ -4063,7 +4063,7 @@ export function watchAdminRole<
 
 export declare namespace watchAdminRole {
   export type Args = GetEventArgs<
-    typeof tip20Abi,
+    typeof Abis.tip20,
     'RoleAdminUpdated',
     { IndexedOnly: false; Required: true }
   >
@@ -4072,17 +4072,17 @@ export declare namespace watchAdminRole {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof tip20Abi, 'RoleAdminUpdated'>,
+    ExtractAbiItem<typeof Abis.tip20, 'RoleAdminUpdated'>,
     true
   >
 
   export type Parameters = UnionOmit<
-    WatchContractEventParameters<typeof tip20Abi, 'RoleAdminUpdated', true>,
+    WatchContractEventParameters<typeof Abis.tip20, 'RoleAdminUpdated', true>,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
     /** Callback to invoke when a role admin is updated. */
     onRoleAdminUpdated: (args: Args, log: Log) => void
-    /** Address or ID of the TIP20 token. @default `defaultFeeTokenAddress` */
+    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined
   }
 }
@@ -4116,11 +4116,15 @@ export function watchRole<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(client: Client<Transport, chain, account>, parameters: watchRole.Parameters) {
-  const { onRoleUpdated, token = defaultFeeTokenAddress, ...rest } = parameters
+  const {
+    onRoleUpdated,
+    token = Addresses.defaultFeeToken,
+    ...rest
+  } = parameters
   return watchContractEvent(client, {
     ...rest,
     address: TokenId.toAddress(token),
-    abi: tip20Abi,
+    abi: Abis.tip20,
     eventName: 'RoleMembershipUpdated',
     onLogs: (logs) => {
       for (const log of logs) {
@@ -4134,7 +4138,7 @@ export function watchRole<
 
 export declare namespace watchRole {
   export type Args = GetEventArgs<
-    typeof tip20Abi,
+    typeof Abis.tip20,
     'RoleMembershipUpdated',
     { IndexedOnly: false; Required: true }
   > & {
@@ -4146,13 +4150,13 @@ export declare namespace watchRole {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof tip20Abi, 'RoleMembershipUpdated'>,
+    ExtractAbiItem<typeof Abis.tip20, 'RoleMembershipUpdated'>,
     true
   >
 
   export type Parameters = UnionOmit<
     WatchContractEventParameters<
-      typeof tip20Abi,
+      typeof Abis.tip20,
       'RoleMembershipUpdated',
       true
     >,
@@ -4160,7 +4164,7 @@ export declare namespace watchRole {
   > & {
     /** Callback to invoke when a role membership is updated. */
     onRoleUpdated: (args: Args, log: Log) => void
-    /** Address or ID of the TIP20 token. @default `defaultFeeTokenAddress` */
+    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined
   }
 }
@@ -4198,11 +4202,11 @@ export function watchTransfer<
   client: Client<Transport, chain, account>,
   parameters: watchTransfer.Parameters,
 ) {
-  const { onTransfer, token = defaultFeeTokenAddress, ...rest } = parameters
+  const { onTransfer, token = Addresses.defaultFeeToken, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
     address: TokenId.toAddress(token),
-    abi: tip20Abi,
+    abi: Abis.tip20,
     eventName: 'Transfer',
     onLogs: (logs) => {
       for (const log of logs) onTransfer(log.args, log)
@@ -4213,7 +4217,7 @@ export function watchTransfer<
 
 export declare namespace watchTransfer {
   export type Args = GetEventArgs<
-    typeof tip20Abi,
+    typeof Abis.tip20,
     'Transfer',
     { IndexedOnly: false; Required: true }
   >
@@ -4222,17 +4226,17 @@ export declare namespace watchTransfer {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof tip20Abi, 'Transfer'>,
+    ExtractAbiItem<typeof Abis.tip20, 'Transfer'>,
     true
   >
 
   export type Parameters = UnionOmit<
-    WatchContractEventParameters<typeof tip20Abi, 'Transfer', true>,
+    WatchContractEventParameters<typeof Abis.tip20, 'Transfer', true>,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
     /** Callback to invoke when tokens are transferred. */
     onTransfer: (args: Args, log: Log) => void
-    /** Address or ID of the TIP20 token. @default `defaultFeeTokenAddress` */
+    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined
   }
 }
@@ -4274,7 +4278,7 @@ export function watchUpdateLinkingToken<
 ) {
   const {
     onUpdateLinkingToken,
-    token = defaultFeeTokenAddress,
+    token = Addresses.defaultFeeToken,
     ...rest
   } = parameters
   const address = TokenId.toAddress(token)
@@ -4282,14 +4286,14 @@ export function watchUpdateLinkingToken<
   return watchContractEvent(client, {
     ...rest,
     address,
-    abi: tip20Abi,
+    abi: Abis.tip20,
     onLogs: (
       logs: viem_Log<
         bigint,
         number,
         false,
         ExtractAbiItem<
-          typeof tip20Abi,
+          typeof Abis.tip20,
           'UpdateLinkingToken' | 'LinkingTokenUpdateFinalized'
         >,
         true
@@ -4318,12 +4322,12 @@ export function watchUpdateLinkingToken<
 export declare namespace watchUpdateLinkingToken {
   export type Args = OneOf<
     | GetEventArgs<
-        typeof tip20Abi,
+        typeof Abis.tip20,
         'UpdateLinkingToken',
         { IndexedOnly: false; Required: true }
       >
     | GetEventArgs<
-        typeof tip20Abi,
+        typeof Abis.tip20,
         'LinkingTokenUpdateFinalized',
         { IndexedOnly: false; Required: true }
       >
@@ -4335,12 +4339,12 @@ export declare namespace watchUpdateLinkingToken {
   export type Log = viem_Log
 
   export type Parameters = UnionOmit<
-    WatchContractEventParameters<typeof tip20Abi, any, true>,
+    WatchContractEventParameters<typeof Abis.tip20, any, true>,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
     /** Callback to invoke when a linking token update is proposed or finalized. */
     onUpdateLinkingToken: (args: Args, log: Log) => void
-    /** Address or ID of the TIP20 token. @default `defaultFeeTokenAddress` */
+    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined
   }
 }

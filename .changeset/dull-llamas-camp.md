@@ -1,5 +1,5 @@
 ---
-"tempo.ts": patch
+'tempo.ts': patch
 ---
 
-Added `watchUpdateLinkingToken`.
+Added `watchUpdateLinkingToken` Action.

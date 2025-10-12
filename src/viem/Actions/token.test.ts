@@ -1,14 +1,13 @@
 import { setTimeout } from 'node:timers/promises'
 import { Hex } from 'ox'
-import * as actions from 'tempo.ts/viem/actions'
+import { Abis, Addresses, TokenIds } from 'tempo.ts/viem'
 import { parseEther, publicActions } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
 import { getCode, writeContractSync } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import { tempoTest } from '../../../test/viem/config.js'
-import { tip20Abi } from '../abis.js'
-import { defaultFeeTokenAddress, defaultFeeTokenId } from '../addresses.js'
-import { createTempoClient } from '../client.js'
+import { createTempoClient } from '../Client.js'
+import * as actions from './index.js'
 
 const account = mnemonicToAccount(
   'test test test test test test test test test test test junk',
@@ -56,8 +55,8 @@ describe('approve', () => {
 
     // transfer tokens for gas
     await writeContractSync(client, {
-      abi: tip20Abi,
-      address: defaultFeeTokenAddress,
+      abi: Abis.tip20,
+      address: Addresses.defaultFeeToken,
       functionName: 'transfer',
       args: [account2.address, parseEther('1')],
     })
@@ -90,7 +89,7 @@ describe('approve', () => {
       // approve
       const { receipt, ...result } = await actions.token.approveSync(client, {
         amount: parseEther('100'),
-        token: defaultFeeTokenAddress,
+        token: Addresses.defaultFeeToken,
         spender: account2.address,
       })
       expect(receipt).toBeDefined()
@@ -106,7 +105,7 @@ describe('approve', () => {
     {
       // check allowance
       const allowance = await actions.token.getAllowance(client, {
-        token: defaultFeeTokenAddress,
+        token: Addresses.defaultFeeToken,
         spender: account2.address,
       })
       expect(allowance).toBe(parseEther('100'))
@@ -114,8 +113,8 @@ describe('approve', () => {
 
     // transfer tokens for gas
     await writeContractSync(client, {
-      abi: tip20Abi,
-      address: defaultFeeTokenAddress,
+      abi: Abis.tip20,
+      address: Addresses.defaultFeeToken,
       functionName: 'transfer',
       args: [account2.address, parseEther('1')],
     })
@@ -126,14 +125,14 @@ describe('approve', () => {
       account: account2,
       from: account.address,
       to: '0x0000000000000000000000000000000000000001',
-      token: defaultFeeTokenAddress,
+      token: Addresses.defaultFeeToken,
     })
 
     {
       // verify updated allowance
       const allowance = await actions.token.getAllowance(client, {
         spender: account2.address,
-        token: defaultFeeTokenAddress,
+        token: Addresses.defaultFeeToken,
       })
       expect(allowance).toBe(parseEther('50'))
     }
@@ -141,7 +140,7 @@ describe('approve', () => {
     // verify balance
     const balance = await actions.token.getBalance(client, {
       account: '0x0000000000000000000000000000000000000001',
-      token: defaultFeeTokenAddress,
+      token: Addresses.defaultFeeToken,
     })
     expect(balance).toBe(parseEther('50'))
   })
@@ -151,7 +150,7 @@ describe('approve', () => {
       // approve
       const { receipt, ...result } = await actions.token.approveSync(client, {
         amount: parseEther('100'),
-        token: defaultFeeTokenId,
+        token: TokenIds.defaultFeeToken,
         spender: account2.address,
       })
       expect(receipt).toBeDefined()
@@ -167,7 +166,7 @@ describe('approve', () => {
     {
       // check allowance
       const allowance = await actions.token.getAllowance(client, {
-        token: defaultFeeTokenId,
+        token: TokenIds.defaultFeeToken,
         spender: account2.address,
       })
       expect(allowance).toBe(parseEther('100'))
@@ -175,8 +174,8 @@ describe('approve', () => {
 
     // transfer tokens for gas
     await writeContractSync(client, {
-      abi: tip20Abi,
-      address: defaultFeeTokenAddress,
+      abi: Abis.tip20,
+      address: Addresses.defaultFeeToken,
       functionName: 'transfer',
       args: [account2.address, parseEther('1')],
     })
@@ -187,14 +186,14 @@ describe('approve', () => {
       account: account2,
       from: account.address,
       to: '0x0000000000000000000000000000000000000001',
-      token: defaultFeeTokenId,
+      token: TokenIds.defaultFeeToken,
     })
 
     {
       // verify updated allowance
       const allowance = await actions.token.getAllowance(client, {
         spender: account2.address,
-        token: defaultFeeTokenId,
+        token: TokenIds.defaultFeeToken,
       })
       expect(allowance).toBe(parseEther('50'))
     }
@@ -202,7 +201,7 @@ describe('approve', () => {
     // verify balance
     const balance = await actions.token.getBalance(client, {
       account: '0x0000000000000000000000000000000000000001',
-      token: defaultFeeTokenId,
+      token: TokenIds.defaultFeeToken,
     })
     expect(balance).toBe(parseEther('50'))
   })
@@ -239,8 +238,8 @@ describe('getAllowance', () => {
   test('default', async () => {
     // First, approve some allowance
     await writeContractSync(client, {
-      abi: tip20Abi,
-      address: defaultFeeTokenAddress,
+      abi: Abis.tip20,
+      address: Addresses.defaultFeeToken,
       functionName: 'approve',
       args: [account2.address, parseEther('50')],
     })
@@ -256,7 +255,7 @@ describe('getAllowance', () => {
     {
       // Test with token address
       const allowance = await actions.token.getAllowance(client, {
-        token: defaultFeeTokenAddress,
+        token: Addresses.defaultFeeToken,
         spender: account2.address,
       })
 
@@ -266,7 +265,7 @@ describe('getAllowance', () => {
     {
       // Test with token ID
       const allowance = await actions.token.getAllowance(client, {
-        token: defaultFeeTokenId,
+        token: TokenIds.defaultFeeToken,
         spender: account2.address,
       })
 
@@ -286,7 +285,7 @@ describe('getBalance', () => {
     {
       // Test with token address
       const balance = await actions.token.getBalance(client, {
-        token: defaultFeeTokenAddress,
+        token: Addresses.defaultFeeToken,
       })
 
       expect(balance).toBeGreaterThan(0n)
@@ -295,7 +294,7 @@ describe('getBalance', () => {
     {
       // Test with token ID & different account
       const balance = await actions.token.getBalance(client, {
-        token: defaultFeeTokenId,
+        token: TokenIds.defaultFeeToken,
         account: Hex.random(20),
       })
 
@@ -576,8 +575,8 @@ describe('transfer', () => {
 
     // Transfer tokens for gas
     await writeContractSync(client, {
-      abi: tip20Abi,
-      address: defaultFeeTokenAddress,
+      abi: Abis.tip20,
+      address: Addresses.defaultFeeToken,
       functionName: 'transfer',
       args: [account2.address, parseEther('1')],
     })
@@ -687,8 +686,8 @@ describe('burn', () => {
 
     // Transfer gas to account2
     await writeContractSync(client, {
-      abi: tip20Abi,
-      address: defaultFeeTokenAddress,
+      abi: Abis.tip20,
+      address: Addresses.defaultFeeToken,
       functionName: 'transfer',
       args: [account2.address, parseEther('1')],
     })
@@ -751,8 +750,8 @@ describe('pause', () => {
 
     // Transfer gas
     await writeContractSync(client, {
-      abi: tip20Abi,
-      address: defaultFeeTokenAddress,
+      abi: Abis.tip20,
+      address: Addresses.defaultFeeToken,
       functionName: 'transfer',
       args: [account2.address, parseEther('1')],
     })
@@ -818,8 +817,8 @@ describe('pause', () => {
 
     // Transfer gas to account2
     await writeContractSync(client, {
-      abi: tip20Abi,
-      address: defaultFeeTokenAddress,
+      abi: Abis.tip20,
+      address: Addresses.defaultFeeToken,
       functionName: 'transfer',
       args: [account2.address, parseEther('1')],
     })
@@ -919,8 +918,8 @@ describe('unpause', () => {
 
     // Transfer gas to account2
     await writeContractSync(client, {
-      abi: tip20Abi,
-      address: defaultFeeTokenAddress,
+      abi: Abis.tip20,
+      address: Addresses.defaultFeeToken,
       functionName: 'transfer',
       args: [account2.address, parseEther('1')],
     })
@@ -1004,8 +1003,8 @@ describe('unpause', () => {
 
     // Transfer gas to account2
     await writeContractSync(client, {
-      abi: tip20Abi,
-      address: defaultFeeTokenAddress,
+      abi: Abis.tip20,
+      address: Addresses.defaultFeeToken,
       functionName: 'transfer',
       args: [account2.address, parseEther('1')],
     })
@@ -1047,15 +1046,15 @@ describe('unpause', () => {
 
     // Transfer gas to both accounts
     await writeContractSync(client, {
-      abi: tip20Abi,
-      address: defaultFeeTokenAddress,
+      abi: Abis.tip20,
+      address: Addresses.defaultFeeToken,
       functionName: 'transfer',
       args: [account2.address, parseEther('1')],
     })
 
     await writeContractSync(client, {
-      abi: tip20Abi,
-      address: defaultFeeTokenAddress,
+      abi: Abis.tip20,
+      address: Addresses.defaultFeeToken,
       functionName: 'transfer',
       args: [account3.address, parseEther('1')],
     })
@@ -1145,8 +1144,8 @@ describe('updateLinkingToken', () => {
 
     // Transfer gas to account2
     await writeContractSync(client, {
-      abi: tip20Abi,
-      address: defaultFeeTokenAddress,
+      abi: Abis.tip20,
+      address: Addresses.defaultFeeToken,
       functionName: 'transfer',
       args: [account2.address, parseEther('1')],
     })
@@ -1266,8 +1265,8 @@ describe('finalizeUpdateLinkingToken', () => {
 
     // Transfer gas to account2
     await writeContractSync(client, {
-      abi: tip20Abi,
-      address: defaultFeeTokenAddress,
+      abi: Abis.tip20,
+      address: Addresses.defaultFeeToken,
       functionName: 'transfer',
       args: [account2.address, parseEther('1')],
     })
@@ -1893,8 +1892,8 @@ describe('watchBurn', () => {
 
       // Transfer gas to account2
       await writeContractSync(client, {
-        abi: tip20Abi,
-        address: defaultFeeTokenAddress,
+        abi: Abis.tip20,
+        address: Addresses.defaultFeeToken,
         functionName: 'transfer',
         args: [account2.address, parseEther('1')],
       })
@@ -1987,8 +1986,8 @@ describe('watchBurn', () => {
 
       // Transfer gas to account2
       await writeContractSync(client, {
-        abi: tip20Abi,
-        address: defaultFeeTokenAddress,
+        abi: Abis.tip20,
+        address: Addresses.defaultFeeToken,
         functionName: 'transfer',
         args: [account2.address, parseEther('1')],
       })
