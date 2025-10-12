@@ -368,10 +368,8 @@ describe('watchMint', () => {
     await setTimeout(1000)
 
     expect(eventArgs).toBeDefined()
-    expect(eventArgs.userToken.Addresses.toLowerCase()).toBe(
-      token.toLowerCase(),
-    )
-    expect(eventArgs.validatorToken.Addresses.toLowerCase()).toBe(
+    expect(eventArgs.userToken.address.toLowerCase()).toBe(token.toLowerCase())
+    expect(eventArgs.validatorToken.address.toLowerCase()).toBe(
       Addresses.defaultFeeToken.toLowerCase(),
     )
     expect(eventArgs.userToken.amount).toBe(parseEther('100'))

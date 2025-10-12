@@ -63,7 +63,6 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
                 maxTasks,
               },
               chain,
-              consensusConfig: 'a',
               datadir: `${tmp}/data`,
               dev: {
                 blockTime,
