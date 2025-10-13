@@ -81,21 +81,14 @@ export declare namespace toPrice {
  *
  * @param price - The price as a string (e.g., "1.001", "0.999").
  * @returns The tick value.
- * @throws {Error} If the price format is invalid.
+ * @throws {InvalidPriceTypeError} If the price is not a string.
+ * @throws {InvalidPriceFormatError} If the price format is invalid.
  * @throws {PriceOutOfBoundsError} If the resulting tick is out of bounds.
  */
 export function fromPrice(price: fromPrice.Price): fromPrice.ReturnType {
-  // Validate price format
-  if (typeof price !== 'string') {
-    throw new Error('Price must be a string to ensure precision.')
-  }
-
   const priceStr = price.trim()
-  if (!/^-?\d+(\.\d+)?$/.test(priceStr)) {
-    throw new Error(
-      `Invalid price format: "${price}". Must be a decimal number string.`,
-    )
-  }
+  if (!/^-?\d+(\.\d+)?$/.test(priceStr))
+    throw new InvalidPriceFormatError({ price })
 
   // Parse price using string manipulation to avoid float precision issues
   const [w, d = '0'] = priceStr.split('.')
@@ -137,6 +130,25 @@ export class TickOutOfBoundsError extends Errors.BaseError {
 export declare namespace TickOutOfBoundsError {
   export type Options = {
     tick: number
+  }
+}
+
+/**
+ * Error thrown when a price string has an invalid format.
+ */
+export class InvalidPriceFormatError extends Errors.BaseError {
+  override readonly name = 'Tick.InvalidPriceFormatError'
+
+  constructor(options: InvalidPriceFormatError.Options) {
+    super(`Invalid price format: "${options.price}".`, {
+      metaMessages: ['Price must be a decimal number string (e.g., "1.001").'],
+    })
+  }
+}
+
+export declare namespace InvalidPriceFormatError {
+  export type Options = {
+    price: string
   }
 }
 
