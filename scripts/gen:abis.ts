@@ -6,7 +6,7 @@ const extensions: Record<string, string[]> = {
   ITIP20: ['IRolesAuth'],
 }
 
-const out = Path.resolve(import.meta.dirname, `../src/viem/abis.ts`)
+const out = Path.resolve(import.meta.dirname, `../src/viem/Abis.ts`)
 const precompilesPath = Path.resolve(
   import.meta.dirname,
   '../test/tempo/crates/contracts/src/precompiles.rs',
