@@ -6,7 +6,7 @@ const extensions: Record<string, string[]> = {
   ITIP20: ['IRolesAuth'],
 }
 
-const out = Path.resolve(import.meta.dirname, `../src/viem/Abis.ts`)
+const out = Path.resolve(import.meta.dirname, '../src/viem/Abis.ts')
 const precompilesPath = Path.resolve(
   import.meta.dirname,
   '../test/tempo/crates/contracts/src/precompiles.rs',
@@ -28,8 +28,9 @@ for (const solMatch of content.matchAll(solBlockRegex)) {
   if (!solBlock) continue
 
   // Extract all interfaces from this sol! block
-  const interfaceRegex =
-    /interface\s+(\w+)\s*\{([\s\S]*?)(?=\n\s*(?:interface|#\[|$))/g
+  // Match interface name and opening brace, then capture everything until
+  // we find a closing brace with 4 spaces of indentation (interface-level closing brace)
+  const interfaceRegex = /interface\s+(\w+)\s*\{([\s\S]*?)\n {4}\}/g
 
   for (const interfaceMatch of solBlock.matchAll(interfaceRegex)) {
     const [, name, body] = interfaceMatch
