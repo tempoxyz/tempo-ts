@@ -21,10 +21,14 @@ import {
   writeContract,
   writeContractSync,
 } from 'viem/actions'
-import type { Compute, PartialBy, UnionOmit } from '../../internal/types.js'
+import type { Compute, UnionOmit } from '../../internal/types.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import type { ReadParameters, WriteParameters } from '../internal/types.js'
+import type {
+  GetAccountParameter,
+  ReadParameters,
+  WriteParameters,
+} from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 
 /**
@@ -431,17 +435,14 @@ export async function getBalance<
 export namespace getBalance {
   export type Parameters<
     account extends Account | undefined = Account | undefined,
-  > = ReadParameters & Args<account>
+  > = ReadParameters & GetAccountParameter<account> & Args
 
-  export type Args<account extends Account | undefined = undefined> = PartialBy<
-    {
-      /** Address of the account. */
-      account: Address
-      /** Address of the token. */
-      token: Address
-    },
-    account extends Account ? 'account' : never
-  >
+  export type Args = {
+    /** Address of the account. */
+    account: Address
+    /** Address of the token. */
+    token: Address
+  }
 
   export type ReturnValue = ReadContractReturnType<
     typeof Abis.stablecoinDex,
