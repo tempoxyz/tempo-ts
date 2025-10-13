@@ -84,9 +84,10 @@ describe('fromPrice', () => {
   })
 
   test('validates string format', () => {
+    expect(() => Tick.fromPrice('abc')).toThrow(Tick.InvalidPriceFormatError)
     expect(() => Tick.fromPrice('abc')).toThrow('Invalid price format')
-    expect(() => Tick.fromPrice('1.2.3')).toThrow('Invalid price format')
-    expect(() => Tick.fromPrice('')).toThrow('Invalid price format')
+    expect(() => Tick.fromPrice('1.2.3')).toThrow(Tick.InvalidPriceFormatError)
+    expect(() => Tick.fromPrice('')).toThrow(Tick.InvalidPriceFormatError)
   })
 
   test('throws error when price results in tick below minimum', () => {
@@ -146,6 +147,21 @@ describe('round-trip conversions', () => {
 })
 
 describe('error handling', () => {
+  test('InvalidPriceFormatError is catchable and has correct properties', () => {
+    try {
+      Tick.fromPrice('invalid')
+      expect.fail('Should have thrown')
+    } catch (error) {
+      expect(error).toBeInstanceOf(Tick.InvalidPriceFormatError)
+      expect(error).toHaveProperty('name', 'Tick.InvalidPriceFormatError')
+      expect((error as Error).message).toContain('Invalid price format')
+      expect((error as Error).message).toContain('invalid')
+      expect((error as Error).message).toContain(
+        'Price must be a decimal number string',
+      )
+    }
+  })
+
   test('TickOutOfBoundsError is catchable and has correct properties', () => {
     try {
       Tick.toPrice(-2001)
@@ -178,6 +194,16 @@ describe('error handling', () => {
   })
 
   test('can distinguish between error types', () => {
+    try {
+      Tick.fromPrice('invalid')
+    } catch (error) {
+      if (error instanceof Tick.InvalidPriceFormatError) {
+        expect(true).toBe(true) // Successfully caught as InvalidPriceFormatError
+      } else {
+        expect.fail('Should be InvalidPriceFormatError')
+      }
+    }
+
     try {
       Tick.toPrice(-2001)
     } catch (error) {
