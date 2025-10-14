@@ -484,11 +484,11 @@ export async function rebalanceSwapSync<
   client: Client<Transport, chain, account>,
   parameters: rebalanceSwapSync.Parameters<chain, account>,
 ): Promise<rebalanceSwapSync.ReturnValue> {
-  const receipt = await rebalanceSwap.inner(
-    writeContractSync,
-    client,
-    parameters,
-  )
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await rebalanceSwap.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
   const { args } = rebalanceSwap.extractEvent(receipt.logs)
   return {
     ...args,
@@ -727,7 +727,11 @@ export async function mintSync<
   client: Client<Transport, chain, account>,
   parameters: mintSync.Parameters<chain, account>,
 ): Promise<mintSync.ReturnValue> {
-  const receipt = await mint.inner(writeContractSync, client, parameters)
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await mint.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
   const { args } = mint.extractEvent(receipt.logs)
   return {
     ...args,
@@ -937,7 +941,11 @@ export async function burnSync<
   client: Client<Transport, chain, account>,
   parameters: burnSync.Parameters<chain, account>,
 ): Promise<burnSync.ReturnValue> {
-  const receipt = await burn.inner(writeContractSync, client, parameters)
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await burn.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
   const { args } = burn.extractEvent(receipt.logs)
   return {
     ...args,
