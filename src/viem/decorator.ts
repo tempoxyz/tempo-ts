@@ -1100,6 +1100,31 @@ export type Decorator<
       parameters: tokenActions.getMetadata.Parameters,
     ) => Promise<tokenActions.getMetadata.ReturnValue>
     /**
+     * Checks if an account has a specific role for a TIP20 token.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const hasRole = await client.token.hasRole({
+     *   token: '0x...',
+     *   role: 'issuer',
+     * })
+     * ```
+     *
+     * @param client - Client.
+     * @param parameters - Parameters.
+     * @returns Whether the account has the role.
+     */
+    hasRole: (
+      parameters: tokenActions.hasRole.Parameters<account>,
+    ) => Promise<tokenActions.hasRole.ReturnValue>
+    /**
      * Grants a role for a TIP20 token.
      *
      * @example
@@ -1866,6 +1891,7 @@ export function decorator() {
         getBalance: (parameters) => tokenActions.getBalance(client, parameters),
         getMetadata: (parameters) =>
           tokenActions.getMetadata(client, parameters),
+        hasRole: (parameters) => tokenActions.hasRole(client, parameters),
         grantRoles: (parameters) => tokenActions.grantRoles(client, parameters),
         grantRolesSync: (parameters) =>
           tokenActions.grantRolesSync(client, parameters),
