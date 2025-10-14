@@ -107,6 +107,7 @@ test('createTempoClient', () => {
         "getMetadata": [Function],
         "grantRoles": [Function],
         "grantRolesSync": [Function],
+        "hasRole": [Function],
         "mint": [Function],
         "mintSync": [Function],
         "pause": [Function],
