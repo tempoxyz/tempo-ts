@@ -1595,7 +1595,7 @@ export namespace hasRole {
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof tip20Abi,
+    typeof Abis.tip20,
     'hasRole',
     never
   >
@@ -1610,7 +1610,7 @@ export namespace hasRole {
     const { account, role, token } = args
     return defineCall({
       address: TokenId.toAddress(token),
-      abi: tip20Abi,
+      abi: Abis.tip20,
       functionName: 'hasRole',
       args: [account, TokenRole.serialize(role)],
     })
