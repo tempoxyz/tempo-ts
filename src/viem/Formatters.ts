@@ -92,8 +92,8 @@ export const formatTransactionRequest = (
       : {}),
     ...(action === 'estimateGas'
       ? {
-          maxFeePerGas: '0x0',
-          maxPriorityFeePerGas: '0x0',
+          maxFeePerGas: undefined,
+          maxPriorityFeePerGas: undefined,
         }
       : {}),
   } as never

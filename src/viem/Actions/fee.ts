@@ -261,11 +261,11 @@ export async function setUserTokenSync<
   client: Client<Transport, chain, account>,
   parameters: setUserTokenSync.Parameters<chain, account>,
 ): Promise<setUserTokenSync.ReturnValue> {
-  const receipt = await setUserToken.inner(
-    writeContractSync,
-    client,
-    parameters,
-  )
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await setUserToken.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
   const { args } = setUserToken.extractEvent(receipt.logs)
   return {
     ...args,

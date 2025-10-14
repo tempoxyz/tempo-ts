@@ -3,7 +3,7 @@ import type {
   Address,
   Chain,
   ReadContractParameters as viem_ReadContractParameters,
-  WriteContractParameters as viem_WriteContractParameters,
+  WriteContractSyncParameters as viem_WriteContractSyncParameters,
 } from 'viem'
 import type {
   IsUndefined,
@@ -44,12 +44,13 @@ export type WriteParameters<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
 > = UnionPick<
-  viem_WriteContractParameters<never, never, never, chain, account>,
+  viem_WriteContractSyncParameters<never, never, never, chain, account>,
   | 'account'
   | 'chain'
   | 'gas'
   | 'maxFeePerGas'
   | 'maxPriorityFeePerGas'
   | 'nonce'
+  | 'throwOnReceiptRevert'
 > &
   UnionPick<TransactionRequestFeeToken, 'feePayer' | 'feeToken'>

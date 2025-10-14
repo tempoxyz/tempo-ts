@@ -1,5 +1,17 @@
 # tempo.ts
 
+## 0.0.5
+
+### Patch Changes
+
+- [`7cd6a18`](https://github.com/tempoxyz/tempo-ts/commit/7cd6a18a52f3c2c8a7b6277935cdcce6ae14511d) Thanks [@jxom](https://github.com/jxom)! - Set `*FeePerGas` fields to undefined for gas estimation.
+
+## 0.0.4
+
+### Patch Changes
+
+- [`7caa3da`](https://github.com/tempoxyz/tempo-ts/commit/7caa3daf124150d254dcce09f26a8ced0bb948a6) Thanks [@jxom](https://github.com/jxom)! - Added support for `throwOnReceiptRevert` on `*Sync` actions.
+
 ## 0.0.3
 
 ### Patch Changes
