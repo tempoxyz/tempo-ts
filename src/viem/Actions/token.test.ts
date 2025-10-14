@@ -1313,6 +1313,196 @@ describe('finalizeUpdateLinkingToken', () => {
 
 describe.todo('setTokenSupplyCap')
 
+describe('hasRole', () => {
+  test('default', async () => {
+    // Create a new token where we're the admin
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'HasRole Test Token',
+      symbol: 'HRTEST',
+    })
+
+    // Client account should have defaultAdmin role on the new token
+    const hasDefaultAdminRole = await actions.token.hasRole(client, {
+      token: address,
+      role: 'defaultAdmin',
+    })
+    expect(hasDefaultAdminRole).toBe(true)
+
+    // Client account should not have issuer role initially on the new token
+    const hasIssuerRole = await actions.token.hasRole(client, {
+      token: address,
+      role: 'issuer',
+    })
+    expect(hasIssuerRole).toBe(false)
+
+    // Grant issuer role
+    await actions.token.grantRolesSync(client, {
+      token: address,
+      roles: ['issuer'],
+      to: client.account.address,
+    })
+
+    // Now should have issuer role
+    const hasIssuerRoleAfterGrant = await actions.token.hasRole(client, {
+      token: address,
+      role: 'issuer',
+    })
+    expect(hasIssuerRoleAfterGrant).toBe(true)
+  })
+
+  test('behavior: check other account', async () => {
+    // Create a new token
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'HasRole Other Account',
+      symbol: 'HROAC',
+    })
+
+    // Account2 should not have issuer role
+    const hasIssuerBefore = await actions.token.hasRole(client, {
+      token: address,
+      account: account2.address,
+      role: 'issuer',
+    })
+    expect(hasIssuerBefore).toBe(false)
+
+    // Grant issuer role to account2
+    await actions.token.grantRolesSync(client, {
+      token: address,
+      roles: ['issuer'],
+      to: account2.address,
+    })
+
+    // Account2 should now have issuer role
+    const hasIssuerAfter = await actions.token.hasRole(client, {
+      token: address,
+      account: account2.address,
+      role: 'issuer',
+    })
+    expect(hasIssuerAfter).toBe(true)
+
+    // Account3 should still not have issuer role
+    const account3HasIssuer = await actions.token.hasRole(client, {
+      token: address,
+      account: account3.address,
+      role: 'issuer',
+    })
+    expect(account3HasIssuer).toBe(false)
+  })
+
+  test('behavior: multiple roles', async () => {
+    // Create a new token
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'HasRole Multiple',
+      symbol: 'HRMULTI',
+    })
+
+    // Grant multiple roles to account2
+    await actions.token.grantRolesSync(client, {
+      token: address,
+      roles: ['issuer', 'pause'],
+      to: account2.address,
+    })
+
+    // Check issuer role
+    const hasIssuer = await actions.token.hasRole(client, {
+      token: address,
+      account: account2.address,
+      role: 'issuer',
+    })
+    expect(hasIssuer).toBe(true)
+
+    // Check pause role
+    const hasPause = await actions.token.hasRole(client, {
+      token: address,
+      account: account2.address,
+      role: 'pause',
+    })
+    expect(hasPause).toBe(true)
+
+    // Check unpause role (not granted)
+    const hasUnpause = await actions.token.hasRole(client, {
+      token: address,
+      account: account2.address,
+      role: 'unpause',
+    })
+    expect(hasUnpause).toBe(false)
+  })
+
+  test('behavior: after revoke', async () => {
+    // Create a new token
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'HasRole Revoke',
+      symbol: 'HRREV',
+    })
+
+    // Grant issuer role to account2
+    await actions.token.grantRolesSync(client, {
+      token: address,
+      roles: ['issuer'],
+      to: account2.address,
+    })
+
+    // Verify has role
+    const hasRoleBefore = await actions.token.hasRole(client, {
+      token: address,
+      account: account2.address,
+      role: 'issuer',
+    })
+    expect(hasRoleBefore).toBe(true)
+
+    // Revoke the role
+    await actions.token.revokeRolesSync(client, {
+      token: address,
+      roles: ['issuer'],
+      from: account2.address,
+    })
+
+    // Verify no longer has role
+    const hasRoleAfter = await actions.token.hasRole(client, {
+      token: address,
+      account: account2.address,
+      role: 'issuer',
+    })
+    expect(hasRoleAfter).toBe(false)
+  })
+
+  test('behavior: with token ID', async () => {
+    // Create a new token
+    const { token: address, tokenId } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'HasRole Token ID',
+      symbol: 'HRTID',
+    })
+
+    // Grant issuer role
+    await actions.token.grantRolesSync(client, {
+      token: tokenId,
+      roles: ['issuer'],
+      to: account2.address,
+    })
+
+    // Check using token ID
+    const hasRole = await actions.token.hasRole(client, {
+      token: tokenId,
+      account: account2.address,
+      role: 'issuer',
+    })
+    expect(hasRole).toBe(true)
+
+    // Verify same result with address
+    const hasRoleWithAddress = await actions.token.hasRole(client, {
+      token: address,
+      account: account2.address,
+      role: 'issuer',
+    })
+    expect(hasRoleWithAddress).toBe(true)
+  })
+})
+
 describe('grantRoles', () => {
   test('default', async () => {
     // Create a new token where we're the admin

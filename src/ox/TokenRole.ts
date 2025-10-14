@@ -8,7 +8,7 @@ export const roles = [
   'issuer',
   'burnBlocked',
 ] as const
-export type TokenRole = (typeof roles)[number] | (string & {})
+export type TokenRole = (typeof roles)[number]
 
 export const toPreHashed = {
   defaultAdmin: 'DEFAULT_ADMIN_ROLE',

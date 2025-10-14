@@ -1278,12 +1278,12 @@ export async function getAllowance<
   client: Client<Transport, chain, account>,
   parameters: getAllowance.Parameters<account>,
 ): Promise<getAllowance.ReturnValue> {
-  const { account = client.account, ...rest } = parameters
+  const { account = client.account } = parameters
   const address = account ? parseAccount(account).address : undefined
   if (!address) throw new Error('account is required.')
   return readContract(client, {
-    ...rest,
-    ...getAllowance.call({ account: address, ...rest }),
+    ...parameters,
+    ...getAllowance.call({ ...parameters, account: address }),
   })
 }
 
@@ -1540,6 +1540,84 @@ export declare namespace getMetadata {
 }
 
 /**
+ * Checks if an account has a specific role for a TIP20 token.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const hasRole = await actions.token.hasRole(client, {
+ *   account: '0x...',
+ *   role: 'issuer',
+ *   token: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Whether the account has the role.
+ */
+export async function hasRole<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: hasRole.Parameters<account>,
+): Promise<hasRole.ReturnValue> {
+  const { account = client.account } = parameters
+  const address = account ? parseAccount(account).address : undefined
+  if (!address) throw new Error('account is required.')
+  return readContract(client, {
+    ...parameters,
+    ...hasRole.call({ ...parameters, account: address }),
+  })
+}
+
+export namespace hasRole {
+  export type Parameters<
+    account extends Account | undefined = Account | undefined,
+  > = ReadParameters & Omit<Args, 'account'> & GetAccountParameter<account>
+
+  export type Args = {
+    /** Account address to check. */
+    account: Address
+    /** Role to check. */
+    role: TokenRole.TokenRole
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof tip20Abi,
+    'hasRole',
+    never
+  >
+
+  /**
+   * Defines a call to the `hasRole` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { account, role, token } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: tip20Abi,
+      functionName: 'hasRole',
+      args: [account, TokenRole.serialize(role)],
+    })
+  }
+}
+
+/**
  * Grants a role for a TIP20 token.
  *
  * @example
@@ -1558,7 +1636,7 @@ export declare namespace getMetadata {
  * const result = await actions.token.grantRoles(client, {
  *   token: '0x...',
  *   to: '0x...',
- *   roles: ['minter'],
+ *   roles: ['issuer'],
  * })
  * ```
  *
