@@ -89,7 +89,7 @@ describe.todo('getBuyQuote')
 describe.todo('getSellQuote')
 
 describe('place', () => {
-  test.only('default', async () => {
+  test('default', async () => {
     // Setup token pair
     const { baseToken } = await setupTokenPair({
       baseAmount: parseEther('1000'),
