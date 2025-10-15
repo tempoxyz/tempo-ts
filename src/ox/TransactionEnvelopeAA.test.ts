@@ -1,4 +1,13 @@
-import { Address, Hex, P256, Rlp, RpcTransport, Secp256k1, Value } from 'ox'
+import {
+  Address,
+  Hex,
+  P256,
+  Rlp,
+  RpcTransport,
+  Secp256k1,
+  Value,
+  WebAuthnP256,
+} from 'ox'
 import { createClient, http, parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { afterEach, beforeEach, describe, expect, test } from 'vitest'
@@ -1150,11 +1159,6 @@ describe('e2e', () => {
       to: address,
     })
 
-    const nonce = await client.request({
-      method: 'eth_getTransactionCount',
-      params: [address, 'pending'],
-    })
-
     const transaction = TransactionEnvelopeAA.from({
       calls: [
         {
@@ -1163,8 +1167,6 @@ describe('e2e', () => {
         },
       ],
       chainId: 1337,
-      feeToken: '0x20c0000000000000000000000000000000000001',
-      nonce: BigInt(nonce),
       gas: 100_000n,
       maxFeePerGas: Value.fromGwei('20'),
       maxPriorityFeePerGas: Value.fromGwei('10'),
@@ -1261,7 +1263,134 @@ describe('e2e', () => {
     `)
   })
 
-  test.todo('behavior: default (webauthn)')
+  test('behavior: default (webauthn)', async () => {
+    const privateKey =
+      '0x062d199fd1d30c4a905ed1164a31e73759a13827687a2f3057a7d19c220bc933'
+    const publicKey = P256.getPublicKey({ privateKey })
+    const address = Address.fromPublicKey(publicKey)
+
+    const client = createClient({
+      account: privateKeyToAccount(
+        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      ),
+      chain: tempoLocal,
+      transport: http('http://localhost:3000'),
+    })
+
+    await Actions.token.transferSync(client, {
+      amount: parseEther('10000'),
+      to: address,
+    })
+
+    const transaction = TransactionEnvelopeAA.from({
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: Value.fromEther('1'),
+        },
+      ],
+      chainId: 1337,
+      gas: 100_000n,
+      maxFeePerGas: Value.fromGwei('20'),
+      maxPriorityFeePerGas: Value.fromGwei('10'),
+    })
+
+    const { metadata, payload } = WebAuthnP256.getSignPayload({
+      challenge: TransactionEnvelopeAA.getSignPayload(transaction),
+      rpId: 'localhost',
+      origin: 'http://localhost',
+    })
+
+    const signature = P256.sign({
+      payload,
+      privateKey,
+      hash: true,
+    })
+
+    const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
+      signature: SignatureEnvelope.from({
+        signature,
+        publicKey,
+        metadata,
+      }),
+    })
+
+    const receipt = await client.request({
+      method: 'eth_sendRawTransactionSync',
+      params: [serialized_signed],
+    })
+
+    expect(receipt).toBeDefined()
+
+    {
+      const response = await client.request({
+        method: 'eth_getTransactionByHash',
+        params: [receipt.transactionHash],
+      })
+      if (!response) throw new Error()
+
+      const { blockNumber, blockHash, ...rest } = response
+
+      expect(blockNumber).toBeDefined()
+      expect(blockHash).toBeDefined()
+      expect(rest).toMatchInlineSnapshot(`
+        {
+          "accessList": [],
+          "calls": [
+            {
+              "input": "0x",
+              "to": "0x0000000000000000000000000000000000000000",
+              "value": "0xde0b6b3a7640000",
+            },
+          ],
+          "chainId": "0x539",
+          "feePayerSignature": null,
+          "feeToken": null,
+          "from": "0x6472aeab3269f4165775753156702c06ccc70f8b",
+          "gas": "0x186a0",
+          "gasPrice": "0x2540be42c",
+          "hash": "0x6038cb8b0bc41a3254097bce85795eda00aa2c23ac5b59c3de6129c5fc079095",
+          "maxFeePerGas": "0x4a817c800",
+          "maxPriorityFeePerGas": "0x2540be400",
+          "nonce": "0x0",
+          "nonceKey": "0x0",
+          "signature": {
+            "pubKeyX": "0xecbf69146add5d7c649c96d90b64d90702c6faae7115adbad50e5e61b2c5f40d",
+            "pubKeyY": "0xeca3a5fc6dc4225b4f3f9720750651d43c6eb45c0492b8e9930394d1524784c6",
+            "r": "0x85ab9affd4d7f867f4cc7c4a89995ddeab77c803cf201a22d4797a23852bde22",
+            "s": "0x451d76d4db09f1ab6a635d46eaece7bd006c0dc67d750830d4154fbee599dcc1",
+            "type": "webAuthn",
+            "webauthnData": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a225a7275684846506271366434384f646c4f326658574c52697456457739674d5944594f6141704333744538222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d",
+          },
+          "transactionIndex": "0x0",
+          "type": "0x76",
+          "validAfter": null,
+          "validBefore": null,
+        }
+      `)
+    }
+
+    const { blockNumber, blockHash, ...rest } = receipt
+
+    expect(blockNumber).toBeDefined()
+    expect(blockHash).toBeDefined()
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "contractAddress": null,
+        "cumulativeGasUsed": "0xdb78",
+        "effectiveGasPrice": "0x2540be42c",
+        "from": "0x6472aeab3269f4165775753156702c06ccc70f8b",
+        "gasUsed": "0xdb78",
+        "logs": [],
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "status": "0x0",
+        "to": "0x0000000000000000000000000000000000000000",
+        "transactionHash": "0x6038cb8b0bc41a3254097bce85795eda00aa2c23ac5b59c3de6129c5fc079095",
+        "transactionIndex": "0x0",
+        "type": "0x76",
+      }
+    `)
+  })
 
   test('behavior: feePayerSignature (user → feePayer)', async () => {
     const feePayer = {
