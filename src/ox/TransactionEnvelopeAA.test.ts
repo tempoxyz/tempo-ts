@@ -1074,5 +1074,86 @@ describe('e2e', () => {
 
   test.todo('behavior: default (webauthn)')
 
+  test('behavior: feePayerSignature (user → feePayer)', async () => {
+    const feePayer = {
+      address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      privateKey:
+        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+    } as const
+    const sender = {
+      address: '0x0a275bEE91B39092Dfd57089Dee0EB0539020B90',
+      privateKey:
+        '0xfe24691eff5297c76e847dc78a8966b96cf65a44140b9a0d3f5100ce71d74a59',
+    } as const
+
+    const transport = RpcTransport.fromHttp('http://localhost:3000')
+
+    const nonce = await transport.request({
+      method: 'eth_getTransactionCount',
+      params: [sender.address, 'pending'],
+    })
+
+    const transaction = TransactionEnvelopeAA.from({
+      calls: [{ to: '0x0000000000000000000000000000000000000000', value: 0n }],
+      chainId: 1337,
+      feePayerSignature: null,
+      nonce: BigInt(nonce),
+      gas: 21000n,
+      maxFeePerGas: Hex.toBigInt('0x59'),
+      maxPriorityFeePerGas: Hex.toBigInt('0x59'),
+    })
+
+    const signature = Secp256k1.sign({
+      payload: TransactionEnvelopeAA.getSignPayload(transaction),
+      // unfunded PK
+      privateKey: sender.privateKey,
+    })
+
+    const transaction_signed = TransactionEnvelopeAA.from(transaction, {
+      signature,
+    })
+
+    const feePayerSignature = Secp256k1.sign({
+      payload: TransactionEnvelopeAA.getFeePayerSignPayload(
+        transaction_signed,
+        { sender: sender.address },
+      ),
+      privateKey: feePayer.privateKey,
+    })
+
+    const serialized_signed = TransactionEnvelopeAA.serialize(
+      transaction_signed,
+      {
+        feePayerSignature,
+      },
+    )
+
+    const receipt = await transport.request({
+      method: 'eth_sendRawTransactionSync',
+      params: [serialized_signed],
+    })
+
+    const { blockNumber, blockHash, ...rest } = receipt
+
+    expect(blockNumber).toBeDefined()
+    expect(blockHash).toBeDefined()
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "contractAddress": null,
+        "cumulativeGasUsed": "0x5208",
+        "effectiveGasPrice": "0x59",
+        "from": "0x0a275bee91b39092dfd57089dee0eb0539020b90",
+        "gasUsed": "0x5208",
+        "logs": [],
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "status": "0x1",
+        "to": "0x0000000000000000000000000000000000000000",
+        "transactionHash": "0x8e57950fa5469d010d835f6b854bfecc4388bd07afb27b7734d6c18fc9710223",
+        "transactionIndex": "0x0",
+        "type": "0x76",
+      }
+    `)
+  })
+
   // TODO: more e2e
 })
