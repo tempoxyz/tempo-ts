@@ -1,8 +1,20 @@
 import * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
+import type * as PublicKey from 'ox/PublicKey'
 import * as Signature from 'ox/Signature'
-import type { Assign, Compute, OneOf, PartialBy } from '../internal/types.js'
+import type * as WebAuthnP256 from 'ox/WebAuthnP256'
+import type {
+  Assign,
+  Compute,
+  IsNarrowable,
+  OneOf,
+  PartialBy,
+} from '../internal/types.js'
+
+/** Signature type identifiers for encoding/decoding */
+const serializedP256Type = '0x01'
+const serializedWebAuthnType = '0x02'
 
 /**
  * Statically determines the signature type of an envelope at compile time.
@@ -23,28 +35,74 @@ export type GetType<
     : never
   : envelope extends { type: infer T extends Type }
     ? T
-    : envelope extends { r: bigint; s: bigint; yParity: number }
-      ? 'secp256k1'
-      : never
+    : envelope extends {
+          signature: { r: bigint; s: bigint }
+          prehash: boolean
+          publicKey: PublicKey.PublicKey
+        }
+      ? 'p256'
+      : envelope extends {
+            signature: { r: bigint; s: bigint }
+            metadata: any
+            publicKey: PublicKey.PublicKey
+          }
+        ? 'webauthn'
+        : envelope extends { r: bigint; s: bigint; yParity: number }
+          ? 'secp256k1'
+          : envelope extends {
+                signature: { r: bigint; s: bigint; yParity: number }
+              }
+            ? 'secp256k1'
+            : never
 
 /**
  * Represents a signature envelope that can contain different signature types.
  *
- * Currently supports secp256k1 signatures with plans for p256 and webauthn.
+ * Supports:
+ * - secp256k1: Standard ECDSA signature (65 bytes)
+ * - p256: P256 signature with embedded public key and prehash flag (130 bytes)
+ * - webauthn: WebAuthn signature with variable-length authenticator data
  */
 export type SignatureEnvelope<bigintType = bigint, numberType = number> = OneOf<
-  Signature.Signature<true, bigintType, numberType> & {
-    type?: 'secp256k1' | undefined
-  }
-  // TODO: p256
-  // TODO: webauthn
+  | Secp256k1<bigintType, numberType>
+  | P256<bigintType, numberType>
+  | WebAuthn<bigintType, numberType>
 >
+
+export type P256<bigintType = bigint, numberType = number> = {
+  prehash: boolean
+  publicKey: PublicKey.PublicKey
+  signature: Signature.Signature<false, bigintType, numberType>
+  type: 'p256'
+}
+
+export type Secp256k1<bigintType = bigint, numberType = number> = {
+  signature: Signature.Signature<true, bigintType, numberType>
+  type: 'secp256k1'
+}
+
+export type Secp256k1Flat<
+  bigintType = bigint,
+  numberType = number,
+> = Signature.Signature<true, bigintType, numberType> & {
+  type?: 'secp256k1' | undefined
+}
+
+export type WebAuthn<bigintType = bigint, numberType = number> = {
+  metadata: Pick<
+    WebAuthnP256.SignMetadata,
+    'authenticatorData' | 'clientDataJSON'
+  >
+  signature: Signature.Signature<false, bigintType, numberType>
+  publicKey: PublicKey.PublicKey
+  type: 'webauthn'
+}
 
 /** Hex-encoded serialized signature envelope. */
 export type Serialized = Hex.Hex
 
 /** List of supported signature types. */
-export const types = ['secp256k1'] as const
+export const types = ['secp256k1', 'p256', 'webauthn'] as const
 
 /** Union type of supported signature types. */
 export type Type = (typeof types)[number]
@@ -69,12 +127,59 @@ export type Type = (typeof types)[number]
  */
 export function assert(envelope: PartialBy<SignatureEnvelope, 'type'>): void {
   const type = getType(envelope)
-  if (type === 'secp256k1') Signature.assert(envelope)
+
+  if (type === 'secp256k1') {
+    Signature.assert(envelope.signature)
+    return
+  }
+
+  if (type === 'p256') {
+    const p256 = envelope as P256
+    const missing: string[] = []
+
+    if (typeof p256.signature?.r !== 'bigint') missing.push('signature.r')
+    if (typeof p256.signature?.s !== 'bigint') missing.push('signature.s')
+    if (typeof p256.prehash !== 'boolean') missing.push('prehash (boolean)')
+    if (!p256.publicKey) missing.push('publicKey')
+    else {
+      if (typeof p256.publicKey.x !== 'bigint') missing.push('publicKey.x')
+      if (typeof p256.publicKey.y !== 'bigint') missing.push('publicKey.y')
+    }
+
+    if (missing.length > 0)
+      throw new MissingPropertiesError({ envelope, missing, type: 'p256' })
+    return
+  }
+
+  if (type === 'webauthn') {
+    const webauthn = envelope as WebAuthn
+    const missing: string[] = []
+
+    if (typeof webauthn.signature?.r !== 'bigint') missing.push('signature.r')
+    if (typeof webauthn.signature?.s !== 'bigint') missing.push('signature.s')
+    if (!webauthn.metadata) missing.push('metadata')
+    else {
+      if (!webauthn.metadata.authenticatorData)
+        missing.push('metadata.authenticatorData')
+      if (!webauthn.metadata.clientDataJSON)
+        missing.push('metadata.clientDataJSON')
+    }
+    if (!webauthn.publicKey) missing.push('publicKey')
+    else {
+      if (typeof webauthn.publicKey.x !== 'bigint') missing.push('publicKey.x')
+      if (typeof webauthn.publicKey.y !== 'bigint') missing.push('publicKey.y')
+    }
+
+    if (missing.length > 0)
+      throw new MissingPropertiesError({ envelope, missing, type: 'webauthn' })
+    return
+  }
 }
 
 export declare namespace assert {
   type ErrorType =
     | CoercionError
+    | MissingPropertiesError
     | Signature.assert.ErrorType
     | Errors.GlobalErrorType
 }
@@ -82,18 +187,121 @@ export declare namespace assert {
 /**
  * Deserializes a hex-encoded signature envelope into a typed signature object.
  *
+ * For backward compatibility:
+ * - 65 bytes: secp256k1 signature (no type identifier)
+ * - 130 bytes: P256 signature (1 byte type + 129 bytes data)
+ * - 129+ bytes: WebAuthn signature (1 byte type + variable data)
+ *
  * @param serialized - The hex-encoded signature envelope to deserialize.
  * @returns The deserialized signature envelope.
  * @throws {CoercionError} If the serialized value cannot be coerced to a valid signature envelope.
  */
 export function deserialize(serialized: Serialized): SignatureEnvelope {
-  if (Hex.size(serialized) === 65) {
+  const size = Hex.size(serialized)
+
+  // Backward compatibility: 65 bytes means secp256k1 without type identifier
+  if (size === 65) {
     const signature = Signature.fromHex(serialized)
     Signature.assert(signature)
-    return { ...signature, type: 'secp256k1' }
+    return { signature, type: 'secp256k1' }
   }
 
-  throw new CoercionError({ envelope: serialized })
+  // For all other lengths, first byte is the type identifier
+  const typeId = Hex.slice(serialized, 0, 1)
+  const data = Hex.slice(serialized, 1)
+  const dataSize = Hex.size(data)
+
+  if (typeId === serializedP256Type) {
+    // P256: 32 (r) + 32 (s) + 32 (pubKeyX) + 32 (pubKeyY) + 1 (prehash) = 129 bytes
+    if (dataSize !== 129)
+      throw new InvalidSerializedError({
+        reason: `Invalid P256 signature envelope size: expected 129 bytes, got ${dataSize} bytes`,
+        serialized,
+      })
+
+    return {
+      publicKey: {
+        prefix: 4,
+        x: Hex.toBigInt(Hex.slice(data, 64, 96)),
+        y: Hex.toBigInt(Hex.slice(data, 96, 128)),
+      },
+      prehash: Hex.toNumber(Hex.slice(data, 128, 129)) !== 0,
+      signature: {
+        r: Hex.toBigInt(Hex.slice(data, 0, 32)),
+        s: Hex.toBigInt(Hex.slice(data, 32, 64)),
+      },
+      type: 'p256',
+    } as P256
+  }
+
+  if (typeId === serializedWebAuthnType) {
+    // WebAuthn: variable (webauthnData) + 32 (r) + 32 (s) + 32 (pubKeyX) + 32 (pubKeyY)
+    // Minimum: 128 bytes (at least some authenticator data + signature components)
+    if (dataSize < 128)
+      throw new InvalidSerializedError({
+        reason: `Invalid WebAuthn signature envelope size: expected at least 128 bytes, got ${dataSize} bytes`,
+        serialized,
+      })
+
+    const webauthnDataSize = dataSize - 128
+    const webauthnData = Hex.slice(data, 0, webauthnDataSize)
+
+    // Parse webauthnData into authenticatorData and clientDataJSON
+    // According to the Rust code, it's authenticatorData || clientDataJSON
+    // We need to find the split point (minimum authenticatorData is 37 bytes)
+    let authenticatorData: Hex.Hex | undefined
+    let clientDataJSON: string | undefined
+
+    // Try to find the JSON start (clientDataJSON should start with '{')
+    for (let split = 37; split < webauthnDataSize; split++) {
+      const potentialJson = Hex.toString(Hex.slice(webauthnData, split))
+      if (potentialJson.startsWith('{') && potentialJson.endsWith('}')) {
+        try {
+          JSON.parse(potentialJson)
+          authenticatorData = Hex.slice(webauthnData, 0, split)
+          clientDataJSON = potentialJson
+          break
+        } catch {}
+      }
+    }
+
+    if (!authenticatorData || !clientDataJSON)
+      throw new InvalidSerializedError({
+        reason:
+          'Unable to parse WebAuthn metadata: could not extract valid authenticatorData and clientDataJSON',
+        serialized,
+      })
+
+    return {
+      publicKey: {
+        prefix: 4,
+        x: Hex.toBigInt(
+          Hex.slice(data, webauthnDataSize + 64, webauthnDataSize + 96),
+        ),
+        y: Hex.toBigInt(
+          Hex.slice(data, webauthnDataSize + 96, webauthnDataSize + 128),
+        ),
+      },
+      metadata: {
+        authenticatorData,
+        clientDataJSON,
+      },
+      signature: {
+        r: Hex.toBigInt(
+          Hex.slice(data, webauthnDataSize, webauthnDataSize + 32),
+        ),
+        s: Hex.toBigInt(
+          Hex.slice(data, webauthnDataSize + 32, webauthnDataSize + 64),
+        ),
+      },
+      type: 'webauthn',
+    } as WebAuthn
+  }
+
+  throw new InvalidSerializedError({
+    reason: `Unknown signature type identifier: ${typeId}. Expected ${serializedP256Type} (P256) or ${serializedWebAuthnType} (WebAuthn)`,
+    serialized,
+  })
 }
 
 /**
@@ -109,21 +317,32 @@ export function from<const value extends from.Value>(
 ): from.ReturnValue<value> {
   if (typeof value === 'string') return deserialize(value) as never
 
+  if (
+    typeof value === 'object' &&
+    value !== null &&
+    'r' in value &&
+    's' in value &&
+    'yParity' in value
+  )
+    return { signature: value, type: 'secp256k1' } as never
+
   const type = getType(value)
   return { ...value, type } as never
 }
 
 export declare namespace from {
-  type Value = SignatureEnvelope | Serialized
+  type Value = PartialBy<SignatureEnvelope, 'type'> | Secp256k1Flat | Serialized
 
-  type ReturnValue<
-    value extends SignatureEnvelope | Serialized =
-      | SignatureEnvelope
-      | Serialized,
-  > = Compute<
-    value extends Serialized
-      ? SignatureEnvelope
-      : Assign<value, { type: GetType<value> }>
+  type ReturnValue<value extends Value> = Compute<
+    OneOf<
+      value extends Serialized
+        ? SignatureEnvelope
+        : value extends Secp256k1Flat
+          ? Secp256k1
+          : IsNarrowable<value, SignatureEnvelope> extends true
+            ? SignatureEnvelope
+            : Assign<value, { readonly type: GetType<value> }>
+    >
   >
 }
 
@@ -131,25 +350,53 @@ export declare namespace from {
  * Determines the signature type of an envelope.
  *
  * @param envelope - The signature envelope to inspect.
- * @returns The signature type ('secp256k1').
+ * @returns The signature type ('secp256k1', 'p256', or 'webauthn').
  * @throws {CoercionError} If the envelope type cannot be determined.
  */
 export function getType<
-  envelope extends PartialBy<SignatureEnvelope, 'type'> | unknown,
+  envelope extends
+    | PartialBy<SignatureEnvelope, 'type'>
+    | Secp256k1Flat
+    | unknown,
 >(envelope: envelope): GetType<envelope> {
   if (typeof envelope !== 'object' || envelope === null)
     throw new CoercionError({ envelope })
 
   if ('type' in envelope && envelope.type) return envelope.type as never
+
+  // Detect secp256k1 signature (backwards compatibility: also support flat structure)
   if (
-    'r' in envelope &&
-    's' in envelope &&
-    'yParity' in envelope &&
-    typeof envelope.r === 'bigint' &&
-    typeof envelope.s === 'bigint' &&
-    typeof envelope.yParity === 'number'
+    'signature' in envelope &&
+    !('publicKey' in envelope) &&
+    typeof envelope.signature === 'object' &&
+    envelope.signature !== null &&
+    'r' in envelope.signature &&
+    's' in envelope.signature &&
+    'yParity' in envelope.signature
   )
     return 'secp256k1' as never
+
+  // Detect secp256k1 signature (flat structure)
+  if ('r' in envelope && 's' in envelope && 'yParity' in envelope)
+    return 'secp256k1' as never
+
+  // Detect P256 signature
+  if (
+    'signature' in envelope &&
+    'prehash' in envelope &&
+    'publicKey' in envelope &&
+    typeof envelope.prehash === 'boolean'
+  )
+    return 'p256' as never
+
+  // Detect WebAuthn signature
+  if (
+    'signature' in envelope &&
+    'metadata' in envelope &&
+    'publicKey' in envelope
+  )
+    return 'webauthn' as never
+
   throw new CoercionError({
     envelope,
   })
@@ -158,13 +405,52 @@ export function getType<
 /**
  * Serializes a signature envelope to a hex-encoded string.
  *
+ * For backward compatibility:
+ * - secp256k1: encoded WITHOUT type identifier (65 bytes)
+ * - P256: encoded WITH type identifier prefix (130 bytes)
+ * - WebAuthn: encoded WITH type identifier prefix (variable length)
+ *
  * @param envelope - The signature envelope to serialize.
  * @returns The hex-encoded serialized signature.
  * @throws {CoercionError} If the envelope cannot be serialized.
  */
 export function serialize(envelope: SignatureEnvelope): Serialized {
   const type = getType(envelope)
-  if (type === 'secp256k1') return Signature.toHex(envelope)
+
+  // Backward compatibility: no type identifier for secp256k1
+  if (type === 'secp256k1') return Signature.toHex(envelope.signature)
+
+  if (type === 'p256') {
+    const p256 = envelope as P256
+    // Format: 1 byte (type) + 32 (r) + 32 (s) + 32 (pubKeyX) + 32 (pubKeyY) + 1 (prehash)
+    return Hex.concat(
+      serializedP256Type,
+      Hex.fromNumber(p256.signature.r, { size: 32 }),
+      Hex.fromNumber(p256.signature.s, { size: 32 }),
+      Hex.fromNumber(p256.publicKey.x, { size: 32 }),
+      Hex.fromNumber(p256.publicKey.y, { size: 32 }),
+      Hex.fromNumber(p256.prehash ? 1 : 0, { size: 1 }),
+    )
+  }
+
+  if (type === 'webauthn') {
+    const webauthn = envelope as WebAuthn
+    // Format: 1 byte (type) + variable (authenticatorData || clientDataJSON) + 32 (r) + 32 (s) + 32 (pubKeyX) + 32 (pubKeyY)
+    const webauthnData = Hex.concat(
+      webauthn.metadata.authenticatorData,
+      Hex.fromString(webauthn.metadata.clientDataJSON),
+    )
+
+    return Hex.concat(
+      serializedWebAuthnType,
+      webauthnData,
+      Hex.fromNumber(webauthn.signature.r, { size: 32 }),
+      Hex.fromNumber(webauthn.signature.s, { size: 32 }),
+      Hex.fromNumber(webauthn.publicKey.x, { size: 32 }),
+      Hex.fromNumber(webauthn.publicKey.y, { size: 32 }),
+    )
+  }
+
   throw new CoercionError({ envelope })
 }
 
@@ -176,9 +462,7 @@ export function serialize(envelope: SignatureEnvelope): Serialized {
  * import { SignatureEnvelope } from 'tempo.ts/ox'
  *
  * const valid = SignatureEnvelope.validate({
- *   r: 0n,
- *   s: 0n,
- *   yParity: 0,
+ *   signature: { r: 0n, s: 0n, yParity: 0 },
  *   type: 'secp256k1',
  * })
  * // @log: true
@@ -211,5 +495,43 @@ export class CoercionError extends Errors.BaseError {
     super(
       `Unable to coerce value (\`${Json.stringify(envelope)}\`) to a valid signature envelope.`,
     )
+  }
+}
+
+/**
+ * Error thrown when a signature envelope is missing required properties.
+ */
+export class MissingPropertiesError extends Errors.BaseError {
+  override readonly name = 'SignatureEnvelope.MissingPropertiesError'
+  constructor({
+    envelope,
+    missing,
+    type,
+  }: {
+    envelope: unknown
+    missing: string[]
+    type: Type
+  }) {
+    super(
+      `Signature envelope of type "${type}" is missing required properties: ${missing.join(', ')}.\n\nProvided: ${Json.stringify(envelope)}`,
+    )
+  }
+}
+
+/**
+ * Error thrown when a serialized signature envelope cannot be deserialized.
+ */
+export class InvalidSerializedError extends Errors.BaseError {
+  override readonly name = 'SignatureEnvelope.InvalidSerializedError'
+  constructor({
+    reason,
+    serialized,
+  }: {
+    reason: string
+    serialized: Hex.Hex
+  }) {
+    super(`Unable to deserialize signature envelope: ${reason}`, {
+      metaMessages: [`Serialized: ${serialized}`],
+    })
   }
 }

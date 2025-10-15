@@ -1,29 +1,385 @@
-import { Secp256k1, Signature } from 'ox'
+import { PublicKey, Secp256k1, Signature, WebAuthnP256 } from 'ox'
 import { describe, expect, test } from 'vitest'
 import * as SignatureEnvelope from './SignatureEnvelope.js'
+
+const publicKey = PublicKey.from({
+  prefix: 4,
+  x: 78495282704852028275327922540131762143565388050940484317945369745559774511861n,
+  y: 8109764566587999957624872393871720746996669263962991155166704261108473113504n,
+})
+
+const p256Signature = Signature.from({
+  r: 92602584010956101470289867944347135737570451066466093224269890121909314569518n,
+  s: 54171125190222965779385658110416711469231271457324878825831748147306957269813n,
+  yParity: 0,
+})
+
+const signature_secp256k1 = Secp256k1.sign({
+  payload: '0xdeadbeef',
+  privateKey: Secp256k1.randomPrivateKey(),
+})
+
+const signature_p256 = SignatureEnvelope.from({
+  signature: p256Signature,
+  publicKey,
+  prehash: true,
+})
+
+const signature_webauthn = SignatureEnvelope.from({
+  signature: p256Signature,
+  publicKey,
+  metadata: {
+    authenticatorData: WebAuthnP256.getAuthenticatorData({ rpId: 'localhost' }),
+    clientDataJSON: WebAuthnP256.getClientDataJSON({
+      challenge: '0xdeadbeef',
+      origin: 'http://localhost',
+    }),
+  },
+})
 
 describe('assert', () => {
   describe('secp256k1', () => {
     test('behavior: validates valid signature', () => {
-      const privateKey = Secp256k1.randomPrivateKey()
-      const signature = Secp256k1.sign({
-        payload: '0xdeadbeef',
-        privateKey,
-      })
-
       expect(() =>
-        SignatureEnvelope.assert({ ...signature, type: 'secp256k1' }),
+        SignatureEnvelope.assert({
+          signature: signature_secp256k1,
+          type: 'secp256k1',
+        }),
       ).not.toThrow()
     })
 
     test('behavior: validates signature without explicit type', () => {
-      const privateKey = Secp256k1.randomPrivateKey()
-      const signature = Secp256k1.sign({
-        payload: '0xdeadbeef',
-        privateKey,
-      })
+      expect(() =>
+        SignatureEnvelope.assert({ signature: signature_secp256k1 }),
+      ).not.toThrow()
+    })
 
-      expect(() => SignatureEnvelope.assert(signature)).not.toThrow()
+    test('error: throws on invalid signature values', () => {
+      expect(() =>
+        SignatureEnvelope.assert({
+          signature: {
+            r: 0n,
+            s: 0n,
+            yParity: 2,
+          },
+          type: 'secp256k1',
+        }),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `[Signature.InvalidYParityError: Value \`2\` is an invalid y-parity value. Y-parity must be 0 or 1.]`,
+      )
+    })
+  })
+
+  describe('p256', () => {
+    test('behavior: validates valid P256 signature', () => {
+      expect(() => SignatureEnvelope.assert(signature_p256)).not.toThrow()
+    })
+
+    test('behavior: validates P256 signature without explicit type', () => {
+      const { type: _, ...signatureWithoutType } = signature_p256
+      expect(() => SignatureEnvelope.assert(signatureWithoutType)).not.toThrow()
+    })
+
+    test('error: throws on invalid prehash type', () => {
+      expect(() =>
+        SignatureEnvelope.assert({
+          ...signature_p256,
+          prehash: 'true' as any,
+        }),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: prehash (boolean).
+
+        Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"publicKey":{"prefix":4,"x":"78495282704852028275327922540131762143565388050940484317945369745559774511861#__bigint","y":"8109764566587999957624872393871720746996669263962991155166704261108473113504#__bigint"},"prehash":"true","type":"p256"}]
+      `,
+      )
+    })
+
+    test('error: throws on missing publicKey', () => {
+      const { publicKey: _, ...withoutPublicKey } = signature_p256
+      expect(() =>
+        SignatureEnvelope.assert(withoutPublicKey as any),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: publicKey.
+
+        Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"prehash":true,"type":"p256"}]
+      `,
+      )
+    })
+
+    test('error: throws on missing signature.r', () => {
+      const invalid = {
+        signature: { s: 1n } as any,
+        publicKey,
+        prehash: true,
+        type: 'p256' as const,
+      }
+      expect(() =>
+        SignatureEnvelope.assert(invalid),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: signature.r.
+
+        Provided: {"signature":{"s":"1#__bigint"},"publicKey":{"prefix":4,"x":"78495282704852028275327922540131762143565388050940484317945369745559774511861#__bigint","y":"8109764566587999957624872393871720746996669263962991155166704261108473113504#__bigint"},"prehash":true,"type":"p256"}]
+      `,
+      )
+    })
+
+    test('error: throws on missing signature.s', () => {
+      const invalid = {
+        signature: { r: 1n } as any,
+        publicKey,
+        prehash: true,
+        type: 'p256' as const,
+      }
+      expect(() =>
+        SignatureEnvelope.assert(invalid),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: signature.s.
+
+        Provided: {"signature":{"r":"1#__bigint"},"publicKey":{"prefix":4,"x":"78495282704852028275327922540131762143565388050940484317945369745559774511861#__bigint","y":"8109764566587999957624872393871720746996669263962991155166704261108473113504#__bigint"},"prehash":true,"type":"p256"}]
+      `,
+      )
+    })
+
+    test('error: throws on missing publicKey.x', () => {
+      const invalid = {
+        signature: p256Signature,
+        publicKey: { y: 1n } as any,
+        prehash: true,
+        type: 'p256' as const,
+      }
+      expect(() =>
+        SignatureEnvelope.assert(invalid),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: publicKey.x.
+
+        Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"publicKey":{"y":"1#__bigint"},"prehash":true,"type":"p256"}]
+      `,
+      )
+    })
+
+    test('error: throws on missing publicKey.y', () => {
+      const invalid = {
+        signature: p256Signature,
+        publicKey: { x: 1n } as any,
+        prehash: true,
+        type: 'p256' as const,
+      }
+      expect(() =>
+        SignatureEnvelope.assert(invalid),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: publicKey.y.
+
+        Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"publicKey":{"x":"1#__bigint"},"prehash":true,"type":"p256"}]
+      `,
+      )
+    })
+
+    test('error: throws with all missing properties listed', () => {
+      const invalid = {
+        signature: {} as any,
+        type: 'p256' as const,
+      }
+      expect(() =>
+        SignatureEnvelope.assert(invalid),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: signature.r, signature.s, prehash (boolean), publicKey.
+
+        Provided: {"signature":{},"type":"p256"}]
+      `,
+      )
+    })
+  })
+
+  describe('webauthn', () => {
+    test('behavior: validates valid WebAuthn signature', () => {
+      expect(() => SignatureEnvelope.assert(signature_webauthn)).not.toThrow()
+    })
+
+    test('behavior: validates WebAuthn signature without explicit type', () => {
+      const { type: _, ...signatureWithoutType } = signature_webauthn
+      expect(() => SignatureEnvelope.assert(signatureWithoutType)).not.toThrow()
+    })
+
+    test('error: throws on missing metadata', () => {
+      const { metadata: _, ...withoutMetadata } = signature_webauthn
+      expect(() =>
+        SignatureEnvelope.assert(withoutMetadata as any),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: metadata.
+
+        Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"publicKey":{"prefix":4,"x":"78495282704852028275327922540131762143565388050940484317945369745559774511861#__bigint","y":"8109764566587999957624872393871720746996669263962991155166704261108473113504#__bigint"},"type":"webauthn"}]
+      `,
+      )
+    })
+
+    test('error: throws on missing publicKey', () => {
+      const { publicKey: _, ...withoutPublicKey } = signature_webauthn
+      expect(() =>
+        SignatureEnvelope.assert(withoutPublicKey as any),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: publicKey.
+
+        Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"metadata":{"authenticatorData":"0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000","clientDataJSON":"{\\"type\\":\\"webauthn.get\\",\\"challenge\\":\\"3q2-7w\\",\\"origin\\":\\"http://localhost\\",\\"crossOrigin\\":false}"},"type":"webauthn"}]
+      `,
+      )
+    })
+
+    test('error: throws on missing signature.r', () => {
+      const invalid = {
+        signature: { s: 1n } as any,
+        publicKey,
+        metadata: {
+          authenticatorData: WebAuthnP256.getAuthenticatorData({
+            rpId: 'localhost',
+          }),
+          clientDataJSON: WebAuthnP256.getClientDataJSON({
+            challenge: '0xdeadbeef',
+            origin: 'http://localhost',
+          }),
+        },
+        type: 'webauthn' as const,
+      }
+      expect(() =>
+        SignatureEnvelope.assert(invalid),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: signature.r.
+
+        Provided: {"signature":{"s":"1#__bigint"},"publicKey":{"prefix":4,"x":"78495282704852028275327922540131762143565388050940484317945369745559774511861#__bigint","y":"8109764566587999957624872393871720746996669263962991155166704261108473113504#__bigint"},"metadata":{"authenticatorData":"0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000","clientDataJSON":"{\\"type\\":\\"webauthn.get\\",\\"challenge\\":\\"3q2-7w\\",\\"origin\\":\\"http://localhost\\",\\"crossOrigin\\":false}"},"type":"webauthn"}]
+      `,
+      )
+    })
+
+    test('error: throws on missing signature.s', () => {
+      const invalid = {
+        signature: { r: 1n } as any,
+        publicKey,
+        metadata: {
+          authenticatorData: WebAuthnP256.getAuthenticatorData({
+            rpId: 'localhost',
+          }),
+          clientDataJSON: WebAuthnP256.getClientDataJSON({
+            challenge: '0xdeadbeef',
+            origin: 'http://localhost',
+          }),
+        },
+        type: 'webauthn' as const,
+      }
+      expect(() =>
+        SignatureEnvelope.assert(invalid),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: signature.s.
+
+        Provided: {"signature":{"r":"1#__bigint"},"publicKey":{"prefix":4,"x":"78495282704852028275327922540131762143565388050940484317945369745559774511861#__bigint","y":"8109764566587999957624872393871720746996669263962991155166704261108473113504#__bigint"},"metadata":{"authenticatorData":"0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000","clientDataJSON":"{\\"type\\":\\"webauthn.get\\",\\"challenge\\":\\"3q2-7w\\",\\"origin\\":\\"http://localhost\\",\\"crossOrigin\\":false}"},"type":"webauthn"}]
+      `,
+      )
+    })
+
+    test('error: throws on missing metadata.authenticatorData', () => {
+      const invalid = {
+        signature: p256Signature,
+        publicKey,
+        metadata: {
+          clientDataJSON: WebAuthnP256.getClientDataJSON({
+            challenge: '0xdeadbeef',
+            origin: 'http://localhost',
+          }),
+        } as any,
+        type: 'webauthn' as const,
+      }
+      expect(() =>
+        SignatureEnvelope.assert(invalid),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: metadata.authenticatorData.
+
+        Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"publicKey":{"prefix":4,"x":"78495282704852028275327922540131762143565388050940484317945369745559774511861#__bigint","y":"8109764566587999957624872393871720746996669263962991155166704261108473113504#__bigint"},"metadata":{"clientDataJSON":"{\\"type\\":\\"webauthn.get\\",\\"challenge\\":\\"3q2-7w\\",\\"origin\\":\\"http://localhost\\",\\"crossOrigin\\":false}"},"type":"webauthn"}]
+      `,
+      )
+    })
+
+    test('error: throws on missing metadata.clientDataJSON', () => {
+      const invalid = {
+        signature: p256Signature,
+        publicKey,
+        metadata: {
+          authenticatorData: WebAuthnP256.getAuthenticatorData({
+            rpId: 'localhost',
+          }),
+        } as any,
+        type: 'webauthn' as const,
+      }
+      expect(() =>
+        SignatureEnvelope.assert(invalid),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: metadata.clientDataJSON.
+
+        Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"publicKey":{"prefix":4,"x":"78495282704852028275327922540131762143565388050940484317945369745559774511861#__bigint","y":"8109764566587999957624872393871720746996669263962991155166704261108473113504#__bigint"},"metadata":{"authenticatorData":"0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000"},"type":"webauthn"}]
+      `,
+      )
+    })
+
+    test('error: throws on missing publicKey.x', () => {
+      const invalid = {
+        signature: p256Signature,
+        publicKey: { y: 1n } as any,
+        metadata: {
+          authenticatorData: WebAuthnP256.getAuthenticatorData({
+            rpId: 'localhost',
+          }),
+          clientDataJSON: WebAuthnP256.getClientDataJSON({
+            challenge: '0xdeadbeef',
+            origin: 'http://localhost',
+          }),
+        },
+        type: 'webauthn' as const,
+      }
+      expect(() =>
+        SignatureEnvelope.assert(invalid),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: publicKey.x.
+
+        Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"publicKey":{"y":"1#__bigint"},"metadata":{"authenticatorData":"0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000","clientDataJSON":"{\\"type\\":\\"webauthn.get\\",\\"challenge\\":\\"3q2-7w\\",\\"origin\\":\\"http://localhost\\",\\"crossOrigin\\":false}"},"type":"webauthn"}]
+      `,
+      )
+    })
+
+    test('error: throws on missing publicKey.y', () => {
+      const invalid = {
+        signature: p256Signature,
+        publicKey: { x: 1n } as any,
+        metadata: {
+          authenticatorData: WebAuthnP256.getAuthenticatorData({
+            rpId: 'localhost',
+          }),
+          clientDataJSON: WebAuthnP256.getClientDataJSON({
+            challenge: '0xdeadbeef',
+            origin: 'http://localhost',
+          }),
+        },
+        type: 'webauthn' as const,
+      }
+      expect(() =>
+        SignatureEnvelope.assert(invalid),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: publicKey.y.
+
+        Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"publicKey":{"x":"1#__bigint"},"metadata":{"authenticatorData":"0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000","clientDataJSON":"{\\"type\\":\\"webauthn.get\\",\\"challenge\\":\\"3q2-7w\\",\\"origin\\":\\"http://localhost\\",\\"crossOrigin\\":false}"},"type":"webauthn"}]
+      `,
+      )
     })
   })
 
@@ -45,37 +401,21 @@ describe('assert', () => {
       `[SignatureEnvelope.CoercionError: Unable to coerce value (\`{"r":"0#__bigint","s":"0#__bigint"}\`) to a valid signature envelope.]`,
     )
   })
-
-  test('error: throws on invalid signature values', () => {
-    expect(() =>
-      SignatureEnvelope.assert({
-        r: 0n,
-        s: 0n,
-        yParity: 2,
-        type: 'secp256k1',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(
-      `[Signature.InvalidYParityError: Value \`2\` is an invalid y-parity value. Y-parity must be 0 or 1.]`,
-    )
-  })
 })
 
 describe('deserialize', () => {
   describe('secp256k1', () => {
     test('behavior: deserializes valid signature', () => {
-      const privateKey = Secp256k1.randomPrivateKey()
-      const signature = Secp256k1.sign({
-        payload: '0xdeadbeef',
-        privateKey,
-      })
-      const serialized = Signature.toHex(signature)
+      const serialized = Signature.toHex(signature_secp256k1)
 
       const envelope = SignatureEnvelope.deserialize(serialized)
 
       expect(envelope).toMatchObject({
-        r: signature.r,
-        s: signature.s,
-        yParity: signature.yParity,
+        signature: {
+          r: signature_secp256k1.r,
+          s: signature_secp256k1.s,
+          yParity: signature_secp256k1.yParity,
+        },
         type: 'secp256k1',
       })
     })
@@ -84,7 +424,11 @@ describe('deserialize', () => {
       expect(() =>
         SignatureEnvelope.deserialize('0xdeadbeef'),
       ).toThrowErrorMatchingInlineSnapshot(
-        `[SignatureEnvelope.CoercionError: Unable to coerce value (\`"0xdeadbeef"\`) to a valid signature envelope.]`,
+        `
+        [SignatureEnvelope.InvalidSerializedError: Unable to deserialize signature envelope: Unknown signature type identifier: 0xde. Expected 0x01 (P256) or 0x02 (WebAuthn)
+
+        Serialized: 0xdeadbeef]
+      `,
       )
     })
 
@@ -99,42 +443,197 @@ describe('deserialize', () => {
       )
     })
   })
+
+  describe('p256', () => {
+    test('behavior: deserializes P256 signature', () => {
+      const serialized = SignatureEnvelope.serialize(signature_p256)
+      const deserialized = SignatureEnvelope.deserialize(serialized)
+
+      expect(deserialized).toMatchObject({
+        signature: {
+          r: signature_p256.signature.r,
+          s: signature_p256.signature.s,
+        },
+        publicKey: {
+          x: signature_p256.publicKey.x,
+          y: signature_p256.publicKey.y,
+        },
+        prehash: signature_p256.prehash,
+        type: 'p256',
+      })
+    })
+
+    test('error: throws on invalid P256 signature length', () => {
+      // P256 signature with wrong length (should be 130 bytes total, but only 100)
+      const invalidSig = `0x01${'00'.repeat(100)}` as `0x${string}`
+      expect(() =>
+        SignatureEnvelope.deserialize(invalidSig),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.InvalidSerializedError: Unable to deserialize signature envelope: Invalid P256 signature envelope size: expected 129 bytes, got 100 bytes
+
+        Serialized: 0x0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+      `,
+      )
+    })
+  })
+
+  describe('webauthn', () => {
+    test('behavior: deserializes WebAuthn signature', () => {
+      const serialized = SignatureEnvelope.serialize(signature_webauthn)
+      const deserialized = SignatureEnvelope.deserialize(serialized)
+
+      expect(deserialized).toMatchObject({
+        signature: {
+          r: signature_webauthn.signature.r,
+          s: signature_webauthn.signature.s,
+        },
+        publicKey: {
+          x: signature_webauthn.publicKey.x,
+          y: signature_webauthn.publicKey.y,
+        },
+        metadata: {
+          authenticatorData: signature_webauthn.metadata.authenticatorData,
+          clientDataJSON: signature_webauthn.metadata.clientDataJSON,
+        },
+        type: 'webauthn',
+      })
+    })
+
+    test('error: throws on invalid WebAuthn signature length', () => {
+      // WebAuthn signature too short (must be at least 129 bytes: 1 type + 128 signature data)
+      const invalidSig = `0x02${'00'.repeat(100)}` as const
+      expect(() =>
+        SignatureEnvelope.deserialize(invalidSig),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.InvalidSerializedError: Unable to deserialize signature envelope: Invalid WebAuthn signature envelope size: expected at least 128 bytes, got 100 bytes
+
+        Serialized: 0x0200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+      `,
+      )
+    })
+
+    test('error: throws on invalid clientDataJSON', () => {
+      // Create a signature with invalid JSON (not properly formatted)
+      const invalidMetadata = {
+        authenticatorData: `0x${'00'.repeat(37)}` as const,
+        clientDataJSON: 'not-valid-json',
+      }
+      const serialized = SignatureEnvelope.serialize({
+        ...signature_webauthn,
+        metadata: invalidMetadata,
+      })
+
+      expect(() =>
+        SignatureEnvelope.deserialize(serialized),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.InvalidSerializedError: Unable to deserialize signature envelope: Unable to parse WebAuthn metadata: could not extract valid authenticatorData and clientDataJSON
+
+        Serialized: 0x02000000000000000000000000000000000000000000000000000000000000000000000000006e6f742d76616c69642d6a736f6eccbb3485d4726235f13cb15ef394fb7158179fb7b1925eccec0147671090c52e77c3c53373cc1e3b05e7c23f609deb17cea8fe097300c45411237e9fe4166b35ad8ac16e167d6992c3e120d7f17d2376bc1cbcf30c46ba6dd00ce07303e742f511edf6ce1c32de66846f56afa7be1cbd729bc35750b6d0cdcf3ec9d75461aba0]
+      `,
+      )
+    })
+
+    test('error: throws on unknown type identifier', () => {
+      const unknownType = `0xff${'00'.repeat(129)}` as const
+      expect(() =>
+        SignatureEnvelope.deserialize(unknownType),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `
+        [SignatureEnvelope.InvalidSerializedError: Unable to deserialize signature envelope: Unknown signature type identifier: 0xff. Expected 0x01 (P256) or 0x02 (WebAuthn)
+
+        Serialized: 0xff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+      `,
+      )
+    })
+  })
 })
 
 describe('from', () => {
   describe('secp256k1', () => {
     test('behavior: coerces from hex string', () => {
-      const privateKey = Secp256k1.randomPrivateKey()
-      const signature = Secp256k1.sign({
-        payload: '0xdeadbeef',
-        privateKey,
-      })
-      const serialized = Signature.toHex(signature)
+      const serialized = Signature.toHex(signature_secp256k1)
 
       const envelope = SignatureEnvelope.from(serialized)
 
       expect(envelope).toMatchObject({
-        r: signature.r,
-        s: signature.s,
-        yParity: signature.yParity,
+        signature: {
+          r: signature_secp256k1.r,
+          s: signature_secp256k1.s,
+          yParity: signature_secp256k1.yParity,
+        },
         type: 'secp256k1',
       })
     })
 
     test('behavior: returns object as-is', () => {
-      const privateKey = Secp256k1.randomPrivateKey()
-      const signature = Secp256k1.sign({
-        payload: '0xdeadbeef',
-        privateKey,
-      })
       const envelope: SignatureEnvelope.SignatureEnvelope = {
-        ...signature,
+        signature: signature_secp256k1,
         type: 'secp256k1',
       }
 
       const result = SignatureEnvelope.from(envelope)
 
       expect(result).toEqual(envelope)
+    })
+
+    test('behavior: coerces from flat signature', () => {
+      const result = SignatureEnvelope.from(signature_secp256k1)
+
+      expect(result).toMatchObject({
+        signature: {
+          r: signature_secp256k1.r,
+          s: signature_secp256k1.s,
+          yParity: signature_secp256k1.yParity,
+        },
+        type: 'secp256k1',
+      })
+    })
+  })
+
+  describe('p256', () => {
+    test('behavior: coerces from hex string', () => {
+      const serialized = SignatureEnvelope.serialize(signature_p256)
+      const envelope = SignatureEnvelope.from(serialized)
+
+      expect(envelope).toMatchObject({
+        signature: {
+          r: signature_p256.signature.r,
+          s: signature_p256.signature.s,
+        },
+        type: 'p256',
+      })
+    })
+
+    test('behavior: adds type to object', () => {
+      const { type: _, ...withoutType } = signature_p256
+      const envelope = SignatureEnvelope.from(withoutType)
+
+      expect(envelope.type).toBe('p256')
+    })
+  })
+
+  describe('webauthn', () => {
+    test('behavior: coerces from hex string', () => {
+      const serialized = SignatureEnvelope.serialize(signature_webauthn)
+      const envelope = SignatureEnvelope.from(serialized)
+
+      expect(envelope).toMatchObject({
+        signature: {
+          r: signature_webauthn.signature.r,
+          s: signature_webauthn.signature.s,
+        },
+        type: 'webauthn',
+      })
+    })
+
+    test('behavior: adds type to object', () => {
+      const { type: _, ...withoutType } = signature_webauthn
+      const envelope = SignatureEnvelope.from(withoutType)
+
+      expect(envelope.type).toBe('webauthn')
     })
   })
 })
@@ -143,9 +642,7 @@ describe('getType', () => {
   describe('secp256k1', () => {
     test('behavior: returns explicit type', () => {
       const envelope: SignatureEnvelope.SignatureEnvelope = {
-        r: 0n,
-        s: 0n,
-        yParity: 0,
+        signature: { r: 0n, s: 0n, yParity: 0 },
         type: 'secp256k1',
       }
 
@@ -153,13 +650,36 @@ describe('getType', () => {
     })
 
     test('behavior: infers type from properties', () => {
-      const privateKey = Secp256k1.randomPrivateKey()
-      const signature = Secp256k1.sign({
-        payload: '0xdeadbeef',
-        privateKey,
-      })
+      expect(
+        SignatureEnvelope.getType({ signature: signature_secp256k1 }),
+      ).toBe('secp256k1')
+    })
 
+    test('behavior: infers type from flat signature', () => {
+      const signature = { r: 0n, s: 0n, yParity: 0 }
       expect(SignatureEnvelope.getType(signature)).toBe('secp256k1')
+    })
+  })
+
+  describe('p256', () => {
+    test('behavior: returns explicit type', () => {
+      expect(SignatureEnvelope.getType(signature_p256)).toBe('p256')
+    })
+
+    test('behavior: infers type from properties', () => {
+      const { type: _, ...signatureWithoutType } = signature_p256
+      expect(SignatureEnvelope.getType(signatureWithoutType)).toBe('p256')
+    })
+  })
+
+  describe('webauthn', () => {
+    test('behavior: returns explicit type', () => {
+      expect(SignatureEnvelope.getType(signature_webauthn)).toBe('webauthn')
+    })
+
+    test('behavior: infers type from properties', () => {
+      const { type: _, ...signatureWithoutType } = signature_webauthn
+      expect(SignatureEnvelope.getType(signatureWithoutType)).toBe('webauthn')
     })
   })
 
@@ -186,44 +706,81 @@ describe('getType', () => {
 describe('serialize', () => {
   describe('secp256k1', () => {
     test('behavior: serializes with explicit type', () => {
-      const privateKey = Secp256k1.randomPrivateKey()
-      const signature = Secp256k1.sign({
-        payload: '0xdeadbeef',
-        privateKey,
-      })
       const envelope: SignatureEnvelope.SignatureEnvelope = {
-        ...signature,
+        signature: signature_secp256k1,
         type: 'secp256k1',
       }
 
       const serialized = SignatureEnvelope.serialize(envelope)
 
-      expect(serialized).toBe(Signature.toHex(signature))
+      expect(serialized).toBe(Signature.toHex(signature_secp256k1))
     })
 
     test('behavior: serializes without explicit type', () => {
-      const privateKey = Secp256k1.randomPrivateKey()
-      const signature = Secp256k1.sign({
-        payload: '0xdeadbeef',
-        privateKey,
+      const serialized = SignatureEnvelope.serialize({
+        signature: signature_secp256k1,
+        type: 'secp256k1',
       })
 
-      const serialized = SignatureEnvelope.serialize(signature)
+      expect(serialized).toBe(Signature.toHex(signature_secp256k1))
+    })
+  })
 
-      expect(serialized).toBe(Signature.toHex(signature))
+  describe('p256', () => {
+    test('behavior: serializes P256 signature with type identifier', () => {
+      const serialized = SignatureEnvelope.serialize(signature_p256)
+
+      // Should be 130 bytes: 1 (type) + 32 (r) + 32 (s) + 32 (pubKeyX) + 32 (pubKeyY) + 1 (prehash)
+      expect(serialized.length).toBe(2 + 130 * 2) // 2 for '0x' prefix + 130 bytes * 2 hex chars
+
+      // First byte should be P256 type identifier (0x01)
+      expect(serialized.slice(0, 4)).toBe('0x01')
+    })
+
+    test('behavior: serializes prehash flag correctly', () => {
+      const withPreHashFalse = { ...signature_p256, prehash: false }
+      const serialized = SignatureEnvelope.serialize(withPreHashFalse)
+
+      // Last byte should be 0x00 for false
+      expect(serialized.slice(-2)).toBe('00')
+    })
+  })
+
+  describe('webauthn', () => {
+    test('behavior: serializes WebAuthn signature with type identifier', () => {
+      const serialized = SignatureEnvelope.serialize(signature_webauthn)
+
+      // Should be: 1 (type) + authenticatorData.length + clientDataJSON.length + 128 (signature components)
+      const authDataLength =
+        (signature_webauthn.metadata.authenticatorData.length - 2) / 2
+      const clientDataLength = signature_webauthn.metadata.clientDataJSON.length
+      const expectedLength =
+        2 + (1 + authDataLength + clientDataLength + 128) * 2
+
+      expect(serialized.length).toBe(expectedLength)
+
+      // First byte should be WebAuthn type identifier (0x02)
+      expect(serialized.slice(0, 4)).toBe('0x02')
+    })
+
+    test('behavior: preserves metadata', () => {
+      const serialized = SignatureEnvelope.serialize(signature_webauthn)
+      const deserialized = SignatureEnvelope.deserialize(serialized)
+
+      expect(deserialized.metadata?.authenticatorData).toBe(
+        signature_webauthn.metadata.authenticatorData,
+      )
+      expect(deserialized.metadata?.clientDataJSON).toBe(
+        signature_webauthn.metadata.clientDataJSON,
+      )
     })
   })
 
   describe('roundtrip', () => {
     describe('secp256k1', () => {
       test('behavior: roundtrips serialize -> deserialize', () => {
-        const privateKey = Secp256k1.randomPrivateKey()
-        const signature = Secp256k1.sign({
-          payload: '0xdeadbeef',
-          privateKey,
-        })
-        const envelope: SignatureEnvelope.SignatureEnvelope = {
-          ...signature,
+        const envelope: SignatureEnvelope.Secp256k1 = {
+          signature: signature_secp256k1,
           type: 'secp256k1',
         }
 
@@ -231,11 +788,85 @@ describe('serialize', () => {
         const deserialized = SignatureEnvelope.deserialize(serialized)
 
         expect(deserialized).toMatchObject({
-          r: signature.r,
-          s: signature.s,
-          yParity: signature.yParity,
+          signature: {
+            r: signature_secp256k1.r,
+            s: signature_secp256k1.s,
+            yParity: signature_secp256k1.yParity,
+          },
           type: 'secp256k1',
         })
+      })
+    })
+
+    describe('p256', () => {
+      test('behavior: roundtrips serialize -> deserialize', () => {
+        const serialized = SignatureEnvelope.serialize(signature_p256)
+        const deserialized = SignatureEnvelope.deserialize(serialized)
+
+        expect(deserialized).toMatchObject({
+          signature: {
+            r: signature_p256.signature.r,
+            s: signature_p256.signature.s,
+          },
+          publicKey: {
+            x: signature_p256.publicKey.x,
+            y: signature_p256.publicKey.y,
+          },
+          prehash: signature_p256.prehash,
+          type: 'p256',
+        })
+      })
+
+      test('behavior: handles prehash=false', () => {
+        const signature = { ...signature_p256, prehash: false }
+        const serialized = SignatureEnvelope.serialize(signature)
+        const deserialized = SignatureEnvelope.deserialize(serialized)
+
+        expect(deserialized.prehash).toBe(false)
+      })
+    })
+
+    describe('webauthn', () => {
+      test('behavior: roundtrips serialize -> deserialize', () => {
+        const serialized = SignatureEnvelope.serialize(signature_webauthn)
+        const deserialized = SignatureEnvelope.deserialize(serialized)
+
+        expect(deserialized).toMatchObject({
+          signature: {
+            r: signature_webauthn.signature.r,
+            s: signature_webauthn.signature.s,
+          },
+          publicKey: {
+            x: signature_webauthn.publicKey.x,
+            y: signature_webauthn.publicKey.y,
+          },
+          metadata: {
+            authenticatorData: signature_webauthn.metadata.authenticatorData,
+            clientDataJSON: signature_webauthn.metadata.clientDataJSON,
+          },
+          type: 'webauthn',
+        })
+      })
+
+      test('behavior: handles variable-length clientDataJSON', () => {
+        const longClientData = JSON.stringify({
+          type: 'webauthn.get',
+          challenge: 'a'.repeat(100),
+          origin: 'https://example.com',
+        })
+
+        const signatureWithLongData = {
+          ...signature_webauthn,
+          metadata: {
+            ...signature_webauthn.metadata,
+            clientDataJSON: longClientData,
+          },
+        }
+
+        const serialized = SignatureEnvelope.serialize(signatureWithLongData)
+        const deserialized = SignatureEnvelope.deserialize(serialized)
+
+        expect(deserialized.metadata?.clientDataJSON).toBe(longClientData)
       })
     })
   })
@@ -255,34 +886,60 @@ describe('serialize', () => {
   })
 })
 
-describe('types', () => {
-  test('behavior: contains secp256k1', () => {
-    expect(SignatureEnvelope.types).toEqual(['secp256k1'])
-  })
-})
-
 describe('validate', () => {
   describe('secp256k1', () => {
     test('behavior: returns true for valid signature', () => {
-      const privateKey = Secp256k1.randomPrivateKey()
-      const signature = Secp256k1.sign({
-        payload: '0xdeadbeef',
-        privateKey,
-      })
-
       expect(
-        SignatureEnvelope.validate({ ...signature, type: 'secp256k1' }),
+        SignatureEnvelope.validate({
+          signature: signature_secp256k1,
+          type: 'secp256k1',
+        }),
       ).toBe(true)
     })
 
     test('behavior: returns true for signature without explicit type', () => {
-      const privateKey = Secp256k1.randomPrivateKey()
-      const signature = Secp256k1.sign({
-        payload: '0xdeadbeef',
-        privateKey,
-      })
+      expect(
+        SignatureEnvelope.validate({ signature: signature_secp256k1 }),
+      ).toBe(true)
+    })
 
-      expect(SignatureEnvelope.validate(signature)).toBe(true)
+    test('behavior: returns false for invalid signature values', () => {
+      expect(
+        SignatureEnvelope.validate({
+          signature: {
+            r: 0n,
+            s: 0n,
+            yParity: 2,
+          },
+          type: 'secp256k1',
+        }),
+      ).toBe(false)
+    })
+  })
+
+  describe('p256', () => {
+    test('behavior: returns true for valid P256 signature', () => {
+      expect(SignatureEnvelope.validate(signature_p256)).toBe(true)
+    })
+
+    test('behavior: returns false for invalid P256 signature', () => {
+      expect(
+        SignatureEnvelope.validate({
+          ...signature_p256,
+          prehash: 'invalid' as any,
+        }),
+      ).toBe(false)
+    })
+  })
+
+  describe('webauthn', () => {
+    test('behavior: returns true for valid WebAuthn signature', () => {
+      expect(SignatureEnvelope.validate(signature_webauthn)).toBe(true)
+    })
+
+    test('behavior: returns false for invalid WebAuthn signature', () => {
+      const { metadata: _, ...withoutMetadata } = signature_webauthn
+      expect(SignatureEnvelope.validate(withoutMetadata as any)).toBe(false)
     })
   })
 
@@ -298,16 +955,11 @@ describe('validate', () => {
       } as any),
     ).toBe(false)
   })
+})
 
-  test('behavior: returns false for invalid signature values', () => {
-    expect(
-      SignatureEnvelope.validate({
-        r: 0n,
-        s: 0n,
-        yParity: 2,
-        type: 'secp256k1',
-      }),
-    ).toBe(false)
+describe('types', () => {
+  test('behavior: contains all signature types', () => {
+    expect(SignatureEnvelope.types).toEqual(['secp256k1', 'p256', 'webauthn'])
   })
 })
 

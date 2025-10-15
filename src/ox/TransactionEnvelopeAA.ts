@@ -438,7 +438,7 @@ export declare namespace from {
       : Assign<
           envelope,
           (signature extends SignatureEnvelope.SignatureEnvelope
-            ? { signature: Readonly<signature> }
+            ? { signature: SignatureEnvelope.from.ReturnValue<signature> }
             : {}) & {
             readonly type: 'aa'
           }
@@ -557,7 +557,9 @@ export function serialize(
       ? TokenId.toAddress(feeToken)
       : '0x',
     feePayerSignatureOrSender,
-    ...(signature ? [SignatureEnvelope.serialize(signature)] : []),
+    ...(signature
+      ? [SignatureEnvelope.serialize(SignatureEnvelope.from(signature))]
+      : []),
   ] as const
 
   return Hex.concat(

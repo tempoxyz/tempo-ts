@@ -1,6 +1,11 @@
-import { Hex, Rlp, RpcTransport, Secp256k1, Value } from 'ox'
+import { Address, Hex, P256, Rlp, RpcTransport, Secp256k1, Value } from 'ox'
+import { createClient, http, parseEther } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { afterEach, beforeEach, describe, expect, test } from 'vitest'
+import { tempoLocal } from '../chains.js'
 import { Instance } from '../prool/index.js'
+import { Actions } from '../viem/index.js'
+import { SignatureEnvelope } from './index.js'
 import * as TransactionEnvelopeAA from './TransactionEnvelopeAA.js'
 
 const privateKey =
@@ -263,17 +268,36 @@ describe('deserialize', () => {
         privateKey,
       })
       const serialized = TransactionEnvelopeAA.serialize(transaction, {
-        signature,
+        signature: SignatureEnvelope.from(signature),
       })
       expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual({
         ...transaction,
-        signature: { ...signature, type: 'secp256k1' },
+        signature: { signature, type: 'secp256k1' },
       })
     })
 
-    test.todo('p256')
-
-    test.todo('webauthn')
+    test('p256', () => {
+      const privateKey = P256.randomPrivateKey()
+      const publicKey = P256.getPublicKey({ privateKey })
+      const signature = P256.sign({
+        payload: TransactionEnvelopeAA.getSignPayload(transaction),
+        privateKey,
+      })
+      const serialized = TransactionEnvelopeAA.serialize(transaction, {
+        signature: SignatureEnvelope.from({
+          signature,
+          publicKey,
+          prehash: true,
+        }),
+      })
+      // biome-ignore lint/suspicious/noTsIgnore: _
+      // @ts-ignore
+      delete signature.yParity
+      expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual({
+        ...transaction,
+        signature: { prehash: true, publicKey, signature, type: 'p256' },
+      })
+    })
   })
 
   test('feePayerSignature null', () => {
@@ -541,11 +565,11 @@ describe('from', () => {
         calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
         nonce: 0n,
         nonceKey: 0n,
-        signature: {
+        signature: SignatureEnvelope.from({
           r: 0n,
           s: 1n,
           yParity: 0,
-        },
+        }),
       })
       expect(envelope).toMatchInlineSnapshot(`
         {
@@ -558,9 +582,12 @@ describe('from', () => {
           "nonce": 0n,
           "nonceKey": 0n,
           "signature": {
-            "r": 0n,
-            "s": 1n,
-            "yParity": 0,
+            "signature": {
+              "r": 0n,
+              "s": 1n,
+              "yParity": 0,
+            },
+            "type": "secp256k1",
           },
           "type": "aa",
         }
@@ -583,12 +610,11 @@ describe('from', () => {
         nonceKey: 0n,
       },
       {
-        signature: {
+        signature: SignatureEnvelope.from({
           r: 0n,
           s: 1n,
           yParity: 0,
-          type: 'secp256k1',
-        },
+        }),
       },
     )
     expect(envelope).toMatchInlineSnapshot(`
@@ -600,10 +626,12 @@ describe('from', () => {
         "nonce": 0n,
         "nonceKey": 0n,
         "signature": {
-          "r": 0n,
-          "s": 1n,
+          "signature": {
+            "r": 0n,
+            "s": 1n,
+            "yParity": 0,
+          },
           "type": "secp256k1",
-          "yParity": 0,
         },
         "type": "aa",
       }
@@ -751,10 +779,41 @@ describe('serialize', () => {
         privateKey,
       })
       expect(
-        TransactionEnvelopeAA.serialize(transaction, { signature }),
+        TransactionEnvelopeAA.serialize(transaction, {
+          signature: SignatureEnvelope.from(signature),
+        }),
       ).toMatchInlineSnapshot(
         `"0x76f86701808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c0808080808080b841e333995974d0f82e5dfdb201476c03516d849f1fd3b05db4bb1595dba9ad207827aca889a4780887341008f2d3fac949b145304735ea395b5d68498e80e138be1b"`,
       )
+    })
+
+    test('p256', () => {
+      const transaction = TransactionEnvelopeAA.from({
+        chainId: 1,
+        calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+        nonce: 0n,
+      })
+      const privateKey = P256.randomPrivateKey()
+      const publicKey = P256.getPublicKey({ privateKey })
+      const signature = P256.sign({
+        payload: TransactionEnvelopeAA.getSignPayload(transaction),
+        privateKey,
+      })
+      const serialized = TransactionEnvelopeAA.serialize(transaction, {
+        signature: SignatureEnvelope.from({
+          signature,
+          publicKey,
+          prehash: true,
+        }),
+      })
+      // biome-ignore lint/suspicious/noTsIgnore: _
+      // @ts-ignore
+      delete signature.yParity
+      expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual({
+        ...transaction,
+        nonceKey: 0n,
+        signature: { prehash: true, publicKey, signature, type: 'p256' },
+      })
     })
   })
 
@@ -826,7 +885,9 @@ describe('hash', () => {
         payload: TransactionEnvelopeAA.getSignPayload(transaction),
         privateKey,
       })
-      const signed = TransactionEnvelopeAA.from(transaction, { signature })
+      const signed = TransactionEnvelopeAA.from(transaction, {
+        signature: SignatureEnvelope.from(signature),
+      })
       expect(TransactionEnvelopeAA.hash(signed)).toMatchInlineSnapshot(
         `"0x3f46e9635e9a55ceb7c4efa5a652227446c392becf1853ca024078974451ba36"`,
       )
@@ -991,7 +1052,7 @@ describe('e2e', () => {
     })
 
     const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
-      signature,
+      signature: SignatureEnvelope.from(signature),
     })
 
     const receipt = await transport.request({
@@ -1028,7 +1089,7 @@ describe('e2e', () => {
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "gas": "0x5208",
           "gasPrice": "0x2540be42c",
-          "hash": "0x8f0b342940fd26937ac79a5a34a005bbbc7cf9a4a9b2d5b3fbba4981d8c6a432",
+          "hash": "0x42073a8cfd629c04e1ab980d03b74e6da4010ab9d9f095c5f298deb0e9b1f1ee",
           "maxFeePerGas": "0x4a817c800",
           "maxPriorityFeePerGas": "0x2540be400",
           "nonce": "0x0",
@@ -1063,14 +1124,142 @@ describe('e2e', () => {
         "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
         "status": "0x0",
         "to": "0x0000000000000000000000000000000000000000",
-        "transactionHash": "0x8f0b342940fd26937ac79a5a34a005bbbc7cf9a4a9b2d5b3fbba4981d8c6a432",
+        "transactionHash": "0x42073a8cfd629c04e1ab980d03b74e6da4010ab9d9f095c5f298deb0e9b1f1ee",
         "transactionIndex": "0x0",
         "type": "0x76",
       }
     `)
   })
 
-  test.todo('behavior: default (p256)')
+  test('behavior: default (p256)', async () => {
+    const privateKey =
+      '0x062d199fd1d30c4a905ed1164a31e73759a13827687a2f3057a7d19c220bc933'
+    const publicKey = P256.getPublicKey({ privateKey })
+    const address = Address.fromPublicKey(publicKey)
+
+    const client = createClient({
+      account: privateKeyToAccount(
+        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      ),
+      chain: tempoLocal,
+      transport: http('http://localhost:3000'),
+    })
+
+    await Actions.token.transferSync(client, {
+      amount: parseEther('10000'),
+      to: address,
+    })
+
+    const nonce = await client.request({
+      method: 'eth_getTransactionCount',
+      params: [address, 'pending'],
+    })
+
+    const transaction = TransactionEnvelopeAA.from({
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: Value.fromEther('1'),
+        },
+      ],
+      chainId: 1337,
+      feeToken: '0x20c0000000000000000000000000000000000001',
+      nonce: BigInt(nonce),
+      gas: 100_000n,
+      maxFeePerGas: Value.fromGwei('20'),
+      maxPriorityFeePerGas: Value.fromGwei('10'),
+    })
+
+    const signature = P256.sign({
+      payload: TransactionEnvelopeAA.getSignPayload(transaction),
+      privateKey,
+      hash: false,
+    })
+
+    const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
+      signature: SignatureEnvelope.from({
+        signature,
+        publicKey,
+        prehash: false,
+      }),
+    })
+
+    const receipt = await client.request({
+      method: 'eth_sendRawTransactionSync',
+      params: [serialized_signed],
+    })
+
+    expect(receipt).toBeDefined()
+
+    {
+      const response = await client.request({
+        method: 'eth_getTransactionByHash',
+        params: [receipt.transactionHash],
+      })
+      if (!response) throw new Error()
+
+      const { blockNumber, blockHash, ...rest } = response
+
+      expect(blockNumber).toBeDefined()
+      expect(blockHash).toBeDefined()
+      expect(rest).toMatchInlineSnapshot(`
+        {
+          "accessList": [],
+          "calls": [
+            {
+              "input": "0x",
+              "to": "0x0000000000000000000000000000000000000000",
+              "value": "0xde0b6b3a7640000",
+            },
+          ],
+          "chainId": "0x539",
+          "feePayerSignature": null,
+          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "from": "0x6472aeab3269f4165775753156702c06ccc70f8b",
+          "gas": "0x186a0",
+          "gasPrice": "0x2540be42c",
+          "hash": "0x730ff2bb9e6564c25e4f994a4b13e2a3781b54f1e5d8ff9572fa54e867cb3196",
+          "maxFeePerGas": "0x4a817c800",
+          "maxPriorityFeePerGas": "0x2540be400",
+          "nonce": "0x0",
+          "nonceKey": "0x0",
+          "signature": {
+            "preHash": false,
+            "pubKeyX": "0xecbf69146add5d7c649c96d90b64d90702c6faae7115adbad50e5e61b2c5f40d",
+            "pubKeyY": "0xeca3a5fc6dc4225b4f3f9720750651d43c6eb45c0492b8e9930394d1524784c6",
+            "r": "0x0382d2bfbae176378b81bc9c979a7cc445ae2410a8e847f99e649fff1c8be367",
+            "s": "0x698c5e151607d74883a84fbd3721a0e3eb37cc183dfd72c180d42e69d21faeaa",
+            "type": "p256",
+          },
+          "transactionIndex": "0x0",
+          "type": "0x76",
+          "validAfter": null,
+          "validBefore": null,
+        }
+      `)
+    }
+
+    const { blockNumber, blockHash, ...rest } = receipt
+
+    expect(blockNumber).toBeDefined()
+    expect(blockHash).toBeDefined()
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "contractAddress": null,
+        "cumulativeGasUsed": "0xcb20",
+        "effectiveGasPrice": "0x2540be42c",
+        "from": "0x6472aeab3269f4165775753156702c06ccc70f8b",
+        "gasUsed": "0xcb20",
+        "logs": [],
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "status": "0x0",
+        "to": "0x0000000000000000000000000000000000000000",
+        "transactionHash": "0x730ff2bb9e6564c25e4f994a4b13e2a3781b54f1e5d8ff9572fa54e867cb3196",
+        "transactionIndex": "0x0",
+        "type": "0x76",
+      }
+    `)
+  })
 
   test.todo('behavior: default (webauthn)')
 
@@ -1110,7 +1299,7 @@ describe('e2e', () => {
     })
 
     const transaction_signed = TransactionEnvelopeAA.from(transaction, {
-      signature,
+      signature: SignatureEnvelope.from(signature),
     })
 
     const feePayerSignature = Secp256k1.sign({
@@ -1148,7 +1337,7 @@ describe('e2e', () => {
         "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
         "status": "0x1",
         "to": "0x0000000000000000000000000000000000000000",
-        "transactionHash": "0x8e57950fa5469d010d835f6b854bfecc4388bd07afb27b7734d6c18fc9710223",
+        "transactionHash": "0x7a71949d279c428e0af5a8706e808c124a70bf56485a4b61b3b2d799886b81a7",
         "transactionIndex": "0x0",
         "type": "0x76",
       }
