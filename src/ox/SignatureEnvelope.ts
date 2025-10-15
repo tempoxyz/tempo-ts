@@ -139,7 +139,7 @@ export function assert(envelope: PartialBy<SignatureEnvelope, 'type'>): void {
 
     if (typeof p256.signature?.r !== 'bigint') missing.push('signature.r')
     if (typeof p256.signature?.s !== 'bigint') missing.push('signature.s')
-    if (typeof p256.prehash !== 'boolean') missing.push('prehash (boolean)')
+    if (typeof p256.prehash !== 'boolean') missing.push('prehash')
     if (!p256.publicKey) missing.push('publicKey')
     else {
       if (typeof p256.publicKey.x !== 'bigint') missing.push('publicKey.x')
@@ -513,7 +513,7 @@ export class MissingPropertiesError extends Errors.BaseError {
     type: Type
   }) {
     super(
-      `Signature envelope of type "${type}" is missing required properties: ${missing.join(', ')}.\n\nProvided: ${Json.stringify(envelope)}`,
+      `Signature envelope of type "${type}" is missing required properties: ${missing.map((m) => `\`${m}\``).join(', ')}.\n\nProvided: ${Json.stringify(envelope)}`,
     )
   }
 }

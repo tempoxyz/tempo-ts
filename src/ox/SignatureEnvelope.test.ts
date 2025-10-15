@@ -88,7 +88,7 @@ describe('assert', () => {
         }),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: prehash (boolean).
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: \`prehash\`.
 
         Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"publicKey":{"prefix":4,"x":"78495282704852028275327922540131762143565388050940484317945369745559774511861#__bigint","y":"8109764566587999957624872393871720746996669263962991155166704261108473113504#__bigint"},"prehash":"true","type":"p256"}]
       `,
@@ -101,7 +101,7 @@ describe('assert', () => {
         SignatureEnvelope.assert(withoutPublicKey as any),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: publicKey.
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: \`publicKey\`.
 
         Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"prehash":true,"type":"p256"}]
       `,
@@ -119,7 +119,7 @@ describe('assert', () => {
         SignatureEnvelope.assert(invalid),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: signature.r.
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: \`signature.r\`.
 
         Provided: {"signature":{"s":"1#__bigint"},"publicKey":{"prefix":4,"x":"78495282704852028275327922540131762143565388050940484317945369745559774511861#__bigint","y":"8109764566587999957624872393871720746996669263962991155166704261108473113504#__bigint"},"prehash":true,"type":"p256"}]
       `,
@@ -137,7 +137,7 @@ describe('assert', () => {
         SignatureEnvelope.assert(invalid),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: signature.s.
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: \`signature.s\`.
 
         Provided: {"signature":{"r":"1#__bigint"},"publicKey":{"prefix":4,"x":"78495282704852028275327922540131762143565388050940484317945369745559774511861#__bigint","y":"8109764566587999957624872393871720746996669263962991155166704261108473113504#__bigint"},"prehash":true,"type":"p256"}]
       `,
@@ -155,7 +155,7 @@ describe('assert', () => {
         SignatureEnvelope.assert(invalid),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: publicKey.x.
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: \`publicKey.x\`.
 
         Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"publicKey":{"y":"1#__bigint"},"prehash":true,"type":"p256"}]
       `,
@@ -173,7 +173,7 @@ describe('assert', () => {
         SignatureEnvelope.assert(invalid),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: publicKey.y.
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: \`publicKey.y\`.
 
         Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"publicKey":{"x":"1#__bigint"},"prehash":true,"type":"p256"}]
       `,
@@ -189,7 +189,7 @@ describe('assert', () => {
         SignatureEnvelope.assert(invalid),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: signature.r, signature.s, prehash (boolean), publicKey.
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "p256" is missing required properties: \`signature.r\`, \`signature.s\`, \`prehash\`, \`publicKey\`.
 
         Provided: {"signature":{},"type":"p256"}]
       `,
@@ -213,7 +213,7 @@ describe('assert', () => {
         SignatureEnvelope.assert(withoutMetadata as any),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: metadata.
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: \`metadata\`.
 
         Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"publicKey":{"prefix":4,"x":"78495282704852028275327922540131762143565388050940484317945369745559774511861#__bigint","y":"8109764566587999957624872393871720746996669263962991155166704261108473113504#__bigint"},"type":"webauthn"}]
       `,
@@ -226,7 +226,7 @@ describe('assert', () => {
         SignatureEnvelope.assert(withoutPublicKey as any),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: publicKey.
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: \`publicKey\`.
 
         Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"metadata":{"authenticatorData":"0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000","clientDataJSON":"{\\"type\\":\\"webauthn.get\\",\\"challenge\\":\\"3q2-7w\\",\\"origin\\":\\"http://localhost\\",\\"crossOrigin\\":false}"},"type":"webauthn"}]
       `,
@@ -252,7 +252,7 @@ describe('assert', () => {
         SignatureEnvelope.assert(invalid),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: signature.r.
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: \`signature.r\`.
 
         Provided: {"signature":{"s":"1#__bigint"},"publicKey":{"prefix":4,"x":"78495282704852028275327922540131762143565388050940484317945369745559774511861#__bigint","y":"8109764566587999957624872393871720746996669263962991155166704261108473113504#__bigint"},"metadata":{"authenticatorData":"0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000","clientDataJSON":"{\\"type\\":\\"webauthn.get\\",\\"challenge\\":\\"3q2-7w\\",\\"origin\\":\\"http://localhost\\",\\"crossOrigin\\":false}"},"type":"webauthn"}]
       `,
@@ -278,7 +278,7 @@ describe('assert', () => {
         SignatureEnvelope.assert(invalid),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: signature.s.
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: \`signature.s\`.
 
         Provided: {"signature":{"r":"1#__bigint"},"publicKey":{"prefix":4,"x":"78495282704852028275327922540131762143565388050940484317945369745559774511861#__bigint","y":"8109764566587999957624872393871720746996669263962991155166704261108473113504#__bigint"},"metadata":{"authenticatorData":"0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000","clientDataJSON":"{\\"type\\":\\"webauthn.get\\",\\"challenge\\":\\"3q2-7w\\",\\"origin\\":\\"http://localhost\\",\\"crossOrigin\\":false}"},"type":"webauthn"}]
       `,
@@ -301,7 +301,7 @@ describe('assert', () => {
         SignatureEnvelope.assert(invalid),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: metadata.authenticatorData.
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: \`metadata.authenticatorData\`.
 
         Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"publicKey":{"prefix":4,"x":"78495282704852028275327922540131762143565388050940484317945369745559774511861#__bigint","y":"8109764566587999957624872393871720746996669263962991155166704261108473113504#__bigint"},"metadata":{"clientDataJSON":"{\\"type\\":\\"webauthn.get\\",\\"challenge\\":\\"3q2-7w\\",\\"origin\\":\\"http://localhost\\",\\"crossOrigin\\":false}"},"type":"webauthn"}]
       `,
@@ -323,7 +323,7 @@ describe('assert', () => {
         SignatureEnvelope.assert(invalid),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: metadata.clientDataJSON.
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: \`metadata.clientDataJSON\`.
 
         Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"publicKey":{"prefix":4,"x":"78495282704852028275327922540131762143565388050940484317945369745559774511861#__bigint","y":"8109764566587999957624872393871720746996669263962991155166704261108473113504#__bigint"},"metadata":{"authenticatorData":"0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000"},"type":"webauthn"}]
       `,
@@ -349,7 +349,7 @@ describe('assert', () => {
         SignatureEnvelope.assert(invalid),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: publicKey.x.
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: \`publicKey.x\`.
 
         Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"publicKey":{"y":"1#__bigint"},"metadata":{"authenticatorData":"0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000","clientDataJSON":"{\\"type\\":\\"webauthn.get\\",\\"challenge\\":\\"3q2-7w\\",\\"origin\\":\\"http://localhost\\",\\"crossOrigin\\":false}"},"type":"webauthn"}]
       `,
@@ -375,7 +375,7 @@ describe('assert', () => {
         SignatureEnvelope.assert(invalid),
       ).toThrowErrorMatchingInlineSnapshot(
         `
-        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: publicKey.y.
+        [SignatureEnvelope.MissingPropertiesError: Signature envelope of type "webauthn" is missing required properties: \`publicKey.y\`.
 
         Provided: {"signature":{"r":"92602584010956101470289867944347135737570451066466093224269890121909314569518#__bigint","s":"54171125190222965779385658110416711469231271457324878825831748147306957269813#__bigint","yParity":0},"publicKey":{"x":"1#__bigint"},"metadata":{"authenticatorData":"0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000","clientDataJSON":"{\\"type\\":\\"webauthn.get\\",\\"challenge\\":\\"3q2-7w\\",\\"origin\\":\\"http://localhost\\",\\"crossOrigin\\":false}"},"type":"webauthn"}]
       `,
