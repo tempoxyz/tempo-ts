@@ -11,7 +11,7 @@
 		"gen:abis": "bun scripts/gen:abis.ts && bun run check",
 		"submodules:pull": "git submodule foreach git pull origin main && pnpm gen:abis",
 		"test": "vitest",
-		"test:install": "cd test/tempo && cargo install --path bin/tempo && cargo run --bin tempo-bench generate-genesis --accounts 1 --output ../../prool/internal/chain.json"
+		"test:install": "cd test/tempo && cargo install --path bin/tempo && cargo run --bin tempo-bench generate-genesis --accounts 1 --output ../../src/prool/internal/chain.json"
 	},
 	"zshy": {
 		"exports": {

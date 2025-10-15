@@ -2,4 +2,4 @@
 'tempo.ts': patch
 ---
 
-Added `watchUpdateLinkingToken` Action.
+Added `watchUpdateQuoteToken` Action.

@@ -2,4 +2,4 @@
 'tempo.ts': patch
 ---
 
-Added `token.updateLinkingToken` and `token.finalizeUpdateLinkingToken` Actions.
+Added `token.updateQuoteToken` and `token.finalizeUpdateQuoteToken` Actions.

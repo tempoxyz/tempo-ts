@@ -902,8 +902,8 @@ export namespace create {
     currency: string
     /** Token name. */
     name: string
-    /** Linking token. */
-    linkingToken?: TokenId.TokenIdOrAddress | undefined
+    /** quote token. */
+    quoteToken?: TokenId.TokenIdOrAddress | undefined
     /** Token symbol. */
     symbol: string
   }
@@ -981,13 +981,13 @@ export namespace create {
       name,
       symbol,
       currency,
-      linkingToken = Addresses.linkingToken,
+      quoteToken = Addresses.defaultQuoteToken,
       admin,
     } = args
     return defineCall({
       address: Addresses.tip20Factory,
       abi: Abis.tip20Factory,
-      args: [name, symbol, currency, TokenId.toAddress(linkingToken), admin],
+      args: [name, symbol, currency, TokenId.toAddress(quoteToken), admin],
       functionName: 'createToken',
     })
   }
@@ -1079,7 +1079,7 @@ export namespace createSync {
 }
 
 /**
- * Finalizes the linking token update for a TIP20 token.
+ * Finalizes the quote token update for a TIP20 token.
  *
  * @example
  * ```ts
@@ -1094,7 +1094,7 @@ export namespace createSync {
  *   transport: http(),
  * })
  *
- * const result = await actions.token.finalizeUpdateLinkingToken(client, {
+ * const result = await actions.token.finalizeUpdateQuoteToken(client, {
  *   token: '0x...',
  * })
  * ```
@@ -1103,17 +1103,17 @@ export namespace createSync {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function finalizeUpdateLinkingToken<
+export async function finalizeUpdateQuoteToken<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: finalizeUpdateLinkingToken.Parameters<chain, account>,
-): Promise<finalizeUpdateLinkingToken.ReturnValue> {
-  return finalizeUpdateLinkingToken.inner(writeContract, client, parameters)
+  parameters: finalizeUpdateQuoteToken.Parameters<chain, account>,
+): Promise<finalizeUpdateQuoteToken.ReturnValue> {
+  return finalizeUpdateQuoteToken.inner(writeContract, client, parameters)
 }
 
-export namespace finalizeUpdateLinkingToken {
+export namespace finalizeUpdateQuoteToken {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -1134,9 +1134,9 @@ export namespace finalizeUpdateLinkingToken {
   >(
     action: action,
     client: Client<Transport, chain, account>,
-    parameters: finalizeUpdateLinkingToken.Parameters<chain, account>,
+    parameters: finalizeUpdateQuoteToken.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = finalizeUpdateLinkingToken.call(parameters)
+    const call = finalizeUpdateQuoteToken.call(parameters)
     return (await action(client, {
       ...parameters,
       ...call,
@@ -1144,7 +1144,7 @@ export namespace finalizeUpdateLinkingToken {
   }
 
   /**
-   * Defines a call to the `finalizeLinkingTokenUpdate` function.
+   * Defines a call to the `finalizeQuoteTokenUpdate` function.
    *
    * Can be passed as a parameter to:
    * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
@@ -1164,7 +1164,7 @@ export namespace finalizeUpdateLinkingToken {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.token.finalizeUpdateLinkingToken.call({
+   *     actions.token.finalizeUpdateQuoteToken.call({
    *       token: '0x20c0...babe',
    *     }),
    *   ]
@@ -1202,7 +1202,7 @@ export namespace finalizeUpdateLinkingToken {
 }
 
 /**
- * Finalizes the linking token update for a TIP20 token.
+ * Finalizes the quote token update for a TIP20 token.
  *
  * @example
  * ```ts
@@ -1217,7 +1217,7 @@ export namespace finalizeUpdateLinkingToken {
  *   transport: http(),
  * })
  *
- * const result = await actions.token.finalizeUpdateLinkingTokenSync(client, {
+ * const result = await actions.token.finalizeUpdateQuoteTokenSync(client, {
  *   token: '0x...',
  * })
  * ```
@@ -1226,32 +1226,32 @@ export namespace finalizeUpdateLinkingToken {
  * @param parameters - Parameters.
  * @returns The transaction receipt and event data.
  */
-export async function finalizeUpdateLinkingTokenSync<
+export async function finalizeUpdateQuoteTokenSync<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: finalizeUpdateLinkingTokenSync.Parameters<chain, account>,
-): Promise<finalizeUpdateLinkingTokenSync.ReturnValue> {
-  const receipt = await finalizeUpdateLinkingToken.inner(
+  parameters: finalizeUpdateQuoteTokenSync.Parameters<chain, account>,
+): Promise<finalizeUpdateQuoteTokenSync.ReturnValue> {
+  const receipt = await finalizeUpdateQuoteToken.inner(
     writeContractSync,
     client,
     parameters,
   )
-  const { args } = finalizeUpdateLinkingToken.extractEvent(receipt.logs)
+  const { args } = finalizeUpdateQuoteToken.extractEvent(receipt.logs)
   return {
     ...args,
     receipt,
   } as never
 }
 
-export namespace finalizeUpdateLinkingTokenSync {
+export namespace finalizeUpdateQuoteTokenSync {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = finalizeUpdateLinkingToken.Parameters<chain, account>
+  > = finalizeUpdateQuoteToken.Parameters<chain, account>
 
-  export type Args = finalizeUpdateLinkingToken.Args
+  export type Args = finalizeUpdateQuoteToken.Args
 
   export type ReturnValue = Compute<
     GetEventArgs<
@@ -1510,7 +1510,7 @@ export async function getMetadata<chain extends Chain | undefined>(
     ([
       currency,
       decimals,
-      linkingToken,
+      quoteToken,
       name,
       paused,
       supplyCap,
@@ -1522,7 +1522,7 @@ export async function getMetadata<chain extends Chain | undefined>(
       symbol,
       currency,
       decimals,
-      linkingToken,
+      quoteToken,
       totalSupply,
       paused,
       supplyCap,
@@ -1543,8 +1543,8 @@ export declare namespace getMetadata {
     currency: string
     /** Decimals. */
     decimals: number
-    /** Linking token. */
-    linkingToken: Address
+    /** quote token. */
+    quoteToken: Address
     /** Name. */
     name: string
     /** Whether the token is paused. */
@@ -3658,7 +3658,7 @@ export namespace unpauseSync {
 }
 
 /**
- * Updates the linking token for a TIP20 token.
+ * Updates the quote token for a TIP20 token.
  *
  * @example
  * ```ts
@@ -3673,9 +3673,9 @@ export namespace unpauseSync {
  *   transport: http(),
  * })
  *
- * const result = await actions.token.updateLinkingToken(client, {
+ * const result = await actions.token.updateQuoteToken(client, {
  *   token: '0x...',
- *   linkingToken: '0x...',
+ *   quoteToken: '0x...',
  * })
  * ```
  *
@@ -3683,25 +3683,25 @@ export namespace unpauseSync {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function updateLinkingToken<
+export async function updateQuoteToken<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: updateLinkingToken.Parameters<chain, account>,
-): Promise<updateLinkingToken.ReturnValue> {
-  return updateLinkingToken.inner(writeContract, client, parameters)
+  parameters: updateQuoteToken.Parameters<chain, account>,
+): Promise<updateQuoteToken.ReturnValue> {
+  return updateQuoteToken.inner(writeContract, client, parameters)
 }
 
-export namespace updateLinkingToken {
+export namespace updateQuoteToken {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> & Args
 
   export type Args = {
-    /** New linking token address. */
-    linkingToken: TokenId.TokenIdOrAddress
+    /** New quote token address. */
+    quoteToken: TokenId.TokenIdOrAddress
     /** Address or ID of the TIP20 token. */
     token: TokenId.TokenIdOrAddress
   }
@@ -3716,9 +3716,9 @@ export namespace updateLinkingToken {
   >(
     action: action,
     client: Client<Transport, chain, account>,
-    parameters: updateLinkingToken.Parameters<chain, account>,
+    parameters: updateQuoteToken.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = updateLinkingToken.call(parameters)
+    const call = updateQuoteToken.call(parameters)
     return (await action(client, {
       ...parameters,
       ...call,
@@ -3726,7 +3726,7 @@ export namespace updateLinkingToken {
   }
 
   /**
-   * Defines a call to the `updateLinkingToken` function.
+   * Defines a call to the `updateQuoteToken` function.
    *
    * Can be passed as a parameter to:
    * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
@@ -3746,9 +3746,9 @@ export namespace updateLinkingToken {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.token.updateLinkingToken.call({
+   *     actions.token.updateQuoteToken.call({
    *       token: '0x20c0...babe',
-   *       linkingToken: '0x20c0...cafe',
+   *       quoteToken: '0x20c0...cafe',
    *     }),
    *   ]
    * })
@@ -3758,12 +3758,12 @@ export namespace updateLinkingToken {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { token, linkingToken } = args
+    const { token, quoteToken } = args
     return defineCall({
       address: TokenId.toAddress(token),
       abi: Abis.tip20,
       functionName: 'updateLinkingToken',
-      args: [TokenId.toAddress(linkingToken)],
+      args: [TokenId.toAddress(quoteToken)],
     })
   }
 
@@ -3785,7 +3785,7 @@ export namespace updateLinkingToken {
 }
 
 /**
- * Updates the linking token for a TIP20 token.
+ * Updates the quote token for a TIP20 token.
  *
  * @example
  * ```ts
@@ -3800,9 +3800,9 @@ export namespace updateLinkingToken {
  *   transport: http(),
  * })
  *
- * const result = await actions.token.updateLinkingTokenSync(client, {
+ * const result = await actions.token.updateQuoteTokenSync(client, {
  *   token: '0x...',
- *   linkingToken: '0x...',
+ *   quoteToken: '0x...',
  * })
  * ```
  *
@@ -3810,32 +3810,32 @@ export namespace updateLinkingToken {
  * @param parameters - Parameters.
  * @returns The transaction receipt and event data.
  */
-export async function updateLinkingTokenSync<
+export async function updateQuoteTokenSync<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: updateLinkingTokenSync.Parameters<chain, account>,
-): Promise<updateLinkingTokenSync.ReturnValue> {
-  const receipt = await updateLinkingToken.inner(
+  parameters: updateQuoteTokenSync.Parameters<chain, account>,
+): Promise<updateQuoteTokenSync.ReturnValue> {
+  const receipt = await updateQuoteToken.inner(
     writeContractSync,
     client,
     parameters,
   )
-  const { args } = updateLinkingToken.extractEvent(receipt.logs)
+  const { args } = updateQuoteToken.extractEvent(receipt.logs)
   return {
     ...args,
     receipt,
   } as never
 }
 
-export namespace updateLinkingTokenSync {
+export namespace updateQuoteTokenSync {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = updateLinkingToken.Parameters<chain, account>
+  > = updateQuoteToken.Parameters<chain, account>
 
-  export type Args = updateLinkingToken.Args
+  export type Args = updateQuoteToken.Args
 
   export type ReturnValue = Compute<
     GetEventArgs<
@@ -4361,7 +4361,7 @@ export declare namespace watchTransfer {
 }
 
 /**
- * Watches for TIP20 token linking token update events.
+ * Watches for TIP20 token quote token update events.
  *
  * @example
  * ```ts
@@ -4374,12 +4374,12 @@ export declare namespace watchTransfer {
  *   transport: http(),
  * })
  *
- * const unwatch = actions.token.watchUpdateLinkingToken(client, {
- *   onUpdateLinkingToken: (args, log) => {
+ * const unwatch = actions.token.watchUpdateQuoteToken(client, {
+ *   onUpdateQuoteToken: (args, log) => {
  *     if (args.finalized)
- *       console.log('Linking token update finalized:', args.newLinkingToken)
+ *       console.log('quote token update finalized:', args.newLinkingToken)
  *     else
- *       console.log('Linking token update proposed:', args.newLinkingToken)
+ *       console.log('quote token update proposed:', args.newLinkingToken)
  *   },
  * })
  * ```
@@ -4388,15 +4388,15 @@ export declare namespace watchTransfer {
  * @param parameters - Parameters.
  * @returns A function to unsubscribe from the event.
  */
-export function watchUpdateLinkingToken<
+export function watchUpdateQuoteToken<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: watchUpdateLinkingToken.Parameters,
+  parameters: watchUpdateQuoteToken.Parameters,
 ) {
   const {
-    onUpdateLinkingToken,
+    onUpdateQuoteToken,
     token = Addresses.defaultFeeToken,
     ...rest
   } = parameters
@@ -4425,7 +4425,7 @@ export function watchUpdateLinkingToken<
         )
           continue
 
-        onUpdateLinkingToken(
+        onUpdateQuoteToken(
           {
             ...log.args,
             finalized: log.eventName === 'LinkingTokenUpdateFinalized',
@@ -4438,7 +4438,7 @@ export function watchUpdateLinkingToken<
   } as never)
 }
 
-export declare namespace watchUpdateLinkingToken {
+export declare namespace watchUpdateQuoteToken {
   export type Args = OneOf<
     | GetEventArgs<
         typeof Abis.tip20,
@@ -4461,8 +4461,8 @@ export declare namespace watchUpdateLinkingToken {
     WatchContractEventParameters<typeof Abis.tip20, any, true>,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
-    /** Callback to invoke when a linking token update is proposed or finalized. */
-    onUpdateLinkingToken: (args: Args, log: Log) => void
+    /** Callback to invoke when a quote token update is proposed or finalized. */
+    onUpdateQuoteToken: (args: Args, log: Log) => void
     /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined
   }

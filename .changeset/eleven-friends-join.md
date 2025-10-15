@@ -9,8 +9,8 @@
 + import { Addresses, TokenId } from 'tempo.ts/viem'
 
 - usdAddress
-+ Addresses.linkingToken
++ Addresses.defaultFeeToken
 
 - usdId
-+ TokenId.linkingToken
++ TokenId.defaultFeeToken
 ```

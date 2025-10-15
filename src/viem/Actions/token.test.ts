@@ -311,12 +311,12 @@ describe('getMetadata', () => {
       {
         "currency": "USD",
         "decimals": 6,
-        "linkingToken": "0x20C0000000000000000000000000000000000000",
         "name": "AlphaUSD",
         "paused": false,
+        "quoteToken": "0x20C0000000000000000000000000000000000000",
         "supplyCap": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
         "symbol": "AlphaUSD",
-        "totalSupply": 340282366920938465308049014802723372955n,
+        "totalSupply": 340282366920938463481821351505477763070n,
         "transferPolicy": "always-allow",
       }
     `)
@@ -337,9 +337,9 @@ describe('getMetadata', () => {
       {
         "currency": "USD",
         "decimals": 6,
-        "linkingToken": "0x20C0000000000000000000000000000000000000",
         "name": "Test USD",
         "paused": false,
+        "quoteToken": "0x20C0000000000000000000000000000000000000",
         "supplyCap": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
         "symbol": "TUSD",
         "totalSupply": 0n,
@@ -363,9 +363,9 @@ describe('getMetadata', () => {
       {
         "currency": "USD",
         "decimals": 6,
-        "linkingToken": "0x20C0000000000000000000000000000000000000",
         "name": "Test USD",
         "paused": false,
+        "quoteToken": "0x20C0000000000000000000000000000000000000",
         "supplyCap": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
         "symbol": "TUSD",
         "totalSupply": 0n,
@@ -1087,14 +1087,14 @@ describe('unpause', () => {
   })
 })
 
-describe('updateLinkingToken', () => {
+describe('updateQuoteToken', () => {
   test('default', async () => {
-    // Create two tokens - one to be the new linking token
-    const { token: linkingTokenAddress } = await actions.token.createSync(
+    // Create two tokens - one to be the new quote token
+    const { token: quoteTokenAddress } = await actions.token.createSync(
       client,
       {
         currency: 'USD',
-        name: 'Linking Token',
+        name: 'Quote Token',
         symbol: 'LINK',
       },
     )
@@ -1105,11 +1105,11 @@ describe('updateLinkingToken', () => {
       symbol: 'MAIN',
     })
 
-    // Update linking token
+    // Update quote token
     const { receipt: updateReceipt, ...updateResult } =
-      await actions.token.updateLinkingTokenSync(client, {
+      await actions.token.updateQuoteTokenSync(client, {
         token: address,
-        linkingToken: linkingTokenAddress,
+        quoteToken: quoteTokenAddress,
       })
 
     expect(updateReceipt).toBeDefined()
@@ -1120,17 +1120,17 @@ describe('updateLinkingToken', () => {
       }
     `)
 
-    // Verify the event was emitted with correct linking token
-    expect(updateResult.newLinkingToken).toBe(linkingTokenAddress)
+    // Verify the event was emitted with correct quote token
+    expect(updateResult.newLinkingToken).toBe(quoteTokenAddress)
   })
 
   test('behavior: requires admin role', async () => {
-    // Create linking token
-    const { token: linkingTokenAddress } = await actions.token.createSync(
+    // Create quote token
+    const { token: quoteTokenAddress } = await actions.token.createSync(
       client,
       {
         currency: 'USD',
-        name: 'Linking Token 2',
+        name: 'Quote Token 2',
         symbol: 'LINK2',
       },
     )
@@ -1150,23 +1150,23 @@ describe('updateLinkingToken', () => {
       args: [account2.address, parseEther('1')],
     })
 
-    // Try to update linking token from account2 (not admin) - should fail
+    // Try to update quote token from account2 (not admin) - should fail
     await expect(
-      actions.token.updateLinkingTokenSync(client, {
+      actions.token.updateQuoteTokenSync(client, {
         account: account2,
         token: address,
-        linkingToken: linkingTokenAddress,
+        quoteToken: quoteTokenAddress,
       }),
     ).rejects.toThrow()
   })
 
   test('behavior: with token ID', async () => {
-    // Create linking token
-    const { token: linkingTokenAddress } = await actions.token.createSync(
+    // Create quote token
+    const { token: quoteTokenAddress } = await actions.token.createSync(
       client,
       {
         currency: 'USD',
-        name: 'Linking Token 3',
+        name: 'Quote Token 3',
         symbol: 'LINK3',
       },
     )
@@ -1178,11 +1178,11 @@ describe('updateLinkingToken', () => {
       symbol: 'MAINID',
     })
 
-    // Update linking token using token ID for main token, address for linking token
+    // Update quote token using token ID for main token, address for quote token
     const { receipt: updateReceipt, ...updateResult } =
-      await actions.token.updateLinkingTokenSync(client, {
+      await actions.token.updateQuoteTokenSync(client, {
         token: mainTokenId,
-        linkingToken: linkingTokenAddress,
+        quoteToken: quoteTokenAddress,
       })
 
     expect(updateReceipt.status).toBe('success')
@@ -1190,14 +1190,14 @@ describe('updateLinkingToken', () => {
   })
 })
 
-describe('finalizeUpdateLinkingToken', () => {
+describe('finalizeUpdateQuoteToken', () => {
   test('default', async () => {
-    // Create linking token
-    const { token: linkingTokenAddress } = await actions.token.createSync(
+    // Create quote token
+    const { token: quoteTokenAddress } = await actions.token.createSync(
       client,
       {
         currency: 'USD',
-        name: 'Linking Token',
+        name: 'Quote Token',
         symbol: 'LINK',
       },
     )
@@ -1209,15 +1209,15 @@ describe('finalizeUpdateLinkingToken', () => {
       symbol: 'MAIN',
     })
 
-    // Update linking token (step 1)
-    await actions.token.updateLinkingTokenSync(client, {
+    // Update quote token (step 1)
+    await actions.token.updateQuoteTokenSync(client, {
       token: address,
-      linkingToken: linkingTokenAddress,
+      quoteToken: quoteTokenAddress,
     })
 
     // Finalize the update (step 2)
     const { receipt: finalizeReceipt, ...finalizeResult } =
-      await actions.token.finalizeUpdateLinkingTokenSync(client, {
+      await actions.token.finalizeUpdateQuoteTokenSync(client, {
         token: address,
       })
 
@@ -1229,23 +1229,23 @@ describe('finalizeUpdateLinkingToken', () => {
       }
     `)
 
-    // Verify the linking token was updated
-    expect(finalizeResult.newLinkingToken).toBe(linkingTokenAddress)
+    // Verify the quote token was updated
+    expect(finalizeResult.newLinkingToken).toBe(quoteTokenAddress)
 
     // Verify it's reflected in metadata
     const metadata = await actions.token.getMetadata(client, {
       token: address,
     })
-    expect(metadata.linkingToken).toBe(linkingTokenAddress)
+    expect(metadata.quoteToken).toBe(quoteTokenAddress)
   })
 
   test('behavior: requires admin role', async () => {
-    // Create linking token
-    const { token: linkingTokenAddress } = await actions.token.createSync(
+    // Create quote token
+    const { token: quoteTokenAddress } = await actions.token.createSync(
       client,
       {
         currency: 'USD',
-        name: 'Linking Token 2',
+        name: 'Quote Token 2',
         symbol: 'LINK2',
       },
     )
@@ -1257,10 +1257,10 @@ describe('finalizeUpdateLinkingToken', () => {
       symbol: 'RESTR',
     })
 
-    // Update linking token as admin
-    await actions.token.updateLinkingTokenSync(client, {
+    // Update quote token as admin
+    await actions.token.updateQuoteTokenSync(client, {
       token: address,
-      linkingToken: linkingTokenAddress,
+      quoteToken: quoteTokenAddress,
     })
 
     // Transfer gas to account2
@@ -1273,7 +1273,7 @@ describe('finalizeUpdateLinkingToken', () => {
 
     // Try to finalize as non-admin - should fail
     await expect(
-      actions.token.finalizeUpdateLinkingTokenSync(client, {
+      actions.token.finalizeUpdateQuoteTokenSync(client, {
         account: account2,
         token: address,
       }),
@@ -1293,18 +1293,18 @@ describe('finalizeUpdateLinkingToken', () => {
       currency: 'USD',
       name: 'Token A',
       symbol: 'TKA',
-      linkingToken: tokenBAddress,
+      quoteToken: tokenBAddress,
     })
 
     // Try to make token B link to token A (would create A -> B -> A loop)
-    await actions.token.updateLinkingTokenSync(client, {
+    await actions.token.updateQuoteTokenSync(client, {
       token: tokenBAddress,
-      linkingToken: tokenAAddress,
+      quoteToken: tokenAAddress,
     })
 
     // Finalize should fail due to circular reference detection
     await expect(
-      actions.token.finalizeUpdateLinkingTokenSync(client, {
+      actions.token.finalizeUpdateQuoteTokenSync(client, {
         token: tokenBAddress,
       }),
     ).rejects.toThrow()
@@ -2587,14 +2587,14 @@ describe('watchTransfer', () => {
   })
 })
 
-describe('watchUpdateLinkingToken', () => {
+describe('watchUpdateQuoteToken', () => {
   test('default', async () => {
-    // Create linking token
-    const { token: linkingTokenAddress } = await actions.token.createSync(
+    // Create quote token
+    const { token: quoteTokenAddress } = await actions.token.createSync(
       client,
       {
         currency: 'USD',
-        name: 'Watch Linking Token',
+        name: 'Watch Quote Token',
         symbol: 'WLINK',
       },
     )
@@ -2607,27 +2607,27 @@ describe('watchUpdateLinkingToken', () => {
     })
 
     const receivedUpdates: Array<{
-      args: actions.token.watchUpdateLinkingToken.Args
-      log: actions.token.watchUpdateLinkingToken.Log
+      args: actions.token.watchUpdateQuoteToken.Args
+      log: actions.token.watchUpdateQuoteToken.Log
     }> = []
 
-    // Start watching for linking token update events
-    const unwatch = actions.token.watchUpdateLinkingToken(client, {
+    // Start watching for quote token update events
+    const unwatch = actions.token.watchUpdateQuoteToken(client, {
       token: address,
-      onUpdateLinkingToken: (args, log) => {
+      onUpdateQuoteToken: (args, log) => {
         receivedUpdates.push({ args, log })
       },
     })
 
     try {
-      // Step 1: Update linking token (should emit UpdateLinkingToken)
-      await actions.token.updateLinkingTokenSync(client, {
+      // Step 1: Update quote token (should emit UpdateQuoteToken)
+      await actions.token.updateQuoteTokenSync(client, {
         token: address,
-        linkingToken: linkingTokenAddress,
+        quoteToken: quoteTokenAddress,
       })
 
-      // Step 2: Finalize the update (should emit LinkingTokenUpdateFinalized)
-      await actions.token.finalizeUpdateLinkingTokenSync(client, {
+      // Step 2: Finalize the update (should emit QuoteTokenUpdateFinalized)
+      await actions.token.finalizeUpdateQuoteTokenSync(client, {
         token: address,
       })
 
@@ -2639,14 +2639,14 @@ describe('watchUpdateLinkingToken', () => {
       // First event: update proposed (not finalized)
       expect(receivedUpdates.at(0)!.args.finalized).toBe(false)
       expect(receivedUpdates.at(0)!.args.newLinkingToken).toBe(
-        linkingTokenAddress,
+        quoteTokenAddress,
       )
       expect(receivedUpdates.at(0)!.args.updater).toBe(client.account.address)
 
       // Second event: update finalized
       expect(receivedUpdates.at(1)!.args.finalized).toBe(true)
       expect(receivedUpdates.at(1)!.args.newLinkingToken).toBe(
-        linkingTokenAddress,
+        quoteTokenAddress,
       )
       expect(receivedUpdates.at(1)!.args.updater).toBe(client.account.address)
     } finally {
@@ -2655,12 +2655,12 @@ describe('watchUpdateLinkingToken', () => {
   })
 
   test('behavior: only proposed updates', async () => {
-    // Create linking token
-    const { token: linkingTokenAddress } = await actions.token.createSync(
+    // Create quote token
+    const { token: quoteTokenAddress } = await actions.token.createSync(
       client,
       {
         currency: 'USD',
-        name: 'Proposed Linking Token',
+        name: 'Proposed Quote Token',
         symbol: 'PLINK',
       },
     )
@@ -2673,23 +2673,23 @@ describe('watchUpdateLinkingToken', () => {
     })
 
     const receivedUpdates: Array<{
-      args: actions.token.watchUpdateLinkingToken.Args
-      log: actions.token.watchUpdateLinkingToken.Log
+      args: actions.token.watchUpdateQuoteToken.Args
+      log: actions.token.watchUpdateQuoteToken.Log
     }> = []
 
     // Start watching
-    const unwatch = actions.token.watchUpdateLinkingToken(client, {
+    const unwatch = actions.token.watchUpdateQuoteToken(client, {
       token: address,
-      onUpdateLinkingToken: (args, log) => {
+      onUpdateQuoteToken: (args, log) => {
         receivedUpdates.push({ args, log })
       },
     })
 
     try {
       // Only update (don't finalize)
-      await actions.token.updateLinkingTokenSync(client, {
+      await actions.token.updateQuoteTokenSync(client, {
         token: address,
-        linkingToken: linkingTokenAddress,
+        quoteToken: quoteTokenAddress,
       })
 
       await setTimeout(100)
@@ -2698,7 +2698,7 @@ describe('watchUpdateLinkingToken', () => {
       expect(receivedUpdates).toHaveLength(1)
       expect(receivedUpdates.at(0)!.args.finalized).toBe(false)
       expect(receivedUpdates.at(0)!.args.newLinkingToken).toBe(
-        linkingTokenAddress,
+        quoteTokenAddress,
       )
     } finally {
       if (unwatch) unwatch()
