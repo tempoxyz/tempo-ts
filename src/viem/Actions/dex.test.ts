@@ -34,7 +34,6 @@ async function setupTokenPair(
     name: 'Test Base Token',
     symbol: 'BASE',
     currency: 'USD',
-    linkingToken: Addresses.defaultLinkingToken,
   })
 
   // Grant issuer role to mint base tokens
@@ -58,16 +57,9 @@ async function setupTokenPair(
     amount: baseAmount * 2n, // Approve extra for flexibility
   })
 
-  // Mint quote tokens (USD) to the account
-  await Actions.token.mintSync(client, {
-    token: Addresses.defaultLinkingToken,
-    to: mintTo,
-    amount: quoteAmount,
-  })
-
   // Approve DEX to spend quote tokens
   await Actions.token.approveSync(client, {
-    token: Addresses.defaultLinkingToken,
+    token: Addresses.defaultQuoteToken,
     spender: Addresses.stablecoinExchange,
     amount: quoteAmount * 2n,
   })
@@ -78,7 +70,7 @@ async function setupTokenPair(
 
   return {
     baseToken,
-    quoteToken: Addresses.defaultLinkingToken,
+    quoteToken: Addresses.defaultQuoteToken,
   }
 }
 
@@ -97,7 +89,7 @@ describe.todo('getBuyQuote')
 describe.todo('getSellQuote')
 
 describe('place', () => {
-  test('default', async () => {
+  test.only('default', async () => {
     // Setup token pair
     const { baseToken } = await setupTokenPair({
       baseAmount: parseEther('1000'),

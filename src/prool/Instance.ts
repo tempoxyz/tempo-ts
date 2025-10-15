@@ -72,17 +72,17 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
                 amount,
                 privateKey,
               },
-              port: port! + 10,
+              port: port! + 1,
               http: {
                 api: 'all',
                 addr: '0.0.0.0',
                 port: port!,
               },
               ws: {
-                port: port! + 20,
+                port: port! + 2,
               },
               authrpc: {
-                port: port! + 30,
+                port: port! + 3,
               },
             },
           )}`,
@@ -91,6 +91,7 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
           resolver({ process, reject, resolve }) {
             process.stdout.on('data', (data) => {
               const message = data.toString()
+              console.log(message)
               if (message.includes('shutting down')) reject(message)
               if (message.includes('RPC HTTP server started')) resolve()
             })
