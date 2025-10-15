@@ -56,9 +56,10 @@ export async function getPoolId<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getPoolId.Parameters,
 ): Promise<getPoolId.ReturnValue> {
+  const { userToken, validatorToken, ...rest } = parameters
   return readContract(client, {
-    ...parameters,
-    ...getPoolId.call(parameters),
+    ...rest,
+    ...getPoolId.call({ userToken, validatorToken }),
   })
 }
 
@@ -123,9 +124,10 @@ export async function getPool<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getPool.Parameters,
 ): Promise<getPool.ReturnValue> {
+  const { userToken, validatorToken, ...rest } = parameters
   return readContract(client, {
-    ...parameters,
-    ...getPool.call(parameters),
+    ...rest,
+    ...getPool.call({ userToken, validatorToken }),
   })
 }
 
@@ -193,9 +195,10 @@ export async function getTotalSupply<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getTotalSupply.Parameters,
 ): Promise<getTotalSupply.ReturnValue> {
+  const { poolId, ...rest } = parameters
   return readContract(client, {
-    ...parameters,
-    ...getTotalSupply.call(parameters),
+    ...rest,
+    ...getTotalSupply.call({ poolId }),
   })
 }
 
@@ -263,9 +266,10 @@ export async function getLiquidityBalance<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getLiquidityBalance.Parameters,
 ): Promise<getLiquidityBalance.ReturnValue> {
+  const { address, poolId, ...rest } = parameters
   return readContract(client, {
-    ...parameters,
-    ...getLiquidityBalance.call(parameters),
+    ...rest,
+    ...getLiquidityBalance.call({ address, poolId }),
   })
 }
 
@@ -369,9 +373,15 @@ export namespace rebalanceSwap {
     client: Client<Transport, chain, account>,
     parameters: rebalanceSwap.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = rebalanceSwap.call(parameters)
+    const { userToken, validatorToken, amountOut, to, ...rest } = parameters
+    const call = rebalanceSwap.call({
+      userToken,
+      validatorToken,
+      amountOut,
+      to,
+    })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -596,9 +606,10 @@ export namespace mint {
     client: Client<Transport, chain, account>,
     parameters: mint.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = mint.call(parameters)
+    const { to, userToken, validatorToken, ...rest } = parameters
+    const call = mint.call({ to, userToken, validatorToken })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -826,9 +837,10 @@ export namespace burn {
     client: Client<Transport, chain, account>,
     parameters: burn.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = burn.call(parameters)
+    const { liquidity, to, userToken, validatorToken, ...rest } = parameters
+    const call = burn.call({ liquidity, to, userToken, validatorToken })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }

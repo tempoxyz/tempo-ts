@@ -103,9 +103,10 @@ export namespace buy {
     client: Client<Transport, chain, account>,
     parameters: buy.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = buy.call(parameters)
+    const { tokenIn, tokenOut, amountOut, maxAmountIn, ...rest } = parameters
+    const call = buy.call({ tokenIn, tokenOut, amountOut, maxAmountIn })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -266,9 +267,10 @@ export namespace cancel {
     client: Client<Transport, chain, account>,
     parameters: cancel.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = cancel.call(parameters)
+    const { orderId, ...rest } = parameters
+    const call = cancel.call({ orderId })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -393,6 +395,191 @@ export namespace cancelSync {
 }
 
 /**
+ * Creates a new trading pair on the DEX.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const hash = await Actions.dex.createPair(client, {
+ *   base: '0x20c...11',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function createPair<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: createPair.Parameters<chain, account>,
+): Promise<createPair.ReturnValue> {
+  return createPair.inner(writeContract, client, parameters)
+}
+
+export namespace createPair {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type Args = {
+    /** Address of the base token for the pair. */
+    base: Address
+  }
+
+  export type ReturnValue = WriteContractReturnType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: createPair.Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { base, ...rest } = parameters
+    const call = createPair.call({ base })
+    return (await action(client, {
+      ...rest,
+      ...call,
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `createPair` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo.ts/chains'
+   * import { Actions } from 'tempo.ts/viem'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.dex.createPair.call({
+   *       base: '0x20c0...beef',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { base } = args
+    return defineCall({
+      address: Addresses.stablecoinExchange,
+      abi: Abis.stablecoinExchange,
+      functionName: 'createPair',
+      args: [base],
+    })
+  }
+
+  /**
+   * Extracts the `PairCreated` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `PairCreated` event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: Abis.stablecoinExchange,
+      logs,
+      eventName: 'PairCreated',
+      strict: true,
+    })
+    if (!log) throw new Error('`PairCreated` event not found.')
+    return log
+  }
+}
+
+/**
+ * Creates a new trading pair on the DEX.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const result = await Actions.dex.createPairSync(client, {
+ *   base: '0x20c...11',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt and event data.
+ */
+export async function createPairSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: createPairSync.Parameters<chain, account>,
+): Promise<createPairSync.ReturnValue> {
+  const receipt = await createPair.inner(writeContractSync, client, parameters)
+  const { args } = createPair.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
+}
+
+export namespace createPairSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = createPair.Parameters<chain, account>
+
+  export type Args = createPair.Args
+
+  export type ReturnValue = Compute<
+    GetEventArgs<
+      typeof Abis.stablecoinExchange,
+      'PairCreated',
+      { IndexedOnly: false; Required: true }
+    > & {
+      /** Transaction receipt. */
+      receipt: TransactionReceipt
+    }
+  >
+}
+
+/**
  * Gets a user's token balance on the DEX.
  *
  * @example
@@ -423,12 +610,12 @@ export async function getBalance<
   client: Client<Transport, chain, account>,
   parameters: getBalance.Parameters<account>,
 ): Promise<getBalance.ReturnValue> {
-  const { account = client.account } = parameters
-  const address = account ? parseAccount(account).address : undefined
+  const { account: acc = client.account, token, ...rest } = parameters
+  const address = acc ? parseAccount(acc).address : undefined
   if (!address) throw new Error('account is required.')
   return readContract(client, {
-    ...parameters,
-    ...getBalance.call(parameters as never),
+    ...rest,
+    ...getBalance.call({ account: address, token }),
   })
 }
 
@@ -496,9 +683,10 @@ export async function getBuyQuote<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getBuyQuote.Parameters,
 ): Promise<getBuyQuote.ReturnValue> {
+  const { tokenIn, tokenOut, amountOut, ...rest } = parameters
   return readContract(client, {
-    ...parameters,
-    ...getBuyQuote.call(parameters),
+    ...rest,
+    ...getBuyQuote.call({ tokenIn, tokenOut, amountOut }),
   })
 }
 
@@ -566,9 +754,10 @@ export async function getSellQuote<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getSellQuote.Parameters,
 ): Promise<getSellQuote.ReturnValue> {
+  const { tokenIn, tokenOut, amountIn, ...rest } = parameters
   return readContract(client, {
-    ...parameters,
-    ...getSellQuote.call(parameters),
+    ...rest,
+    ...getSellQuote.call({ tokenIn, tokenOut, amountIn }),
   })
 }
 
@@ -674,9 +863,10 @@ export namespace place {
     client: Client<Transport, chain, account>,
     parameters: place.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = place.call(parameters)
+    const { amount, token, type, tick, ...rest } = parameters
+    const call = place.call({ amount, token, type, tick })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -814,9 +1004,10 @@ export namespace placeFlip {
     client: Client<Transport, chain, account>,
     parameters: placeFlip.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = placeFlip.call(parameters)
+    const { amount, flipTick, tick, token, type, ...rest } = parameters
+    const call = placeFlip.call({ amount, flipTick, tick, token, type })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -1079,9 +1270,10 @@ export namespace sell {
     client: Client<Transport, chain, account>,
     parameters: sell.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = sell.call(parameters)
+    const { tokenIn, tokenOut, amountIn, minAmountOut, ...rest } = parameters
+    const call = sell.call({ tokenIn, tokenOut, amountIn, minAmountOut })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -1567,9 +1759,10 @@ export namespace withdraw {
     client: Client<Transport, chain, account>,
     parameters: withdraw.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = withdraw.call(parameters)
+    const { token, amount, ...rest } = parameters
+    const call = withdraw.call({ token, amount })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }

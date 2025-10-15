@@ -166,9 +166,10 @@ export namespace setUserToken {
     client: Client<Transport, chain, account>,
     parameters: setUserToken.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = setUserToken.call(parameters)
+    const { token, ...rest } = parameters
+    const call = setUserToken.call({ token })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }

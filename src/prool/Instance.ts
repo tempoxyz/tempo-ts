@@ -91,7 +91,6 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
           resolver({ process, reject, resolve }) {
             process.stdout.on('data', (data) => {
               const message = data.toString()
-              console.log(message)
               if (message.includes('shutting down')) reject(message)
               if (message.includes('RPC HTTP server started')) resolve()
             })

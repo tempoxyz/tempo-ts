@@ -986,6 +986,13 @@ export const stablecoinExchange = [
     outputs: [{ type: 'uint128' }],
   },
   {
+    name: 'createPair',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'address', name: 'base' }],
+    outputs: [{ type: 'bytes32', name: 'key' }],
+  },
+  {
     name: 'sell',
     type: 'function',
     stateMutability: 'nonpayable',
