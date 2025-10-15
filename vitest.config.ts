@@ -18,6 +18,10 @@ export default defineConfig({
           name: 'ox',
           root: './src/ox',
           environment: 'node',
+          include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)', '**/*.test-d.ts'],
+          typecheck: {
+            enabled: true,
+          },
         },
       },
       {
