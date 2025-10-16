@@ -1,5 +1,6 @@
 import type { Account, Chain, Client, Transport } from 'viem'
 import * as ammActions from './Actions/amm.js'
+import * as dexActions from './Actions/dex.js'
 import * as feeActions from './Actions/fee.js'
 import * as policyActions from './Actions/policy.js'
 import * as tokenActions from './Actions/token.js'
@@ -348,6 +349,511 @@ export type Decorator<
      * @returns A function to unsubscribe from the event.
      */
     watchBurn: (parameters: ammActions.watchBurn.Parameters) => () => void
+  }
+  dex: {
+    /**
+     * Buys a specific amount of tokens.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const hash = await client.dex.buy({
+     *   tokenIn: '0x20c...11',
+     *   tokenOut: '0x20c...20',
+     *   amountOut: 100n,
+     *   maxAmountIn: 105n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    buy: (
+      parameters: dexActions.buy.Parameters<chain, account>,
+    ) => Promise<dexActions.buy.ReturnValue>
+    /**
+     * Buys a specific amount of tokens.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const result = await client.dex.buySync({
+     *   tokenIn: '0x20c...11',
+     *   tokenOut: '0x20c...20',
+     *   amountOut: 100n,
+     *   maxAmountIn: 105n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt.
+     */
+    buySync: (
+      parameters: dexActions.buySync.Parameters<chain, account>,
+    ) => Promise<dexActions.buySync.ReturnValue>
+    /**
+     * Cancels an order from the orderbook.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const hash = await client.dex.cancel({
+     *   orderId: 123n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    cancel: (
+      parameters: dexActions.cancel.Parameters<chain, account>,
+    ) => Promise<dexActions.cancel.ReturnValue>
+    /**
+     * Cancels an order from the orderbook.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const result = await client.dex.cancelSync({
+     *   orderId: 123n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    cancelSync: (
+      parameters: dexActions.cancelSync.Parameters<chain, account>,
+    ) => Promise<dexActions.cancelSync.ReturnValue>
+    /**
+     * Creates a new trading pair on the DEX.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const hash = await client.dex.createPair({
+     *   base: '0x20c...11',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    createPair: (
+      parameters: dexActions.createPair.Parameters<chain, account>,
+    ) => Promise<dexActions.createPair.ReturnValue>
+    /**
+     * Creates a new trading pair on the DEX.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const result = await client.dex.createPairSync({
+     *   base: '0x20c...11',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    createPairSync: (
+      parameters: dexActions.createPairSync.Parameters<chain, account>,
+    ) => Promise<dexActions.createPairSync.ReturnValue>
+    /**
+     * Gets a user's token balance on the DEX.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     *
+     * const client = createTempoClient()
+     *
+     * const balance = await client.dex.getBalance({
+     *   account: '0x...',
+     *   token: '0x20c...11',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The user's token balance on the DEX.
+     */
+    getBalance: (
+      parameters: dexActions.getBalance.Parameters<account>,
+    ) => Promise<dexActions.getBalance.ReturnValue>
+    /**
+     * Gets the quote for buying a specific amount of tokens.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     *
+     * const client = createTempoClient()
+     *
+     * const amountIn = await client.dex.getBuyQuote({
+     *   tokenIn: '0x20c...11',
+     *   tokenOut: '0x20c...20',
+     *   amountOut: 100n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The amount of tokenIn needed to buy the specified amountOut.
+     */
+    getBuyQuote: (
+      parameters: dexActions.getBuyQuote.Parameters,
+    ) => Promise<dexActions.getBuyQuote.ReturnValue>
+    /**
+     * Gets the quote for selling a specific amount of tokens.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     *
+     * const client = createTempoClient()
+     *
+     * const amountOut = await client.dex.getSellQuote({
+     *   tokenIn: '0x20c...11',
+     *   tokenOut: '0x20c...20',
+     *   amountIn: 100n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The amount of tokenOut received for selling the specified amountIn.
+     */
+    getSellQuote: (
+      parameters: dexActions.getSellQuote.Parameters,
+    ) => Promise<dexActions.getSellQuote.ReturnValue>
+    /**
+     * Places a limit order on the orderbook.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient, Tick } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const hash = await client.dex.place({
+     *   token: '0x20c...11',
+     *   amount: 100n,
+     *   type: 'buy',
+     *   tick: Tick.fromPrice('0.99'),
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    place: (
+      parameters: dexActions.place.Parameters<chain, account>,
+    ) => Promise<dexActions.place.ReturnValue>
+    /**
+     * Places a limit order on the orderbook.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient, Tick } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const result = await client.dex.placeSync({
+     *   token: '0x20c...11',
+     *   amount: 100n,
+     *   type: 'buy',
+     *   tick: Tick.fromPrice('0.99'),
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    placeSync: (
+      parameters: dexActions.placeSync.Parameters<chain, account>,
+    ) => Promise<dexActions.placeSync.ReturnValue>
+    /**
+     * Places a flip order that automatically flips when filled.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient, Tick } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const hash = await client.dex.placeFlip({
+     *   token: '0x20c...11',
+     *   amount: 100n,
+     *   type: 'buy',
+     *   tick: Tick.fromPrice('0.99'),
+     *   flipTick: Tick.fromPrice('1.01'),
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    placeFlip: (
+      parameters: dexActions.placeFlip.Parameters<chain, account>,
+    ) => Promise<dexActions.placeFlip.ReturnValue>
+    /**
+     * Places a flip order that automatically flips when filled.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient, Tick } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const result = await client.dex.placeFlipSync({
+     *   token: '0x20c...11',
+     *   amount: 100n,
+     *   type: 'buy',
+     *   tick: Tick.fromPrice('0.99'),
+     *   flipTick: Tick.fromPrice('1.01'),
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    placeFlipSync: (
+      parameters: dexActions.placeFlipSync.Parameters<chain, account>,
+    ) => Promise<dexActions.placeFlipSync.ReturnValue>
+    /**
+     * Sells a specific amount of tokens.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const hash = await client.dex.sell({
+     *   tokenIn: '0x20c...11',
+     *   tokenOut: '0x20c...20',
+     *   amountIn: 100n,
+     *   minAmountOut: 95n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    sell: (
+      parameters: dexActions.sell.Parameters<chain, account>,
+    ) => Promise<dexActions.sell.ReturnValue>
+    /**
+     * Sells a specific amount of tokens.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const result = await client.dex.sellSync({
+     *   tokenIn: '0x20c...11',
+     *   tokenOut: '0x20c...20',
+     *   amountIn: 100n,
+     *   minAmountOut: 95n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt.
+     */
+    sellSync: (
+      parameters: dexActions.sellSync.Parameters<chain, account>,
+    ) => Promise<dexActions.sellSync.ReturnValue>
+    /**
+     * Withdraws tokens from the DEX to the caller's wallet.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const hash = await client.dex.withdraw({
+     *   token: '0x20c...11',
+     *   amount: 100n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    withdraw: (
+      parameters: dexActions.withdraw.Parameters<chain, account>,
+    ) => Promise<dexActions.withdraw.ReturnValue>
+    /**
+     * Withdraws tokens from the DEX to the caller's wallet.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const result = await client.dex.withdrawSync({
+     *   token: '0x20c...11',
+     *   amount: 100n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt.
+     */
+    withdrawSync: (
+      parameters: dexActions.withdrawSync.Parameters<chain, account>,
+    ) => Promise<dexActions.withdrawSync.ReturnValue>
+    /**
+     * Watches for flip order placed events.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     *
+     * const client = createTempoClient()
+     *
+     * const unwatch = client.dex.watchFlipOrderPlaced({
+     *   onFlipOrderPlaced: (args, log) => {
+     *     console.log('Flip order placed:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchFlipOrderPlaced: (
+      parameters: dexActions.watchFlipOrderPlaced.Parameters,
+    ) => () => void
+    /**
+     * Watches for order cancelled events.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     *
+     * const client = createTempoClient()
+     *
+     * const unwatch = client.dex.watchOrderCancelled({
+     *   onOrderCancelled: (args, log) => {
+     *     console.log('Order cancelled:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchOrderCancelled: (
+      parameters: dexActions.watchOrderCancelled.Parameters,
+    ) => () => void
+    /**
+     * Watches for order filled events.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     *
+     * const client = createTempoClient()
+     *
+     * const unwatch = client.dex.watchOrderFilled({
+     *   onOrderFilled: (args, log) => {
+     *     console.log('Order filled:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchOrderFilled: (
+      parameters: dexActions.watchOrderFilled.Parameters,
+    ) => () => void
+    /**
+     * Watches for order placed events.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     *
+     * const client = createTempoClient()
+     *
+     * const unwatch = client.dex.watchOrderPlaced({
+     *   onOrderPlaced: (args, log) => {
+     *     console.log('Order placed:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchOrderPlaced: (
+      parameters: dexActions.watchOrderPlaced.Parameters,
+    ) => () => void
   }
   fee: {
     /**
@@ -1829,6 +2335,37 @@ export function decorator() {
           ammActions.watchFeeSwap(client, parameters),
         watchMint: (parameters) => ammActions.watchMint(client, parameters),
         watchBurn: (parameters) => ammActions.watchBurn(client, parameters),
+      },
+      dex: {
+        buy: (parameters) => dexActions.buy(client, parameters),
+        buySync: (parameters) => dexActions.buySync(client, parameters),
+        cancel: (parameters) => dexActions.cancel(client, parameters),
+        cancelSync: (parameters) => dexActions.cancelSync(client, parameters),
+        createPair: (parameters) => dexActions.createPair(client, parameters),
+        createPairSync: (parameters) =>
+          dexActions.createPairSync(client, parameters),
+        getBalance: (parameters) => dexActions.getBalance(client, parameters),
+        getBuyQuote: (parameters) => dexActions.getBuyQuote(client, parameters),
+        getSellQuote: (parameters) =>
+          dexActions.getSellQuote(client, parameters),
+        place: (parameters) => dexActions.place(client, parameters),
+        placeSync: (parameters) => dexActions.placeSync(client, parameters),
+        placeFlip: (parameters) => dexActions.placeFlip(client, parameters),
+        placeFlipSync: (parameters) =>
+          dexActions.placeFlipSync(client, parameters),
+        sell: (parameters) => dexActions.sell(client, parameters),
+        sellSync: (parameters) => dexActions.sellSync(client, parameters),
+        withdraw: (parameters) => dexActions.withdraw(client, parameters),
+        withdrawSync: (parameters) =>
+          dexActions.withdrawSync(client, parameters),
+        watchFlipOrderPlaced: (parameters) =>
+          dexActions.watchFlipOrderPlaced(client, parameters),
+        watchOrderCancelled: (parameters) =>
+          dexActions.watchOrderCancelled(client, parameters),
+        watchOrderFilled: (parameters) =>
+          dexActions.watchOrderFilled(client, parameters),
+        watchOrderPlaced: (parameters) =>
+          dexActions.watchOrderPlaced(client, parameters),
       },
       fee: {
         // @ts-expect-error
