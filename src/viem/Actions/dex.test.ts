@@ -19,14 +19,14 @@ async function setupTokenPair() {
   const quoteAmount = parseEther('10000')
   const mintTo = account.address
 
-  // Create base token that links to USD (which will be the quote token)
+  // Create quote token
   const { token: quoteToken } = await Actions.token.createSync(client, {
     name: 'Test Quote Token',
     symbol: 'QUOTE',
     currency: 'USD',
   })
 
-  // Create base token that links to USD (which will be the quote token)
+  // Create base token
   const { token: baseToken } = await Actions.token.createSync(client, {
     name: 'Test Base Token',
     symbol: 'BASE',
