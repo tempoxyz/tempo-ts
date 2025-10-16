@@ -153,7 +153,7 @@ describe('place', () => {
   test('behavior: tick at boundaries', async () => {
     const { base } = await setupTokenPair()
 
-    // Test at MIN_TICK (-2000)
+    // Test at min tick (-2000)
     const { receipt: receipt1, ...result1 } = await Actions.dex.placeSync(
       client,
       {
@@ -166,7 +166,7 @@ describe('place', () => {
     expect(receipt1.status).toBe('success')
     expect(result1.tick).toBe(-2000)
 
-    // Test at MAX_TICK (2000)
+    // Test at max tick (2000)
     const { receipt: receipt2, ...result2 } = await Actions.dex.placeSync(
       client,
       {
@@ -183,7 +183,7 @@ describe('place', () => {
   test('behavior: tick validation fails outside bounds', async () => {
     const { base } = await setupTokenPair()
 
-    // Test tick above MAX_TICK should fail
+    // Test tick above max tix should fail
     await expect(
       Actions.dex.placeSync(client, {
         token: base,
@@ -193,7 +193,7 @@ describe('place', () => {
       }),
     ).rejects.toThrow()
 
-    // Test tick below MIN_TICK should fail
+    // Test tick below min tick should fail
     await expect(
       Actions.dex.placeSync(client, {
         token: base,
