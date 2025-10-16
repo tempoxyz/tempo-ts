@@ -42,9 +42,9 @@ type OrderType = 'buy' | 'sell'
  * @example
  * ```ts
  * import { createClient, http, parseUnits } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
  * import { tempo } from 'tempo.ts/chains'
  * import { Actions } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -132,7 +132,7 @@ export namespace buy {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.dex.buy.call({
+   *     Actions.dex.buy.call({
    *       tokenIn: '0x20c0...beef',
    *       tokenOut: '0x20c0...babe',
    *       amountOut: parseUnits('100', 6),
@@ -162,9 +162,9 @@ export namespace buy {
  * @example
  * ```ts
  * import { createClient, http, parseUnits } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
  * import { tempo } from 'tempo.ts/chains'
  * import { Actions } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -215,9 +215,9 @@ export namespace buySync {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
  * import { tempo } from 'tempo.ts/chains'
  * import { Actions } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -296,7 +296,7 @@ export namespace cancel {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.dex.cancel.call({
+   *     Actions.dex.cancel.call({
    *       orderId: 123n,
    *     }),
    *   ]
@@ -340,9 +340,9 @@ export namespace cancel {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
  * import { tempo } from 'tempo.ts/chains'
  * import { Actions } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -400,9 +400,9 @@ export namespace cancelSync {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
  * import { tempo } from 'tempo.ts/chains'
  * import { Actions } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -481,7 +481,7 @@ export namespace createPair {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.dex.createPair.call({
+   *     Actions.dex.createPair.call({
    *       base: '0x20c0...beef',
    *     }),
    *   ]
@@ -525,9 +525,9 @@ export namespace createPair {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
  * import { tempo } from 'tempo.ts/chains'
  * import { Actions } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -669,9 +669,9 @@ export namespace getBalance {
  * })
  *
  * const amountIn = await Actions.dex.getBuyQuote(client, {
+ *   amountOut: parseUnits('100', 6),
  *   tokenIn: '0x20c...11',
  *   tokenOut: '0x20c...20',
- *   amountOut: parseUnits('100', 6),
  * })
  * ```
  *
@@ -740,9 +740,9 @@ export namespace getBuyQuote {
  * })
  *
  * const amountOut = await Actions.dex.getSellQuote(client, {
+ *   amountIn: parseUnits('100', 6),
  *   tokenIn: '0x20c...11',
  *   tokenOut: '0x20c...20',
- *   amountIn: parseUnits('100', 6),
  * })
  * ```
  *
@@ -802,9 +802,9 @@ export namespace getSellQuote {
  * @example
  * ```ts
  * import { createClient, http, parseUnits } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
  * import { tempo } from 'tempo.ts/chains'
  * import { Actions, Tick } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -813,10 +813,10 @@ export namespace getSellQuote {
  * })
  *
  * const hash = await Actions.dex.place(client, {
- *   token: '0x20c...11',
  *   amount: parseUnits('100', 6),
- *   type: 'buy',
  *   tick: Tick.fromPrice('0.99'),
+ *   token: '0x20c...11',
+ *   type: 'buy',
  * })
  * ```
  *
@@ -892,11 +892,11 @@ export namespace place {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.dex.place.call({
-   *       token: '0x20c0...beef',
+   *     Actions.dex.place.call({
    *       amount: parseUnits('100', 6),
-   *       type: 'buy',
    *       tick: Tick.fromPrice('0.99'),
+   *       token: '0x20c0...beef',
+   *       type: 'buy',
    *     }),
    *   ]
    * })
@@ -939,10 +939,10 @@ export namespace place {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
+ * import { createClient, http, parseUnits } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
  * import { tempo } from 'tempo.ts/chains'
  * import { Actions, Tick } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -951,11 +951,11 @@ export namespace place {
  * })
  *
  * const hash = await Actions.dex.placeFlip(client, {
- *   token: '0x20c...11',
  *   amount: parseUnits('100', 6),
- *   type: 'buy',
- *   tick: Tick.fromPrice('0.99'),
  *   flipTick: Tick.fromPrice('1.01'),
+ *   tick: Tick.fromPrice('0.99'),
+ *   token: '0x20c...11',
+ *   type: 'buy',
  * })
  * ```
  *
@@ -1033,12 +1033,12 @@ export namespace placeFlip {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.dex.placeFlip.call({
-   *       token: '0x20c0...beef',
+   *     Actions.dex.placeFlip.call({
    *       amount: parseUnits('100', 6),
-   *       type: 'buy',
-   *       tick: Tick.fromPrice('0.99'),
    *       flipTick: Tick.fromPrice('1.01'),
+   *       tick: Tick.fromPrice('0.99'),
+   *       token: '0x20c0...beef',
+   *       type: 'buy',
    *     }),
    *   ]
    * })
@@ -1082,9 +1082,9 @@ export namespace placeFlip {
  * @example
  * ```ts
  * import { createClient, http, parseUnits } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
  * import { tempo } from 'tempo.ts/chains'
  * import { Actions, Tick } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -1093,11 +1093,11 @@ export namespace placeFlip {
  * })
  *
  * const result = await Actions.dex.placeFlipSync(client, {
- *   token: '0x20c...11',
  *   amount: parseUnits('100', 6),
- *   type: 'buy',
- *   tick: Tick.fromPrice('0.99'),
  *   flipTick: Tick.fromPrice('1.01'),
+ *   tick: Tick.fromPrice('0.99'),
+ *   token: '0x20c...11',
+ *   type: 'buy',
  * })
  * ```
  *
@@ -1146,9 +1146,9 @@ export namespace placeFlipSync {
  * @example
  * ```ts
  * import { createClient, http, parseUnits } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
  * import { tempo } from 'tempo.ts/chains'
  * import { Actions, Tick } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -1157,10 +1157,10 @@ export namespace placeFlipSync {
  * })
  *
  * const result = await Actions.dex.placeSync(client, {
- *   token: '0x20c...11',
  *   amount: parseUnits('100', 6),
- *   type: 'buy',
  *   tick: Tick.fromPrice('0.99'),
+ *   token: '0x20c...11',
+ *   type: 'buy',
  * })
  * ```
  *
@@ -1209,9 +1209,9 @@ export namespace placeSync {
  * @example
  * ```ts
  * import { createClient, http, parseUnits } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
  * import { tempo } from 'tempo.ts/chains'
  * import { Actions } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -1220,10 +1220,10 @@ export namespace placeSync {
  * })
  *
  * const hash = await Actions.dex.sell(client, {
- *   tokenIn: '0x20c...11',
- *   tokenOut: '0x20c...20',
  *   amountIn: parseUnits('100', 6),
  *   minAmountOut: parseUnits('95', 6),
+ *   tokenIn: '0x20c...11',
+ *   tokenOut: '0x20c...20',
  * })
  * ```
  *
@@ -1299,11 +1299,11 @@ export namespace sell {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.dex.sell.call({
-   *       tokenIn: '0x20c0...beef',
-   *       tokenOut: '0x20c0...babe',
+   *     Actions.dex.sell.call({
    *       amountIn: parseUnits('100', 6),
    *       minAmountOut: parseUnits('95', 6),
+   *       tokenIn: '0x20c0...beef',
+   *       tokenOut: '0x20c0...babe',
    *     }),
    *   ]
    * })
@@ -1329,9 +1329,9 @@ export namespace sell {
  * @example
  * ```ts
  * import { createClient, http, parseUnits } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
  * import { tempo } from 'tempo.ts/chains'
  * import { Actions } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -1340,10 +1340,10 @@ export namespace sell {
  * })
  *
  * const result = await Actions.dex.sellSync(client, {
- *   tokenIn: '0x20c...11',
- *   tokenOut: '0x20c...20',
  *   amountIn: parseUnits('100', 6),
  *   minAmountOut: parseUnits('95', 6),
+ *   tokenIn: '0x20c...11',
+ *   tokenOut: '0x20c...20',
  * })
  * ```
  *
@@ -1390,7 +1390,7 @@ export namespace sellSync {
  *   transport: http(),
  * })
  *
- * const unwatch = actions.dex.watchFlipOrderPlaced(client, {
+ * const unwatch = Actions.dex.watchFlipOrderPlaced(client, {
  *   onFlipOrderPlaced: (args, log) => {
  *     console.log('Flip order placed:', args)
  *   },
@@ -1471,7 +1471,7 @@ export declare namespace watchFlipOrderPlaced {
  *   transport: http(),
  * })
  *
- * const unwatch = actions.dex.watchOrderCancelled(client, {
+ * const unwatch = Actions.dex.watchOrderCancelled(client, {
  *   onOrderCancelled: (args, log) => {
  *     console.log('Order cancelled:', args)
  *   },
@@ -1547,7 +1547,7 @@ export declare namespace watchOrderCancelled {
  *   transport: http(),
  * })
  *
- * const unwatch = actions.dex.watchOrderFilled(client, {
+ * const unwatch = Actions.dex.watchOrderFilled(client, {
  *   onOrderFilled: (args, log) => {
  *     console.log('Order filled:', args)
  *   },
@@ -1631,7 +1631,7 @@ export declare namespace watchOrderFilled {
  *   transport: http(),
  * })
  *
- * const unwatch = actions.dex.watchOrderPlaced(client, {
+ * const unwatch = Actions.dex.watchOrderPlaced(client, {
  *   onOrderPlaced: (args, log) => {
  *     console.log('Order placed:', args)
  *   },
@@ -1704,9 +1704,9 @@ export declare namespace watchOrderPlaced {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
  * import { tempo } from 'tempo.ts/chains'
  * import { Actions } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -1715,8 +1715,8 @@ export declare namespace watchOrderPlaced {
  * })
  *
  * const hash = await Actions.dex.withdraw(client, {
- *   token: '0x20c...11',
  *   amount: 100n,
+ *   token: '0x20c...11',
  * })
  * ```
  *
@@ -1777,7 +1777,7 @@ export namespace withdraw {
    *
    * @example
    * ```ts
-   * import { createClient, http, walletActions } from 'viem'
+   * import { createClient, http, parseUnits, walletActions } from 'viem'
    * import { tempo } from 'tempo.ts/chains'
    * import { Actions } from 'tempo.ts/viem'
    *
@@ -1788,9 +1788,9 @@ export namespace withdraw {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.dex.withdraw.call({
-   *       token: '0x20c0...beef',
+   *     Actions.dex.withdraw.call({
    *       amount: parseUnits('100', 6),
+   *       token: '0x20c0...beef',
    *     }),
    *   ]
    * })
@@ -1816,9 +1816,9 @@ export namespace withdraw {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
  * import { tempo } from 'tempo.ts/chains'
  * import { Actions } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -1827,8 +1827,8 @@ export namespace withdraw {
  * })
  *
  * const result = await Actions.dex.withdrawSync(client, {
- *   token: '0x20c...11',
  *   amount: 100n,
+ *   token: '0x20c...11',
  * })
  * ```
  *
