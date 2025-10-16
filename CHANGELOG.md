@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.0.6
+
+### Patch Changes
+
+- [`b04eb82`](https://github.com/tempoxyz/tempo-ts/commit/b04eb8278b2b88636311b1821c2238024af89f84) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** `transferPolicy` renamed to `transferPolicyId` on `token.getMetadata` return value. It also now returns a `bigint` instead of a `string`.
+
 ## 0.0.5
 
 ### Patch Changes
