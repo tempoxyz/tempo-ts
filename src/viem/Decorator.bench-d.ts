@@ -7,5 +7,5 @@ test('decorator', () => {
   createClient({
     transport: http('https://cloudflare-eth.com'),
   }).extend(decorator())
-  attest.instantiations([45000, 'instantiations'])
+  attest.instantiations([32084, 'instantiations'])
 })
