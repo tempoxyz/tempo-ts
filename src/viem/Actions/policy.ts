@@ -322,9 +322,10 @@ export namespace setAdmin {
     client: Client<Transport, chain, account>,
     parameters: setAdmin.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = setAdmin.call(parameters)
+    const { policyId, admin, ...rest } = parameters
+    const call = setAdmin.call({ policyId, admin })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -521,10 +522,14 @@ export namespace modifyWhitelist {
     client: Client<Transport, chain, account>,
     parameters: modifyWhitelist.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { address: targetAccount, ...rest } = parameters
-    const call = modifyWhitelist.call({ ...rest, address: targetAccount })
+    const { address: targetAccount, allowed, policyId, ...rest } = parameters
+    const call = modifyWhitelist.call({
+      address: targetAccount,
+      allowed,
+      policyId,
+    })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -724,10 +729,14 @@ export namespace modifyBlacklist {
     client: Client<Transport, chain, account>,
     parameters: modifyBlacklist.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { address: targetAccount, ...rest } = parameters
-    const call = modifyBlacklist.call({ ...rest, address: targetAccount })
+    const { address: targetAccount, policyId, restricted, ...rest } = parameters
+    const call = modifyBlacklist.call({
+      address: targetAccount,
+      policyId,
+      restricted,
+    })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -890,9 +899,10 @@ export async function getData<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getData.Parameters,
 ): Promise<getData.ReturnValue> {
+  const { policyId, ...rest } = parameters
   const result = await readContract(client, {
-    ...parameters,
-    ...getData.call(parameters),
+    ...rest,
+    ...getData.call({ policyId }),
   })
   return {
     admin: result[1],
@@ -960,9 +970,10 @@ export async function isAuthorized<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: isAuthorized.Parameters,
 ): Promise<isAuthorized.ReturnValue> {
+  const { policyId, user, ...rest } = parameters
   return readContract(client, {
-    ...parameters,
-    ...isAuthorized.call(parameters),
+    ...rest,
+    ...isAuthorized.call({ policyId, user }),
   })
 }
 

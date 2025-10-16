@@ -91,11 +91,6 @@
 			"src": "./src/viem/index.ts",
 			"types": "./dist/viem/index.d.ts",
 			"import": "./dist/viem/index.js"
-		},
-		"./viem/actions": {
-			"src": "./src/viem/actions/index.ts",
-			"types": "./dist/viem/actions/index.d.ts",
-			"import": "./dist/viem/actions/index.js"
 		}
 	},
 	"simple-git-hooks": {
