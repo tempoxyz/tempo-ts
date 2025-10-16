@@ -1,4 +1,4 @@
-import { Actions, Addresses, createTempoClient } from 'tempo.ts/viem'
+import { Actions, Addresses, createTempoClient, Tick } from 'tempo.ts/viem'
 import { type Address, parseEther, publicActions } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
 import { describe, expect, test } from 'vitest'
@@ -14,12 +14,6 @@ const client = createTempoClient({
   pollingInterval: 100,
 }).extend(publicActions)
 
-/**
- * Creates a token pair ready for DEX trading
- * - Base token links to USD (default fee token)
- * - Mints tokens to specified account
- * - Approves DEX to spend tokens
- */
 async function setupTokenPair(
   options: { baseAmount?: bigint; quoteAmount?: bigint; mintTo?: Address } = {},
 ) {
@@ -30,15 +24,30 @@ async function setupTokenPair(
   } = options
 
   // Create base token that links to USD (which will be the quote token)
+  const { token: quoteToken } = await Actions.token.createSync(client, {
+    name: 'Test Quote Token',
+    symbol: 'QUOTE',
+    currency: 'USD',
+  })
+
+  // Create base token that links to USD (which will be the quote token)
   const { token: baseToken } = await Actions.token.createSync(client, {
     name: 'Test Base Token',
     symbol: 'BASE',
     currency: 'USD',
+    quoteToken,
   })
 
   // Grant issuer role to mint base tokens
   await Actions.token.grantRolesSync(client, {
     token: baseToken,
+    roles: ['issuer'],
+    to: client.account.address,
+  })
+
+  // Grant issuer role to mint quote tokens
+  await Actions.token.grantRolesSync(client, {
+    token: quoteToken,
     roles: ['issuer'],
     to: client.account.address,
   })
@@ -50,6 +59,13 @@ async function setupTokenPair(
     amount: baseAmount,
   })
 
+  // Mint quote tokens
+  await Actions.token.mintSync(client, {
+    token: quoteToken,
+    to: mintTo,
+    amount: quoteAmount,
+  })
+
   // Approve DEX to spend base tokens
   await Actions.token.approveSync(client, {
     token: baseToken,
@@ -59,7 +75,7 @@ async function setupTokenPair(
 
   // Approve DEX to spend quote tokens
   await Actions.token.approveSync(client, {
-    token: Addresses.defaultQuoteToken,
+    token: quoteToken,
     spender: Addresses.stablecoinExchange,
     amount: quoteAmount * 2n,
   })
@@ -88,12 +104,12 @@ describe('place', () => {
       quoteAmount: parseEther('1000'),
     })
 
-    // Place a bid order (buying base token with quote token)
+    // Place a sell order
     const { receipt, ...result } = await Actions.dex.placeSync(client, {
       token: base,
       amount: parseEther('100'),
       type: 'sell',
-      tick: 100, // 0.1% above peg: price = 1.001
+      tick: Tick.fromPrice('1.001'),
     })
 
     expect(receipt).toBeDefined()
@@ -106,33 +122,35 @@ describe('place', () => {
         "maker": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "orderId": 1n,
         "tick": 100,
-        "token": "0x20C0000000000000000000000000000000000004",
+        "token": "0x20c0000000000000000000000000000000000005",
+      }
+    `)
+
+    // Place a buy order
+    const { receipt: receipt2, ...result2 } = await Actions.dex.placeSync(
+      client,
+      {
+        token: base,
+        amount: parseEther('100'),
+        type: 'buy',
+        tick: Tick.fromPrice('1.001'),
+      },
+    )
+    expect(receipt2.status).toBe('success')
+    expect(result2.orderId).toBeGreaterThan(0n)
+    expect(result2).toMatchInlineSnapshot(`
+      {
+        "amount": 100000000000000000000n,
+        "isBid": true,
+        "maker": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "orderId": 2n,
+        "tick": 100,
+        "token": "0x20c0000000000000000000000000000000000005",
       }
     `)
   })
 
-  test.skip('behavior: place ask order', async () => {
-    const { base } = await setupTokenPair({
-      baseAmount: parseEther('1000'),
-      quoteAmount: parseEther('1000'),
-    })
-
-    // Place an ask order (selling base token for quote token)
-    const { receipt, ...result } = await Actions.dex.placeSync(client, {
-      token: base,
-      amount: parseEther('50'),
-      type: 'sell',
-      tick: -50, // 0.05% below peg: price = 0.9995
-    })
-
-    expect(receipt.status).toBe('success')
-    expect(result.orderId).toBeGreaterThan(0n)
-    expect(result.isBid).toBe(false)
-    expect(result.amount).toBe(parseEther('50'))
-    expect(result.tick).toBe(-50)
-  })
-
-  test.skip('behavior: tick at boundaries', async () => {
+  test('behavior: tick at boundaries', async () => {
     const { base } = await setupTokenPair()
 
     // Test at MIN_TICK (-2000)
@@ -142,7 +160,7 @@ describe('place', () => {
         token: base,
         amount: parseEther('10'),
         type: 'sell',
-        tick: -2000,
+        tick: Tick.minTick,
       },
     )
     expect(receipt1.status).toBe('success')
@@ -155,14 +173,14 @@ describe('place', () => {
         token: base,
         amount: parseEther('10'),
         type: 'buy',
-        tick: 2000,
+        tick: Tick.maxTick,
       },
     )
     expect(receipt2.status).toBe('success')
     expect(result2.tick).toBe(2000)
   })
 
-  test.skip('behavior: tick validation fails outside bounds', async () => {
+  test('behavior: tick validation fails outside bounds', async () => {
     const { base } = await setupTokenPair()
 
     // Test tick above MAX_TICK should fail
@@ -171,7 +189,7 @@ describe('place', () => {
         token: base,
         amount: parseEther('10'),
         type: 'buy',
-        tick: 2001,
+        tick: Tick.maxTick + 1,
       }),
     ).rejects.toThrow()
 
@@ -181,12 +199,12 @@ describe('place', () => {
         token: base,
         amount: parseEther('10'),
         type: 'sell',
-        tick: -2001,
+        tick: Tick.minTick - 1,
       }),
     ).rejects.toThrow()
   })
 
-  test.skip('behavior: transfers from wallet', async () => {
+  test('behavior: transfers from wallet', async () => {
     const { base, quote } = await setupTokenPair({
       baseAmount: parseEther('1000'),
       quoteAmount: parseEther('1000'),
@@ -200,9 +218,9 @@ describe('place', () => {
       token: quote,
     })
 
-    // Place a bid order - should transfer quote tokens to escrow
+    // Place a buy order - should transfer quote tokens to escrow
     const orderAmount = parseEther('100')
-    const tick = 100 // price = 1.001
+    const tick = Tick.fromPrice('1.001')
     await Actions.dex.placeSync(client, {
       token: base,
       amount: orderAmount,
@@ -230,13 +248,13 @@ describe('place', () => {
     )
   })
 
-  test.skip('behavior: multiple orders at same tick', async () => {
+  test('behavior: multiple orders at same tick', async () => {
     const { base } = await setupTokenPair({
       baseAmount: parseEther('1000'),
       quoteAmount: parseEther('1000'),
     })
 
-    const tick = 50
+    const tick = Tick.fromPrice('1.0005')
 
     // Place first order
     const { orderId: orderId1 } = await Actions.dex.placeSync(client, {
