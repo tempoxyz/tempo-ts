@@ -15,10 +15,6 @@ const client = createTempoClient({
 }).extend(publicActions)
 
 async function setupTokenPair() {
-  const baseAmount = parseEther('10000')
-  const quoteAmount = parseEther('10000')
-  const mintTo = account.address
-
   // Create quote token
   const { token: quoteToken } = await Actions.token.createSync(client, {
     name: 'Test Quote Token',
@@ -51,29 +47,29 @@ async function setupTokenPair() {
   // Mint base tokens
   await Actions.token.mintSync(client, {
     token: baseToken,
-    to: mintTo,
-    amount: baseAmount,
+    to: account.address,
+    amount: parseEther('10000'),
   })
 
   // Mint quote tokens
   await Actions.token.mintSync(client, {
     token: quoteToken,
-    to: mintTo,
-    amount: quoteAmount,
+    to: account.address,
+    amount: parseEther('10000'),
   })
 
   // Approve DEX to spend base tokens
   await Actions.token.approveSync(client, {
     token: baseToken,
     spender: Addresses.stablecoinExchange,
-    amount: baseAmount * 2n, // Approve extra for flexibility
+    amount: parseEther('10000'),
   })
 
   // Approve DEX to spend quote tokens
   await Actions.token.approveSync(client, {
     token: quoteToken,
     spender: Addresses.stablecoinExchange,
-    amount: quoteAmount * 2n,
+    amount: parseEther('10000'),
   })
 
   // Create the pair on the DEX
