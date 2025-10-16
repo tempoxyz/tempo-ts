@@ -290,7 +290,6 @@ export function deserialize(
       )
   }
 
-  // TODO: support more signature types
   const signatureEnvelope = signature
     ? SignatureEnvelope.deserialize(signature)
     : undefined
