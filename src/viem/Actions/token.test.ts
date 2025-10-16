@@ -317,7 +317,7 @@ describe('getMetadata', () => {
         "supplyCap": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
         "symbol": "AlphaUSD",
         "totalSupply": 340282366920938463481821351505477763070n,
-        "transferPolicy": "always-allow",
+        "transferPolicyId": 1n,
       }
     `)
   })
@@ -343,7 +343,7 @@ describe('getMetadata', () => {
         "supplyCap": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
         "symbol": "TUSD",
         "totalSupply": 0n,
-        "transferPolicy": "always-allow",
+        "transferPolicyId": 1n,
       }
     `)
   })
@@ -369,7 +369,7 @@ describe('getMetadata', () => {
         "supplyCap": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
         "symbol": "TUSD",
         "totalSupply": 0n,
-        "transferPolicy": "always-allow",
+        "transferPolicyId": 1n,
       }
     `)
   })

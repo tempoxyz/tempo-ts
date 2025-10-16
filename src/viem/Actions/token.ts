@@ -14,7 +14,6 @@ import {
   type SendTransactionSyncParameters,
   type TransactionReceipt,
   type Transport,
-  type ValueOf,
   type Log as viem_Log,
   type WatchContractEventParameters,
   type WriteContractReturnType,
@@ -40,12 +39,6 @@ import type {
   WriteParameters,
 } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
-
-const transferPolicy = {
-  0: 'always-reject',
-  1: 'always-allow',
-} as const
-type TransferPolicy = ValueOf<typeof transferPolicy>
 
 /**
  * Approves a spender to transfer TIP20 tokens on behalf of the caller.
@@ -1530,8 +1523,7 @@ export async function getMetadata<chain extends Chain | undefined>(
       totalSupply,
       paused,
       supplyCap,
-      transferPolicy:
-        transferPolicy[Number(transferPolicyId) as keyof typeof transferPolicy],
+      transferPolicyId,
     }),
   )
 }
@@ -1559,8 +1551,8 @@ export declare namespace getMetadata {
     symbol: string
     /** Total supply. */
     totalSupply: bigint
-    /** Transfer policy. */
-    transferPolicy: TransferPolicy
+    /** Transfer policy ID. 0="always-reject", 1="always-allow", >2=custom policy */
+    transferPolicyId: bigint
   }>
 }
 
