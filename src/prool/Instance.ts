@@ -72,17 +72,17 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
                 amount,
                 privateKey,
               },
-              port: port! + 1,
+              port: port! + 10,
               http: {
                 api: 'all',
                 addr: '0.0.0.0',
                 port: port!,
               },
               ws: {
-                port: port! + 2,
+                port: port! + 20,
               },
               authrpc: {
-                port: port! + 3,
+                port: port! + 30,
               },
             },
           )}`,
