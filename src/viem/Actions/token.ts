@@ -314,9 +314,10 @@ export namespace burnBlocked {
     client: Client<Transport, chain, account>,
     parameters: burnBlocked.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = burnBlocked.call(parameters)
+    const { amount, from, token, ...rest } = parameters
+    const call = burnBlocked.call({ amount, from, token })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -513,9 +514,10 @@ export namespace burn {
     client: Client<Transport, chain, account>,
     parameters: burn.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = burn.call(parameters)
+    const { amount, memo, token, ...rest } = parameters
+    const call = burn.call({ amount, memo, token })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -715,9 +717,10 @@ export namespace changeTransferPolicy {
     client: Client<Transport, chain, account>,
     parameters: changeTransferPolicy.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = changeTransferPolicy.call(parameters)
+    const { policyId, token, ...rest } = parameters
+    const call = changeTransferPolicy.call({ policyId, token })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -1136,9 +1139,10 @@ export namespace finalizeUpdateQuoteToken {
     client: Client<Transport, chain, account>,
     parameters: finalizeUpdateQuoteToken.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = finalizeUpdateQuoteToken.call(parameters)
+    const { token, ...rest } = parameters
+    const call = finalizeUpdateQuoteToken.call({ token })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -2113,9 +2117,10 @@ export namespace pause {
     client: Client<Transport, chain, account>,
     parameters: pause.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = pause.call(parameters)
+    const { token, ...rest } = parameters
+    const call = pause.call({ token })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -2311,9 +2316,18 @@ export namespace permit {
     client: Client<Transport, chain, account>,
     parameters: permit.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = permit.call(parameters)
+    const { owner, spender, value, deadline, signature, token, ...rest } =
+      parameters
+    const call = permit.call({
+      owner,
+      spender,
+      value,
+      deadline,
+      signature,
+      token,
+    })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -2933,9 +2947,10 @@ export namespace setSupplyCap {
     client: Client<Transport, chain, account>,
     parameters: setSupplyCap.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = setSupplyCap.call(parameters)
+    const { supplyCap, token, ...rest } = parameters
+    const call = setSupplyCap.call({ supplyCap, token })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -3125,9 +3140,10 @@ export namespace setRoleAdmin {
     client: Client<Transport, chain, account>,
     parameters: setRoleAdmin.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = setRoleAdmin.call(parameters)
+    const { adminRole, role, token, ...rest } = parameters
+    const call = setRoleAdmin.call({ adminRole, role, token })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -3324,9 +3340,10 @@ export namespace transfer {
     client: Client<Transport, chain, account>,
     parameters: transfer.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = transfer.call(parameters)
+    const { amount, from, memo, token, to, ...rest } = parameters
+    const call = transfer.call({ amount, from, memo, token, to })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -3531,9 +3548,10 @@ export namespace unpause {
     client: Client<Transport, chain, account>,
     parameters: unpause.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = unpause.call(parameters)
+    const { token, ...rest } = parameters
+    const call = unpause.call({ token })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -3718,9 +3736,10 @@ export namespace updateQuoteToken {
     client: Client<Transport, chain, account>,
     parameters: updateQuoteToken.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = updateQuoteToken.call(parameters)
+    const { quoteToken, token, ...rest } = parameters
+    const call = updateQuoteToken.call({ quoteToken, token })
     return (await action(client, {
-      ...parameters,
+      ...rest,
       ...call,
     } as never)) as never
   }

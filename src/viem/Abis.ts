@@ -913,7 +913,7 @@ export const feeManager = [
   { name: 'TokenPolicyForbids', type: 'error', inputs: [] },
 ] as const
 
-export const stablecoinDex = [
+export const stablecoinExchange = [
   {
     name: 'balanceOf',
     type: 'function',
@@ -945,6 +945,52 @@ export const stablecoinDex = [
       { type: 'uint128', name: 'amountIn' },
     ],
     outputs: [{ type: 'uint128', name: 'amountOut' }],
+  },
+  {
+    name: 'pairKey',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [
+      { type: 'address', name: 'tokenA' },
+      { type: 'address', name: 'tokenB' },
+    ],
+    outputs: [{ type: 'bytes32', name: 'key' }],
+  },
+  {
+    name: 'getTickLevel',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'base' },
+      { type: 'int16', name: 'tick' },
+      { type: 'bool', name: 'isBid' },
+    ],
+    outputs: [
+      { type: 'uint128', name: 'head' },
+      { type: 'uint128', name: 'tail' },
+      { type: 'uint128', name: 'totalLiquidity' },
+    ],
+  },
+  {
+    name: 'activeOrderId',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint128' }],
+  },
+  {
+    name: 'pendingOrderId',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint128' }],
+  },
+  {
+    name: 'createPair',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'address', name: 'base' }],
+    outputs: [{ type: 'bytes32', name: 'key' }],
   },
   {
     name: 'sell',
@@ -1013,6 +1059,22 @@ export const stablecoinDex = [
     outputs: [],
   },
   {
+    name: 'executeBlock',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [],
+    outputs: [],
+  },
+  {
+    name: 'PairCreated',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'key', indexed: true },
+      { type: 'address', name: 'base', indexed: true },
+      { type: 'address', name: 'quote', indexed: true },
+    ],
+  },
+  {
     name: 'OrderPlaced',
     type: 'event',
     inputs: [
@@ -1055,6 +1117,17 @@ export const stablecoinDex = [
   },
   { name: 'OrderDoesNotExist', type: 'error', inputs: [] },
   { name: 'Unauthorized', type: 'error', inputs: [] },
+  { name: 'FillFailed', type: 'error', inputs: [] },
+  { name: 'InvalidTick', type: 'error', inputs: [] },
   { name: 'InsufficientBalance', type: 'error', inputs: [] },
   { name: 'InvalidFlipTick', type: 'error', inputs: [] },
+  {
+    name: 'TickOutOfBounds',
+    type: 'error',
+    inputs: [{ type: 'int16', name: 'tick' }],
+  },
+  { name: 'InsufficientLiquidity', type: 'error', inputs: [] },
+  { name: 'MaxInputExceeded', type: 'error', inputs: [] },
+  { name: 'InsufficientOutput', type: 'error', inputs: [] },
+  { name: 'PairDoesNotExist', type: 'error', inputs: [] },
 ] as const
