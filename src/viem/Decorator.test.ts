@@ -26,6 +26,7 @@ describe('decorator', () => {
         "uid",
         "extend",
         "amm",
+        "dex",
         "fee",
         "policy",
         "token",
