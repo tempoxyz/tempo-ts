@@ -69,6 +69,11 @@ export type SignatureEnvelope<bigintType = bigint, numberType = number> = OneOf<
   | WebAuthn<bigintType, numberType>
 >
 
+/**
+ * RPC-formatted signature envelope.
+ */
+export type SignatureEnvelopeRpc = OneOf<Secp256k1Rpc | P256Rpc | WebAuthnRpc>
+
 export type P256<bigintType = bigint, numberType = number> = {
   prehash: boolean
   publicKey: PublicKey.PublicKey
@@ -76,10 +81,26 @@ export type P256<bigintType = bigint, numberType = number> = {
   type: 'p256'
 }
 
+export type P256Rpc = {
+  prehash: boolean
+  pubKeyX: Hex.Hex
+  pubKeyY: Hex.Hex
+  r: Hex.Hex
+  s: Hex.Hex
+  type: 'p256'
+}
+
 export type Secp256k1<bigintType = bigint, numberType = number> = {
   signature: Signature.Signature<true, bigintType, numberType>
   type: 'secp256k1'
 }
+
+export type Secp256k1Rpc = Compute<
+  Signature.Rpc<true> & {
+    v?: Hex.Hex | undefined
+    type: 'secp256k1'
+  }
+>
 
 export type Secp256k1Flat<
   bigintType = bigint,
@@ -96,6 +117,15 @@ export type WebAuthn<bigintType = bigint, numberType = number> = {
   signature: Signature.Signature<false, bigintType, numberType>
   publicKey: PublicKey.PublicKey
   type: 'webauthn'
+}
+
+export type WebAuthnRpc = {
+  pubKeyX: Hex.Hex
+  pubKeyY: Hex.Hex
+  r: Hex.Hex
+  s: Hex.Hex
+  type: 'webauthn'
+  webauthnData: Hex.Hex
 }
 
 /** Hex-encoded serialized signature envelope. */
@@ -347,6 +377,92 @@ export declare namespace from {
 }
 
 /**
+ * Converts an {@link SignatureEnvelopeRpc} to a {@link SignatureEnvelope}.
+ *
+ * @param envelope - The RPC signature envelope to convert.
+ * @returns The signature envelope with bigint values.
+ */
+export function fromRpc(envelope: SignatureEnvelopeRpc): SignatureEnvelope {
+  if (envelope.type === 'secp256k1')
+    return {
+      signature: Signature.fromRpc(envelope),
+      type: 'secp256k1',
+    }
+
+  if (envelope.type === 'p256') {
+    return {
+      prehash: envelope.prehash,
+      publicKey: {
+        prefix: 4,
+        x: Hex.toBigInt(envelope.pubKeyX),
+        y: Hex.toBigInt(envelope.pubKeyY),
+      },
+      signature: {
+        r: Hex.toBigInt(envelope.r),
+        s: Hex.toBigInt(envelope.s),
+      },
+      type: 'p256',
+    }
+  }
+
+  if (envelope.type === 'webauthn') {
+    const webauthnData = envelope.webauthnData
+    const webauthnDataSize = Hex.size(webauthnData)
+
+    // Parse webauthnData into authenticatorData and clientDataJSON
+    let authenticatorData: Hex.Hex | undefined
+    let clientDataJSON: string | undefined
+
+    // Try to find the JSON start (clientDataJSON should start with '{')
+    for (let split = 37; split < webauthnDataSize; split++) {
+      const potentialJson = Hex.toString(Hex.slice(webauthnData, split))
+      if (potentialJson.startsWith('{') && potentialJson.endsWith('}')) {
+        try {
+          JSON.parse(potentialJson)
+          authenticatorData = Hex.slice(webauthnData, 0, split)
+          clientDataJSON = potentialJson
+          break
+        } catch {}
+      }
+    }
+
+    if (!authenticatorData || !clientDataJSON)
+      throw new InvalidSerializedError({
+        reason:
+          'Unable to parse WebAuthn metadata: could not extract valid authenticatorData and clientDataJSON',
+        serialized: webauthnData,
+      })
+
+    return {
+      metadata: {
+        authenticatorData,
+        clientDataJSON,
+      },
+      publicKey: {
+        prefix: 4,
+        x: Hex.toBigInt(envelope.pubKeyX),
+        y: Hex.toBigInt(envelope.pubKeyY),
+      },
+      signature: {
+        r: Hex.toBigInt(envelope.r),
+        s: Hex.toBigInt(envelope.s),
+      },
+      type: 'webauthn',
+    }
+  }
+
+  throw new CoercionError({ envelope })
+}
+
+export declare namespace fromRpc {
+  type ErrorType =
+    | CoercionError
+    | InvalidSerializedError
+    | Signature.fromRpc.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
  * Determines the signature type of an envelope.
  *
  * @param envelope - The signature envelope to inspect.
@@ -452,6 +568,62 @@ export function serialize(envelope: SignatureEnvelope): Serialized {
   }
 
   throw new CoercionError({ envelope })
+}
+
+/**
+ * Converts a {@link SignatureEnvelope} to an {@link SignatureEnvelopeRpc}.
+ *
+ * @param envelope - The signature envelope to convert.
+ * @returns The RPC signature envelope with hex values.
+ */
+export function toRpc(envelope: SignatureEnvelope): SignatureEnvelopeRpc {
+  const type = getType(envelope)
+
+  if (type === 'secp256k1') {
+    const secp256k1 = envelope as Secp256k1
+    return {
+      ...Signature.toRpc(secp256k1.signature),
+      type: 'secp256k1',
+    }
+  }
+
+  if (type === 'p256') {
+    const p256 = envelope as P256
+    return {
+      prehash: p256.prehash,
+      pubKeyX: Hex.fromNumber(p256.publicKey.x, { size: 32 }),
+      pubKeyY: Hex.fromNumber(p256.publicKey.y, { size: 32 }),
+      r: Hex.fromNumber(p256.signature.r, { size: 32 }),
+      s: Hex.fromNumber(p256.signature.s, { size: 32 }),
+      type: 'p256',
+    }
+  }
+
+  if (type === 'webauthn') {
+    const webauthn = envelope as WebAuthn
+    const webauthnData = Hex.concat(
+      webauthn.metadata.authenticatorData,
+      Hex.fromString(webauthn.metadata.clientDataJSON),
+    )
+
+    return {
+      pubKeyX: Hex.fromNumber(webauthn.publicKey.x, { size: 32 }),
+      pubKeyY: Hex.fromNumber(webauthn.publicKey.y, { size: 32 }),
+      r: Hex.fromNumber(webauthn.signature.r, { size: 32 }),
+      s: Hex.fromNumber(webauthn.signature.s, { size: 32 }),
+      type: 'webauthn',
+      webauthnData,
+    }
+  }
+
+  throw new CoercionError({ envelope })
+}
+
+export declare namespace toRpc {
+  type ErrorType =
+    | CoercionError
+    | Signature.toRpc.ErrorType
+    | Errors.GlobalErrorType
 }
 
 /**

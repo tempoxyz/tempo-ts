@@ -1,5 +1,3 @@
-import type * as Calls from 'ox/erc7821/Calls'
-import * as Execute from 'ox/erc7821/Execute'
 import * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
@@ -16,6 +14,7 @@ import {
   type TransactionSerializableBase,
   type TransactionSerializableGeneric,
   type TransactionSerializedGeneric,
+  getTransactionType as viem_getTransactionType,
   parseTransaction as viem_parseTransaction,
   type RpcTransaction as viem_RpcTransaction,
   type RpcTransactionRequest as viem_RpcTransactionRequest,
@@ -27,8 +26,9 @@ import {
   type TransactionSerialized as viem_TransactionSerialized,
   type TransactionType as viem_TransactionType,
 } from 'viem'
-import type { ExactPartial, OneOf } from '../internal/types.js'
-import * as TxFeeToken from '../ox/TransactionEnvelopeFeeToken.js'
+import type { ExactPartial, OneOf, PartialBy } from '../internal/types.js'
+import * as SignatureEnvelope from '../ox/SignatureEnvelope.js'
+import * as TxAA from '../ox/TransactionEnvelopeAA.js'
 
 export type Transaction<
   bigintType = bigint,
@@ -36,32 +36,36 @@ export type Transaction<
   pending extends boolean = false,
 > = OneOf<
   | viem_Transaction<bigintType, numberType, pending>
-  | TransactionFeeToken<bigintType, numberType, pending>
+  | TransactionAA<bigintType, numberType, pending>
 >
 export type TransactionRpc<pending extends boolean = false> = OneOf<
   | viem_RpcTransaction<pending>
-  | TransactionFeeToken<Hex.Hex, Hex.Hex, pending, '0x77'>
+  | TransactionAA<Hex.Hex, Hex.Hex, pending, '0x77'>
 >
 
-export type TransactionFeeToken<
+export type TransactionAA<
   quantity = bigint,
   index = number,
   isPending extends boolean = boolean,
-  type = 'feeToken',
-> = TransactionBase<quantity, index, isPending> & {
-  /** EIP-2930 Access List. */
+  type = 'aa',
+> = PartialBy<
+  Omit<
+    TransactionBase<quantity, index, isPending>,
+    'data' | 'input' | 'value' | 'to'
+  >,
+  'r' | 's' | 'v' | 'yParity'
+> & {
   accessList: AccessList
-  /** Authorization list for the transaction. */
-  authorizationList: SignedAuthorizationList
-  /** Chain ID that this transaction is valid on. */
+  authorizationList?: SignedAuthorizationList | undefined
+  calls: readonly TxAA.Call<quantity>[]
   chainId: index
-  /** Fee token preference. */
   feeToken?: Address | undefined
-  /** Fee payer address. */
   feePayer?: Address | undefined
-  /** Fee payer signature. */
   feePayerSignature?: viem_Signature | undefined
+  nonceKey?: quantity | undefined
   type: type
+  validBefore?: index | undefined
+  validAfter?: index | undefined
 } & FeeValuesEIP1559<quantity>
 
 export type TransactionRequest<
@@ -69,82 +73,86 @@ export type TransactionRequest<
   numberType = number,
 > = OneOf<
   | viem_TransactionRequest<bigintType, numberType>
-  | TransactionRequestFeeToken<bigintType, numberType>
+  | TransactionRequestAA<bigintType, numberType>
 >
 export type TransactionRequestRpc = OneOf<
-  | viem_RpcTransactionRequest
-  | TransactionRequestFeeToken<Hex.Hex, Hex.Hex, '0x77'>
+  viem_RpcTransactionRequest | TransactionRequestAA<Hex.Hex, Hex.Hex, '0x77'>
 >
 
-export type TransactionRequestFeeToken<
+export type TransactionRequestAA<
   quantity = bigint,
   index = number,
-  type = 'feeToken',
+  type = 'aa',
 > = TransactionRequestBase<quantity, index, type> &
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
     authorizationList?: AuthorizationList<index, boolean> | undefined
-    calls?: readonly Calls.Call[] | undefined
+    calls?: readonly TxAA.Call<quantity>[] | undefined
     feePayer?: Account | true | undefined
     feeToken?: Address | bigint | undefined
   }
 
 export type TransactionSerializable = OneOf<
-  viem_TransactionSerializable | TransactionSerializableFeeToken
+  viem_TransactionSerializable | TransactionSerializableAA
 >
 
-export type TransactionSerializableFeeToken<
+export type TransactionSerializableAA<
   quantity = bigint,
   index = number,
 > = TransactionSerializableBase<quantity, index> &
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
-    authorizationList: SignedAuthorizationList
+    authorizationList?: SignedAuthorizationList | undefined
+    calls: readonly TxAA.Call<quantity>[]
+    chainId: number
     feeToken?: Address | bigint | undefined
     feePayerSignature?: viem_Signature | undefined
-    chainId: number
-    type?: 'feeToken' | undefined
-    yParity?: number | undefined
+    nonceKey?: quantity | undefined
+    signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
+    validBefore?: index | undefined
+    validAfter?: index | undefined
+    type?: 'aa' | undefined
   }
 
 export type TransactionSerialized<
   type extends TransactionType = TransactionType,
-> = viem_TransactionSerialized<type> | TransactionSerializedFeeToken
+> = viem_TransactionSerialized<type> | TransactionSerializedAA
 
-export type TransactionSerializedFeeToken = `0x77${string}`
+export type TransactionSerializedAA = `0x76${string}`
 
-export type TransactionType = viem_TransactionType | 'feeToken'
+export type TransactionType = viem_TransactionType | 'aa'
 
-export function isTempoTransaction(transaction: Record<string, unknown>) {
-  if (transaction.type === 'feeToken') return true
-  if (typeof transaction.calls !== 'undefined') return true
-  if (typeof transaction.feePayer !== 'undefined') return true
-  if (typeof transaction.feeToken !== 'undefined') return true
-  return false
+export function getType(
+  transaction: Record<string, unknown>,
+): Transaction['type'] {
+  if (
+    typeof transaction.calls !== 'undefined' ||
+    typeof transaction.feePayer !== 'undefined' ||
+    typeof transaction.feeToken !== 'undefined' ||
+    typeof transaction.signature !== 'undefined' ||
+    typeof transaction.validBefore !== 'undefined' ||
+    typeof transaction.validAfter !== 'undefined'
+  )
+    return 'aa' as never
+  if (transaction.type) return transaction.type as never
+  return viem_getTransactionType(transaction) as never
+}
+
+export function isTempo(transaction: Record<string, unknown>) {
+  try {
+    const type = getType(transaction)
+    return type === 'aa'
+  } catch {
+    return false
+  }
 }
 
 export function deserialize<
   const serialized extends TransactionSerializedGeneric,
 >(serializedTransaction: serialized): deserialize.ReturnValue<serialized> {
   const type = Hex.slice(serializedTransaction, 0, 1)
-  if (type === '0x77') {
-    const { authorizationList, nonce, r, s, v, ...tx } = TxFeeToken.deserialize(
-      serializedTransaction as `0x77${string}`,
-    )
-    return {
-      ...tx,
-      authorizationList: authorizationList?.map((auth) => ({
-        ...auth,
-        nonce: Number(auth.nonce ?? 0n),
-        r: Hex.fromNumber(auth.r, { size: 32 }),
-        s: Hex.fromNumber(auth.s, { size: 32 }),
-      })),
-      nonce: Number(nonce ?? 0n),
-      ...(r ? { r: Hex.fromNumber(r, { size: 32 }) } : {}),
-      ...(s ? { s: Hex.fromNumber(s, { size: 32 }) } : {}),
-      ...(v ? { v: BigInt(v) } : {}),
-    } satisfies TransactionSerializableGeneric as never
-  }
+  if (type === '0x76')
+    return deserializeAA(serializedTransaction as `0x76${string}`) as never
   return viem_parseTransaction(serializedTransaction) as never
 }
 
@@ -152,52 +160,77 @@ export declare namespace deserialize {
   export type ReturnValue<
     serialized extends
       TransactionSerializedGeneric = TransactionSerializedGeneric,
-  > = serialized extends TransactionSerializedFeeToken
-    ? TransactionSerializableFeeToken
+  > = serialized extends TransactionSerializedAA
+    ? TransactionSerializableAA
     : ParseTransactionReturnType<serialized>
 }
 
 export async function serialize(
   transaction: TransactionSerializable & {
-    calls?: readonly Calls.Call[] | undefined
     feePayer?: Account | true | undefined
     from?: Address | undefined
   },
   signature?: viem_Signature | undefined,
 ) {
-  if (!isTempoTransaction(transaction))
+  if (!isTempo(transaction))
     return viem_serializeTransaction(transaction as never, signature)
 
-  const signature_ = transaction.r && transaction.s ? transaction : signature
+  const type = getType(transaction)
+  if (type === 'aa')
+    return serializeAA(transaction as TransactionSerializableAA, signature)
+
+  throw new Error('Unsupported transaction type')
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+// Internal
+
+/** @internal */
+function deserializeAA(
+  serializedTransaction: TransactionSerializedAA,
+): TransactionSerializableAA {
+  const { authorizationList, nonce, ...tx } = TxAA.deserialize(
+    serializedTransaction,
+  )
+  return {
+    ...tx,
+    authorizationList: authorizationList?.map((auth) => ({
+      ...auth,
+      nonce: Number(auth.nonce ?? 0n),
+      r: Hex.fromNumber(auth.r, { size: 32 }),
+      s: Hex.fromNumber(auth.s, { size: 32 }),
+    })),
+    nonce: Number(nonce ?? 0n),
+  } satisfies TransactionSerializableGeneric as never
+}
+
+/** @internal */
+async function serializeAA(
+  transaction: TransactionSerializableAA & {
+    feePayer?: Account | true | undefined
+    from?: Address | undefined
+  },
+  sig?: viem_Signature | undefined,
+) {
+  const signature = (() => {
+    if (transaction.signature) return transaction.signature
+    if (sig)
+      return SignatureEnvelope.from({
+        r: BigInt(sig.r!),
+        s: BigInt(sig.s!),
+        yParity: Number(sig.yParity!),
+      })
+    return undefined
+  })()
 
   const {
     authorizationList,
     chainId,
-    calls,
     feePayer,
     feePayerSignature,
-    from,
     nonce,
-    r,
-    s,
-    v,
     ...rest
   } = transaction
-
-  // TODO: remove once native transaction type has `calls`.
-  const { data, to, value } = (() => {
-    if (calls && from)
-      return {
-        data: Execute.encodeData(calls),
-        to: from,
-        value: 0n,
-      } as const
-    return {
-      data: transaction.data,
-      to: transaction.to,
-      value: transaction.value,
-    } as const
-  })()
 
   const transaction_ox = {
     ...rest,
@@ -208,8 +241,16 @@ export async function serialize(
       s: BigInt(auth.s!),
       yParity: Number(auth.yParity),
     })),
+    calls: rest.calls?.length
+      ? rest.calls
+      : [
+          {
+            to: rest.to || undefined,
+            value: rest.value,
+            data: rest.data,
+          },
+        ],
     chainId: Number(chainId),
-    data,
     feePayerSignature: feePayerSignature
       ? {
           r: BigInt(feePayerSignature.r!),
@@ -219,35 +260,39 @@ export async function serialize(
       : feePayer
         ? null
         : undefined,
-    to,
-    type: 'feeToken',
-    value,
+    type: 'aa',
     ...(nonce ? { nonce: BigInt(nonce) } : {}),
-    ...(r ? { r: BigInt(r) } : {}),
-    ...(s ? { s: BigInt(s) } : {}),
-    ...(v ? { v: Number(v) } : {}),
-  } satisfies TxFeeToken.TransactionEnvelopeFeeToken
+  } satisfies TxAA.TransactionEnvelopeAA
 
-  if (signature_ && typeof transaction.feePayer === 'object') {
-    const tx = TxFeeToken.from(transaction_ox, {
-      signature: signature_ as never,
+  if (signature && typeof transaction.feePayer === 'object') {
+    const tx = TxAA.from(transaction_ox, {
+      signature,
     })
-    const sender = Secp256k1.recoverAddress({
-      payload: TxFeeToken.getSignPayload(tx),
-      signature: signature_ as never,
-    })
-    const hash = TxFeeToken.getFeePayerSignPayload(tx, {
+
+    const sender = (() => {
+      if (signature.type === 'secp256k1')
+        return Secp256k1.recoverAddress({
+          payload: TxAA.getSignPayload(tx),
+          signature: signature.signature,
+        })
+      throw new Error('Unsupported signature type')
+    })()
+
+    const hash = TxAA.getFeePayerSignPayload(tx, {
       sender,
     })
+
     const feePayerSignature = await transaction.feePayer.sign!({
       hash,
     })
-    return TxFeeToken.serialize(tx, {
+
+    return TxAA.serialize(tx, {
       feePayerSignature: Signature.from(feePayerSignature),
     })
   }
-  return TxFeeToken.serialize(transaction_ox, {
+
+  return TxAA.serialize(transaction_ox, {
     feePayerSignature: feePayer === true ? null : undefined,
-    signature: signature as never,
+    signature,
   })
 }

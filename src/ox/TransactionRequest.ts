@@ -1,12 +1,11 @@
 import type * as Authorization from 'ox/Authorization'
 import type * as Errors from 'ox/Errors'
-import type * as Calls from 'ox/erc7821/Calls'
-import * as Execute from 'ox/erc7821/Execute'
-import type * as Hex from 'ox/Hex'
+import * as Hex from 'ox/Hex'
 import * as ox_TransactionRequest from 'ox/TransactionRequest'
 import type { Compute } from '../internal/types.js'
 import * as TokenId from './TokenId.js'
 import * as Transaction from './Transaction.js'
+import type { Call } from './TransactionEnvelopeAA.js'
 
 /** A Transaction Request that is generic to all transaction types, as defined in the [Execution API specification](https://github.com/ethereum/execution-apis/blob/4aca1d7a3e5aab24c8f6437131289ad386944eaa/src/schemas/transaction.yaml#L358-L423). */
 export type TransactionRequest<
@@ -15,8 +14,10 @@ export type TransactionRequest<
   type extends string = string,
 > = Compute<
   ox_TransactionRequest.TransactionRequest<bigintType, numberType, type> & {
-    calls?: readonly Calls.Call[] | undefined
+    calls?: readonly Call<bigintType>[] | undefined
     feeToken?: TokenId.TokenIdOrAddress | undefined
+    validBefore?: numberType | undefined
+    validAfter?: numberType | undefined
   }
 >
 
@@ -69,25 +70,32 @@ export type Rpc = TransactionRequest<Hex.Hex, Hex.Hex, string>
 export function toRpc(request: TransactionRequest): Rpc {
   const request_rpc = ox_TransactionRequest.toRpc(request) as Rpc
 
-  request_rpc.calls = request.calls
-
+  if (request.calls)
+    request_rpc.calls = request.calls.map((call) => ({
+      to: call.to ?? '0x',
+      value: call.value ? Hex.fromNumber(call.value) : '0x',
+      data: call.data ?? '0x',
+    }))
   if (typeof request.feeToken !== 'undefined')
     request_rpc.feeToken = TokenId.toAddress(request.feeToken)
-
-  if (request.calls && request.from) {
-    delete request_rpc.to
-    delete request_rpc.value
-    delete request_rpc.data
-    request_rpc.to = request.from
-    request_rpc.data = Execute.encodeData(request.calls)
-  }
+  if (typeof request.validBefore !== 'undefined')
+    request_rpc.validBefore = Hex.fromNumber(request.validBefore)
+  if (typeof request.validAfter !== 'undefined')
+    request_rpc.validAfter = Hex.fromNumber(request.validAfter)
 
   if (
     request.calls ||
     typeof request.feeToken !== 'undefined' ||
-    request.type === 'feeToken'
-  )
-    request_rpc.type = Transaction.toRpcType.feeToken
+    typeof request.validBefore !== 'undefined' ||
+    typeof request.validAfter !== 'undefined' ||
+    request.type === 'aa'
+  ) {
+    request_rpc.type = Transaction.toRpcType.aa
+    delete request_rpc.data
+    delete request_rpc.input
+    delete request_rpc.to
+    delete request_rpc.value
+  }
 
   return request_rpc
 }

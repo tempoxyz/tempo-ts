@@ -23,6 +23,7 @@ describe('sendTransaction', () => {
       .extend(walletActions)
 
     const hash = await client.sendTransaction({
+      data: '0xdeadbeef',
       feeToken: '0x20c0000000000000000000000000000000000001',
       to: '0x0000000000000000000000000000000000000000',
     })
@@ -37,29 +38,44 @@ describe('sendTransaction', () => {
     expect(transaction).toMatchInlineSnapshot(`
       {
         "accessList": [],
-        "authorizationList": [],
+        "authorizationList": undefined,
+        "calls": [
+          {
+            "data": "0xdeadbeef",
+            "to": "0x0000000000000000000000000000000000000000",
+            "value": 0n,
+          },
+        ],
         "chainId": 1337,
-        "data": "0x",
+        "data": undefined,
         "feePayerSignature": undefined,
         "feeToken": "0x20c0000000000000000000000000000000000001",
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-        "gas": 21000n,
+        "gas": 53793n,
         "gasPrice": 44n,
-        "hash": "0x8ec74666e522dc615181a9c0294885008203c70fe80bf5314170d8285604bc03",
-        "input": "0x",
+        "hash": "0xab174e234e36ccb8bfa8c4917541b283c6bb71c0018b22aab44e2ac3d6472487",
         "maxFeePerBlobGas": undefined,
         "maxFeePerGas": 52n,
         "maxPriorityFeePerGas": 0n,
         "nonce": 0,
-        "r": "0xe1e0835591e08f11350c14c2d0afb8227ae9acc5ee1b5aa683428281ce6bd71c",
-        "s": "0x646f901ac3ef1cd06bb12205959975c25d07d22b3e790494224f7df51ddbca8c",
-        "to": "0x0000000000000000000000000000000000000000",
+        "nonceKey": 0n,
+        "signature": {
+          "signature": {
+            "r": 33687256364985057221987783909312106640857703993135866595362338429449340139426n,
+            "s": 20898247015832861772943764590866653791079823975780950675135942025860554494301n,
+            "yParity": 1,
+          },
+          "type": "secp256k1",
+        },
+        "to": null,
         "transactionIndex": 0,
-        "type": "feeToken",
-        "typeHex": "0x77",
-        "v": 27n,
+        "type": "aa",
+        "typeHex": "0x76",
+        "v": undefined,
+        "validAfter": null,
+        "validBefore": null,
         "value": 0n,
-        "yParity": 0,
+        "yParity": undefined,
       }
     `)
   })
@@ -95,31 +111,46 @@ describe('sendTransaction', () => {
     }).toMatchInlineSnapshot(`
       {
         "accessList": [],
-        "authorizationList": [],
+        "authorizationList": undefined,
         "blockHash": undefined,
         "blockNumber": undefined,
+        "calls": [
+          {
+            "data": "0xb395b9ac00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000020c0000000000000000000000000000000000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266000000000000000000000000000000000000000000000000000000000000000c5465737420546f6b656e203300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005544553543300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000035553440000000000000000000000000000000000000000000000000000000000",
+            "to": "0x20fc000000000000000000000000000000000000",
+            "value": 0n,
+          },
+        ],
         "chainId": 1337,
-        "data": "0xe9ae5c5301000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000026000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020fc000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000164b395b9ac00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000020c0000000000000000000000000000000000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266000000000000000000000000000000000000000000000000000000000000000c5465737420546f6b656e20330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000554455354330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003555344000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "data": undefined,
         "feePayerSignature": undefined,
         "feeToken": null,
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-        "gas": 30501n,
+        "gas": 53793n,
         "gasPrice": 44n,
-        "hash": "0xb034cece2643ba3f07e6cc09ed5a0f3affef931abb6fb08a881442b94fedfcb4",
-        "input": "0xe9ae5c5301000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000026000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020fc000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000164b395b9ac00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000020c0000000000000000000000000000000000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266000000000000000000000000000000000000000000000000000000000000000c5465737420546f6b656e20330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000554455354330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003555344000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "hash": "0xaac409f81cf7a716479d4a1b516a3514edbe9d6def569725de8a36715e30f4c5",
         "maxFeePerBlobGas": undefined,
         "maxFeePerGas": 52n,
         "maxPriorityFeePerGas": 0n,
         "nonce": 0,
-        "r": "0x073c694a17fa4ec46bfcbeb3abdc4ebc52d908db6e495a3fbca07bc0e5d64ac0",
-        "s": "0x7060a864cb8bd1b4292a7f91ff1703fd5275110a6df96e4f4a8483189a17ce58",
-        "to": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "nonceKey": 0n,
+        "signature": {
+          "signature": {
+            "r": 75472279831718666729809418999288579618977673042864019617021223809045246862945n,
+            "s": 33092981795205421900290930709795805463804729368014914886506847441614835773161n,
+            "yParity": 0,
+          },
+          "type": "secp256k1",
+        },
+        "to": null,
         "transactionIndex": 0,
-        "type": "feeToken",
-        "typeHex": "0x77",
-        "v": 28n,
+        "type": "aa",
+        "typeHex": "0x76",
+        "v": undefined,
+        "validAfter": null,
+        "validBefore": null,
         "value": 0n,
-        "yParity": 1,
+        "yParity": undefined,
       }
     `)
   })
@@ -156,35 +187,50 @@ describe('sendTransaction', () => {
     expect(transaction).toMatchInlineSnapshot(`
       {
         "accessList": [],
-        "authorizationList": [],
+        "authorizationList": undefined,
+        "calls": [
+          {
+            "data": "0x",
+            "to": "0x0000000000000000000000000000000000000000",
+            "value": 0n,
+          },
+        ],
         "chainId": 1337,
-        "data": "0x",
+        "data": undefined,
         "feePayer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "feePayerSignature": {
-          "r": "0x5d32035dfaa049e95bf9baa487f817a824ef154e7252587a88f0e1d46077790b",
-          "s": "0x3583f71d8df11e2e7976336ae0ee960521e80af5719e6387d7dc832f5bace402",
+          "r": "0xc2406b257f0a6af102739a49ec871137037eb9ce0a26be112cda91b0b55f0866",
+          "s": "0x713f4df2408d1e38d8d54447213e41acd68829e19712243e6dfd188e2fe07ca0",
           "v": 28n,
           "yParity": 1,
         },
         "feeToken": null,
         "from": "0x740474977e01d056f04a314b5537e4dd88f35952",
-        "gas": 21000n,
+        "gas": 53793n,
         "gasPrice": 44n,
-        "hash": "0xc4a600da90b6267bec6f414b378819dc95c597820df324b0df4e16b63cee430b",
-        "input": "0x",
+        "hash": "0x5b7ae2e6eb4d460522a62cf031ec37f9ce649f0fa1108071a7ba15c6d20f8f3b",
         "maxFeePerBlobGas": undefined,
         "maxFeePerGas": 52n,
         "maxPriorityFeePerGas": 0n,
         "nonce": 0,
-        "r": "0x1f1297f1407dd0676e1c832c62838051927c0cdabdd5ff8e30a6946cd57adb79",
-        "s": "0x779c8374b9a22585f05d4484f1c4b2b022cc114cb7002b525f66873dd43e1fa9",
-        "to": "0x0000000000000000000000000000000000000000",
+        "nonceKey": 0n,
+        "signature": {
+          "signature": {
+            "r": 78092362620450313170407859447796714674816655259251697170830907867162787398844n,
+            "s": 8477378266727504882091645495297339736341469566116127798403581541349939397793n,
+            "yParity": 0,
+          },
+          "type": "secp256k1",
+        },
+        "to": null,
         "transactionIndex": 0,
-        "type": "feeToken",
-        "typeHex": "0x77",
-        "v": 28n,
+        "type": "aa",
+        "typeHex": "0x76",
+        "v": undefined,
+        "validAfter": null,
+        "validBefore": null,
         "value": 0n,
-        "yParity": 1,
+        "yParity": undefined,
       }
     `)
   })
@@ -212,7 +258,6 @@ describe('signTransaction', () => {
       data: '0xdeadbeef',
       feePayer: true,
       to: '0xcafebabecafebabecafebabecafebabecafebabe',
-      type: 'feeToken',
     })
     let transaction = await client.signTransaction(request)
 
@@ -235,35 +280,50 @@ describe('signTransaction', () => {
     expect(transaction2).toMatchInlineSnapshot(`
       {
         "accessList": [],
-        "authorizationList": [],
+        "authorizationList": undefined,
+        "calls": [
+          {
+            "data": "0xdeadbeef",
+            "to": "0xcafebabecafebabecafebabecafebabecafebabe",
+            "value": 0n,
+          },
+        ],
         "chainId": 1337,
-        "data": "0xdeadbeef",
+        "data": undefined,
         "feePayer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "feePayerSignature": {
-          "r": "0xd855471eb74e1225bb0f12b105c8b22849af6bdbdc88e69fc4a22a0760fdb980",
-          "s": "0x4bb4c1c891657b24170fb839aaad72b11038a3d01d4f21dd912e3a3052c9c59c",
-          "v": 28n,
-          "yParity": 1,
+          "r": "0xd2174d7e41dec16cea89d13e8411e6e69cc9d7a1711861eba587bd02d1ba49f6",
+          "s": "0x30410097984493bdb80c6cb0cbc48055c9f570d161bdb8e9c23b8da71aa4769c",
+          "v": 27n,
+          "yParity": 0,
         },
         "feeToken": null,
         "from": "0x740474977e01d056f04a314b5537e4dd88f35952",
-        "gas": 21326n,
+        "gas": 53793n,
         "gasPrice": 44n,
-        "hash": "0x63f48eadae4ab046e9ca41bcfa59a0c6046da2b04f210ba6e49182d8f73e8e63",
-        "input": "0xdeadbeef",
+        "hash": "0xc54c8ffa49ca69692cadbba5ac6e0f888c7fad53b59f6258f3fde027775832c9",
         "maxFeePerBlobGas": undefined,
         "maxFeePerGas": 52n,
         "maxPriorityFeePerGas": 0n,
         "nonce": 0,
-        "r": "0xbb738db362d493d3d2674a1542ffc188b7ccc3e0cd162d571f382f2baa130180",
-        "s": "0x6fe0bbf76e60f89b4f9e3a94124c46d182e194a55caee95bef400ddb27974aea",
-        "to": "0xcafebabecafebabecafebabecafebabecafebabe",
+        "nonceKey": 0n,
+        "signature": {
+          "signature": {
+            "r": 44677545391995483967867222268488221760813651834887327154544748280403243454311n,
+            "s": 26359569188080842387556837532021842726007422277265560117459876153645612552527n,
+            "yParity": 1,
+          },
+          "type": "secp256k1",
+        },
+        "to": null,
         "transactionIndex": 0,
-        "type": "feeToken",
-        "typeHex": "0x77",
-        "v": 28n,
+        "type": "aa",
+        "typeHex": "0x76",
+        "v": undefined,
+        "validAfter": null,
+        "validBefore": null,
         "value": 0n,
-        "yParity": 1,
+        "yParity": undefined,
       }
     `)
   })
@@ -301,8 +361,8 @@ describe('relay', () => {
             ),
           )
 
-        const serialized = request.params?.[0] as `0x77${string}`
-        if (!serialized.startsWith('0x77'))
+        const serialized = request.params?.[0] as `0x76${string}`
+        if (!serialized.startsWith('0x76'))
           return Response.json(
             RpcResponse.from(
               {
@@ -375,35 +435,50 @@ describe('relay', () => {
     expect(transaction).toMatchInlineSnapshot(`
       {
         "accessList": [],
-        "authorizationList": [],
+        "authorizationList": undefined,
+        "calls": [
+          {
+            "data": "0xe789744400000000000000000000000020c0000000000000000000000000000000000001",
+            "to": "0xfeec000000000000000000000000000000000000",
+            "value": 0n,
+          },
+        ],
         "chainId": 1337,
-        "data": "0xe789744400000000000000000000000020c0000000000000000000000000000000000001",
+        "data": undefined,
         "feePayer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "feePayerSignature": {
-          "r": "0xfe9df92927697e996652682213d142b2ffb6fdab9777979c78f62cb3e061674b",
-          "s": "0x104fb902e6e4b704792e12ebc6236831a38492d439974a4ee215af191c83ab3a",
+          "r": "0x6485c1333cb3bef00a8742d92fe5e8921f10d68506de7ab6bd54049d8ac9d345",
+          "s": "0x552550b209d538830a2863731a2c3382a671bc40cfa69a01d1d616d3df63f43c",
           "v": 28n,
           "yParity": 1,
         },
         "feeToken": null,
         "from": "0x740474977e01d056f04a314b5537e4dd88f35952",
-        "gas": 22563n,
+        "gas": 53793n,
         "gasPrice": 44n,
-        "hash": "0xdf9d902872fbe0a631a66f7a629da6746c0bcc1e11cd3374d4db899ae4af175f",
-        "input": "0xe789744400000000000000000000000020c0000000000000000000000000000000000001",
+        "hash": "0xcb8f0e58ddb27f9fb3cbf200ec3023dffd43ced39c2e187c7907373082707420",
         "maxFeePerBlobGas": undefined,
         "maxFeePerGas": 52n,
         "maxPriorityFeePerGas": 0n,
         "nonce": 0,
-        "r": "0x65b6e02e960b2e7dc5c04436d041a6f327180269303c5a897b669be783ddbc8c",
-        "s": "0x497a98ff1ca644dd98a25181044112868b46fedbbbc55b278ba4d8139a6b4b54",
-        "to": "0xfeec000000000000000000000000000000000000",
+        "nonceKey": 0n,
+        "signature": {
+          "signature": {
+            "r": 58099370446734310330089633205075850139248168609383772256670067872736796317902n,
+            "s": 40363612152801210185555264529559625661542041105068748708016255256620242651218n,
+            "yParity": 1,
+          },
+          "type": "secp256k1",
+        },
+        "to": null,
         "transactionIndex": 0,
-        "type": "feeToken",
-        "typeHex": "0x77",
-        "v": 28n,
+        "type": "aa",
+        "typeHex": "0x76",
+        "v": undefined,
+        "validAfter": null,
+        "validBefore": null,
         "value": 0n,
-        "yParity": 1,
+        "yParity": undefined,
       }
     `)
   })

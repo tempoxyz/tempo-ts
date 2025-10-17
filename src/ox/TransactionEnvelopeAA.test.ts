@@ -15,6 +15,7 @@ import { tempoLocal } from '../chains.js'
 import { Instance } from '../prool/index.js'
 import { Actions } from '../viem/index.js'
 import { SignatureEnvelope } from './index.js'
+import * as Transaction from './Transaction.js'
 import * as TransactionEnvelopeAA from './TransactionEnvelopeAA.js'
 
 const privateKey =
@@ -47,8 +48,8 @@ describe('assert', () => {
       TransactionEnvelopeAA.assert({
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         chainId: 1,
-        validBefore: 100n,
-        validAfter: 200n,
+        validBefore: 100,
+        validAfter: 200,
       }),
     ).toThrowErrorMatchingInlineSnapshot(
       `[TransactionEnvelopeAA.InvalidValidityWindowError: validBefore (100) must be greater than validAfter (200).]`,
@@ -60,8 +61,8 @@ describe('assert', () => {
       TransactionEnvelopeAA.assert({
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         chainId: 1,
-        validBefore: 100n,
-        validAfter: 100n,
+        validBefore: 100,
+        validAfter: 100,
       }),
     ).toThrowErrorMatchingInlineSnapshot(
       `[TransactionEnvelopeAA.InvalidValidityWindowError: validBefore (100) must be greater than validAfter (100).]`,
@@ -228,7 +229,7 @@ describe('deserialize', () => {
   test('validBefore', () => {
     const transaction_validBefore = TransactionEnvelopeAA.from({
       ...transaction,
-      validBefore: 1000000n,
+      validBefore: 1000000,
     })
     const serialized = TransactionEnvelopeAA.serialize(transaction_validBefore)
     expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual(
@@ -239,7 +240,7 @@ describe('deserialize', () => {
   test('validAfter', () => {
     const transaction_validAfter = TransactionEnvelopeAA.from({
       ...transaction,
-      validAfter: 500000n,
+      validAfter: 500000,
     })
     const serialized = TransactionEnvelopeAA.serialize(transaction_validAfter)
     expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual(
@@ -250,8 +251,8 @@ describe('deserialize', () => {
   test('validBefore and validAfter', () => {
     const transaction_validity = TransactionEnvelopeAA.from({
       ...transaction,
-      validBefore: 1000000n,
-      validAfter: 500000n,
+      validBefore: 1000000,
+      validAfter: 500000,
     })
     const serialized = TransactionEnvelopeAA.serialize(transaction_validity)
     expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual(
@@ -1016,8 +1017,8 @@ describe('validate', () => {
       TransactionEnvelopeAA.validate({
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         chainId: 1,
-        validBefore: 100n,
-        validAfter: 200n,
+        validBefore: 100,
+        validAfter: 200,
       }),
     ).toBe(false)
   })
@@ -1417,8 +1418,8 @@ describe('e2e', () => {
       feePayerSignature: null,
       nonce: BigInt(nonce),
       gas: 100000n,
-      maxFeePerGas: Hex.toBigInt('0x59'),
-      maxPriorityFeePerGas: Hex.toBigInt('0x59'),
+      maxFeePerGas: Hex.toBigInt('0x2c'),
+      maxPriorityFeePerGas: Hex.toBigInt('0x2c'),
     })
 
     const signature = Secp256k1.sign({
@@ -1460,15 +1461,72 @@ describe('e2e', () => {
       {
         "contractAddress": null,
         "cumulativeGasUsed": "0x5208",
-        "effectiveGasPrice": "0x59",
+        "effectiveGasPrice": "0x2c",
         "from": "0x0a275bee91b39092dfd57089dee0eb0539020b90",
         "gasUsed": "0x5208",
         "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000008000000000008000000000000000000000000000000000000000000000000000100000000000000000000000000000010000000000000000000000000000000000020000000000000100000000040000000000000000020000000000000000000000000000000000000000000000000000000000000000002000000200000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
         "status": "0x1",
         "to": "0x0000000000000000000000000000000000000000",
-        "transactionHash": "0x266b1f0fac37f45a3f8639c10925af07d24f92eb4cd5454f6b0b522e8fe3d524",
+        "transactionHash": "0x4dfc9ff9ca1613f5598aef948a6582f5b1e703cac2a9c42ff6aee17594e8e410",
         "transactionIndex": "0x0",
         "type": "0x76",
+      }
+    `)
+
+    const tx = await transport
+      .request({
+        method: 'eth_getTransactionByHash',
+        params: [receipt.transactionHash],
+      })
+      .then(Transaction.fromRpc)
+
+    expect({
+      ...tx,
+      blockHash: undefined,
+      blockNumber: undefined,
+    }).toMatchInlineSnapshot(`
+      {
+        "accessList": [],
+        "blockHash": undefined,
+        "blockNumber": undefined,
+        "calls": [
+          {
+            "data": "0x",
+            "to": "0x0000000000000000000000000000000000000000",
+            "value": 0n,
+          },
+        ],
+        "chainId": 1337,
+        "data": undefined,
+        "feePayer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "feePayerSignature": {
+          "r": 43378281592208347441865552210308016112467267198196289074355464650745129225935n,
+          "s": 27085416135574431106158684173224223218527774861914424707575629469330173001812n,
+          "v": 27,
+          "yParity": 0,
+        },
+        "feeToken": null,
+        "from": "0x0a275bee91b39092dfd57089dee0eb0539020b90",
+        "gas": 100000n,
+        "gasPrice": 44n,
+        "hash": "0x4dfc9ff9ca1613f5598aef948a6582f5b1e703cac2a9c42ff6aee17594e8e410",
+        "maxFeePerGas": 44n,
+        "maxPriorityFeePerGas": 44n,
+        "nonce": 0n,
+        "nonceKey": 0n,
+        "signature": {
+          "signature": {
+            "r": 58903572187112378577233587639727517391280428405029588654830213610953355580984n,
+            "s": 37751027942634060522067136615803679123517065498160046803985825017412584342835n,
+            "yParity": 1,
+          },
+          "type": "secp256k1",
+        },
+        "transactionIndex": 0,
+        "type": "aa",
+        "validAfter": null,
+        "validBefore": null,
+        "value": 0n,
       }
     `)
   })
