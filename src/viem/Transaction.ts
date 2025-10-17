@@ -12,7 +12,6 @@ import {
   type TransactionBase,
   type TransactionRequestBase,
   type TransactionSerializableBase,
-  type TransactionSerializableGeneric,
   type TransactionSerializedGeneric,
   getTransactionType as viem_getTransactionType,
   parseTransaction as viem_parseTransaction,
@@ -40,7 +39,7 @@ export type Transaction<
 >
 export type TransactionRpc<pending extends boolean = false> = OneOf<
   | viem_RpcTransaction<pending>
-  | TransactionAA<Hex.Hex, Hex.Hex, pending, '0x77'>
+  | TransactionAA<Hex.Hex, Hex.Hex, pending, '0x76'>
 >
 
 export type TransactionAA<
@@ -76,7 +75,7 @@ export type TransactionRequest<
   | TransactionRequestAA<bigintType, numberType>
 >
 export type TransactionRequestRpc = OneOf<
-  viem_RpcTransactionRequest | TransactionRequestAA<Hex.Hex, Hex.Hex, '0x77'>
+  viem_RpcTransactionRequest | TransactionRequestAA<Hex.Hex, Hex.Hex, '0x76'>
 >
 
 export type TransactionRequestAA<
@@ -106,7 +105,7 @@ export type TransactionSerializableAA<
     calls: readonly TxAA.Call<quantity>[]
     chainId: number
     feeToken?: Address | bigint | undefined
-    feePayerSignature?: viem_Signature | undefined
+    feePayerSignature?: viem_Signature | null | undefined
     nonceKey?: quantity | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
     validBefore?: index | undefined
@@ -189,9 +188,8 @@ export async function serialize(
 function deserializeAA(
   serializedTransaction: TransactionSerializedAA,
 ): TransactionSerializableAA {
-  const { authorizationList, nonce, ...tx } = TxAA.deserialize(
-    serializedTransaction,
-  )
+  const { authorizationList, feePayerSignature, nonce, ...tx } =
+    TxAA.deserialize(serializedTransaction)
   return {
     ...tx,
     authorizationList: authorizationList?.map((auth) => ({
@@ -201,7 +199,14 @@ function deserializeAA(
       s: Hex.fromNumber(auth.s, { size: 32 }),
     })),
     nonce: Number(nonce ?? 0n),
-  } satisfies TransactionSerializableGeneric as never
+    feePayerSignature: feePayerSignature
+      ? {
+          r: Hex.fromNumber(feePayerSignature.r, { size: 32 }),
+          s: Hex.fromNumber(feePayerSignature.s, { size: 32 }),
+          yParity: feePayerSignature.yParity,
+        }
+      : feePayerSignature,
+  } satisfies TransactionSerializableAA
 }
 
 /** @internal */
