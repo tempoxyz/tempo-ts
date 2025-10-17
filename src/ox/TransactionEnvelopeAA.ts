@@ -1,5 +1,6 @@
 import * as AccessList from 'ox/AccessList'
 import * as Address from 'ox/Address'
+import type * as Authorization from 'ox/Authorization'
 import * as Errors from 'ox/Errors'
 import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
@@ -20,12 +21,12 @@ import * as TokenId from './TokenId.js'
  * Represents a single call within an AA transaction.
  */
 export type Call<bigintType = bigint> = {
+  /** Call data. */
+  data?: Hex.Hex | undefined
   /** The target address or contract creation. */
   to?: Address.Address | undefined
   /** Value to send (in wei). */
   value?: bigintType | undefined
-  /** Call data. */
-  data?: Hex.Hex | undefined
 }
 
 export type TransactionEnvelopeAA<
@@ -35,6 +36,12 @@ export type TransactionEnvelopeAA<
   type extends string = Type,
 > = Compute<
   {
+    /** EIP-2930 Access List. */
+    accessList?: AccessList.AccessList | undefined
+    /** EIP-7702 Authorization list for the transaction. */
+    authorizationList?:
+      | Authorization.ListSigned<bigintType, numberType>
+      | undefined
     /** EIP-155 Chain ID. */
     chainId: numberType
     /** Sender of the transaction. */
@@ -45,10 +52,8 @@ export type TransactionEnvelopeAA<
     nonce?: bigintType | undefined
     /** Transaction type */
     type: type
-    /** EIP-2930 Access List. */
-    accessList?: AccessList.AccessList | undefined
     /** Array of calls to execute. */
-    calls: Call<bigintType>[]
+    calls: readonly Call<bigintType>[]
     /** Fee payer signature. */
     feePayerSignature?:
       | Signature.Signature<true, bigintType, numberType>
@@ -63,9 +68,9 @@ export type TransactionEnvelopeAA<
     /** Nonce key for 2D nonce system (192 bits). */
     nonceKey?: bigintType | undefined
     /** Transaction can only be included in a block before this timestamp. */
-    validBefore?: bigintType | undefined
+    validBefore?: numberType | undefined
     /** Transaction can only be included in a block after this timestamp. */
-    validAfter?: bigintType | undefined
+    validAfter?: numberType | undefined
   } & (signed extends true
     ? {
         signature: SignatureEnvelope.SignatureEnvelope<bigintType, numberType>
@@ -128,8 +133,8 @@ export function assert(envelope: PartialBy<TransactionEnvelopeAA, 'type'>) {
 
   // validBefore must be greater than validAfter if both are set
   if (
-    validBefore !== undefined &&
-    validAfter !== undefined &&
+    typeof validBefore === 'number' &&
+    typeof validAfter === 'number' &&
     validBefore <= validAfter
   ) {
     throw new InvalidValidityWindowError({
@@ -253,9 +258,9 @@ export function deserialize(
   if (Hex.validate(nonceKey))
     transaction.nonceKey = nonceKey === '0x' ? 0n : BigInt(nonceKey)
   if (Hex.validate(validBefore) && validBefore !== '0x')
-    transaction.validBefore = BigInt(validBefore)
+    transaction.validBefore = Number(validBefore)
   if (Hex.validate(validAfter) && validAfter !== '0x')
-    transaction.validAfter = BigInt(validAfter)
+    transaction.validAfter = Number(validAfter)
   if (Hex.validate(feeToken) && feeToken !== '0x')
     transaction.feeToken = feeToken
 
@@ -550,8 +555,8 @@ export function serialize(
     accessTupleList,
     nonceKey ? Hex.fromNumber(nonceKey) : '0x',
     nonce ? Hex.fromNumber(nonce) : '0x',
-    validBefore !== undefined ? Hex.fromNumber(validBefore) : '0x',
-    validAfter !== undefined ? Hex.fromNumber(validAfter) : '0x',
+    typeof validBefore === 'number' ? Hex.fromNumber(validBefore) : '0x',
+    typeof validAfter === 'number' ? Hex.fromNumber(validAfter) : '0x',
     typeof feeToken === 'bigint' || typeof feeToken === 'string'
       ? TokenId.toAddress(feeToken)
       : '0x',
@@ -843,8 +848,8 @@ export class InvalidValidityWindowError extends Errors.BaseError {
     validBefore,
     validAfter,
   }: {
-    validBefore: bigint
-    validAfter: bigint
+    validBefore: number
+    validAfter: number
   }) {
     super(
       `validBefore (${validBefore}) must be greater than validAfter (${validAfter}).`,

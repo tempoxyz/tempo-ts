@@ -1,4 +1,4 @@
-import { PublicKey, Secp256k1, Signature, WebAuthnP256 } from 'ox'
+import { Hex, PublicKey, Secp256k1, Signature, WebAuthnP256 } from 'ox'
 import { describe, expect, test } from 'vitest'
 import * as SignatureEnvelope from './SignatureEnvelope.js'
 
@@ -954,6 +954,274 @@ describe('validate', () => {
         s: 0n,
       } as any),
     ).toBe(false)
+  })
+})
+
+describe('fromRpc', () => {
+  describe('secp256k1', () => {
+    test('behavior: converts RPC secp256k1 signature', () => {
+      const rpc: SignatureEnvelope.Secp256k1Rpc = {
+        r: Signature.toRpc(signature_secp256k1).r,
+        s: Signature.toRpc(signature_secp256k1).s,
+        yParity: Signature.toRpc(signature_secp256k1).yParity,
+        type: 'secp256k1',
+      }
+
+      const envelope = SignatureEnvelope.fromRpc(rpc)
+
+      expect(envelope).toMatchObject({
+        signature: {
+          r: signature_secp256k1.r,
+          s: signature_secp256k1.s,
+          yParity: signature_secp256k1.yParity,
+        },
+        type: 'secp256k1',
+      })
+    })
+  })
+
+  describe('p256', () => {
+    test('behavior: converts RPC P256 signature', () => {
+      const rpc: SignatureEnvelope.P256Rpc = {
+        prehash: true,
+        pubKeyX: Hex.fromNumber(publicKey.x, { size: 32 }),
+        pubKeyY: Hex.fromNumber(publicKey.y, { size: 32 }),
+        r: Hex.fromNumber(p256Signature.r, { size: 32 }),
+        s: Hex.fromNumber(p256Signature.s, { size: 32 }),
+        type: 'p256',
+      }
+
+      const envelope = SignatureEnvelope.fromRpc(rpc)
+
+      expect(envelope).toMatchObject({
+        prehash: true,
+        publicKey: {
+          x: publicKey.x,
+          y: publicKey.y,
+        },
+        signature: {
+          r: p256Signature.r,
+          s: p256Signature.s,
+        },
+        type: 'p256',
+      })
+    })
+  })
+
+  describe('webauthn', () => {
+    test('behavior: converts RPC WebAuthn signature', () => {
+      const webauthnData = WebAuthnP256.getAuthenticatorData({
+        rpId: 'localhost',
+      })
+      const clientDataJSON = WebAuthnP256.getClientDataJSON({
+        challenge: '0xdeadbeef',
+        origin: 'http://localhost',
+      })
+
+      const rpc: SignatureEnvelope.WebAuthnRpc = {
+        pubKeyX: Hex.fromNumber(publicKey.x, { size: 32 }),
+        pubKeyY: Hex.fromNumber(publicKey.y, { size: 32 }),
+        r: Hex.fromNumber(p256Signature.r, { size: 32 }),
+        s: Hex.fromNumber(p256Signature.s, { size: 32 }),
+        type: 'webauthn',
+        webauthnData: Hex.concat(webauthnData, Hex.fromString(clientDataJSON)),
+      }
+
+      const envelope = SignatureEnvelope.fromRpc(rpc)
+
+      expect(envelope).toMatchObject({
+        metadata: {
+          authenticatorData: webauthnData,
+          clientDataJSON,
+        },
+        publicKey: {
+          x: publicKey.x,
+          y: publicKey.y,
+        },
+        signature: {
+          r: p256Signature.r,
+          s: p256Signature.s,
+        },
+        type: 'webauthn',
+      })
+    })
+  })
+})
+
+describe('toRpc', () => {
+  describe('secp256k1', () => {
+    test('behavior: converts secp256k1 signature to RPC', () => {
+      const envelope: SignatureEnvelope.Secp256k1 = {
+        signature: signature_secp256k1,
+        type: 'secp256k1',
+      }
+
+      const rpc = SignatureEnvelope.toRpc(envelope)
+
+      expect(rpc).toMatchObject({
+        r: Signature.toRpc(signature_secp256k1).r,
+        s: Signature.toRpc(signature_secp256k1).s,
+        yParity: Signature.toRpc(signature_secp256k1).yParity,
+        type: 'secp256k1',
+      })
+    })
+  })
+
+  describe('p256', () => {
+    test('behavior: converts P256 signature to RPC', () => {
+      const rpc = SignatureEnvelope.toRpc(signature_p256)
+
+      expect(rpc.type).toBe('p256')
+      expect(rpc.prehash).toBe(true)
+      expect(typeof rpc.pubKeyX).toBe('string')
+      expect(typeof rpc.pubKeyY).toBe('string')
+      expect(typeof rpc.r).toBe('string')
+      expect(typeof rpc.s).toBe('string')
+    })
+
+    test('behavior: converts prehash=false correctly', () => {
+      const withPrehashFalse = { ...signature_p256, prehash: false }
+      const rpc = SignatureEnvelope.toRpc(withPrehashFalse)
+
+      expect(rpc.prehash).toBe(false)
+    })
+  })
+
+  describe('webauthn', () => {
+    test('behavior: converts WebAuthn signature to RPC', () => {
+      const rpc = SignatureEnvelope.toRpc(
+        signature_webauthn,
+      ) as SignatureEnvelope.WebAuthnRpc
+
+      expect(rpc.type).toBe('webauthn')
+      expect(typeof rpc.pubKeyX).toBe('string')
+      expect(typeof rpc.pubKeyY).toBe('string')
+      expect(typeof rpc.r).toBe('string')
+      expect(typeof rpc.s).toBe('string')
+      expect(typeof rpc.webauthnData).toBe('string')
+      expect(rpc.webauthnData.startsWith('0x')).toBe(true)
+    })
+
+    test('behavior: webauthnData contains authenticatorData and clientDataJSON', () => {
+      const rpc = SignatureEnvelope.toRpc(
+        signature_webauthn,
+      ) as SignatureEnvelope.WebAuthnRpc
+
+      // webauthnData should contain the concatenation of authenticatorData and clientDataJSON (as hex)
+      expect(rpc.webauthnData).toContain(
+        signature_webauthn.metadata.authenticatorData.slice(2),
+      )
+    })
+  })
+})
+
+describe('roundtrip: toRpc <-> fromRpc', () => {
+  describe('secp256k1', () => {
+    test('behavior: roundtrips toRpc -> fromRpc', () => {
+      const envelope: SignatureEnvelope.Secp256k1 = {
+        signature: signature_secp256k1,
+        type: 'secp256k1',
+      }
+
+      const rpc = SignatureEnvelope.toRpc(envelope)
+      const roundtripped = SignatureEnvelope.fromRpc(rpc)
+
+      expect(roundtripped).toMatchObject({
+        signature: {
+          r: signature_secp256k1.r,
+          s: signature_secp256k1.s,
+          yParity: signature_secp256k1.yParity,
+        },
+        type: 'secp256k1',
+      })
+    })
+
+    test('behavior: roundtrips fromRpc -> toRpc', () => {
+      const rpc: SignatureEnvelope.Secp256k1Rpc = {
+        r: Signature.toRpc(signature_secp256k1).r,
+        s: Signature.toRpc(signature_secp256k1).s,
+        yParity: Signature.toRpc(signature_secp256k1).yParity,
+        type: 'secp256k1',
+      }
+
+      const envelope = SignatureEnvelope.fromRpc(rpc)
+      const roundtripped = SignatureEnvelope.toRpc(envelope)
+
+      expect(roundtripped).toMatchObject(rpc)
+    })
+  })
+
+  describe('p256', () => {
+    test('behavior: roundtrips toRpc -> fromRpc', () => {
+      const rpc = SignatureEnvelope.toRpc(signature_p256)
+      const roundtripped = SignatureEnvelope.fromRpc(rpc)
+
+      expect(roundtripped).toMatchObject({
+        prehash: signature_p256.prehash,
+        publicKey: {
+          x: signature_p256.publicKey.x,
+          y: signature_p256.publicKey.y,
+        },
+        signature: {
+          r: signature_p256.signature.r,
+          s: signature_p256.signature.s,
+        },
+        type: 'p256',
+      })
+    })
+
+    test('behavior: handles prehash=false in roundtrip', () => {
+      const withPrehashFalse = { ...signature_p256, prehash: false }
+      const rpc = SignatureEnvelope.toRpc(withPrehashFalse)
+      const roundtripped = SignatureEnvelope.fromRpc(rpc)
+
+      expect(roundtripped.prehash).toBe(false)
+    })
+  })
+
+  describe('webauthn', () => {
+    test('behavior: roundtrips toRpc -> fromRpc', () => {
+      const rpc = SignatureEnvelope.toRpc(signature_webauthn)
+      const roundtripped = SignatureEnvelope.fromRpc(rpc)
+
+      expect(roundtripped).toMatchObject({
+        metadata: {
+          authenticatorData: signature_webauthn.metadata.authenticatorData,
+          clientDataJSON: signature_webauthn.metadata.clientDataJSON,
+        },
+        publicKey: {
+          x: signature_webauthn.publicKey.x,
+          y: signature_webauthn.publicKey.y,
+        },
+        signature: {
+          r: signature_webauthn.signature.r,
+          s: signature_webauthn.signature.s,
+        },
+        type: 'webauthn',
+      })
+    })
+
+    test('behavior: handles variable-length clientDataJSON in roundtrip', () => {
+      const longClientData = JSON.stringify({
+        type: 'webauthn.get',
+        challenge: 'a'.repeat(100),
+        origin: 'https://example.com',
+        crossOrigin: false,
+      })
+
+      const signatureWithLongData = {
+        ...signature_webauthn,
+        metadata: {
+          ...signature_webauthn.metadata,
+          clientDataJSON: longClientData,
+        },
+      }
+
+      const rpc = SignatureEnvelope.toRpc(signatureWithLongData)
+      const roundtripped = SignatureEnvelope.fromRpc(rpc)
+
+      expect(roundtripped.metadata?.clientDataJSON).toBe(longClientData)
+    })
   })
 })
 

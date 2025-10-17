@@ -10,7 +10,7 @@ import type {
   MaybeRequired,
   UnionPick,
 } from '../../internal/types.js'
-import type { TransactionRequestFeeToken } from '../Transaction.js'
+import type { TransactionRequestAA } from '../Transaction.js'
 
 export type GetAccountParameter<
   account extends Account | undefined = Account | undefined,
@@ -53,4 +53,4 @@ export type WriteParameters<
   | 'nonce'
   | 'throwOnReceiptRevert'
 > &
-  UnionPick<TransactionRequestFeeToken, 'feePayer' | 'feeToken'>
+  UnionPick<TransactionRequestAA, 'feePayer' | 'feeToken'>

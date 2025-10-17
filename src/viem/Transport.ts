@@ -27,7 +27,7 @@ export function withFeePayer(
           method === 'eth_sendRawTransactionSync' ||
           method === 'eth_sendRawTransaction'
         ) {
-          const serialized = (params as any)[0] as `0x77${string}`
+          const serialized = (params as any)[0] as `0x76${string}`
           const transaction = Transaction.deserialize(serialized)
           // If the transaction is intended to be sponsored, forward it to the relay.
           if (transaction.feePayerSignature === null)
