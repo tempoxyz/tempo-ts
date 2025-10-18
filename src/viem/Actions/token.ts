@@ -1176,7 +1176,7 @@ export namespace finalizeUpdateQuoteToken {
     return defineCall({
       address: TokenId.toAddress(token),
       abi: Abis.tip20,
-      functionName: 'finalizeLinkingTokenUpdate',
+      functionName: 'finalizeQuoteTokenUpdate',
       args: [],
     })
   }
@@ -1191,9 +1191,9 @@ export namespace finalizeUpdateQuoteToken {
     const [log] = parseEventLogs({
       abi: Abis.tip20,
       logs,
-      eventName: 'LinkingTokenUpdateFinalized',
+      eventName: 'QuoteTokenUpdateFinalized',
     })
-    if (!log) throw new Error('`LinkingTokenUpdateFinalized` event not found.')
+    if (!log) throw new Error('`QuoteTokenUpdateFinalized` event not found.')
     return log
   }
 }
@@ -1253,7 +1253,7 @@ export namespace finalizeUpdateQuoteTokenSync {
   export type ReturnValue = Compute<
     GetEventArgs<
       typeof Abis.tip20,
-      'LinkingTokenUpdateFinalized',
+      'QuoteTokenUpdateFinalized',
       {
         IndexedOnly: false
         Required: true
@@ -1468,7 +1468,7 @@ export async function getMetadata<chain extends Chain | undefined>(
       {
         address,
         abi,
-        functionName: 'linkingToken',
+        functionName: 'quoteToken',
       },
       {
         address,
@@ -3773,7 +3773,7 @@ export namespace updateQuoteToken {
     return defineCall({
       address: TokenId.toAddress(token),
       abi: Abis.tip20,
-      functionName: 'updateLinkingToken',
+      functionName: 'updateQuoteToken',
       args: [TokenId.toAddress(quoteToken)],
     })
   }
@@ -3788,9 +3788,9 @@ export namespace updateQuoteToken {
     const [log] = parseEventLogs({
       abi: Abis.tip20,
       logs,
-      eventName: 'UpdateLinkingToken',
+      eventName: 'UpdateQuoteToken',
     })
-    if (!log) throw new Error('`UpdateLinkingToken` event not found.')
+    if (!log) throw new Error('`UpdateQuoteToken` event not found.')
     return log
   }
 }
@@ -3851,7 +3851,7 @@ export namespace updateQuoteTokenSync {
   export type ReturnValue = Compute<
     GetEventArgs<
       typeof Abis.tip20,
-      'UpdateLinkingToken',
+      'UpdateQuoteToken',
       {
         IndexedOnly: false
         Required: true
@@ -4388,9 +4388,9 @@ export declare namespace watchTransfer {
  * const unwatch = actions.token.watchUpdateQuoteToken(client, {
  *   onUpdateQuoteToken: (args, log) => {
  *     if (args.finalized)
- *       console.log('quote token update finalized:', args.newLinkingToken)
+ *       console.log('quote token update finalized:', args.newQuoteToken)
  *     else
- *       console.log('quote token update proposed:', args.newLinkingToken)
+ *       console.log('quote token update proposed:', args.newQuoteToken)
  *   },
  * })
  * ```
@@ -4424,22 +4424,22 @@ export function watchUpdateQuoteToken<
         false,
         ExtractAbiItem<
           typeof Abis.tip20,
-          'UpdateLinkingToken' | 'LinkingTokenUpdateFinalized'
+          'UpdateQuoteToken' | 'QuoteTokenUpdateFinalized'
         >,
         true
       >[],
     ) => {
       for (const log of logs) {
         if (
-          log.eventName !== 'UpdateLinkingToken' &&
-          log.eventName !== 'LinkingTokenUpdateFinalized'
+          log.eventName !== 'UpdateQuoteToken' &&
+          log.eventName !== 'QuoteTokenUpdateFinalized'
         )
           continue
 
         onUpdateQuoteToken(
           {
             ...log.args,
-            finalized: log.eventName === 'LinkingTokenUpdateFinalized',
+            finalized: log.eventName === 'QuoteTokenUpdateFinalized',
           },
           log,
         )
@@ -4453,12 +4453,12 @@ export declare namespace watchUpdateQuoteToken {
   export type Args = OneOf<
     | GetEventArgs<
         typeof Abis.tip20,
-        'UpdateLinkingToken',
+        'UpdateQuoteToken',
         { IndexedOnly: false; Required: true }
       >
     | GetEventArgs<
         typeof Abis.tip20,
-        'LinkingTokenUpdateFinalized',
+        'QuoteTokenUpdateFinalized',
         { IndexedOnly: false; Required: true }
       >
   > & {

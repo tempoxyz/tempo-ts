@@ -65,9 +65,13 @@ for (const solMatch of content.matchAll(solBlockRegex)) {
       // Parse struct fields
       const fields = structBody
         .split(';')
-        .map((f) => f.trim())
-        .filter((f) => f && !f.startsWith('//'))
-        .map((f) => f.trim())
+        .map((f) =>
+          f
+            .split('\n')
+            .filter((line) => !line.trim().startsWith('///'))
+            .join(' ')
+            .trim(),
+        )
         .filter(Boolean)
 
       if (fields.length > 0) {

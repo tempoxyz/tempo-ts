@@ -502,14 +502,14 @@ describe('buy', () => {
         maxAmountIn: parseEther('50'), // Way too low for 1% premium
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "buy" reverted.
+      [ContractFunctionExecutionError: The contract function "swapExactAmountOut" reverted.
 
       Error: MaxInputExceeded()
        
       Contract Call:
         address:   0xdec0000000000000000000000000000000000000
-        function:  buy(address tokenIn, address tokenOut, uint128 amountOut, uint128 maxAmountIn)
-        args:         (0x20C0000000000000000000000000000000000004, 0x20c0000000000000000000000000000000000005, 100000000000000000000, 50000000000000000000)
+        function:  swapExactAmountOut(address tokenIn, address tokenOut, uint128 amountOut, uint128 maxAmountIn)
+        args:                        (0x20C0000000000000000000000000000000000004, 0x20c0000000000000000000000000000000000005, 100000000000000000000, 50000000000000000000)
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
       Docs: https://viem.sh/docs/contract/writeContract
@@ -531,14 +531,14 @@ describe('buy', () => {
         maxAmountIn: parseEther('150'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "buy" reverted.
+      [ContractFunctionExecutionError: The contract function "swapExactAmountOut" reverted.
 
       Error: InsufficientLiquidity()
        
       Contract Call:
         address:   0xdec0000000000000000000000000000000000000
-        function:  buy(address tokenIn, address tokenOut, uint128 amountOut, uint128 maxAmountIn)
-        args:         (0x20C0000000000000000000000000000000000004, 0x20c0000000000000000000000000000000000005, 100000000000000000000, 150000000000000000000)
+        function:  swapExactAmountOut(address tokenIn, address tokenOut, uint128 amountOut, uint128 maxAmountIn)
+        args:                        (0x20C0000000000000000000000000000000000004, 0x20c0000000000000000000000000000000000005, 100000000000000000000, 150000000000000000000)
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
       Docs: https://viem.sh/docs/contract/writeContract
@@ -797,14 +797,14 @@ describe('getBuyQuote', () => {
         amountOut: parseEther('100'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "quoteBuy" reverted.
+      [ContractFunctionExecutionError: The contract function "quoteSwapExactAmountOut" reverted.
 
       Error: InsufficientLiquidity()
        
       Contract Call:
         address:   0xdec0000000000000000000000000000000000000
-        function:  quoteBuy(address tokenIn, address tokenOut, uint128 amountOut)
-        args:              (0x20C0000000000000000000000000000000000004, 0x20c0000000000000000000000000000000000005, 100000000000000000000)
+        function:  quoteSwapExactAmountOut(address tokenIn, address tokenOut, uint128 amountOut)
+        args:                             (0x20C0000000000000000000000000000000000004, 0x20c0000000000000000000000000000000000005, 100000000000000000000)
 
       Docs: https://viem.sh/docs/contract/readContract
       Version: viem@2.38.2]
@@ -847,14 +847,14 @@ describe('getSellQuote', () => {
         amountIn: parseEther('100'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "quoteSell" reverted.
+      [ContractFunctionExecutionError: The contract function "quoteSwapExactAmountIn" reverted.
 
       Error: InsufficientLiquidity()
        
       Contract Call:
         address:   0xdec0000000000000000000000000000000000000
-        function:  quoteSell(address tokenIn, address tokenOut, uint128 amountIn)
-        args:               (0x20c0000000000000000000000000000000000005, 0x20C0000000000000000000000000000000000004, 100000000000000000000)
+        function:  quoteSwapExactAmountIn(address tokenIn, address tokenOut, uint128 amountIn)
+        args:                            (0x20c0000000000000000000000000000000000005, 0x20C0000000000000000000000000000000000004, 100000000000000000000)
 
       Docs: https://viem.sh/docs/contract/readContract
       Version: viem@2.38.2]
@@ -906,14 +906,14 @@ describe('sell', () => {
         minAmountOut: parseEther('150'), // Way too high
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "sell" reverted.
+      [ContractFunctionExecutionError: The contract function "swapExactAmountIn" reverted.
 
       Error: InsufficientOutput()
        
       Contract Call:
         address:   0xdec0000000000000000000000000000000000000
-        function:  sell(address tokenIn, address tokenOut, uint128 amountIn, uint128 minAmountOut)
-        args:          (0x20c0000000000000000000000000000000000005, 0x20C0000000000000000000000000000000000004, 100000000000000000000, 150000000000000000000)
+        function:  swapExactAmountIn(address tokenIn, address tokenOut, uint128 amountIn, uint128 minAmountOut)
+        args:                       (0x20c0000000000000000000000000000000000005, 0x20C0000000000000000000000000000000000004, 100000000000000000000, 150000000000000000000)
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
       Docs: https://viem.sh/docs/contract/writeContract
@@ -935,14 +935,14 @@ describe('sell', () => {
         minAmountOut: parseEther('50'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "sell" reverted.
+      [ContractFunctionExecutionError: The contract function "swapExactAmountIn" reverted.
 
       Error: InsufficientLiquidity()
        
       Contract Call:
         address:   0xdec0000000000000000000000000000000000000
-        function:  sell(address tokenIn, address tokenOut, uint128 amountIn, uint128 minAmountOut)
-        args:          (0x20c0000000000000000000000000000000000005, 0x20C0000000000000000000000000000000000004, 100000000000000000000, 50000000000000000000)
+        function:  swapExactAmountIn(address tokenIn, address tokenOut, uint128 amountIn, uint128 minAmountOut)
+        args:                       (0x20c0000000000000000000000000000000000005, 0x20C0000000000000000000000000000000000004, 100000000000000000000, 50000000000000000000)
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
       Docs: https://viem.sh/docs/contract/writeContract

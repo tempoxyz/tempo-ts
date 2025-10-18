@@ -112,7 +112,7 @@ export namespace buy {
   }
 
   /**
-   * Defines a call to the `buy` function.
+   * Defines a call to the `swapExactAmountOut` function.
    *
    * Can be passed as a parameter to:
    * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
@@ -150,7 +150,7 @@ export namespace buy {
     return defineCall({
       address: Addresses.stablecoinExchange,
       abi: Abis.stablecoinExchange,
-      functionName: 'buy',
+      functionName: 'swapExactAmountOut',
       args: [tokenIn, tokenOut, amountOut, maxAmountIn],
     })
   }
@@ -704,12 +704,12 @@ export namespace getBuyQuote {
 
   export type ReturnValue = ReadContractReturnType<
     typeof Abis.stablecoinExchange,
-    'quoteBuy',
+    'quoteSwapExactAmountOut',
     never
   >
 
   /**
-   * Defines a call to the `quoteBuy` function.
+   * Defines a call to the `quoteSwapExactAmountOut` function.
    *
    * @param args - Arguments.
    * @returns The call.
@@ -720,7 +720,7 @@ export namespace getBuyQuote {
       address: Addresses.stablecoinExchange,
       abi: Abis.stablecoinExchange,
       args: [tokenIn, tokenOut, amountOut],
-      functionName: 'quoteBuy',
+      functionName: 'quoteSwapExactAmountOut',
     })
   }
 }
@@ -775,12 +775,12 @@ export namespace getSellQuote {
 
   export type ReturnValue = ReadContractReturnType<
     typeof Abis.stablecoinExchange,
-    'quoteSell',
+    'quoteSwapExactAmountIn',
     never
   >
 
   /**
-   * Defines a call to the `quoteSell` function.
+   * Defines a call to the `quoteSwapExactAmountIn` function.
    *
    * @param args - Arguments.
    * @returns The call.
@@ -791,7 +791,7 @@ export namespace getSellQuote {
       address: Addresses.stablecoinExchange,
       abi: Abis.stablecoinExchange,
       args: [tokenIn, tokenOut, amountIn],
-      functionName: 'quoteSell',
+      functionName: 'quoteSwapExactAmountIn',
     })
   }
 }
@@ -1279,7 +1279,7 @@ export namespace sell {
   }
 
   /**
-   * Defines a call to the `sell` function.
+   * Defines a call to the `swapExactAmountIn` function.
    *
    * Can be passed as a parameter to:
    * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
@@ -1317,7 +1317,7 @@ export namespace sell {
     return defineCall({
       address: Addresses.stablecoinExchange,
       abi: Abis.stablecoinExchange,
-      functionName: 'sell',
+      functionName: 'swapExactAmountIn',
       args: [tokenIn, tokenOut, amountIn, minAmountOut],
     })
   }

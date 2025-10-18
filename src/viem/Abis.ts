@@ -30,14 +30,14 @@ export const tip20 = [
     outputs: [{ type: 'uint256' }],
   },
   {
-    name: 'linkingToken',
+    name: 'quoteToken',
     type: 'function',
     stateMutability: 'view',
     inputs: [],
     outputs: [{ type: 'address' }],
   },
   {
-    name: 'nextLinkingToken',
+    name: 'nextQuoteToken',
     type: 'function',
     stateMutability: 'view',
     inputs: [],
@@ -236,14 +236,14 @@ export const tip20 = [
     outputs: [],
   },
   {
-    name: 'updateLinkingToken',
+    name: 'updateQuoteToken',
     type: 'function',
     stateMutability: 'nonpayable',
-    inputs: [{ type: 'address', name: 'newLinkingToken' }],
+    inputs: [{ type: 'address', name: 'newQuoteToken' }],
     outputs: [],
   },
   {
-    name: 'finalizeLinkingTokenUpdate',
+    name: 'finalizeQuoteTokenUpdate',
     type: 'function',
     stateMutability: 'nonpayable',
     inputs: [],
@@ -348,19 +348,19 @@ export const tip20 = [
     ],
   },
   {
-    name: 'UpdateLinkingToken',
+    name: 'UpdateQuoteToken',
     type: 'event',
     inputs: [
       { type: 'address', name: 'updater', indexed: true },
-      { type: 'address', name: 'newLinkingToken', indexed: true },
+      { type: 'address', name: 'newQuoteToken', indexed: true },
     ],
   },
   {
-    name: 'LinkingTokenUpdateFinalized',
+    name: 'QuoteTokenUpdateFinalized',
     type: 'event',
     inputs: [
       { type: 'address', name: 'updater', indexed: true },
-      { type: 'address', name: 'newLinkingToken', indexed: true },
+      { type: 'address', name: 'newQuoteToken', indexed: true },
     ],
   },
   { name: 'InsufficientBalance', type: 'error', inputs: [] },
@@ -376,7 +376,7 @@ export const tip20 = [
   { name: 'SaltAlreadyUsed', type: 'error', inputs: [] },
   { name: 'ContractPaused', type: 'error', inputs: [] },
   { name: 'InvalidCurrency', type: 'error', inputs: [] },
-  { name: 'InvalidLinkingToken', type: 'error', inputs: [] },
+  { name: 'InvalidQuoteToken', type: 'error', inputs: [] },
   { name: 'TransfersDisabled', type: 'error', inputs: [] },
   {
     name: 'grantRole',
@@ -463,7 +463,7 @@ export const tip20Factory = [
       { type: 'string', name: 'name' },
       { type: 'string', name: 'symbol' },
       { type: 'string', name: 'currency' },
-      { type: 'address', name: 'linkingToken' },
+      { type: 'address', name: 'quoteToken' },
       { type: 'address', name: 'admin' },
     ],
     outputs: [{ type: 'uint256' }],
@@ -620,6 +620,26 @@ export const tip4217Registry = [
     stateMutability: 'view',
     inputs: [{ type: 'string', name: 'currency' }],
     outputs: [{ type: 'uint8' }],
+  },
+] as const
+
+export const nonce = [
+  {
+    name: 'getNonce',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'uint64', name: 'nonceKey' },
+    ],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'getActiveNonceKeyCount',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'account' }],
+    outputs: [{ type: 'uint256' }],
   },
 ] as const
 
@@ -925,7 +945,7 @@ export const stablecoinExchange = [
     outputs: [{ type: 'uint128' }],
   },
   {
-    name: 'quoteBuy',
+    name: 'quoteSwapExactAmountOut',
     type: 'function',
     stateMutability: 'view',
     inputs: [
@@ -936,7 +956,7 @@ export const stablecoinExchange = [
     outputs: [{ type: 'uint128', name: 'amountIn' }],
   },
   {
-    name: 'quoteSell',
+    name: 'quoteSwapExactAmountIn',
     type: 'function',
     stateMutability: 'view',
     inputs: [
@@ -957,7 +977,7 @@ export const stablecoinExchange = [
     outputs: [{ type: 'bytes32', name: 'key' }],
   },
   {
-    name: 'getTickLevel',
+    name: 'getPriceLevel',
     type: 'function',
     stateMutability: 'view',
     inputs: [
@@ -966,9 +986,15 @@ export const stablecoinExchange = [
       { type: 'bool', name: 'isBid' },
     ],
     outputs: [
-      { type: 'uint128', name: 'head' },
-      { type: 'uint128', name: 'tail' },
-      { type: 'uint128', name: 'totalLiquidity' },
+      {
+        type: 'tuple',
+        name: 'level',
+        components: [
+          { type: 'uint128', name: 'head' },
+          { type: 'uint128', name: 'tail' },
+          { type: 'uint128', name: 'totalLiquidity' },
+        ],
+      },
     ],
   },
   {
@@ -986,6 +1012,29 @@ export const stablecoinExchange = [
     outputs: [{ type: 'uint128' }],
   },
   {
+    name: 'getOrder',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'uint128', name: 'orderId' }],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'address', name: 'maker' },
+          { type: 'bytes32', name: 'bookKey' },
+          { type: 'bool', name: 'isBid' },
+          { type: 'int16', name: 'tick' },
+          { type: 'uint128', name: 'amount' },
+          { type: 'uint128', name: 'remaining' },
+          { type: 'uint128', name: 'prev' },
+          { type: 'uint128', name: 'next' },
+          { type: 'bool', name: 'isFlip' },
+          { type: 'int16', name: 'flipTick' },
+        ],
+      },
+    ],
+  },
+  {
     name: 'createPair',
     type: 'function',
     stateMutability: 'nonpayable',
@@ -993,7 +1042,7 @@ export const stablecoinExchange = [
     outputs: [{ type: 'bytes32', name: 'key' }],
   },
   {
-    name: 'sell',
+    name: 'swapExactAmountIn',
     type: 'function',
     stateMutability: 'nonpayable',
     inputs: [
@@ -1005,7 +1054,7 @@ export const stablecoinExchange = [
     outputs: [{ type: 'uint128', name: 'amountOut' }],
   },
   {
-    name: 'buy',
+    name: 'swapExactAmountOut',
     type: 'function',
     stateMutability: 'nonpayable',
     inputs: [
@@ -1110,7 +1159,6 @@ export const stablecoinExchange = [
     inputs: [
       { type: 'uint128', name: 'orderId', indexed: true },
       { type: 'address', name: 'maker', indexed: true },
-      { type: 'address', name: 'taker', indexed: true },
       { type: 'uint128', name: 'amountFilled' },
       { type: 'bool', name: 'partialFill' },
     ],

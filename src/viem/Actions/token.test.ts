@@ -1115,13 +1115,13 @@ describe('updateQuoteToken', () => {
     expect(updateReceipt).toBeDefined()
     expect(updateResult).toMatchInlineSnapshot(`
       {
-        "newLinkingToken": "0x20C0000000000000000000000000000000000004",
+        "newQuoteToken": "0x20C0000000000000000000000000000000000004",
         "updater": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       }
     `)
 
     // Verify the event was emitted with correct quote token
-    expect(updateResult.newLinkingToken).toBe(quoteTokenAddress)
+    expect(updateResult.newQuoteToken).toBe(quoteTokenAddress)
   })
 
   test('behavior: requires admin role', async () => {
@@ -1224,13 +1224,13 @@ describe('finalizeUpdateQuoteToken', () => {
     expect(finalizeReceipt).toBeDefined()
     expect(finalizeResult).toMatchInlineSnapshot(`
       {
-        "newLinkingToken": "0x20C0000000000000000000000000000000000004",
+        "newQuoteToken": "0x20C0000000000000000000000000000000000004",
         "updater": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       }
     `)
 
     // Verify the quote token was updated
-    expect(finalizeResult.newLinkingToken).toBe(quoteTokenAddress)
+    expect(finalizeResult.newQuoteToken).toBe(quoteTokenAddress)
 
     // Verify it's reflected in metadata
     const metadata = await actions.token.getMetadata(client, {
@@ -2638,16 +2638,12 @@ describe('watchUpdateQuoteToken', () => {
 
       // First event: update proposed (not finalized)
       expect(receivedUpdates.at(0)!.args.finalized).toBe(false)
-      expect(receivedUpdates.at(0)!.args.newLinkingToken).toBe(
-        quoteTokenAddress,
-      )
+      expect(receivedUpdates.at(0)!.args.newQuoteToken).toBe(quoteTokenAddress)
       expect(receivedUpdates.at(0)!.args.updater).toBe(client.account.address)
 
       // Second event: update finalized
       expect(receivedUpdates.at(1)!.args.finalized).toBe(true)
-      expect(receivedUpdates.at(1)!.args.newLinkingToken).toBe(
-        quoteTokenAddress,
-      )
+      expect(receivedUpdates.at(1)!.args.newQuoteToken).toBe(quoteTokenAddress)
       expect(receivedUpdates.at(1)!.args.updater).toBe(client.account.address)
     } finally {
       if (unwatch) unwatch()
@@ -2697,9 +2693,7 @@ describe('watchUpdateQuoteToken', () => {
       // Should only receive 1 event (not finalized)
       expect(receivedUpdates).toHaveLength(1)
       expect(receivedUpdates.at(0)!.args.finalized).toBe(false)
-      expect(receivedUpdates.at(0)!.args.newLinkingToken).toBe(
-        quoteTokenAddress,
-      )
+      expect(receivedUpdates.at(0)!.args.newQuoteToken).toBe(quoteTokenAddress)
     } finally {
       if (unwatch) unwatch()
     }
