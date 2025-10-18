@@ -12,6 +12,8 @@ Added **Stablecoin Exchange** actions:
 - `dex.createPairSync`
 - `dex.getBalance`
 - `dex.getBuyQuote`
+- `dex.getOrder`
+- `dex.getPriceLevel`
 - `dex.getSellQuote`
 - `dex.place`
 - `dex.placeSync`

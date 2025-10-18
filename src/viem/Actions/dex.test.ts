@@ -78,373 +78,6 @@ async function setupTokenPair() {
   })
 }
 
-describe('place', () => {
-  test('default', async () => {
-    // Setup token pair
-    const { base } = await setupTokenPair()
-
-    // Place a sell order
-    const { receipt, ...result } = await Actions.dex.placeSync(client, {
-      token: base,
-      amount: parseEther('100'),
-      type: 'sell',
-      tick: Tick.fromPrice('1.001'),
-    })
-
-    expect(receipt).toBeDefined()
-    expect(receipt.status).toBe('success')
-    expect(result.orderId).toBeGreaterThan(0n)
-    expect(result).toMatchInlineSnapshot(`
-      {
-        "amount": 100000000000000000000n,
-        "isBid": false,
-        "maker": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "orderId": 1n,
-        "tick": 100,
-        "token": "0x20c0000000000000000000000000000000000005",
-      }
-    `)
-
-    // Place a buy order
-    const { receipt: receipt2, ...result2 } = await Actions.dex.placeSync(
-      client,
-      {
-        token: base,
-        amount: parseEther('100'),
-        type: 'buy',
-        tick: Tick.fromPrice('1.001'),
-      },
-    )
-    expect(receipt2.status).toBe('success')
-    expect(result2.orderId).toBeGreaterThan(0n)
-    expect(result2).toMatchInlineSnapshot(`
-      {
-        "amount": 100000000000000000000n,
-        "isBid": true,
-        "maker": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "orderId": 2n,
-        "tick": 100,
-        "token": "0x20c0000000000000000000000000000000000005",
-      }
-    `)
-  })
-
-  test('behavior: tick at boundaries', async () => {
-    const { base } = await setupTokenPair()
-
-    // Test at min tick (-2000)
-    const { receipt: receipt1, ...result1 } = await Actions.dex.placeSync(
-      client,
-      {
-        token: base,
-        amount: parseEther('10'),
-        type: 'sell',
-        tick: Tick.minTick,
-      },
-    )
-    expect(receipt1.status).toBe('success')
-    expect(result1.tick).toBe(-2000)
-
-    // Test at max tick (2000)
-    const { receipt: receipt2, ...result2 } = await Actions.dex.placeSync(
-      client,
-      {
-        token: base,
-        amount: parseEther('10'),
-        type: 'buy',
-        tick: Tick.maxTick,
-      },
-    )
-    expect(receipt2.status).toBe('success')
-    expect(result2.tick).toBe(2000)
-  })
-
-  test('behavior: tick validation fails outside bounds', async () => {
-    const { base } = await setupTokenPair()
-
-    // Test tick above max tix should fail
-    await expect(
-      Actions.dex.placeSync(client, {
-        token: base,
-        amount: parseEther('10'),
-        type: 'buy',
-        tick: Tick.maxTick + 1,
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "place" reverted.
-
-      Error: TickOutOfBounds(int16 tick)
-                            (2001)
-       
-      Contract Call:
-        address:   0xdec0000000000000000000000000000000000000
-        function:  place(address token, uint128 amount, bool isBid, int16 tick)
-        args:           (0x20c0000000000000000000000000000000000005, 10000000000000000000, true, 2001)
-        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-
-      Docs: https://viem.sh/docs/contract/writeContract
-      Version: viem@2.38.2]
-    `)
-
-    // Test tick below min tick should fail
-    await expect(
-      Actions.dex.placeSync(client, {
-        token: base,
-        amount: parseEther('10'),
-        type: 'sell',
-        tick: Tick.minTick - 1,
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "place" reverted.
-
-      Error: TickOutOfBounds(int16 tick)
-                            (-2001)
-       
-      Contract Call:
-        address:   0xdec0000000000000000000000000000000000000
-        function:  place(address token, uint128 amount, bool isBid, int16 tick)
-        args:           (0x20c0000000000000000000000000000000000005, 10000000000000000000, false, -2001)
-        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-
-      Docs: https://viem.sh/docs/contract/writeContract
-      Version: viem@2.38.2]
-    `)
-  })
-
-  test('behavior: transfers from wallet', async () => {
-    const { base, quote } = await setupTokenPair()
-
-    // Get balances before placing order
-    const baseBalanceBefore = await Actions.token.getBalance(client, {
-      token: base,
-    })
-    const quoteBalanceBefore = await Actions.token.getBalance(client, {
-      token: quote,
-    })
-
-    // Place a buy order - should transfer quote tokens to escrow
-    const orderAmount = parseEther('100')
-    const tick = Tick.fromPrice('1.001')
-    await Actions.dex.placeSync(client, {
-      token: base,
-      amount: orderAmount,
-      type: 'buy',
-      tick,
-    })
-
-    // Get balances after placing order
-    const baseBalanceAfter = await Actions.token.getBalance(client, {
-      token: base,
-    })
-    const quoteBalanceAfter = await Actions.token.getBalance(client, {
-      token: quote,
-    })
-
-    // Base token balance should be unchanged (we're buying base, not selling)
-    expect(baseBalanceAfter).toBe(baseBalanceBefore)
-
-    // Quote token balance should decrease (escrowed for the bid)
-    // Amount = orderAmount * (1 + tick/1000) for bids
-    const expectedQuoteEscrowed =
-      (orderAmount * BigInt(100000 + tick)) / BigInt(100000)
-    expect(quoteBalanceBefore - quoteBalanceAfter).toBeGreaterThanOrEqual(
-      expectedQuoteEscrowed,
-    )
-  })
-
-  test('behavior: multiple orders at same tick', async () => {
-    const { base } = await setupTokenPair()
-
-    const tick = Tick.fromPrice('1.0005')
-
-    // Place first order
-    const { orderId: orderId1 } = await Actions.dex.placeSync(client, {
-      token: base,
-      amount: parseEther('100'),
-      type: 'buy',
-      tick,
-    })
-
-    // Place second order at same tick
-    const { orderId: orderId2 } = await Actions.dex.placeSync(client, {
-      token: base,
-      amount: parseEther('50'),
-      type: 'buy',
-      tick,
-    })
-
-    // Order IDs should be different and sequential
-    expect(orderId2).toBeGreaterThan(orderId1)
-  })
-})
-
-describe('placeFlip', () => {
-  test('default', async () => {
-    const { base } = await setupTokenPair()
-
-    // Place a flip bid order
-    const { receipt, ...result } = await Actions.dex.placeFlipSync(client, {
-      token: base,
-      amount: parseEther('100'),
-      type: 'buy',
-      tick: Tick.fromPrice('1.001'),
-      flipTick: Tick.fromPrice('1.002'),
-    })
-
-    expect(receipt).toBeDefined()
-    expect(receipt.status).toBe('success')
-    expect(result.orderId).toBeGreaterThan(0n)
-    expect(result.flipTick).toBe(Tick.fromPrice('1.002'))
-    expect(result).toMatchInlineSnapshot(`
-      {
-        "amount": 100000000000000000000n,
-        "flipTick": 200,
-        "isBid": true,
-        "maker": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "orderId": 1n,
-        "tick": 100,
-        "token": "0x20c0000000000000000000000000000000000005",
-      }
-    `)
-  })
-
-  test('behavior: flip bid requires flipTick > tick', async () => {
-    const { base } = await setupTokenPair()
-
-    // Valid: flipTick > tick for bid
-    const { receipt: receipt1 } = await Actions.dex.placeFlipSync(client, {
-      token: base,
-      amount: parseEther('10'),
-      type: 'buy',
-      tick: Tick.fromPrice('1.0005'),
-      flipTick: Tick.fromPrice('1.001'),
-    })
-    expect(receipt1.status).toBe('success')
-
-    // Invalid: flipTick <= tick for bid should fail
-    await expect(
-      Actions.dex.placeFlipSync(client, {
-        token: base,
-        amount: parseEther('10'),
-        type: 'buy',
-        tick: Tick.fromPrice('1.001'),
-        flipTick: Tick.fromPrice('1.001'), // Equal
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "placeFlip" reverted.
-
-      Error: InvalidFlipTick()
-       
-      Contract Call:
-        address:   0xdec0000000000000000000000000000000000000
-        function:  placeFlip(address token, uint128 amount, bool isBid, int16 tick, int16 flipTick)
-        args:               (0x20c0000000000000000000000000000000000005, 10000000000000000000, true, 100, 100)
-        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-
-      Docs: https://viem.sh/docs/contract/writeContract
-      Version: viem@2.38.2]
-    `)
-
-    await expect(
-      Actions.dex.placeFlipSync(client, {
-        token: base,
-        amount: parseEther('10'),
-        type: 'buy',
-        tick: Tick.fromPrice('1.001'),
-        flipTick: Tick.fromPrice('1.0005'), // Less than
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "placeFlip" reverted.
-
-      Error: InvalidFlipTick()
-       
-      Contract Call:
-        address:   0xdec0000000000000000000000000000000000000
-        function:  placeFlip(address token, uint128 amount, bool isBid, int16 tick, int16 flipTick)
-        args:               (0x20c0000000000000000000000000000000000005, 10000000000000000000, true, 100, 50)
-        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-
-      Docs: https://viem.sh/docs/contract/writeContract
-      Version: viem@2.38.2]
-    `)
-  })
-
-  test('behavior: flip ask requires flipTick < tick', async () => {
-    const { base } = await setupTokenPair()
-
-    // Valid: flipTick < tick for ask
-    const { receipt: receipt1 } = await Actions.dex.placeFlipSync(client, {
-      token: base,
-      amount: parseEther('10'),
-      type: 'sell',
-      tick: Tick.fromPrice('1.001'),
-      flipTick: Tick.fromPrice('1.0005'),
-    })
-    expect(receipt1.status).toBe('success')
-
-    // Invalid: flipTick >= tick for ask should fail
-    await expect(
-      Actions.dex.placeFlipSync(client, {
-        token: base,
-        amount: parseEther('10'),
-        type: 'sell',
-        tick: Tick.fromPrice('1.0005'),
-        flipTick: Tick.fromPrice('1.0005'), // Equal
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "placeFlip" reverted.
-
-      Error: InvalidFlipTick()
-       
-      Contract Call:
-        address:   0xdec0000000000000000000000000000000000000
-        function:  placeFlip(address token, uint128 amount, bool isBid, int16 tick, int16 flipTick)
-        args:               (0x20c0000000000000000000000000000000000005, 10000000000000000000, false, 50, 50)
-        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-
-      Docs: https://viem.sh/docs/contract/writeContract
-      Version: viem@2.38.2]
-    `)
-
-    await expect(
-      Actions.dex.placeFlipSync(client, {
-        token: base,
-        amount: parseEther('10'),
-        type: 'sell',
-        tick: Tick.fromPrice('1.0005'),
-        flipTick: Tick.fromPrice('1.001'), // Greater than
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "placeFlip" reverted.
-
-      Error: InvalidFlipTick()
-       
-      Contract Call:
-        address:   0xdec0000000000000000000000000000000000000
-        function:  placeFlip(address token, uint128 amount, bool isBid, int16 tick, int16 flipTick)
-        args:               (0x20c0000000000000000000000000000000000005, 10000000000000000000, false, 50, 100)
-        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-
-      Docs: https://viem.sh/docs/contract/writeContract
-      Version: viem@2.38.2]
-    `)
-  })
-
-  test('behavior: flip ticks at boundaries', async () => {
-    const { base } = await setupTokenPair()
-
-    // Flip order with ticks at extreme boundaries
-    const { receipt } = await Actions.dex.placeFlipSync(client, {
-      token: base,
-      amount: parseEther('10'),
-      type: 'buy',
-      tick: Tick.minTick,
-      flipTick: Tick.maxTick,
-    })
-    expect(receipt.status).toBe('success')
-  })
-})
-
 describe('buy', () => {
   test('default', async () => {
     const { base, quote } = await setupTokenPair()
@@ -812,6 +445,391 @@ describe('getBuyQuote', () => {
   })
 })
 
+describe('getOrder', () => {
+  test('default', async () => {
+    const { base } = await setupTokenPair()
+
+    // Place an order to get an order ID
+    const { orderId } = await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick: Tick.fromPrice('1.001'),
+    })
+
+    // Get the order details
+    const order = await Actions.dex.getOrder(client, {
+      orderId,
+    })
+
+    expect(order).toBeDefined()
+    expect(order.maker).toBe(client.account.address)
+    expect(order.isBid).toBe(true)
+    expect(order.tick).toBe(Tick.fromPrice('1.001'))
+    expect(order.amount).toBe(parseEther('100'))
+    expect(order.remaining).toBe(parseEther('100'))
+    expect(order.isFlip).toBe(false)
+  })
+
+  test('behavior: returns flip order details', async () => {
+    const { base } = await setupTokenPair()
+
+    // Place a flip order
+    const { orderId } = await Actions.dex.placeFlipSync(client, {
+      token: base,
+      amount: parseEther('50'),
+      type: 'buy',
+      tick: Tick.fromPrice('1.001'),
+      flipTick: Tick.fromPrice('1.002'),
+    })
+
+    // Get the order details
+    const order = await Actions.dex.getOrder(client, {
+      orderId,
+    })
+
+    expect(order).toBeDefined()
+    expect(order.maker).toBe(client.account.address)
+    expect(order.isBid).toBe(true)
+    expect(order.tick).toBe(Tick.fromPrice('1.001'))
+    expect(order.amount).toBe(parseEther('50'))
+    expect(order.isFlip).toBe(true)
+    expect(order.flipTick).toBe(Tick.fromPrice('1.002'))
+  })
+
+  test('behavior: fails for non-existent order', async () => {
+    await setupTokenPair()
+
+    // Try to get an order that doesn't exist
+    await expect(
+      Actions.dex.getOrder(client, {
+        orderId: 999n,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "getOrder" reverted.
+
+      Error: OrderDoesNotExist()
+       
+      Contract Call:
+        address:   0xdec0000000000000000000000000000000000000
+        function:  getOrder(uint128 orderId)
+        args:              (999)
+
+      Docs: https://viem.sh/docs/contract/readContract
+      Version: viem@2.38.2]
+    `)
+  })
+
+  test('behavior: reflects order state after partial fill', async () => {
+    const { base, quote } = await setupTokenPair()
+
+    // Place a large sell order
+    const { orderId } = await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('500'),
+      type: 'sell',
+      tick: Tick.fromPrice('1.001'),
+    })
+
+    // Get initial order state
+    const orderBefore = await Actions.dex.getOrder(client, {
+      orderId,
+    })
+    expect(orderBefore.amount).toBe(parseEther('500'))
+    expect(orderBefore.remaining).toBe(parseEther('500'))
+
+    // Partially fill the order with a buy
+    await Actions.dex.buySync(client, {
+      tokenIn: quote,
+      tokenOut: base,
+      amountOut: parseEther('100'),
+      maxAmountIn: parseEther('150'),
+    })
+
+    // Get order state after partial fill
+    const orderAfter = await Actions.dex.getOrder(client, {
+      orderId,
+    })
+    expect(orderAfter.amount).toBe(parseEther('500')) // amount unchanged
+    expect(orderAfter.remaining).toBeLessThan(parseEther('500')) // remaining decreased
+  })
+
+  test('behavior: linked list pointers for multiple orders at same tick', async () => {
+    const { base } = await setupTokenPair()
+
+    const tick = Tick.fromPrice('1.001')
+
+    // Place first order
+    const { orderId: orderId1 } = await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick,
+    })
+
+    // Place second order at same tick
+    const { orderId: orderId2 } = await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('50'),
+      type: 'buy',
+      tick,
+    })
+
+    // Get first order
+    const order1 = await Actions.dex.getOrder(client, {
+      orderId: orderId1,
+    })
+    expect(order1.prev).toBe(0n) // should be 0 as it's first
+    expect(order1.next).toBe(orderId2) // should point to second order
+
+    // Get second order
+    const order2 = await Actions.dex.getOrder(client, {
+      orderId: orderId2,
+    })
+    expect(order2.prev).toBe(orderId1) // should point to first order
+    expect(order2.next).toBe(0n) // should be 0 as it's last
+  })
+})
+
+describe('getPriceLevel', () => {
+  test('default', async () => {
+    const { base } = await setupTokenPair()
+
+    const tick = Tick.fromPrice('1.001')
+
+    // Place an order to create liquidity at this tick
+    const { orderId } = await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick,
+    })
+
+    // Get the price level
+    const level = await Actions.dex.getPriceLevel(client, {
+      base,
+      tick,
+      isBid: true,
+    })
+
+    expect(level).toBeDefined()
+    expect(level.head).toBe(orderId) // head should be our order
+    expect(level.tail).toBe(orderId) // tail should also be our order (only one)
+    expect(level.totalLiquidity).toBeGreaterThan(0n)
+  })
+
+  test('behavior: empty price level', async () => {
+    const { base } = await setupTokenPair()
+
+    const tick = Tick.fromPrice('1.001')
+
+    // Query a tick with no orders
+    const level = await Actions.dex.getPriceLevel(client, {
+      base,
+      tick,
+      isBid: true,
+    })
+
+    expect(level).toBeDefined()
+    expect(level.head).toBe(0n)
+    expect(level.tail).toBe(0n)
+    expect(level.totalLiquidity).toBe(0n)
+  })
+
+  test('behavior: multiple orders at same tick', async () => {
+    const { base } = await setupTokenPair()
+
+    const tick = Tick.fromPrice('1.001')
+
+    // Place first order
+    const { orderId: orderId1 } = await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick,
+    })
+
+    // Place second order at same tick
+    const { orderId: orderId2 } = await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('50'),
+      type: 'buy',
+      tick,
+    })
+
+    // Get the price level
+    const level = await Actions.dex.getPriceLevel(client, {
+      base,
+      tick,
+      isBid: true,
+    })
+
+    expect(level.head).toBe(orderId1) // head should be first order
+    expect(level.tail).toBe(orderId2) // tail should be last order
+    // Total liquidity should be sum of both orders (approximately)
+    expect(level.totalLiquidity).toBeGreaterThan(parseEther('145'))
+  })
+
+  test('behavior: bid vs ask sides', async () => {
+    const { base } = await setupTokenPair()
+
+    const tick = Tick.fromPrice('1.001')
+
+    // Place a buy order (bid)
+    await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick,
+    })
+
+    // Place a sell order (ask) at same tick
+    await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('50'),
+      type: 'sell',
+      tick,
+    })
+
+    // Get bid side
+    const bidLevel = await Actions.dex.getPriceLevel(client, {
+      base,
+      tick,
+      isBid: true,
+    })
+
+    // Get ask side
+    const askLevel = await Actions.dex.getPriceLevel(client, {
+      base,
+      tick,
+      isBid: false,
+    })
+
+    // Both should have liquidity but different amounts
+    expect(bidLevel.totalLiquidity).toBeGreaterThan(0n)
+    expect(askLevel.totalLiquidity).toBeGreaterThan(0n)
+    expect(bidLevel.head).not.toBe(askLevel.head)
+  })
+
+  test('behavior: liquidity changes after order cancellation', async () => {
+    const { base } = await setupTokenPair()
+
+    const tick = Tick.fromPrice('1.001')
+
+    // Place orders
+    const { orderId: orderId1 } = await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick,
+    })
+
+    await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('50'),
+      type: 'buy',
+      tick,
+    })
+
+    // Get level before cancellation
+    const levelBefore = await Actions.dex.getPriceLevel(client, {
+      base,
+      tick,
+      isBid: true,
+    })
+
+    // Cancel first order
+    await Actions.dex.cancelSync(client, {
+      orderId: orderId1,
+    })
+
+    // Get level after cancellation
+    const levelAfter = await Actions.dex.getPriceLevel(client, {
+      base,
+      tick,
+      isBid: true,
+    })
+
+    // Total liquidity should decrease
+    expect(levelAfter.totalLiquidity).toBeLessThan(levelBefore.totalLiquidity)
+  })
+
+  test('behavior: liquidity changes after partial fill', async () => {
+    const { base, quote } = await setupTokenPair()
+
+    const tick = Tick.fromPrice('1.001')
+
+    // Place sell order
+    await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('500'),
+      type: 'sell',
+      tick,
+    })
+
+    // Get level before fill
+    const levelBefore = await Actions.dex.getPriceLevel(client, {
+      base,
+      tick,
+      isBid: false,
+    })
+
+    // Partially fill the order
+    await Actions.dex.buySync(client, {
+      tokenIn: quote,
+      tokenOut: base,
+      amountOut: parseEther('100'),
+      maxAmountIn: parseEther('150'),
+    })
+
+    // Get level after fill
+    const levelAfter = await Actions.dex.getPriceLevel(client, {
+      base,
+      tick,
+      isBid: false,
+    })
+
+    // Total liquidity should decrease
+    expect(levelAfter.totalLiquidity).toBeLessThan(levelBefore.totalLiquidity)
+  })
+
+  test('behavior: tick at boundaries', async () => {
+    const { base } = await setupTokenPair()
+
+    // Place order at min tick
+    await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('10'),
+      type: 'sell',
+      tick: Tick.minTick,
+    })
+
+    // Query min tick
+    const minLevel = await Actions.dex.getPriceLevel(client, {
+      base,
+      tick: Tick.minTick,
+      isBid: false,
+    })
+    expect(minLevel.totalLiquidity).toBeGreaterThan(0n)
+
+    // Place order at max tick
+    await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('10'),
+      type: 'buy',
+      tick: Tick.maxTick,
+    })
+
+    // Query max tick
+    const maxLevel = await Actions.dex.getPriceLevel(client, {
+      base,
+      tick: Tick.maxTick,
+      isBid: true,
+    })
+    expect(maxLevel.totalLiquidity).toBeGreaterThan(0n)
+  })
+})
+
 describe('getSellQuote', () => {
   test('default', async () => {
     const { base, quote } = await setupTokenPair()
@@ -859,6 +877,373 @@ describe('getSellQuote', () => {
       Docs: https://viem.sh/docs/contract/readContract
       Version: viem@2.38.2]
     `)
+  })
+})
+
+describe('place', () => {
+  test('default', async () => {
+    // Setup token pair
+    const { base } = await setupTokenPair()
+
+    // Place a sell order
+    const { receipt, ...result } = await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'sell',
+      tick: Tick.fromPrice('1.001'),
+    })
+
+    expect(receipt).toBeDefined()
+    expect(receipt.status).toBe('success')
+    expect(result.orderId).toBeGreaterThan(0n)
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "amount": 100000000000000000000n,
+        "isBid": false,
+        "maker": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "orderId": 1n,
+        "tick": 100,
+        "token": "0x20c0000000000000000000000000000000000005",
+      }
+    `)
+
+    // Place a buy order
+    const { receipt: receipt2, ...result2 } = await Actions.dex.placeSync(
+      client,
+      {
+        token: base,
+        amount: parseEther('100'),
+        type: 'buy',
+        tick: Tick.fromPrice('1.001'),
+      },
+    )
+    expect(receipt2.status).toBe('success')
+    expect(result2.orderId).toBeGreaterThan(0n)
+    expect(result2).toMatchInlineSnapshot(`
+      {
+        "amount": 100000000000000000000n,
+        "isBid": true,
+        "maker": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "orderId": 2n,
+        "tick": 100,
+        "token": "0x20c0000000000000000000000000000000000005",
+      }
+    `)
+  })
+
+  test('behavior: tick at boundaries', async () => {
+    const { base } = await setupTokenPair()
+
+    // Test at min tick (-2000)
+    const { receipt: receipt1, ...result1 } = await Actions.dex.placeSync(
+      client,
+      {
+        token: base,
+        amount: parseEther('10'),
+        type: 'sell',
+        tick: Tick.minTick,
+      },
+    )
+    expect(receipt1.status).toBe('success')
+    expect(result1.tick).toBe(-2000)
+
+    // Test at max tick (2000)
+    const { receipt: receipt2, ...result2 } = await Actions.dex.placeSync(
+      client,
+      {
+        token: base,
+        amount: parseEther('10'),
+        type: 'buy',
+        tick: Tick.maxTick,
+      },
+    )
+    expect(receipt2.status).toBe('success')
+    expect(result2.tick).toBe(2000)
+  })
+
+  test('behavior: tick validation fails outside bounds', async () => {
+    const { base } = await setupTokenPair()
+
+    // Test tick above max tix should fail
+    await expect(
+      Actions.dex.placeSync(client, {
+        token: base,
+        amount: parseEther('10'),
+        type: 'buy',
+        tick: Tick.maxTick + 1,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "place" reverted.
+
+      Error: TickOutOfBounds(int16 tick)
+                            (2001)
+       
+      Contract Call:
+        address:   0xdec0000000000000000000000000000000000000
+        function:  place(address token, uint128 amount, bool isBid, int16 tick)
+        args:           (0x20c0000000000000000000000000000000000005, 10000000000000000000, true, 2001)
+        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      Docs: https://viem.sh/docs/contract/writeContract
+      Version: viem@2.38.2]
+    `)
+
+    // Test tick below min tick should fail
+    await expect(
+      Actions.dex.placeSync(client, {
+        token: base,
+        amount: parseEther('10'),
+        type: 'sell',
+        tick: Tick.minTick - 1,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "place" reverted.
+
+      Error: TickOutOfBounds(int16 tick)
+                            (-2001)
+       
+      Contract Call:
+        address:   0xdec0000000000000000000000000000000000000
+        function:  place(address token, uint128 amount, bool isBid, int16 tick)
+        args:           (0x20c0000000000000000000000000000000000005, 10000000000000000000, false, -2001)
+        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      Docs: https://viem.sh/docs/contract/writeContract
+      Version: viem@2.38.2]
+    `)
+  })
+
+  test('behavior: transfers from wallet', async () => {
+    const { base, quote } = await setupTokenPair()
+
+    // Get balances before placing order
+    const baseBalanceBefore = await Actions.token.getBalance(client, {
+      token: base,
+    })
+    const quoteBalanceBefore = await Actions.token.getBalance(client, {
+      token: quote,
+    })
+
+    // Place a buy order - should transfer quote tokens to escrow
+    const orderAmount = parseEther('100')
+    const tick = Tick.fromPrice('1.001')
+    await Actions.dex.placeSync(client, {
+      token: base,
+      amount: orderAmount,
+      type: 'buy',
+      tick,
+    })
+
+    // Get balances after placing order
+    const baseBalanceAfter = await Actions.token.getBalance(client, {
+      token: base,
+    })
+    const quoteBalanceAfter = await Actions.token.getBalance(client, {
+      token: quote,
+    })
+
+    // Base token balance should be unchanged (we're buying base, not selling)
+    expect(baseBalanceAfter).toBe(baseBalanceBefore)
+
+    // Quote token balance should decrease (escrowed for the bid)
+    // Amount = orderAmount * (1 + tick/1000) for bids
+    const expectedQuoteEscrowed =
+      (orderAmount * BigInt(100000 + tick)) / BigInt(100000)
+    expect(quoteBalanceBefore - quoteBalanceAfter).toBeGreaterThanOrEqual(
+      expectedQuoteEscrowed,
+    )
+  })
+
+  test('behavior: multiple orders at same tick', async () => {
+    const { base } = await setupTokenPair()
+
+    const tick = Tick.fromPrice('1.0005')
+
+    // Place first order
+    const { orderId: orderId1 } = await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick,
+    })
+
+    // Place second order at same tick
+    const { orderId: orderId2 } = await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('50'),
+      type: 'buy',
+      tick,
+    })
+
+    // Order IDs should be different and sequential
+    expect(orderId2).toBeGreaterThan(orderId1)
+  })
+})
+
+describe('placeFlip', () => {
+  test('default', async () => {
+    const { base } = await setupTokenPair()
+
+    // Place a flip bid order
+    const { receipt, ...result } = await Actions.dex.placeFlipSync(client, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick: Tick.fromPrice('1.001'),
+      flipTick: Tick.fromPrice('1.002'),
+    })
+
+    expect(receipt).toBeDefined()
+    expect(receipt.status).toBe('success')
+    expect(result.orderId).toBeGreaterThan(0n)
+    expect(result.flipTick).toBe(Tick.fromPrice('1.002'))
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "amount": 100000000000000000000n,
+        "flipTick": 200,
+        "isBid": true,
+        "maker": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "orderId": 1n,
+        "tick": 100,
+        "token": "0x20c0000000000000000000000000000000000005",
+      }
+    `)
+  })
+
+  test('behavior: flip bid requires flipTick > tick', async () => {
+    const { base } = await setupTokenPair()
+
+    // Valid: flipTick > tick for bid
+    const { receipt: receipt1 } = await Actions.dex.placeFlipSync(client, {
+      token: base,
+      amount: parseEther('10'),
+      type: 'buy',
+      tick: Tick.fromPrice('1.0005'),
+      flipTick: Tick.fromPrice('1.001'),
+    })
+    expect(receipt1.status).toBe('success')
+
+    // Invalid: flipTick <= tick for bid should fail
+    await expect(
+      Actions.dex.placeFlipSync(client, {
+        token: base,
+        amount: parseEther('10'),
+        type: 'buy',
+        tick: Tick.fromPrice('1.001'),
+        flipTick: Tick.fromPrice('1.001'), // Equal
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "placeFlip" reverted.
+
+      Error: InvalidFlipTick()
+       
+      Contract Call:
+        address:   0xdec0000000000000000000000000000000000000
+        function:  placeFlip(address token, uint128 amount, bool isBid, int16 tick, int16 flipTick)
+        args:               (0x20c0000000000000000000000000000000000005, 10000000000000000000, true, 100, 100)
+        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      Docs: https://viem.sh/docs/contract/writeContract
+      Version: viem@2.38.2]
+    `)
+
+    await expect(
+      Actions.dex.placeFlipSync(client, {
+        token: base,
+        amount: parseEther('10'),
+        type: 'buy',
+        tick: Tick.fromPrice('1.001'),
+        flipTick: Tick.fromPrice('1.0005'), // Less than
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "placeFlip" reverted.
+
+      Error: InvalidFlipTick()
+       
+      Contract Call:
+        address:   0xdec0000000000000000000000000000000000000
+        function:  placeFlip(address token, uint128 amount, bool isBid, int16 tick, int16 flipTick)
+        args:               (0x20c0000000000000000000000000000000000005, 10000000000000000000, true, 100, 50)
+        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      Docs: https://viem.sh/docs/contract/writeContract
+      Version: viem@2.38.2]
+    `)
+  })
+
+  test('behavior: flip ask requires flipTick < tick', async () => {
+    const { base } = await setupTokenPair()
+
+    // Valid: flipTick < tick for ask
+    const { receipt: receipt1 } = await Actions.dex.placeFlipSync(client, {
+      token: base,
+      amount: parseEther('10'),
+      type: 'sell',
+      tick: Tick.fromPrice('1.001'),
+      flipTick: Tick.fromPrice('1.0005'),
+    })
+    expect(receipt1.status).toBe('success')
+
+    // Invalid: flipTick >= tick for ask should fail
+    await expect(
+      Actions.dex.placeFlipSync(client, {
+        token: base,
+        amount: parseEther('10'),
+        type: 'sell',
+        tick: Tick.fromPrice('1.0005'),
+        flipTick: Tick.fromPrice('1.0005'), // Equal
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "placeFlip" reverted.
+
+      Error: InvalidFlipTick()
+       
+      Contract Call:
+        address:   0xdec0000000000000000000000000000000000000
+        function:  placeFlip(address token, uint128 amount, bool isBid, int16 tick, int16 flipTick)
+        args:               (0x20c0000000000000000000000000000000000005, 10000000000000000000, false, 50, 50)
+        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      Docs: https://viem.sh/docs/contract/writeContract
+      Version: viem@2.38.2]
+    `)
+
+    await expect(
+      Actions.dex.placeFlipSync(client, {
+        token: base,
+        amount: parseEther('10'),
+        type: 'sell',
+        tick: Tick.fromPrice('1.0005'),
+        flipTick: Tick.fromPrice('1.001'), // Greater than
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "placeFlip" reverted.
+
+      Error: InvalidFlipTick()
+       
+      Contract Call:
+        address:   0xdec0000000000000000000000000000000000000
+        function:  placeFlip(address token, uint128 amount, bool isBid, int16 tick, int16 flipTick)
+        args:               (0x20c0000000000000000000000000000000000005, 10000000000000000000, false, 50, 100)
+        sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      Docs: https://viem.sh/docs/contract/writeContract
+      Version: viem@2.38.2]
+    `)
+  })
+
+  test('behavior: flip ticks at boundaries', async () => {
+    const { base } = await setupTokenPair()
+
+    // Flip order with ticks at extreme boundaries
+    const { receipt } = await Actions.dex.placeFlipSync(client, {
+      token: base,
+      amount: parseEther('10'),
+      type: 'buy',
+      tick: Tick.minTick,
+      flipTick: Tick.maxTick,
+    })
+    expect(receipt.status).toBe('success')
   })
 })
 
@@ -948,148 +1333,6 @@ describe('sell', () => {
       Docs: https://viem.sh/docs/contract/writeContract
       Version: viem@2.38.2]
     `)
-  })
-})
-
-describe('withdraw', () => {
-  test('default', async () => {
-    const { base, quote } = await setupTokenPair()
-
-    // Create internal balance
-    const { orderId } = await Actions.dex.placeSync(client, {
-      token: base,
-      amount: parseEther('100'),
-      type: 'buy',
-      tick: Tick.fromPrice('1.001'),
-    })
-
-    await Actions.dex.cancelSync(client, { orderId })
-
-    // Get DEX balance
-    const dexBalance = await Actions.dex.getBalance(client, {
-      account: account.address,
-      token: quote,
-    })
-    expect(dexBalance).toBeGreaterThan(0n)
-
-    // Get wallet balance before withdraw
-    const walletBalanceBefore = await Actions.token.getBalance(client, {
-      token: quote,
-    })
-
-    // Withdraw from DEX
-    const { receipt } = await Actions.dex.withdrawSync(client, {
-      token: quote,
-      amount: dexBalance,
-    })
-
-    expect(receipt).toBeDefined()
-    expect(receipt.status).toBe('success')
-
-    // Check DEX balance is now 0
-    const dexBalanceAfter = await Actions.dex.getBalance(client, {
-      account: account.address,
-      token: quote,
-    })
-    expect(dexBalanceAfter).toBe(0n)
-
-    // Check wallet balance increased
-    const walletBalanceAfter = await Actions.token.getBalance(client, {
-      token: quote,
-    })
-    expect(walletBalanceAfter).toBeGreaterThan(walletBalanceBefore)
-  })
-})
-
-describe('watchOrderPlaced', () => {
-  test('default', async () => {
-    const { base } = await setupTokenPair()
-
-    const receivedOrders: Array<{
-      args: Actions.dex.watchOrderPlaced.Args
-      log: Actions.dex.watchOrderPlaced.Log
-    }> = []
-
-    const unwatch = Actions.dex.watchOrderPlaced(client, {
-      onOrderPlaced: (args, log) => {
-        receivedOrders.push({ args, log })
-      },
-    })
-
-    try {
-      // Place first order
-      await Actions.dex.placeSync(client, {
-        token: base,
-        amount: parseEther('100'),
-        type: 'buy',
-        tick: Tick.fromPrice('1.001'),
-      })
-
-      // Place second order
-      await Actions.dex.placeSync(client, {
-        token: base,
-        amount: parseEther('50'),
-        type: 'sell',
-        tick: Tick.fromPrice('0.999'),
-      })
-
-      // Wait for events
-      await new Promise((resolve) => setTimeout(resolve, 200))
-
-      expect(receivedOrders).toHaveLength(2)
-      expect(receivedOrders[0]?.args.isBid).toBe(true)
-      expect(receivedOrders[0]?.args.amount).toBe(parseEther('100'))
-      expect(receivedOrders[1]?.args.isBid).toBe(false)
-      expect(receivedOrders[1]?.args.amount).toBe(parseEther('50'))
-    } finally {
-      unwatch()
-    }
-  })
-
-  test('behavior: filter by token', async () => {
-    const { base } = await setupTokenPair()
-    const { base: base2 } = await setupTokenPair()
-
-    const receivedOrders: Array<{
-      args: Actions.dex.watchOrderPlaced.Args
-      log: Actions.dex.watchOrderPlaced.Log
-    }> = []
-
-    // Watch only for orders on base
-    const unwatch = Actions.dex.watchOrderPlaced(client, {
-      token: base,
-      onOrderPlaced: (args, log) => {
-        receivedOrders.push({ args, log })
-      },
-    })
-
-    try {
-      // Place order on base (should be captured)
-      await Actions.dex.placeSync(client, {
-        token: base,
-        amount: parseEther('100'),
-        type: 'buy',
-        tick: Tick.fromPrice('1.001'),
-      })
-
-      // Place order on base2 (should NOT be captured)
-      await Actions.dex.placeSync(client, {
-        token: base2,
-        amount: parseEther('50'),
-        type: 'buy',
-        tick: Tick.fromPrice('1.001'),
-      })
-
-      await new Promise((resolve) => setTimeout(resolve, 200))
-
-      // Should only receive 1 event
-      expect(receivedOrders).toHaveLength(1)
-      expect(receivedOrders[0]?.args.token.toLowerCase()).toBe(
-        base.toLowerCase(),
-      )
-    } finally {
-      unwatch()
-    }
   })
 })
 
@@ -1221,3 +1464,145 @@ describe('watchOrderCancelled', () => {
 })
 
 describe.todo('watchOrderFilled')
+
+describe('watchOrderPlaced', () => {
+  test('default', async () => {
+    const { base } = await setupTokenPair()
+
+    const receivedOrders: Array<{
+      args: Actions.dex.watchOrderPlaced.Args
+      log: Actions.dex.watchOrderPlaced.Log
+    }> = []
+
+    const unwatch = Actions.dex.watchOrderPlaced(client, {
+      onOrderPlaced: (args, log) => {
+        receivedOrders.push({ args, log })
+      },
+    })
+
+    try {
+      // Place first order
+      await Actions.dex.placeSync(client, {
+        token: base,
+        amount: parseEther('100'),
+        type: 'buy',
+        tick: Tick.fromPrice('1.001'),
+      })
+
+      // Place second order
+      await Actions.dex.placeSync(client, {
+        token: base,
+        amount: parseEther('50'),
+        type: 'sell',
+        tick: Tick.fromPrice('0.999'),
+      })
+
+      // Wait for events
+      await new Promise((resolve) => setTimeout(resolve, 200))
+
+      expect(receivedOrders).toHaveLength(2)
+      expect(receivedOrders[0]?.args.isBid).toBe(true)
+      expect(receivedOrders[0]?.args.amount).toBe(parseEther('100'))
+      expect(receivedOrders[1]?.args.isBid).toBe(false)
+      expect(receivedOrders[1]?.args.amount).toBe(parseEther('50'))
+    } finally {
+      unwatch()
+    }
+  })
+
+  test('behavior: filter by token', async () => {
+    const { base } = await setupTokenPair()
+    const { base: base2 } = await setupTokenPair()
+
+    const receivedOrders: Array<{
+      args: Actions.dex.watchOrderPlaced.Args
+      log: Actions.dex.watchOrderPlaced.Log
+    }> = []
+
+    // Watch only for orders on base
+    const unwatch = Actions.dex.watchOrderPlaced(client, {
+      token: base,
+      onOrderPlaced: (args, log) => {
+        receivedOrders.push({ args, log })
+      },
+    })
+
+    try {
+      // Place order on base (should be captured)
+      await Actions.dex.placeSync(client, {
+        token: base,
+        amount: parseEther('100'),
+        type: 'buy',
+        tick: Tick.fromPrice('1.001'),
+      })
+
+      // Place order on base2 (should NOT be captured)
+      await Actions.dex.placeSync(client, {
+        token: base2,
+        amount: parseEther('50'),
+        type: 'buy',
+        tick: Tick.fromPrice('1.001'),
+      })
+
+      await new Promise((resolve) => setTimeout(resolve, 200))
+
+      // Should only receive 1 event
+      expect(receivedOrders).toHaveLength(1)
+      expect(receivedOrders[0]?.args.token.toLowerCase()).toBe(
+        base.toLowerCase(),
+      )
+    } finally {
+      unwatch()
+    }
+  })
+})
+
+describe('withdraw', () => {
+  test('default', async () => {
+    const { base, quote } = await setupTokenPair()
+
+    // Create internal balance
+    const { orderId } = await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick: Tick.fromPrice('1.001'),
+    })
+
+    await Actions.dex.cancelSync(client, { orderId })
+
+    // Get DEX balance
+    const dexBalance = await Actions.dex.getBalance(client, {
+      account: account.address,
+      token: quote,
+    })
+    expect(dexBalance).toBeGreaterThan(0n)
+
+    // Get wallet balance before withdraw
+    const walletBalanceBefore = await Actions.token.getBalance(client, {
+      token: quote,
+    })
+
+    // Withdraw from DEX
+    const { receipt } = await Actions.dex.withdrawSync(client, {
+      token: quote,
+      amount: dexBalance,
+    })
+
+    expect(receipt).toBeDefined()
+    expect(receipt.status).toBe('success')
+
+    // Check DEX balance is now 0
+    const dexBalanceAfter = await Actions.dex.getBalance(client, {
+      account: account.address,
+      token: quote,
+    })
+    expect(dexBalanceAfter).toBe(0n)
+
+    // Check wallet balance increased
+    const walletBalanceAfter = await Actions.token.getBalance(client, {
+      token: quote,
+    })
+    expect(walletBalanceAfter).toBeGreaterThan(walletBalanceBefore)
+  })
+})

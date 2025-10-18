@@ -726,6 +726,142 @@ export namespace getBuyQuote {
 }
 
 /**
+ * Gets an order's details from the orderbook.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/viem'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const order = await Actions.dex.getOrder(client, {
+ *   orderId: 123n,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The order details.
+ */
+export async function getOrder<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getOrder.Parameters,
+): Promise<getOrder.ReturnValue> {
+  const { orderId, ...rest } = parameters
+  return readContract(client, {
+    ...rest,
+    ...getOrder.call({ orderId }),
+  })
+}
+
+export namespace getOrder {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** Order ID to query. */
+    orderId: bigint
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.stablecoinExchange,
+    'getOrder',
+    never
+  >
+
+  /**
+   * Defines a call to the `getOrder` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { orderId } = args
+    return defineCall({
+      address: Addresses.stablecoinExchange,
+      abi: Abis.stablecoinExchange,
+      args: [orderId],
+      functionName: 'getOrder',
+    })
+  }
+}
+
+/**
+ * Gets the price level information at a specific tick.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions, Tick } from 'tempo.ts/viem'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const level = await Actions.dex.getPriceLevel(client, {
+ *   base: '0x20c...11',
+ *   tick: Tick.fromPrice('1.001'),
+ *   isBid: true,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The price level information.
+ */
+export async function getPriceLevel<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getPriceLevel.Parameters,
+): Promise<getPriceLevel.ReturnValue> {
+  const { base, tick, isBid, ...rest } = parameters
+  return readContract(client, {
+    ...rest,
+    ...getPriceLevel.call({ base, tick, isBid }),
+  })
+}
+
+export namespace getPriceLevel {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** Address of the base token. */
+    base: Address
+    /** Whether to query the bid side (true) or ask side (false). */
+    isBid: boolean
+    /** Price tick to query. */
+    tick: number
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.stablecoinExchange,
+    'getPriceLevel',
+    never
+  >
+
+  /**
+   * Defines a call to the `getPriceLevel` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { base, tick, isBid } = args
+    return defineCall({
+      address: Addresses.stablecoinExchange,
+      abi: Abis.stablecoinExchange,
+      args: [base, tick, isBid],
+      functionName: 'getPriceLevel',
+    })
+  }
+}
+
+/**
  * Gets the quote for selling a specific amount of tokens.
  *
  * @example

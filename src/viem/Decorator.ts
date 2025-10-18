@@ -539,6 +539,48 @@ export type Decorator<
       parameters: dexActions.getBuyQuote.Parameters,
     ) => Promise<dexActions.getBuyQuote.ReturnValue>
     /**
+     * Gets an order's details from the orderbook.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     *
+     * const client = createTempoClient()
+     *
+     * const order = await client.dex.getOrder({
+     *   orderId: 123n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The order details.
+     */
+    getOrder: (
+      parameters: dexActions.getOrder.Parameters,
+    ) => Promise<dexActions.getOrder.ReturnValue>
+    /**
+     * Gets the price level information at a specific tick.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient, Tick } from 'tempo.ts/viem'
+     *
+     * const client = createTempoClient()
+     *
+     * const level = await client.dex.getPriceLevel({
+     *   base: '0x20c...11',
+     *   tick: Tick.fromPrice('1.001'),
+     *   isBid: true,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The price level information.
+     */
+    getPriceLevel: (
+      parameters: dexActions.getPriceLevel.Parameters,
+    ) => Promise<dexActions.getPriceLevel.ReturnValue>
+    /**
      * Gets the quote for selling a specific amount of tokens.
      *
      * @example
@@ -2346,6 +2388,9 @@ export function decorator() {
           dexActions.createPairSync(client, parameters),
         getBalance: (parameters) => dexActions.getBalance(client, parameters),
         getBuyQuote: (parameters) => dexActions.getBuyQuote(client, parameters),
+        getOrder: (parameters) => dexActions.getOrder(client, parameters),
+        getPriceLevel: (parameters) =>
+          dexActions.getPriceLevel(client, parameters),
         getSellQuote: (parameters) =>
           dexActions.getSellQuote(client, parameters),
         place: (parameters) => dexActions.place(client, parameters),
