@@ -1,8 +1,9 @@
 {
-	"extends": "./tsconfig.base.json",
-	"exclude": ["contracts"],
-	"compilerOptions": {
-		"moduleResolution": "nodenext",
-		"noEmit": true
-	}
+  "extends": "./tsconfig.base.json",
+  "exclude": ["contracts"],
+  "compilerOptions": {
+    "customConditions": ["src"],
+    "moduleResolution": "nodenext",
+    "noEmit": true
+  }
 }
