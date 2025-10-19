@@ -3,7 +3,6 @@
 	"exclude": ["contracts"],
 	"compilerOptions": {
 		"moduleResolution": "nodenext",
-		"customConditions": ["src"],
 		"noEmit": true
 	}
 }
