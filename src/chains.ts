@@ -1,17 +1,17 @@
 import { defineChain } from 'viem'
 import * as Chain from './viem/Chain.js'
 
-export const tempoLento = /*#__PURE__*/ defineChain({
+export const tempoAndante = /*#__PURE__*/ defineChain({
   ...Chain.config,
-  id: 4246,
-  name: 'Tempo',
+  id: 42427,
+  name: 'Tempo Andante',
   nativeCurrency: {
     name: 'USD',
     symbol: 'USD',
-    decimals: 18,
+    decimals: 6,
   },
   rpcUrls: {
-    default: { http: ['https://rpc-lento.tempoxyz.dev'] },
+    default: { http: ['https://rpc-andante.tempoxyz.dev'] },
   },
 })
 
@@ -22,11 +22,11 @@ export const tempoLocal = /*#__PURE__*/ defineChain({
   nativeCurrency: {
     name: 'USD',
     symbol: 'USD',
-    decimals: 18,
+    decimals: 6,
   },
   rpcUrls: {
     default: { http: ['http://localhost:8545'] },
   },
 })
 
-export const tempo = /*#__PURE__*/ defineChain(tempoLento)
+export const tempo = /*#__PURE__*/ defineChain(tempoAndante)
