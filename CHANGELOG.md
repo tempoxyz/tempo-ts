@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.1.1
+
+### Patch Changes
+
+- [`dd4cd43`](https://github.com/tempoxyz/tempo-ts/commit/dd4cd43fb10ac1a8d766751b1e6f958b62befa07) Thanks [@jxom](https://github.com/jxom)! - Fixed `token.getMetadata` for the default quote token.
+
 ## 0.1.0
 
 ### Minor Changes
