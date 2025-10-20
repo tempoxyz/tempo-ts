@@ -1,5 +1,109 @@
 # tempo.ts
 
+## 0.1.0
+
+### Minor Changes
+
+- [#4](https://github.com/tempoxyz/tempo-ts/pull/4) [`528aa00`](https://github.com/tempoxyz/tempo-ts/commit/528aa0019876bf166724378de877a7acfd4a3013) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed support for `type: 'feeToken'` / `type: '0x77'` transactions. Use `type: 'aa'` / `type: '0x76'` transactions instead.
+
+- [#4](https://github.com/tempoxyz/tempo-ts/pull/4) [`528aa00`](https://github.com/tempoxyz/tempo-ts/commit/528aa0019876bf166724378de877a7acfd4a3013) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `usdAddress` and `usdId`.
+
+  ```diff
+  - import { usdAddress, usdId } from 'tempo.ts/viem'
+  + import { Addresses, TokenId } from 'tempo.ts/viem'
+
+  - usdAddress
+  + Addresses.defaultFeeToken
+
+  - usdId
+  + TokenId.defaultFeeToken
+  ```
+
+- [#4](https://github.com/tempoxyz/tempo-ts/pull/4) [`528aa00`](https://github.com/tempoxyz/tempo-ts/commit/528aa0019876bf166724378de877a7acfd4a3013) Thanks [@jxom](https://github.com/jxom)! - `tempo.ts/ox`: Added `TransactionEnvelopeAA` and `SignatureEnvelope`.
+
+- [#4](https://github.com/tempoxyz/tempo-ts/pull/4) [`528aa00`](https://github.com/tempoxyz/tempo-ts/commit/528aa0019876bf166724378de877a7acfd4a3013) Thanks [@jxom](https://github.com/jxom)! - Added **Stablecoin Exchange** actions:
+
+  - `dex.buy`
+  - `dex.buySync`
+  - `dex.cancel`
+  - `dex.cancelSync`
+  - `dex.createPair`
+  - `dex.createPairSync`
+  - `dex.getBalance`
+  - `dex.getBuyQuote`
+  - `dex.getOrder`
+  - `dex.getPriceLevel`
+  - `dex.getSellQuote`
+  - `dex.place`
+  - `dex.placeSync`
+  - `dex.placeFlip`
+  - `dex.placeFlipSync`
+  - `dex.sell`
+  - `dex.sellSync`
+  - `dex.withdraw`
+  - `dex.withdrawSync`
+  - `dex.watchFlipOrderPlaced`
+  - `dex.watchOrderCancelled`
+  - `dex.watchOrderFilled`
+  - `dex.watchOrderPlaced`
+
+- [#4](https://github.com/tempoxyz/tempo-ts/pull/4) [`528aa00`](https://github.com/tempoxyz/tempo-ts/commit/528aa0019876bf166724378de877a7acfd4a3013) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed support for deprecated `tempoLento` chain. Update to use `tempoAndante` instead.
+
+- [#4](https://github.com/tempoxyz/tempo-ts/pull/4) [`528aa00`](https://github.com/tempoxyz/tempo-ts/commit/528aa0019876bf166724378de877a7acfd4a3013) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Refactored structure to use PascalCased namespaces to future-proof against naming conflicts, excessive imports, and future versions of Viem.
+
+  - Renamed `actions` import to `Actions`.
+
+  ```diff
+  - import { actions } from 'tempo.ts/viem'
+  + import { Actions } from 'tempo.ts/viem'
+  ```
+
+  - Renamed `parseTransaction` to `deserialize`.
+
+  ```diff
+  - import { parseTransaction } from 'tempo.ts/viem'
+  + import { Transaction } from 'tempo.ts/viem'
+
+  - parseTransaction(serialized)
+  + Transaction.deserialize(serialized)
+  ```
+
+  - Renamed `serializeTransaction` to `serialize`.
+
+  ```diff
+  - import { serializeTransaction } from 'tempo.ts/viem'
+  + import { Transaction } from 'tempo.ts/viem'
+
+  - serializeTransaction(transaction)
+  + Transaction.serialize(transaction)
+  ```
+
+  - Placed all `*Abi` exports in the `Abis` namespace.
+
+  ```diff
+  - import { tip20Abi } from 'tempo.ts/viem'
+  + import { Abis } from 'tempo.ts/viem'
+
+  - tip20Abi
+  + Abis.tip20
+  ```
+
+  - Placed all `*Address` exports in the `Addresses` namespace.
+
+  ```diff
+  - import { feeManagerAddress } from 'tempo.ts/viem'
+  + import { Addresses } from 'tempo.ts/viem'
+
+  - feeManagerAddress
+  + Addresses.feeManager
+  ```
+
+### Patch Changes
+
+- [#4](https://github.com/tempoxyz/tempo-ts/pull/4) [`528aa00`](https://github.com/tempoxyz/tempo-ts/commit/528aa0019876bf166724378de877a7acfd4a3013) Thanks [@jxom](https://github.com/jxom)! - Added `watchUpdateQuoteToken` Action.
+
+- [#4](https://github.com/tempoxyz/tempo-ts/pull/4) [`528aa00`](https://github.com/tempoxyz/tempo-ts/commit/528aa0019876bf166724378de877a7acfd4a3013) Thanks [@jxom](https://github.com/jxom)! - Added `token.updateQuoteToken` and `token.finalizeUpdateQuoteToken` Actions.
+
 ## 0.0.6
 
 ### Patch Changes
