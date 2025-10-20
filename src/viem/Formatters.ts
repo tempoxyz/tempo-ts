@@ -1,3 +1,5 @@
+// TODO: Find opportunities to make this file less duplicated + more simplified with Viem v3.
+
 import * as Hex from 'ox/Hex'
 import {
   formatTransaction as viem_formatTransaction,
@@ -10,7 +12,6 @@ import {
   isTempo,
   type Transaction,
   type TransactionRequest,
-  type TransactionRequestAA,
   type TransactionRequestRpc,
   type TransactionRpc,
 } from './Transaction.js'
@@ -57,8 +58,12 @@ export const formatTransactionRequest = (
   r: TransactionRequest,
   action?: string | undefined,
 ): TransactionRequestRpc => {
-  const request = r as TransactionRequestAA
+  const request = r
 
+  // Convert EIP-1559 transactions to AA transactions.
+  if (request.type === 'eip1559') (request as any).type = 'aa'
+
+  // If the request is not a Tempo transaction, route to Viem formatter.
   if (!isTempo(request))
     return viem_formatTransactionRequest(
       r as never,
@@ -85,7 +90,7 @@ export const formatTransactionRequest = (
     })),
     nonce: request.nonce ? BigInt(request.nonce) : undefined,
     type: 'aa',
-  })
+  } as never)
 
   if (action === 'estimateGas') {
     rpc.maxFeePerGas = undefined

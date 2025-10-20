@@ -3,6 +3,7 @@ import {
   type ChainConfig,
   defineTransaction,
   defineTransactionRequest,
+  type SerializeTransactionFn,
 } from 'viem'
 import * as Formatters from './Formatters.js'
 import * as Transaction from './Transaction.js'
@@ -22,6 +23,7 @@ export const config = {
     }),
   },
   serializers: {
-    transaction: Transaction.serialize,
+    // TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
+    transaction: Transaction.serialize as SerializeTransactionFn,
   },
 } satisfies Pick<Chain, 'blockTime' | 'contracts'> & ChainConfig

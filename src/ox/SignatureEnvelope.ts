@@ -530,7 +530,9 @@ export function getType<
  * @returns The hex-encoded serialized signature.
  * @throws {CoercionError} If the envelope cannot be serialized.
  */
-export function serialize(envelope: SignatureEnvelope): Serialized {
+export function serialize(
+  envelope: PartialBy<SignatureEnvelope, 'prehash'>,
+): Serialized {
   const type = getType(envelope)
 
   // Backward compatibility: no type identifier for secp256k1

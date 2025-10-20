@@ -1,3 +1,5 @@
+// TODO: Find opportunities to make this file less duplicated + more simplified with Viem v3.
+
 import * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
@@ -150,8 +152,16 @@ export function deserialize<
   const serialized extends TransactionSerializedGeneric,
 >(serializedTransaction: serialized): deserialize.ReturnValue<serialized> {
   const type = Hex.slice(serializedTransaction, 0, 1)
-  if (type === '0x76')
-    return deserializeAA(serializedTransaction as `0x76${string}`) as never
+  if (type === '0x76') {
+    const from =
+      Hex.slice(serializedTransaction, -6) === '0xfeefeefeefee'
+        ? Hex.slice(serializedTransaction, -26, -6)
+        : undefined
+    return {
+      ...deserializeAA(serializedTransaction as `0x76${string}`),
+      from,
+    } as never
+  }
   return viem_parseTransaction(serializedTransaction) as never
 }
 
@@ -169,10 +179,31 @@ export async function serialize(
     feePayer?: Account | true | undefined
     from?: Address | undefined
   },
-  signature?: viem_Signature | undefined,
+  signature?:
+    | OneOf<SignatureEnvelope.SignatureEnvelope | viem_Signature>
+    | undefined,
 ) {
-  if (!isTempo(transaction))
+  // Convert EIP-1559 transactions to AA transactions.
+  if (transaction.type === 'eip1559') (transaction as any).type = 'aa'
+
+  // If the transaction is not a Tempo transaction, route to Viem serializer.
+  if (!isTempo(transaction)) {
+    if (signature && 'type' in signature && signature.type !== 'secp256k1')
+      throw new Error(
+        'Unsupported signature type. Expected `secp256k1` but got `' +
+          signature.type +
+          '`.',
+      )
+    if (signature && 'type' in signature) {
+      const { r, s, yParity } = signature?.signature!
+      return viem_serializeTransaction(transaction as never, {
+        r: Hex.fromNumber(r, { size: 32 }),
+        s: Hex.fromNumber(s, { size: 32 }),
+        yParity,
+      })
+    }
     return viem_serializeTransaction(transaction as never, signature)
+  }
 
   const type = getType(transaction)
   if (type === 'aa')
@@ -215,10 +246,11 @@ async function serializeAA(
     feePayer?: Account | true | undefined
     from?: Address | undefined
   },
-  sig?: viem_Signature | undefined,
+  sig?: OneOf<SignatureEnvelope.SignatureEnvelope | viem_Signature> | undefined,
 ) {
   const signature = (() => {
     if (transaction.signature) return transaction.signature
+    if (sig && 'type' in sig) return sig as SignatureEnvelope.SignatureEnvelope
     if (sig)
       return SignatureEnvelope.from({
         r: BigInt(sig.r!),
@@ -275,12 +307,13 @@ async function serializeAA(
     })
 
     const sender = (() => {
+      if (transaction.from) return transaction.from
       if (signature.type === 'secp256k1')
         return Secp256k1.recoverAddress({
           payload: TxAA.getSignPayload(tx),
           signature: signature.signature,
         })
-      throw new Error('Unsupported signature type')
+      throw new Error('Unable to extract sender from transaction or signature.')
     })()
 
     const hash = TxAA.getFeePayerSignPayload(tx, {
@@ -296,8 +329,21 @@ async function serializeAA(
     })
   }
 
+  if (feePayer === true) {
+    const serialized = TxAA.serialize(transaction_ox, {
+      feePayerSignature: null,
+      signature,
+    })
+    // if the transaction is ready to be sent off (signed), add the sender
+    // and a fee marker to the serialized transaction, so the fee payer proxy
+    // can infer the sender address.
+    if (transaction.from && signature)
+      return Hex.concat(serialized, transaction.from, '0xfeefeefeefee')
+    return serialized
+  }
+
   return TxAA.serialize(transaction_ox, {
-    feePayerSignature: feePayer === true ? null : undefined,
+    feePayerSignature: undefined,
     signature,
   })
 }
