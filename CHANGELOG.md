@@ -1,5 +1,15 @@
 # tempo.ts
 
+## 0.1.2
+
+### Patch Changes
+
+- [`287924c`](https://github.com/tempoxyz/tempo-ts/commit/287924c21ae250be0fe3d73e5f928e0f9cb1cd5b) Thanks [@jxom](https://github.com/jxom)! - Fixed `token.getMetadata` against the quote token.
+
+- [`5c47beb`](https://github.com/tempoxyz/tempo-ts/commit/5c47bebebbc2efddb0c8cf0702afcba450c7fc80) Thanks [@jxom](https://github.com/jxom)! - `tempo.ts/prool`: Fixed `blockTime` parameter type.
+
+- [`287924c`](https://github.com/tempoxyz/tempo-ts/commit/287924c21ae250be0fe3d73e5f928e0f9cb1cd5b) Thanks [@jxom](https://github.com/jxom)! - Added `TokenId.from` to instantiate a token id from an address or number.
+
 ## 0.1.1
 
 ### Patch Changes
