@@ -1,12 +1,14 @@
 import { QueryClient } from '@tanstack/react-query'
 import { tempo, tempoLocal } from 'tempo.ts/chains'
 import { createConfig, http } from 'wagmi'
+import { eoa } from './connector'
 
 export const config = createConfig({
   batch: {
     multicall: false,
   },
   chains: [import.meta.env.VITE_LOCAL !== 'true' ? tempo : tempoLocal],
+  connectors: [eoa()],
   multiInjectedProviderDiscovery: false,
   transports: {
     [tempo.id]: http(undefined, {
@@ -24,3 +26,9 @@ export const config = createConfig({
 })
 
 export const queryClient = new QueryClient()
+
+declare module 'wagmi' {
+  interface Register {
+    config: typeof config
+  }
+}
