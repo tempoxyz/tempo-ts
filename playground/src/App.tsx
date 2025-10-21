@@ -92,7 +92,7 @@ function Balance() {
 
       if (import.meta.env.VITE_LOCAL !== 'true') {
         await client.request<any>({
-          method: 'tempo_fundAccount',
+          method: 'tempo_fundAddress',
           params: [account.address],
         })
       } else {
@@ -126,7 +126,7 @@ function Transfer() {
   const [account] = useAtom(accountAtom)
   const client = useClient()
 
-  // TODO: Hooks.token.useTransferSync()
+  // TODO: Hooks.token.useTransferSync() in `tempo.ts/wagmi`
   const sendUsd = useMutation({
     async mutationFn(parameters: { amount: string; to: Hex }) {
       const { amount, to } = parameters
@@ -179,7 +179,7 @@ function Transfer() {
   )
 }
 
-// TODO: Hooks.token.useBalance()
+// TODO: Hooks.token.useBalance() in `tempo.ts/wagmi`
 // biome-ignore lint/correctness/noUnusedVariables: _
 function useBalance(parameters: useBalance.Parameters) {
   const { address } = parameters
