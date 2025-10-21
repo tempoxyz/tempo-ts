@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.1.3
+
+### Patch Changes
+
+- [`92312c6`](https://github.com/tempoxyz/tempo-ts/commit/92312c6a4961596de107bf75c7525e8b6c4f781f) Thanks [@jxom](https://github.com/jxom)! - Fixed dist output.
+
 ## 0.1.2
 
 ### Patch Changes
