@@ -76,6 +76,7 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
               http: {
                 api: 'all',
                 addr: '0.0.0.0',
+                corsdomain: '*',
                 port: port!,
               },
               ws: {
@@ -148,7 +149,7 @@ export declare namespace tempo {
           /**
            * Interval between blocks.
            */
-          blockTime?: number | undefined
+          blockTime?: string | undefined
         }
       | undefined
     /**

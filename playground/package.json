@@ -1,0 +1,31 @@
+{
+	"name": "playground",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc -b && vite build",
+		"lint": "eslint .",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"@tanstack/react-query": "latest",
+		"jotai": "latest",
+		"prool": "latest",
+		"tempo.ts": "workspace:*",
+		"react": "^19.1.1",
+		"react-dom": "^19.1.1",
+		"viem": "latest",
+		"wagmi": "latest"
+	},
+	"devDependencies": {
+		"@types/node": "^24.6.0",
+		"@types/react": "^19.1.16",
+		"@types/react-dom": "^19.1.9",
+		"@vitejs/plugin-react": "^5.0.4",
+		"globals": "^16.4.0",
+		"typescript": "~5.9.3",
+		"vite": "^7.1.7"
+	}
+}

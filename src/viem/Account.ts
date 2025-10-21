@@ -1,3 +1,4 @@
+import { WebCryptoP256 } from 'ox'
 import * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import * as P256 from 'ox/P256'
@@ -7,9 +8,8 @@ import * as Signature from 'ox/Signature'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as SignatureEnvelope from '../ox/SignatureEnvelope.js'
 import * as internal from './internal/account.js'
-import { WebCryptoP256 } from 'ox'
 
-export type { PrivateKeyAccount } from 'viem'
+export type { Account } from './internal/account.js'
 
 /**
  * Instantiates an Account from a headless WebAuthn credential (P256 private key).

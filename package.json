@@ -9,6 +9,7 @@
 		"check": "biome check . --write --unsafe",
 		"check:types": "tsc -b",
 		"gen:abis": "node scripts/gen:abis.ts && pnpm check",
+		"playground": "pnpm preconstruct && pnpm --filter playground dev",
 		"preconstruct": "zile dev --project ./tsconfig.build.json && pnpm check",
 		"submodules:pull": "git submodule foreach git pull origin main && pnpm gen:abis",
 		"test": "vitest",

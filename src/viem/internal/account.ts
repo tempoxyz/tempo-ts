@@ -11,6 +11,15 @@ import type { RequiredBy } from '../../internal/types.js'
 import * as SignatureEnvelope from '../../ox/SignatureEnvelope.js'
 import * as Transaction from '../Transaction.js'
 
+export type Account = RequiredBy<
+  Omit<LocalAccount, 'signTransaction'>,
+  'sign' | 'signAuthorization'
+> & {
+  signTransaction: (
+    transaction: Transaction.TransactionSerializable,
+  ) => Promise<Hex.Hex>
+}
+
 // TODO: this function will be redundant when Viem migrates to Ox.
 /** @internal */
 export function toPrivateKeyAccount(
@@ -94,12 +103,5 @@ export declare namespace toPrivateKeyAccount {
     source?: string | undefined
   }
 
-  export type ReturnValue = RequiredBy<
-    Omit<LocalAccount, 'signTransaction'>,
-    'sign' | 'signAuthorization'
-  > & {
-    signTransaction: (
-      transaction: Transaction.TransactionSerializable,
-    ) => Promise<Hex.Hex>
-  }
+  export type ReturnValue = Account
 }

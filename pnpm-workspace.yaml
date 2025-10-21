@@ -3,4 +3,4 @@ onlyBuiltDependencies:
   - simple-git-hooks
 packages:
   - .
-  - ./playground
+  - playground
