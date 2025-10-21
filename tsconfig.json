@@ -1,9 +1,12 @@
 {
-	"extends": "./tsconfig.base.json",
-	"exclude": ["contracts"],
+	"files": [],
+	"references": [
+		{ "path": "./playground/tsconfig.json" },
+		{ "path": "./scripts/tsconfig.json" },
+		{ "path": "./src/tsconfig.json" }
+	],
 	"compilerOptions": {
-		"customConditions": ["src"],
-		"moduleResolution": "nodenext",
-		"noEmit": true
+		"module": "nodenext",
+		"moduleResolution": "nodenext"
 	}
 }
