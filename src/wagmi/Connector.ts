@@ -8,7 +8,12 @@ import {
 } from 'viem'
 import { ChainNotConfiguredError, createConnector } from 'wagmi'
 
-export function eoa() {
+/**
+ * Connector for a WebAuthn EOA.
+ *
+ * @returns Connector.
+ */
+export function webAuthn() {
   let account: Account.Account | undefined
 
   type Properties = {
