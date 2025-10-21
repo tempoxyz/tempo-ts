@@ -38,6 +38,9 @@ export function App() {
             <>
               <h2>Send USD</h2>
               <Transfer />
+
+              <h2>Create Token</h2>
+              <CreateToken />
             </>
           )}
         </>
@@ -47,6 +50,9 @@ export function App() {
           <Connect />
         </>
       )}
+
+      <h2>Token Metadata</h2>
+      <TokenMetadata />
     </div>
   )
 }
@@ -204,6 +210,105 @@ function Transfer() {
   )
 }
 
+function CreateToken() {
+  const { data: connectorClient } = useConnectorClient()
+
+  const createToken = useMutation({
+    async mutationFn(parameters: { name: string; symbol: string }) {
+      const { name, symbol } = parameters
+      if (!connectorClient) throw new Error('connectorClient not found')
+      return await Actions.token.createSync(connectorClient, {
+        name,
+        gas: 100_000n,
+        symbol,
+        currency: 'USD',
+      })
+    },
+  })
+
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        const formData = new FormData(event.target as HTMLFormElement)
+        const name = formData.get('name') as string
+        const symbol = formData.get('symbol') as string
+        createToken.mutate({ name, symbol })
+      }}
+    >
+      <div>
+        <input type="text" name="name" placeholder="Name" />
+      </div>
+      <div>
+        <input type="text" name="symbol" placeholder="Symbol" />
+      </div>
+      <div>
+        <button type="submit" disabled={createToken.isPending}>
+          {createToken.isPending ? 'Creating...' : 'Create'}
+        </button>
+      </div>
+      {createToken.isError && <div>Error: {createToken.error?.message}</div>}
+      {createToken.isSuccess && (
+        <>
+          <div>Token created successfully!</div>
+          <pre>{stringify(createToken.data, undefined, 2)}</pre>
+        </>
+      )}
+    </form>
+  )
+}
+
+function TokenMetadata() {
+  const client = useClient()
+
+  const getMetadata = useMutation({
+    async mutationFn(parameters: { token: string }) {
+      const { token } = parameters
+      if (!client) throw new Error('client not found')
+      return await Actions.token.getMetadata(
+        client as Client<Transport, Chain>,
+        {
+          token: token.startsWith('0x') ? (token as Address) : BigInt(token),
+        },
+      )
+    },
+  })
+
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        const formData = new FormData(event.target as HTMLFormElement)
+        const token = formData.get('token') as Address
+        getMetadata.mutate({ token })
+      }}
+    >
+      <div>
+        <input
+          type="text"
+          name="token"
+          placeholder="Token Address or ID"
+          style={{ width: '320px' }}
+        />
+      </div>
+      <div>
+        <button type="submit" disabled={getMetadata.isPending}>
+          {getMetadata.isPending ? 'Fetching...' : 'Get Metadata'}
+        </button>
+      </div>
+      {getMetadata.isError && (
+        <div style={{ color: 'red' }}>Error: {getMetadata.error?.message}</div>
+      )}
+      {getMetadata.data && (
+        <>
+          <div>Token metadata:</div>
+          <pre>{stringify(getMetadata.data, null, 2)}</pre>
+        </>
+      )}
+    </form>
+  )
+}
+
 // TODO: Hooks.token.useBalance() in `tempo.ts/wagmi`
 // biome-ignore lint/correctness/noUnusedVariables: _
 function useBalance(parameters: useBalance.Parameters) {
@@ -226,7 +331,7 @@ function useBalance(parameters: useBalance.Parameters) {
         },
       )
     },
-    refetchInterval: 1_000,
+    refetchInterval: 4_000,
   })
 }
 
