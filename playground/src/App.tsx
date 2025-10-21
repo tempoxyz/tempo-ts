@@ -79,7 +79,9 @@ function Connect() {
         onClick={async () => {
           connect.connect({
             connector,
-            createAccount: true,
+            create: {
+              name: 'Tempo.ts Playground',
+            },
           })
         }}
         type="button"

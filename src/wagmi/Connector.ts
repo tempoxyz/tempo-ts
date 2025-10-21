@@ -13,13 +13,13 @@ import { ChainNotConfiguredError, createConnector } from 'wagmi'
  *
  * @returns Connector.
  */
-export function webAuthn() {
+export function webAuthn(options: webAuthn.Parameters = {}) {
   let account: Account.Account | undefined
 
   type Properties = {
     connect<withCapabilities extends boolean = false>(parameters: {
       chainId?: number | undefined
-      createAccount?: boolean | undefined
+      create?: boolean | { name?: string | undefined } | undefined
       isReconnecting?: boolean | undefined
       withCapabilities?: withCapabilities | boolean | undefined
     }): Promise<{
@@ -48,10 +48,19 @@ export function webAuthn() {
       account ??= await (async () => {
         let credential: WebAuthnP256.P256Credential | undefined
 
-        if ('createAccount' in parameters && parameters.createAccount) {
+        if ('create' in parameters && parameters.create) {
           // Create credential (sign up)
+          const createOptions =
+            typeof parameters.create === 'boolean' ? {} : parameters.create
           credential = await WebAuthnP256.createCredential({
-            name: 'Tempo.ts Playground',
+            ...(options.createOptions ?? {}),
+            user: {
+              ...(options.createOptions?.user ?? {}),
+              name:
+                createOptions.name ??
+                options.createOptions?.name ??
+                `Account ${new Date().toISOString().split('T')[0]}`,
+            } as never,
           })
           config.storage?.setItem('publicKey', {
             [credential.id]: credential.publicKey,
@@ -59,6 +68,7 @@ export function webAuthn() {
         } else {
           // Load credential (log in)
           credential = await WebAuthnP256.getCredential({
+            ...(options.getOptions ?? {}),
             async getPublicKey(credential) {
               const publicKeyMap = (await config.storage?.getItem(
                 'publicKey',
@@ -143,4 +153,18 @@ export function webAuthn() {
       return { request }
     },
   }))
+}
+
+export declare namespace webAuthn {
+  export type Parameters = {
+    createOptions?:
+      | Pick<
+          WebAuthnP256.createCredential.Parameters,
+          'createFn' | 'name' | 'rp' | 'timeout' | 'user'
+        >
+      | undefined
+    getOptions?:
+      | Pick<WebAuthnP256.getCredential.Parameters, 'getFn' | 'rpId'>
+      | undefined
+  }
 }

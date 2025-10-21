@@ -48,10 +48,10 @@
 		"prool": "latest",
 		"simple-git-hooks": "^2.13.1",
 		"typescript": "^5.9.2",
-		"wagmi": "^2.18.1",
 		"viem": "^2.38.2",
 		"vitest": "^3.2.4",
-		"zile": "^0.0.3"
+		"wagmi": "^2.18.1",
+		"zile": "^0.0.4"
 	},
 	"files": [
 		"dist",
