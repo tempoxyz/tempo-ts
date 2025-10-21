@@ -1,5 +1,5 @@
-import { node } from '@elysiajs/node'
-import { Elysia } from 'elysia'
+import * as Http from 'node:http'
+import { createRequestListener } from '@remix-run/node-fetch-server'
 import { RpcRequest, RpcResponse } from 'ox'
 import { Transaction } from 'tempo.ts/viem'
 import { createClient, http, publicActions, walletActions } from 'viem'
@@ -330,11 +330,11 @@ describe('signTransaction', () => {
 })
 
 describe('relay', () => {
-  let server: Elysia
+  let server: Http.Server
 
   beforeAll(async () => {
-    server = new Elysia({ adapter: node() })
-      .post('/', async ({ body }) => {
+    server = Http.createServer(
+      createRequestListener(async (r) => {
         const client = createClient({
           account: mnemonicToAccount(
             'test test test test test test test test test test test junk',
@@ -343,7 +343,7 @@ describe('relay', () => {
           transport: http(),
         }).extend(walletActions)
 
-        const request = RpcRequest.from(body as any)
+        const request = RpcRequest.from(await r.json())
 
         if (
           request.method !== 'eth_sendRawTransaction' &&
@@ -385,17 +385,18 @@ describe('relay', () => {
         })
 
         return Response.json(RpcResponse.from({ result }, { request }))
-      })
-      .listen(3000)
+      }),
+    ).listen(3000)
   })
 
   afterAll(() => {
+    server.close()
     process.on('SIGINT', () => {
-      server.stop()
+      server.close()
       process.exit(0)
     })
     process.on('SIGTERM', () => {
-      server.stop()
+      server.close()
       process.exit(0)
     })
   })
