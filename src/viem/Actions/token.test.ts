@@ -1,5 +1,6 @@
 import { setTimeout } from 'node:timers/promises'
 import { Hex } from 'ox'
+import { TokenRole } from 'tempo.ts/ox'
 import { Abis, Addresses, TokenIds } from 'tempo.ts/viem'
 import { parseEther, publicActions } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
@@ -1534,6 +1535,121 @@ describe('hasRole', () => {
       role: 'issuer',
     })
     expect(hasRoleWithAddress).toBe(true)
+  })
+})
+
+describe('getRoleAdmin', () => {
+  test('default', async () => {
+    // Create a new token where we're the admin
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'GetRoleAdmin Test Token',
+      symbol: 'GRATEST',
+    })
+
+    // Get admin role for issuer role (should be defaultAdmin)
+    const issuerAdminRole = await actions.token.getRoleAdmin(client, {
+      token: address,
+      role: 'issuer',
+    })
+    expect(issuerAdminRole).toBe(
+      '0x0000000000000000000000000000000000000000000000000000000000000000',
+    )
+
+    // Get admin role for pause role (should be defaultAdmin)
+    const pauseAdminRole = await actions.token.getRoleAdmin(client, {
+      token: address,
+      role: 'pause',
+    })
+    expect(pauseAdminRole).toBe(
+      '0x0000000000000000000000000000000000000000000000000000000000000000',
+    )
+
+    // Get admin role for unpause role (should be defaultAdmin)
+    const unpauseAdminRole = await actions.token.getRoleAdmin(client, {
+      token: address,
+      role: 'unpause',
+    })
+    expect(unpauseAdminRole).toBe(
+      '0x0000000000000000000000000000000000000000000000000000000000000000',
+    )
+  })
+
+  test('behavior: after setting role admin', async () => {
+    // Create a new token
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'GetRoleAdmin After Set',
+      symbol: 'GRASET',
+    })
+
+    // Get initial admin role for issuer
+    const initialAdminRole = await actions.token.getRoleAdmin(client, {
+      token: address,
+      role: 'issuer',
+    })
+    expect(initialAdminRole).toBe(
+      '0x0000000000000000000000000000000000000000000000000000000000000000',
+    )
+
+    // Set pause as admin role for issuer
+    await actions.token.setRoleAdminSync(client, {
+      token: address,
+      role: 'issuer',
+      adminRole: 'pause',
+    })
+
+    // Get updated admin role for issuer
+    const updatedAdminRole = await actions.token.getRoleAdmin(client, {
+      token: address,
+      role: 'issuer',
+    })
+    expect(updatedAdminRole).toBe(
+      TokenRole.serialize('pause'),
+    )
+  })
+
+  test('behavior: with token ID', async () => {
+    // Create a new token
+    const { token: address, tokenId } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'GetRoleAdmin Token ID',
+      symbol: 'GRATID',
+    })
+
+    // Get admin role using token ID
+    const adminRoleWithId = await actions.token.getRoleAdmin(client, {
+      token: tokenId,
+      role: 'issuer',
+    })
+    expect(adminRoleWithId).toBe(
+      '0x0000000000000000000000000000000000000000000000000000000000000000',
+    )
+
+    // Get admin role using address
+    const adminRoleWithAddress = await actions.token.getRoleAdmin(client, {
+      token: address,
+      role: 'issuer',
+    })
+    expect(adminRoleWithAddress).toBe(adminRoleWithId)
+  })
+
+  test('behavior: defaultAdmin role admin', async () => {
+    // Create a new token
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'GetRoleAdmin DefaultAdmin',
+      symbol: 'GRADMIN',
+    })
+
+    // Get admin role for defaultAdmin role (should be itself - 0x00)
+    const defaultAdminAdminRole = await actions.token.getRoleAdmin(client, {
+      token: address,
+      role: 'defaultAdmin',
+    })
+    expect(defaultAdminAdminRole).toBe(
+      '0x0000000000000000000000000000000000000000000000000000000000000000',
+    )
   })
 })
 

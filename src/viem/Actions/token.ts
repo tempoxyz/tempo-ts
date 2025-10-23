@@ -551,13 +551,13 @@ export namespace burn {
     const { amount, memo, token } = args
     const callArgs = memo
       ? ({
-          functionName: 'burnWithMemo',
-          args: [amount, Hex.padLeft(memo, 32)],
-        } as const)
+        functionName: 'burnWithMemo',
+        args: [amount, Hex.padLeft(memo, 32)],
+      } as const)
       : ({
-          functionName: 'burn',
-          args: [amount],
-        } as const)
+        functionName: 'burn',
+        args: [amount],
+      } as const)
     return defineCall({
       address: TokenId.toAddress(token),
       abi: Abis.tip20,
@@ -1625,6 +1625,73 @@ export declare namespace getMetadata {
 }
 
 /**
+ * Gets the admin role for a specific role in a TIP20 token.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const adminRole = await actions.token.getRoleAdmin(client, {
+ *   role: 'minter',
+ *   token: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The admin role hash.
+ */
+export async function getRoleAdmin<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getRoleAdmin.Parameters,
+): Promise<getRoleAdmin.ReturnValue> {
+  return readContract(client, {
+    ...parameters,
+    ...getRoleAdmin.call(parameters),
+  })
+}
+
+export namespace getRoleAdmin {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** Role to get admin for. */
+    role: TokenRole.TokenRole
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.tip20,
+    'getRoleAdmin',
+    never
+  >
+
+  /**
+   * Defines a call to the `getRoleAdmin` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { role, token } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: Abis.tip20,
+      functionName: 'getRoleAdmin',
+      args: [TokenRole.serialize(role)],
+    })
+  }
+}
+
+/**
  * Checks if an account has a specific role for a TIP20 token.
  *
  * @example
@@ -2019,13 +2086,13 @@ export namespace mint {
     const { to, amount, memo, token } = args
     const callArgs = memo
       ? ({
-          functionName: 'mintWithMemo',
-          args: [to, amount, Hex.padLeft(memo, 32)],
-        } as const)
+        functionName: 'mintWithMemo',
+        args: [to, amount, Hex.padLeft(memo, 32)],
+      } as const)
       : ({
-          functionName: 'mint',
-          args: [to, amount],
-        } as const)
+        functionName: 'mint',
+        args: [to, amount],
+      } as const)
     return defineCall({
       address: TokenId.toAddress(token),
       abi: Abis.tip20,
@@ -4519,15 +4586,15 @@ export function watchUpdateQuoteToken<
 export declare namespace watchUpdateQuoteToken {
   export type Args = OneOf<
     | GetEventArgs<
-        typeof Abis.tip20,
-        'UpdateQuoteToken',
-        { IndexedOnly: false; Required: true }
-      >
+      typeof Abis.tip20,
+      'UpdateQuoteToken',
+      { IndexedOnly: false; Required: true }
+    >
     | GetEventArgs<
-        typeof Abis.tip20,
-        'QuoteTokenUpdateFinalized',
-        { IndexedOnly: false; Required: true }
-      >
+      typeof Abis.tip20,
+      'QuoteTokenUpdateFinalized',
+      { IndexedOnly: false; Required: true }
+    >
   > & {
     /** Whether the update has been finalized. */
     finalized: boolean
