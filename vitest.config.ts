@@ -60,6 +60,23 @@ export default defineConfig({
       // },
       {
         extends: true,
+        test: {
+          browser: {
+            provider: playwright(),
+            instances: [{ browser: 'chromium' }],
+            enabled: true,
+            headless: true,
+            screenshotFailures: false,
+          },
+          globalSetup: [
+            join(import.meta.dirname, './test/porto/setup.global.ts'),
+          ],
+          name: 'porto',
+          root: './src/porto',
+        },
+      },
+      {
+        extends: true,
         plugins: [react()],
         test: {
           browser: {

@@ -19,6 +19,7 @@
 		"ox": "~0.9.9"
 	},
 	"peerDependencies": {
+		"porto": "~0.2",
 		"prool": "^0",
 		"viem": ">=2.38.4",
 		"wagmi": ">=2.18"
@@ -59,6 +60,7 @@
 		"@vitest/browser-playwright": "^4.0.2",
 		"@vitest/coverage-v8": "^4.0.2",
 		"playwright": "^1.56.1",
+		"porto": "catalog:default",
 		"prool": "catalog:default",
 		"react": "catalog:default",
 		"react-dom": "catalog:default",
@@ -93,6 +95,11 @@
 			"src": "./src/ox/index.ts",
 			"types": "./dist/ox/index.d.ts",
 			"default": "./dist/ox/index.js"
+		},
+		"./porto": {
+			"src": "./src/porto/index.ts",
+			"types": "./dist/porto/index.d.ts",
+			"default": "./dist/porto/index.js"
 		},
 		"./prool": {
 			"src": "./src/prool/index.ts",
