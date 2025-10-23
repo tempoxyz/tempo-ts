@@ -1604,9 +1604,7 @@ describe('getRoleAdmin', () => {
       token: address,
       role: 'issuer',
     })
-    expect(updatedAdminRole).toBe(
-      TokenRole.serialize('pause'),
-    )
+    expect(updatedAdminRole).toBe(TokenRole.serialize('pause'))
   })
 
   test('behavior: with token ID', async () => {

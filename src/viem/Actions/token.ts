@@ -551,13 +551,13 @@ export namespace burn {
     const { amount, memo, token } = args
     const callArgs = memo
       ? ({
-        functionName: 'burnWithMemo',
-        args: [amount, Hex.padLeft(memo, 32)],
-      } as const)
+          functionName: 'burnWithMemo',
+          args: [amount, Hex.padLeft(memo, 32)],
+        } as const)
       : ({
-        functionName: 'burn',
-        args: [amount],
-      } as const)
+          functionName: 'burn',
+          args: [amount],
+        } as const)
     return defineCall({
       address: TokenId.toAddress(token),
       abi: Abis.tip20,
@@ -2086,13 +2086,13 @@ export namespace mint {
     const { to, amount, memo, token } = args
     const callArgs = memo
       ? ({
-        functionName: 'mintWithMemo',
-        args: [to, amount, Hex.padLeft(memo, 32)],
-      } as const)
+          functionName: 'mintWithMemo',
+          args: [to, amount, Hex.padLeft(memo, 32)],
+        } as const)
       : ({
-        functionName: 'mint',
-        args: [to, amount],
-      } as const)
+          functionName: 'mint',
+          args: [to, amount],
+        } as const)
     return defineCall({
       address: TokenId.toAddress(token),
       abi: Abis.tip20,
@@ -4586,15 +4586,15 @@ export function watchUpdateQuoteToken<
 export declare namespace watchUpdateQuoteToken {
   export type Args = OneOf<
     | GetEventArgs<
-      typeof Abis.tip20,
-      'UpdateQuoteToken',
-      { IndexedOnly: false; Required: true }
-    >
+        typeof Abis.tip20,
+        'UpdateQuoteToken',
+        { IndexedOnly: false; Required: true }
+      >
     | GetEventArgs<
-      typeof Abis.tip20,
-      'QuoteTokenUpdateFinalized',
-      { IndexedOnly: false; Required: true }
-    >
+        typeof Abis.tip20,
+        'QuoteTokenUpdateFinalized',
+        { IndexedOnly: false; Required: true }
+      >
   > & {
     /** Whether the update has been finalized. */
     finalized: boolean
