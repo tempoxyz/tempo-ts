@@ -55,6 +55,9 @@ jobs:
         shell: bash
         run: echo "$GITHUB_WORKSPACE/test/tempo/target/release" >> $GITHUB_PATH
 
+      - name: Install Playwright
+        run: pnpx playwright@1.56.1 install --with-deps
+
       - name: Run tests
         run: pnpm test --bail=1
         env:

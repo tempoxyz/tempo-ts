@@ -10,20 +10,20 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
-		"@tanstack/react-query": "latest",
+		"@tanstack/react-query": "catalog:default",
 		"jotai": "latest",
-		"prool": "latest",
+		"prool": "catalog:default",
 		"tempo.ts": "workspace:*",
-		"react": "^19.1.1",
-		"react-dom": "^19.1.1",
-		"viem": "latest",
-		"wagmi": "latest"
+		"react": "catalog:default",
+		"react-dom": "catalog:default",
+		"viem": "catalog:default",
+		"wagmi": "catalog:default"
 	},
 	"devDependencies": {
 		"@types/node": "^24.6.0",
-		"@types/react": "^19.1.16",
-		"@types/react-dom": "^19.1.9",
-		"@vitejs/plugin-react": "^5.0.4",
+		"@types/react": "catalog:default",
+		"@types/react-dom": "catalog:default",
+		"@vitejs/plugin-react": "catalog:default",
 		"globals": "^16.4.0",
 		"typescript": "~5.9.3",
 		"vite": "^7.1.7"
