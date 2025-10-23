@@ -193,7 +193,8 @@ export function fromRpc<
     transaction_.calls = transaction.calls.map((call) => ({
       to: call.to,
       value: call.value ? BigInt(call.value) : undefined,
-      data: call.input,
+      // @ts-expect-error
+      data: call.input || call.data || '0x',
     }))
   if (transaction.feeToken) transaction_.feeToken = transaction.feeToken
   if (transaction.nonceKey) transaction_.nonceKey = BigInt(transaction.nonceKey)

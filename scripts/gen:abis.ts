@@ -7,11 +7,20 @@ const extensions: Record<string, string[]> = {
 }
 
 const out = Path.resolve(import.meta.dirname, '../src/viem/Abis.ts')
-const precompilesPath = Path.resolve(
+const precompilesDir = Path.resolve(
   import.meta.dirname,
-  '../test/tempo/crates/contracts/src/precompiles.rs',
+  '../test/tempo/crates/contracts/src/precompiles',
 )
-const content = Fs.readFileSync(precompilesPath, 'utf-8')
+
+// Read all .rs files from the precompiles directory
+const files = Fs.readdirSync(precompilesDir).filter(
+  (file) => file.endsWith('.rs') && file !== 'mod.rs',
+)
+
+// Aggregate content from all precompile files
+const content = files
+  .map((file) => Fs.readFileSync(Path.join(precompilesDir, file), 'utf-8'))
+  .join('\n\n')
 
 interface InterfaceDefinition {
   name: string
@@ -223,4 +232,6 @@ for (const [interfaceName, interfaceData] of interfaces.entries()) {
   processedInterfaces.add(interfaceName)
 }
 
-console.log(`✓ Generated ${processedInterfaces.size} ABIs from precompiles.rs`)
+console.log(
+  `✓ Generated ${processedInterfaces.size} ABIs from ${files.length} precompile files`,
+)

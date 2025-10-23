@@ -1,5 +1,295 @@
 // Generated with `pnpm gen:abis`. Do not modify manually.
 
+export const nonce = [
+  {
+    name: 'getNonce',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'uint64', name: 'nonceKey' },
+    ],
+    outputs: [{ type: 'uint64', name: 'nonce' }],
+  },
+  {
+    name: 'getActiveNonceKeyCount',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'account' }],
+    outputs: [{ type: 'uint256', name: 'count' }],
+  },
+  {
+    name: 'NonceIncremented',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'uint64', name: 'nonceKey', indexed: true },
+      { type: 'uint64', name: 'newNonce' },
+    ],
+  },
+  {
+    name: 'ActiveKeyCountChanged',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'uint256', name: 'newCount' },
+    ],
+  },
+  { name: 'ProtocolNonceNotSupported', type: 'error', inputs: [] },
+  { name: 'InvalidNonceKey', type: 'error', inputs: [] },
+] as const
+
+export const stablecoinExchange = [
+  {
+    name: 'createPair',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'address', name: 'base' }],
+    outputs: [{ type: 'bytes32', name: 'key' }],
+  },
+  {
+    name: 'place',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'token' },
+      { type: 'uint128', name: 'amount' },
+      { type: 'bool', name: 'isBid' },
+      { type: 'int16', name: 'tick' },
+    ],
+    outputs: [{ type: 'uint128', name: 'orderId' }],
+  },
+  {
+    name: 'placeFlip',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'token' },
+      { type: 'uint128', name: 'amount' },
+      { type: 'bool', name: 'isBid' },
+      { type: 'int16', name: 'tick' },
+      { type: 'int16', name: 'flipTick' },
+    ],
+    outputs: [{ type: 'uint128', name: 'orderId' }],
+  },
+  {
+    name: 'cancel',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'uint128', name: 'orderId' }],
+    outputs: [],
+  },
+  {
+    name: 'executeBlock',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [],
+    outputs: [],
+  },
+  {
+    name: 'swapExactAmountIn',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'tokenIn' },
+      { type: 'address', name: 'tokenOut' },
+      { type: 'uint128', name: 'amountIn' },
+      { type: 'uint128', name: 'minAmountOut' },
+    ],
+    outputs: [{ type: 'uint128', name: 'amountOut' }],
+  },
+  {
+    name: 'swapExactAmountOut',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'tokenIn' },
+      { type: 'address', name: 'tokenOut' },
+      { type: 'uint128', name: 'amountOut' },
+      { type: 'uint128', name: 'maxAmountIn' },
+    ],
+    outputs: [{ type: 'uint128', name: 'amountIn' }],
+  },
+  {
+    name: 'quoteSwapExactAmountIn',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'tokenIn' },
+      { type: 'address', name: 'tokenOut' },
+      { type: 'uint128', name: 'amountIn' },
+    ],
+    outputs: [{ type: 'uint128', name: 'amountOut' }],
+  },
+  {
+    name: 'quoteSwapExactAmountOut',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'tokenIn' },
+      { type: 'address', name: 'tokenOut' },
+      { type: 'uint128', name: 'amountOut' },
+    ],
+    outputs: [{ type: 'uint128', name: 'amountIn' }],
+  },
+  {
+    name: 'balanceOf',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'user' },
+      { type: 'address', name: 'token' },
+    ],
+    outputs: [{ type: 'uint128' }],
+  },
+  {
+    name: 'withdraw',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'token' },
+      { type: 'uint128', name: 'amount' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'getOrder',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'uint128', name: 'orderId' }],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'uint128', name: 'orderId' },
+          { type: 'address', name: 'maker' },
+          { type: 'bytes32', name: 'bookKey' },
+          { type: 'bool', name: 'isBid' },
+          { type: 'int16', name: 'tick' },
+          { type: 'uint128', name: 'amount' },
+          { type: 'uint128', name: 'remaining' },
+          { type: 'uint128', name: 'prev' },
+          { type: 'uint128', name: 'next' },
+          { type: 'bool', name: 'isFlip' },
+          { type: 'int16', name: 'flipTick' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'getPriceLevel',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'base' },
+      { type: 'int16', name: 'tick' },
+      { type: 'bool', name: 'isBid' },
+    ],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'uint128', name: 'head' },
+          { type: 'uint128', name: 'tail' },
+          { type: 'uint128', name: 'totalLiquidity' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'pairKey',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'tokenA' },
+      { type: 'address', name: 'tokenB' },
+    ],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
+    name: 'activeOrderId',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint128' }],
+  },
+  {
+    name: 'pendingOrderId',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint128' }],
+  },
+  {
+    name: 'PairCreated',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'key', indexed: true },
+      { type: 'address', name: 'base', indexed: true },
+      { type: 'address', name: 'quote', indexed: true },
+    ],
+  },
+  {
+    name: 'OrderPlaced',
+    type: 'event',
+    inputs: [
+      { type: 'uint128', name: 'orderId', indexed: true },
+      { type: 'address', name: 'maker', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'uint128', name: 'amount' },
+      { type: 'bool', name: 'isBid' },
+      { type: 'int16', name: 'tick' },
+    ],
+  },
+  {
+    name: 'FlipOrderPlaced',
+    type: 'event',
+    inputs: [
+      { type: 'uint128', name: 'orderId', indexed: true },
+      { type: 'address', name: 'maker', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'uint128', name: 'amount' },
+      { type: 'bool', name: 'isBid' },
+      { type: 'int16', name: 'tick' },
+      { type: 'int16', name: 'flipTick' },
+    ],
+  },
+  {
+    name: 'OrderFilled',
+    type: 'event',
+    inputs: [
+      { type: 'uint128', name: 'orderId', indexed: true },
+      { type: 'address', name: 'maker', indexed: true },
+      { type: 'uint128', name: 'amountFilled' },
+      { type: 'bool', name: 'partialFill' },
+    ],
+  },
+  {
+    name: 'OrderCancelled',
+    type: 'event',
+    inputs: [{ type: 'uint128', name: 'orderId', indexed: true }],
+  },
+  { name: 'Unauthorized', type: 'error', inputs: [] },
+  { name: 'PairDoesNotExist', type: 'error', inputs: [] },
+  { name: 'PairAlreadyExists', type: 'error', inputs: [] },
+  { name: 'OrderDoesNotExist', type: 'error', inputs: [] },
+  {
+    name: 'TickOutOfBounds',
+    type: 'error',
+    inputs: [{ type: 'int16', name: 'tick' }],
+  },
+  { name: 'InvalidFlipTick', type: 'error', inputs: [] },
+  { name: 'InsufficientBalance', type: 'error', inputs: [] },
+  { name: 'InsufficientLiquidity', type: 'error', inputs: [] },
+  { name: 'InsufficientOutput', type: 'error', inputs: [] },
+  { name: 'MaxInputExceeded', type: 'error', inputs: [] },
+  {
+    name: 'Fatal',
+    type: 'error',
+    inputs: [{ type: 'string', name: 'message' }],
+  },
+] as const
+
 export const tip20 = [
   {
     name: 'name',
@@ -379,6 +669,23 @@ export const tip20 = [
   { name: 'InvalidQuoteToken', type: 'error', inputs: [] },
   { name: 'TransfersDisabled', type: 'error', inputs: [] },
   {
+    name: 'hasRole',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'bytes32', name: 'role' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'getRoleAdmin',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'bytes32', name: 'role' }],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
     name: 'grantRole',
     type: 'function',
     stateMutability: 'nonpayable',
@@ -414,23 +721,6 @@ export const tip20 = [
       { type: 'bytes32', name: 'adminRole' },
     ],
     outputs: [],
-  },
-  {
-    name: 'hasRole',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'account' },
-      { type: 'bytes32', name: 'role' },
-    ],
-    outputs: [{ type: 'bool' }],
-  },
-  {
-    name: 'getRoleAdmin',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'bytes32', name: 'role' }],
-    outputs: [{ type: 'bytes32' }],
   },
   {
     name: 'RoleMembershipUpdated',
@@ -623,26 +913,6 @@ export const tip4217Registry = [
   },
 ] as const
 
-export const nonce = [
-  {
-    name: 'getNonce',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'account' },
-      { type: 'uint64', name: 'nonceKey' },
-    ],
-    outputs: [{ type: 'uint64' }],
-  },
-  {
-    name: 'getActiveNonceKeyCount',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'address', name: 'account' }],
-    outputs: [{ type: 'uint256' }],
-  },
-] as const
-
 export const tipAccountRegistrar = [
   {
     name: 'delegateToDefault',
@@ -664,6 +934,93 @@ export const tipAccountRegistrar = [
   { name: 'InvalidSignature', type: 'error', inputs: [] },
   { name: 'CodeNotEmpty', type: 'error', inputs: [] },
   { name: 'NonceNotZero', type: 'error', inputs: [] },
+] as const
+
+export const feeManager = [
+  {
+    name: 'BASIS_POINTS',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'FEE_BPS',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'userTokens',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'user' }],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'validatorTokens',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'validator' }],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'setUserToken',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'address', name: 'token' }],
+    outputs: [],
+  },
+  {
+    name: 'setValidatorToken',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'address', name: 'token' }],
+    outputs: [],
+  },
+  {
+    name: 'getFeeTokenBalance',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'sender' },
+      { type: 'address', name: 'validator' },
+    ],
+    outputs: [{ type: 'address' }, { type: 'uint256' }],
+  },
+  {
+    name: 'executeBlock',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [],
+    outputs: [],
+  },
+  {
+    name: 'UserTokenSet',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'user', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+    ],
+  },
+  {
+    name: 'ValidatorTokenSet',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'validator', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+    ],
+  },
+  { name: 'OnlyValidator', type: 'error', inputs: [] },
+  { name: 'OnlySystemContract', type: 'error', inputs: [] },
+  { name: 'InvalidToken', type: 'error', inputs: [] },
+  { name: 'PoolDoesNotExist', type: 'error', inputs: [] },
+  { name: 'InsufficientLiquidity', type: 'error', inputs: [] },
+  { name: 'InsufficientFeeTokenBalance', type: 'error', inputs: [] },
+  { name: 'InternalError', type: 'error', inputs: [] },
+  { name: 'CannotChangeWithinBlock', type: 'error', inputs: [] },
+  { name: 'TokenPolicyForbids', type: 'error', inputs: [] },
 ] as const
 
 export const feeAmm = [
@@ -844,339 +1201,4 @@ export const feeAmm = [
   { name: 'InsufficientLiquidityForPending', type: 'error', inputs: [] },
   { name: 'TokenTransferFailed', type: 'error', inputs: [] },
   { name: 'InternalError', type: 'error', inputs: [] },
-] as const
-
-export const feeManager = [
-  {
-    name: 'BASIS_POINTS',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [],
-    outputs: [{ type: 'uint256' }],
-  },
-  {
-    name: 'FEE_BPS',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [],
-    outputs: [{ type: 'uint256' }],
-  },
-  {
-    name: 'userTokens',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'address', name: 'user' }],
-    outputs: [{ type: 'address' }],
-  },
-  {
-    name: 'validatorTokens',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'address', name: 'validator' }],
-    outputs: [{ type: 'address' }],
-  },
-  {
-    name: 'setUserToken',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ type: 'address', name: 'token' }],
-    outputs: [],
-  },
-  {
-    name: 'setValidatorToken',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ type: 'address', name: 'token' }],
-    outputs: [],
-  },
-  {
-    name: 'getFeeTokenBalance',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'sender' },
-      { type: 'address', name: 'validator' },
-    ],
-    outputs: [{ type: 'address' }, { type: 'uint256' }],
-  },
-  {
-    name: 'executeBlock',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [],
-    outputs: [],
-  },
-  {
-    name: 'UserTokenSet',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'user', indexed: true },
-      { type: 'address', name: 'token', indexed: true },
-    ],
-  },
-  {
-    name: 'ValidatorTokenSet',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'validator', indexed: true },
-      { type: 'address', name: 'token', indexed: true },
-    ],
-  },
-  { name: 'OnlyValidator', type: 'error', inputs: [] },
-  { name: 'OnlySystemContract', type: 'error', inputs: [] },
-  { name: 'InvalidToken', type: 'error', inputs: [] },
-  { name: 'PoolDoesNotExist', type: 'error', inputs: [] },
-  { name: 'InsufficientLiquidity', type: 'error', inputs: [] },
-  { name: 'InsufficientFeeTokenBalance', type: 'error', inputs: [] },
-  { name: 'InternalError', type: 'error', inputs: [] },
-  { name: 'CannotChangeWithinBlock', type: 'error', inputs: [] },
-  { name: 'TokenPolicyForbids', type: 'error', inputs: [] },
-] as const
-
-export const stablecoinExchange = [
-  {
-    name: 'balanceOf',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'user' },
-      { type: 'address', name: 'token' },
-    ],
-    outputs: [{ type: 'uint128' }],
-  },
-  {
-    name: 'quoteSwapExactAmountOut',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'tokenIn' },
-      { type: 'address', name: 'tokenOut' },
-      { type: 'uint128', name: 'amountOut' },
-    ],
-    outputs: [{ type: 'uint128', name: 'amountIn' }],
-  },
-  {
-    name: 'quoteSwapExactAmountIn',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'tokenIn' },
-      { type: 'address', name: 'tokenOut' },
-      { type: 'uint128', name: 'amountIn' },
-    ],
-    outputs: [{ type: 'uint128', name: 'amountOut' }],
-  },
-  {
-    name: 'pairKey',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [
-      { type: 'address', name: 'tokenA' },
-      { type: 'address', name: 'tokenB' },
-    ],
-    outputs: [{ type: 'bytes32', name: 'key' }],
-  },
-  {
-    name: 'getPriceLevel',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'base' },
-      { type: 'int16', name: 'tick' },
-      { type: 'bool', name: 'isBid' },
-    ],
-    outputs: [
-      {
-        type: 'tuple',
-        name: 'level',
-        components: [
-          { type: 'uint128', name: 'head' },
-          { type: 'uint128', name: 'tail' },
-          { type: 'uint128', name: 'totalLiquidity' },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'activeOrderId',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'uint128' }],
-  },
-  {
-    name: 'pendingOrderId',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'uint128' }],
-  },
-  {
-    name: 'getOrder',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'uint128', name: 'orderId' }],
-    outputs: [
-      {
-        type: 'tuple',
-        components: [
-          { type: 'address', name: 'maker' },
-          { type: 'bytes32', name: 'bookKey' },
-          { type: 'bool', name: 'isBid' },
-          { type: 'int16', name: 'tick' },
-          { type: 'uint128', name: 'amount' },
-          { type: 'uint128', name: 'remaining' },
-          { type: 'uint128', name: 'prev' },
-          { type: 'uint128', name: 'next' },
-          { type: 'bool', name: 'isFlip' },
-          { type: 'int16', name: 'flipTick' },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'createPair',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ type: 'address', name: 'base' }],
-    outputs: [{ type: 'bytes32', name: 'key' }],
-  },
-  {
-    name: 'swapExactAmountIn',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'tokenIn' },
-      { type: 'address', name: 'tokenOut' },
-      { type: 'uint128', name: 'amountIn' },
-      { type: 'uint128', name: 'minAmountOut' },
-    ],
-    outputs: [{ type: 'uint128', name: 'amountOut' }],
-  },
-  {
-    name: 'swapExactAmountOut',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'tokenIn' },
-      { type: 'address', name: 'tokenOut' },
-      { type: 'uint128', name: 'amountOut' },
-      { type: 'uint128', name: 'maxAmountIn' },
-    ],
-    outputs: [{ type: 'uint128', name: 'amountIn' }],
-  },
-  {
-    name: 'place',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'token' },
-      { type: 'uint128', name: 'amount' },
-      { type: 'bool', name: 'isBid' },
-      { type: 'int16', name: 'tick' },
-    ],
-    outputs: [{ type: 'uint128', name: 'orderId' }],
-  },
-  {
-    name: 'placeFlip',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'token' },
-      { type: 'uint128', name: 'amount' },
-      { type: 'bool', name: 'isBid' },
-      { type: 'int16', name: 'tick' },
-      { type: 'int16', name: 'flipTick' },
-    ],
-    outputs: [{ type: 'uint128', name: 'orderId' }],
-  },
-  {
-    name: 'cancel',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ type: 'uint128', name: 'orderId' }],
-    outputs: [],
-  },
-  {
-    name: 'withdraw',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'token' },
-      { type: 'uint128', name: 'amount' },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'executeBlock',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [],
-    outputs: [],
-  },
-  {
-    name: 'PairCreated',
-    type: 'event',
-    inputs: [
-      { type: 'bytes32', name: 'key', indexed: true },
-      { type: 'address', name: 'base', indexed: true },
-      { type: 'address', name: 'quote', indexed: true },
-    ],
-  },
-  {
-    name: 'OrderPlaced',
-    type: 'event',
-    inputs: [
-      { type: 'uint128', name: 'orderId', indexed: true },
-      { type: 'address', name: 'maker', indexed: true },
-      { type: 'address', name: 'token', indexed: true },
-      { type: 'uint128', name: 'amount' },
-      { type: 'bool', name: 'isBid' },
-      { type: 'int16', name: 'tick' },
-    ],
-  },
-  {
-    name: 'FlipOrderPlaced',
-    type: 'event',
-    inputs: [
-      { type: 'uint128', name: 'orderId', indexed: true },
-      { type: 'address', name: 'maker', indexed: true },
-      { type: 'address', name: 'token', indexed: true },
-      { type: 'uint128', name: 'amount' },
-      { type: 'bool', name: 'isBid' },
-      { type: 'int16', name: 'tick' },
-      { type: 'int16', name: 'flipTick' },
-    ],
-  },
-  {
-    name: 'OrderCancelled',
-    type: 'event',
-    inputs: [{ type: 'uint128', name: 'orderId', indexed: true }],
-  },
-  {
-    name: 'OrderFilled',
-    type: 'event',
-    inputs: [
-      { type: 'uint128', name: 'orderId', indexed: true },
-      { type: 'address', name: 'maker', indexed: true },
-      { type: 'uint128', name: 'amountFilled' },
-      { type: 'bool', name: 'partialFill' },
-    ],
-  },
-  { name: 'OrderDoesNotExist', type: 'error', inputs: [] },
-  { name: 'Unauthorized', type: 'error', inputs: [] },
-  { name: 'FillFailed', type: 'error', inputs: [] },
-  { name: 'InvalidTick', type: 'error', inputs: [] },
-  { name: 'InsufficientBalance', type: 'error', inputs: [] },
-  { name: 'InvalidFlipTick', type: 'error', inputs: [] },
-  {
-    name: 'TickOutOfBounds',
-    type: 'error',
-    inputs: [{ type: 'int16', name: 'tick' }],
-  },
-  { name: 'InsufficientLiquidity', type: 'error', inputs: [] },
-  { name: 'MaxInputExceeded', type: 'error', inputs: [] },
-  { name: 'InsufficientOutput', type: 'error', inputs: [] },
-  { name: 'PairDoesNotExist', type: 'error', inputs: [] },
-  { name: 'PairAlreadyExists', type: 'error', inputs: [] },
 ] as const

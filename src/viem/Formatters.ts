@@ -2,6 +2,7 @@
 
 import * as Hex from 'ox/Hex'
 import {
+  type Account as viem_Account,
   formatTransaction as viem_formatTransaction,
   formatTransactionRequest as viem_formatTransactionRequest,
 } from 'viem'
@@ -55,7 +56,7 @@ export const formatTransaction = (
 }
 
 export const formatTransactionRequest = (
-  r: TransactionRequest,
+  r: TransactionRequest & { account?: viem_Account | undefined },
   action?: string | undefined,
 ): TransactionRequestRpc => {
   const request = r
@@ -102,8 +103,20 @@ export const formatTransactionRequest = (
   rpc.data = undefined
   rpc.value = undefined
 
+  const [keyType, keyData] = (() => {
+    if (!r.account?.source) return [undefined, undefined]
+    if (r.account.source === 'webAuthn')
+      // TODO: derive correct bytes size of key data based on webauthn create metadata.
+      return ['webAuthn', `0x${'ff'.repeat(1400)}`]
+    if (['p256', 'secp256k1'].includes(r.account.source))
+      return [r.account.source, undefined]
+    return [undefined, undefined]
+  })()
+
   return {
     ...rpc,
+    ...(keyType ? { keyType } : {}),
+    ...(keyData ? { keyData } : {}),
     ...(request.feePayer
       ? {
           feePayer:

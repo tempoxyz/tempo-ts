@@ -7,6 +7,8 @@ import * as TokenId from './TokenId.js'
 import * as Transaction from './Transaction.js'
 import type { Call } from './TransactionEnvelopeAA.js'
 
+type KeyType = 'secp256k1' | 'p256' | 'webAuthn'
+
 /** A Transaction Request that is generic to all transaction types, as defined in the [Execution API specification](https://github.com/ethereum/execution-apis/blob/4aca1d7a3e5aab24c8f6437131289ad386944eaa/src/schemas/transaction.yaml#L358-L423). */
 export type TransactionRequest<
   bigintType = bigint,
@@ -15,6 +17,8 @@ export type TransactionRequest<
 > = Compute<
   ox_TransactionRequest.TransactionRequest<bigintType, numberType, type> & {
     calls?: readonly Call<bigintType>[] | undefined
+    keyData?: Hex.Hex | undefined
+    keyType?: KeyType | undefined
     feeToken?: TokenId.TokenIdOrAddress | undefined
     validBefore?: numberType | undefined
     validAfter?: numberType | undefined
