@@ -16,8 +16,6 @@ afterAll(async () => {
   await cleanup()
 })
 
-describe.todo('wallet_connect')
-
 describe.todo('eth_accounts')
 
 describe.todo('eth_requestAccounts')
@@ -26,35 +24,37 @@ describe.todo('eth_sendTransaction')
 
 describe.todo('eth_signTypedData_v4')
 
-describe.todo('wallet_grantAdmin')
+describe.todo('personal_sign')
 
-describe.todo('wallet_getAssets')
+describe.todo('wallet_connect')
+
+describe.todo('wallet_disconnect')
+
+describe.todo('wallet_getAccountVersion')
 
 describe.todo('wallet_getAdmins')
 
-describe.todo('wallet_grantPermissions')
+describe.todo('wallet_getAssets')
+
+describe.todo('wallet_getCallsStatus')
+
+describe.todo('wallet_getCapabilities')
 
 describe.todo('wallet_getPermissions')
+
+describe.todo('wallet_grantAdmin')
+
+describe.todo('wallet_grantPermissions')
+
+describe.todo('wallet_prepareCalls → wallet_sendPreparedCalls')
 
 describe.todo('wallet_revokeAdmin')
 
 describe.todo('wallet_revokePermissions')
 
-describe.todo('wallet_getAccountVersion')
-
-describe.todo('personal_sign')
-
-describe.todo('wallet_disconnect')
-
-describe.todo('wallet_switchEthereumChain')
-
-describe.todo('wallet_getCapabilities')
-
 describe.todo('wallet_sendCalls')
 
-describe.todo('wallet_getCallsStatus')
-
-describe.todo('wallet_prepareCalls → wallet_sendPreparedCalls')
+describe.todo('wallet_switchEthereumChain')
 
 describe.todo('behavior: fall through')
 

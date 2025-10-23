@@ -12,6 +12,10 @@ export function tempo() {
         throw new Error('Not implemented')
       },
 
+      disconnect() {
+        throw new Error('Not implemented')
+      },
+
       getAccountVersion() {
         throw new Error('Not implemented')
       },
@@ -76,19 +80,15 @@ export function tempo() {
         throw new Error('Not implemented')
       },
 
+      switchChain() {
+        throw new Error('Not implemented')
+      },
+
       upgradeAccount() {
         throw new Error('Not implemented')
       },
 
       verifyEmail() {
-        throw new Error('Not implemented')
-      },
-
-      disconnect() {
-        throw new Error('Not implemented')
-      },
-
-      switchChain() {
         throw new Error('Not implemented')
       },
     },
