@@ -72,6 +72,7 @@ export default defineConfig({
           globalSetup: [
             join(import.meta.dirname, './test/wagmi/setup.global.ts'),
           ],
+          setupFiles: [join(import.meta.dirname, './test/wagmi/setup.ts')],
           name: 'wagmi',
           root: './src/wagmi',
         },
