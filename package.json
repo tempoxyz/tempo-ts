@@ -20,7 +20,7 @@
 	},
 	"peerDependencies": {
 		"prool": "^0",
-		"viem": ">=2.38.2",
+		"viem": ">=2.38.4",
 		"wagmi": ">=2.18"
 	},
 	"peerDependenciesMeta": {
@@ -63,7 +63,7 @@
 		"react": "catalog:default",
 		"react-dom": "catalog:default",
 		"simple-git-hooks": "^2.13.1",
-		"typescript": "^5.9.2",
+		"typescript": "catalog:default",
 		"viem": "catalog:default",
 		"vitest": "^4.0.2",
 		"vitest-browser-react": "^2.0.0",

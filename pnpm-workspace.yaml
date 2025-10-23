@@ -6,7 +6,8 @@ catalog:
   "prool": "latest"
   "react": "^19.1.1"
   "react-dom": "^19.1.1"
-  "viem": "https://pkg.pr.new/viem@5b7cacd"
+  "typescript": "^5.9.3"
+  "viem": "^2.38.4"
   "wagmi": "^2.18.1"
 onlyBuiltDependencies:
   - esbuild

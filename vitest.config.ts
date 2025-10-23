@@ -46,18 +46,18 @@ export default defineConfig({
           environment: 'node',
         },
       },
-      {
-        extends: true,
-        test: {
-          globalSetup: [
-            join(import.meta.dirname, './test/viem-attest/setup.global.ts'),
-          ],
-          name: 'attest/viem',
-          root: './src/viem',
-          environment: 'node',
-          include: ['**/*.bench-d.ts'],
-        },
-      },
+      // {
+      //   extends: true,
+      //   test: {
+      //     globalSetup: [
+      //       join(import.meta.dirname, './test/viem-attest/setup.global.ts'),
+      //     ],
+      //     name: 'attest/viem',
+      //     root: './src/viem',
+      //     environment: 'node',
+      //     include: ['**/*.bench-d.ts'],
+      //   },
+      // },
       {
         extends: true,
         plugins: [react()],

@@ -219,7 +219,6 @@ function CreateToken() {
       if (!connectorClient) throw new Error('connectorClient not found')
       return await Actions.token.createSync(connectorClient, {
         name,
-        gas: 100_000n,
         symbol,
         currency: 'USD',
       })
