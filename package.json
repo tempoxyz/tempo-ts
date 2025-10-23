@@ -115,7 +115,7 @@
 	},
 	"pnpm": {
 		"overrides": {
-			"viem": "https://pkg.pr.new/viem@5b7cacd"
+			"viem": "catalog:default"
 		}
 	}
 }
