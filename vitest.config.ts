@@ -70,7 +70,7 @@ export default defineConfig({
             screenshotFailures: false,
           },
           globalSetup: [
-            join(import.meta.dirname, './test/viem/setup.global.ts'),
+            join(import.meta.dirname, './test/wagmi/setup.global.ts'),
           ],
           name: 'wagmi',
           root: './src/wagmi',
