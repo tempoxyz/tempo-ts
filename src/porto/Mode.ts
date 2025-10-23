@@ -91,6 +91,6 @@ export function tempo() {
       switchChain() {
         throw new Error('Not implemented')
       },
-    }
+    },
   })
 }
