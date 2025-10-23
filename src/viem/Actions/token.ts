@@ -1453,7 +1453,7 @@ export async function getMetadata<chain extends Chain | undefined>(
   const address = TokenId.toAddress(token)
   const abi = Abis.tip20
 
-  if (token === TokenId.fromAddress(Addresses.defaultQuoteToken))
+  if (TokenId.from(token) === TokenId.fromAddress(Addresses.defaultQuoteToken))
     return multicall(client, {
       ...rest,
       contracts: [

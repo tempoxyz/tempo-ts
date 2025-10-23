@@ -7,6 +7,21 @@ export type TokenId = bigint
 export type TokenIdOrAddress = TokenId | Address.Address
 
 /**
+ * Converts a token ID or address to a token ID.
+ *
+ * @param tokenIdOrAddress - The token ID or address.
+ * @returns The token ID.
+ */
+export function from(tokenIdOrAddress: TokenIdOrAddress | number): TokenId {
+  if (
+    typeof tokenIdOrAddress === 'bigint' ||
+    typeof tokenIdOrAddress === 'number'
+  )
+    return BigInt(tokenIdOrAddress)
+  return fromAddress(tokenIdOrAddress)
+}
+
+/**
  * Converts a TIP20 token address to a token ID.
  *
  * @param address - The token address.

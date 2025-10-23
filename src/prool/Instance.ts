@@ -25,7 +25,7 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
     ...args
   } = parameters
   const { deadline = 3, gaslimit = 3000000000, maxTasks = 8 } = builder ?? {}
-  const { blockTime = '2ms' } = dev ?? {}
+  const { blockTime = '1sec' } = dev ?? {}
   const {
     address = '0x20c0000000000000000000000000000000000001',
     amount = 1000000000000000,

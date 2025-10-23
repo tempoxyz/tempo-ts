@@ -1,6 +1,17 @@
 import { TokenId } from 'tempo.ts/ox'
 import { expect, test } from 'vitest'
 
+test('from', () => {
+  expect(TokenId.from(0n)).toBe(0n)
+  expect(TokenId.from(0x1)).toBe(1n)
+  expect(TokenId.from(0xdef)).toBe(0xdefn)
+  expect(TokenId.from('0x20c0000000000000000000000000000000000000')).toBe(0n)
+  expect(TokenId.from('0x20c0000000000000000000000000000000000001')).toBe(1n)
+  expect(TokenId.from('0x20c0000000000000000000000000000000000def')).toBe(
+    0xdefn,
+  )
+})
+
 test('fromAddress', () => {
   expect(
     TokenId.fromAddress('0x20c0000000000000000000000000000000000000'),

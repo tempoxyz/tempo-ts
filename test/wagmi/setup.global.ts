@@ -9,4 +9,3 @@ export default async function () {
   await server.start()
   return async () => await server.stop()
 }
-
