@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.1.4
+
+### Patch Changes
+
+- [`c278bf5`](https://github.com/tempoxyz/tempo-ts/commit/c278bf521ffb9e07661f30fe0d2f0bc05a033091) Thanks [@tmm](https://github.com/tmm)! - Exported decorator type
+
 ## 0.1.3
 
 ### Patch Changes
