@@ -1,11 +1,28 @@
+import type * as Hex from 'ox/Hex'
 import type * as ox_WebAuthnP256 from 'ox/WebAuthnP256'
 import * as Mode from 'porto/core/Mode'
 import * as Storage from 'porto/core/Storage'
 import * as porto_Account from 'porto/viem/Account'
 import { Account, WebAuthnP256 } from 'tempo.ts/viem'
 
-export function tempo(parameters: tempo.Parameters = {}): Mode.Mode {
-  const { remoteStorage = Storage.memory(), rpId, webAuthn } = parameters
+const browser = typeof window !== 'undefined' && typeof document !== 'undefined'
+
+export const defaultOptions = {
+  remoteStorage: browser ? Storage.localStorage() : Storage.memory(),
+}
+
+/**
+ * Defines a Tempo mode for Porto.
+ *
+ * @param parameters Options.
+ * @returns
+ */
+export function tempo(options: tempo.Options = {}): Mode.Mode {
+  const {
+    remoteStorage = defaultOptions.remoteStorage,
+    rpId,
+    webAuthn,
+  } = options
 
   return Mode.from({
     name: 'tempo',
@@ -24,6 +41,9 @@ export function tempo(parameters: tempo.Parameters = {}): Mode.Mode {
         const {
           config: { storage },
         } = internal
+
+        // TODO: SIWE
+        // TODO: Session Keys
 
         const label =
           parameters.label ??
@@ -46,10 +66,6 @@ export function tempo(parameters: tempo.Parameters = {}): Mode.Mode {
         return {
           account: porto_Account.from(account),
         }
-      },
-
-      disconnect() {
-        throw new Error('Not implemented')
       },
 
       getAccountVersion() {
@@ -80,8 +96,41 @@ export function tempo(parameters: tempo.Parameters = {}): Mode.Mode {
         throw new Error('Not implemented')
       },
 
-      loadAccounts() {
-        throw new Error('Not implemented')
+      async loadAccounts(parameters) {
+        const { internal } = parameters
+        const {
+          config: { storage },
+        } = internal
+
+        // TODO: SIWE
+        // TODO: Session Keys
+
+        const credential = await (async () => {
+          const stored =
+            await storage.getItem<WebAuthnP256.P256Credential>(
+              'currentCredential',
+            )
+          if (stored) return stored
+          return await WebAuthnP256.getCredential({
+            getFn: webAuthn?.getFn,
+            async getPublicKey(credential) {
+              const publicKey = (await remoteStorage.getItem(
+                `${credential.id}.publicKey`,
+              )) as Hex.Hex | undefined
+              if (!publicKey) throw new Error('publicKey not found')
+              return publicKey
+            },
+            rpId,
+          })
+        })()
+
+        storage.setItem('currentCredential', credential)
+
+        const account = Account.fromWebAuthnP256(credential)
+
+        return {
+          accounts: [porto_Account.from(account)],
+        }
       },
 
       prepareCalls() {
@@ -132,7 +181,7 @@ export function tempo(parameters: tempo.Parameters = {}): Mode.Mode {
 }
 
 export declare namespace tempo {
-  export type Parameters = {
+  export type Options = {
     /**
      * Remote storage for credential metadata.
      */

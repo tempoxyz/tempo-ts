@@ -18,7 +18,22 @@ afterAll(async () => {
 
 describe.todo('eth_accounts')
 
-describe.todo('eth_requestAccounts')
+describe('eth_requestAccounts', () => {
+  test('default', async () => {
+    await porto.provider.request({
+      method: 'wallet_connect',
+      params: [{ capabilities: { createAccount: true } }],
+    })
+    await porto.provider.request({
+      method: 'wallet_disconnect',
+    })
+
+    const result = await porto.provider.request({
+      method: 'eth_requestAccounts',
+    })
+    expect(result.length).toBe(1)
+  })
+})
 
 describe.todo('eth_sendTransaction')
 
@@ -28,19 +43,32 @@ describe.todo('personal_sign')
 
 describe('wallet_connect', () => {
   test('default', async () => {
-    const { accounts, chainIds } = await porto.provider.request({
+    const connectMessages: any[] = []
+    const disconnectMessages: any[] = []
+
+    porto.provider.on('connect', (message) => connectMessages.push(message))
+    porto.provider.on('disconnect', (message) =>
+      disconnectMessages.push(message),
+    )
+
+    const result = await porto.provider.request({
       method: 'wallet_connect',
-      params: [
-        {
-          capabilities: {
-            createAccount: true,
-          },
-        },
-      ],
+      params: [{ capabilities: { createAccount: true } }],
     })
 
-    expect(accounts.at(0)?.address.length).toBeGreaterThan(0)
-    expect(chainIds.length).toBeGreaterThan(0)
+    expect(result.accounts.length).toBe(1)
+    expect(result.chainIds.length).toBeGreaterThan(0)
+    expect(connectMessages.length).toBe(1)
+
+    await porto.provider.request({
+      method: 'wallet_disconnect',
+    })
+    expect(disconnectMessages.length).toBe(1)
+
+    await porto.provider.request({
+      method: 'wallet_connect',
+    })
+    expect(connectMessages.length).toBe(2)
   })
 })
 
@@ -87,6 +115,7 @@ async function setupWebAuthn() {
       automaticPresenceSimulation: true,
     },
   })
+
   return async () => {
     const client = cdp()
     await client.send('WebAuthn.removeVirtualAuthenticator', {
