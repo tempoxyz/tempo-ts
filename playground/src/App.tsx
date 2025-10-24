@@ -86,7 +86,7 @@ function Connect() {
           connect.connect({
             connector,
             create: {
-              name: 'Tempo.ts Playground',
+              label: 'Tempo.ts Playground',
             },
           })
         }}

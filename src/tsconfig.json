@@ -1,7 +1,7 @@
 {
 	"extends": "../tsconfig.base.json",
 	"compilerOptions": {
-		"customConditions": ["src"],
+		"customConditions": ["src-tempo"],
 		"moduleResolution": "nodenext",
 		"noEmit": true,
 		"types": ["@vitest/browser-playwright"]

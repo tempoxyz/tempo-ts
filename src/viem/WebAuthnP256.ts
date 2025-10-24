@@ -1,3 +1,4 @@
+import * as Bytes from 'ox/Bytes'
 import type * as Hex from 'ox/Hex'
 import * as PublicKey from 'ox/PublicKey'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
@@ -32,7 +33,33 @@ export type P256Credential = {
 export async function createCredential(
   parameters: createCredential.Parameters,
 ): Promise<createCredential.ReturnValue> {
-  const credential = await WebAuthnP256.createCredential(parameters)
+  const { createFn, label, rpId, userId } = parameters
+  const credential = await WebAuthnP256.createCredential({
+    ...parameters,
+    authenticatorSelection: {
+      ...parameters.authenticatorSelection,
+      requireResidentKey: true,
+      residentKey: 'required',
+      userVerification: 'required',
+    },
+    createFn,
+    extensions: {
+      ...parameters.extensions,
+      credProps: true,
+    },
+    rp: rpId
+      ? {
+          id: rpId,
+          name: rpId,
+        }
+      : undefined,
+    name: undefined as never,
+    user: {
+      displayName: label,
+      id: new Uint8Array(userId ?? Bytes.fromString(label)),
+      name: label,
+    },
+  })
   return {
     id: credential.id,
     publicKey: PublicKey.toHex(credential.publicKey, {
@@ -43,7 +70,25 @@ export async function createCredential(
 }
 
 export declare namespace createCredential {
-  export type Parameters = WebAuthnP256.createCredential.Options
+  export type Parameters = Omit<
+    WebAuthnP256.createCredential.Options,
+    'rp' | 'user'
+  > & {
+    /**
+     * Credential creation function. Useful for environments that do not support
+     * the WebAuthn API natively (i.e. React Native or testing environments).
+     *
+     * @default window.navigator.credentials.create
+     */
+    createFn?: WebAuthnP256.createCredential.Options['createFn'] | undefined
+    /** Label. */
+    label: string
+    /** Relying Party ID. */
+    rpId?: string | undefined
+    /** User ID. */
+    userId?: Bytes.Bytes | undefined
+  }
+
   export type ReturnValue = P256Credential
 }
 

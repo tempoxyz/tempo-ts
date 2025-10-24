@@ -83,36 +83,43 @@
 	"exports": {
 		".": {
 			"src": "./src/index.ts",
+			"src-tempo": "./src/index.ts",
 			"types": "./dist/index.d.ts",
 			"default": "./dist/index.js"
 		},
 		"./chains": {
 			"src": "./src/chains.ts",
+			"src-tempo": "./src/chains.ts",
 			"types": "./dist/chains.d.ts",
 			"default": "./dist/chains.js"
 		},
 		"./ox": {
 			"src": "./src/ox/index.ts",
+			"src-tempo": "./src/ox/index.ts",
 			"types": "./dist/ox/index.d.ts",
 			"default": "./dist/ox/index.js"
 		},
 		"./porto": {
 			"src": "./src/porto/index.ts",
+			"src-tempo": "./src/porto/index.ts",
 			"types": "./dist/porto/index.d.ts",
 			"default": "./dist/porto/index.js"
 		},
 		"./prool": {
 			"src": "./src/prool/index.ts",
+			"src-tempo": "./src/prool/index.ts",
 			"types": "./dist/prool/index.d.ts",
 			"default": "./dist/prool/index.js"
 		},
 		"./viem": {
 			"src": "./src/viem/index.ts",
+			"src-tempo": "./src/viem/index.ts",
 			"types": "./dist/viem/index.d.ts",
 			"default": "./dist/viem/index.js"
 		},
 		"./wagmi": {
 			"src": "./src/wagmi/index.ts",
+			"src-tempo": "./src/wagmi/index.ts",
 			"types": "./dist/wagmi/index.d.ts",
 			"default": "./dist/wagmi/index.js"
 		}

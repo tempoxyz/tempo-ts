@@ -19,7 +19,7 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
   type Properties = {
     connect<withCapabilities extends boolean = false>(parameters: {
       chainId?: number | undefined
-      create?: boolean | { name?: string | undefined } | undefined
+      create?: boolean | { label?: string | undefined } | undefined
       isReconnecting?: boolean | undefined
       withCapabilities?: withCapabilities | boolean | undefined
     }): Promise<{
@@ -54,13 +54,10 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
             typeof parameters.create === 'boolean' ? {} : parameters.create
           credential = await WebAuthnP256.createCredential({
             ...(options.createOptions ?? {}),
-            user: {
-              ...(options.createOptions?.user ?? {}),
-              name:
-                createOptions.name ??
-                options.createOptions?.name ??
-                `Account ${new Date().toISOString().split('T')[0]}`,
-            } as never,
+            label:
+              createOptions.label ??
+              options.createOptions?.label ??
+              `Account ${new Date().toISOString().split('T')[0]}`,
           })
           config.storage?.setItem('publicKey', {
             [credential.id]: credential.publicKey,
@@ -160,7 +157,7 @@ export declare namespace webAuthn {
     createOptions?:
       | Pick<
           WebAuthnP256.createCredential.Parameters,
-          'createFn' | 'name' | 'rp' | 'timeout' | 'user'
+          'createFn' | 'label' | 'rpId' | 'userId' | 'timeout'
         >
       | undefined
     getOptions?:

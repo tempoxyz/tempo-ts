@@ -1,9 +1,9 @@
 import { Porto } from 'porto'
 import { Mode } from 'tempo.ts/porto'
-import { afterAll, beforeAll, describe } from 'vitest'
+import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { cdp } from 'vitest/browser'
 
-const _porto = Porto.create({
+const porto = Porto.create({
   mode: Mode.tempo(),
 })
 
@@ -26,7 +26,23 @@ describe.todo('eth_signTypedData_v4')
 
 describe.todo('personal_sign')
 
-describe.todo('wallet_connect')
+describe('wallet_connect', () => {
+  test('default', async () => {
+    const { accounts, chainIds } = await porto.provider.request({
+      method: 'wallet_connect',
+      params: [
+        {
+          capabilities: {
+            createAccount: true,
+          },
+        },
+      ],
+    })
+
+    expect(accounts.at(0)?.address.length).toBeGreaterThan(0)
+    expect(chainIds.length).toBeGreaterThan(0)
+  })
+})
 
 describe.todo('wallet_disconnect')
 
