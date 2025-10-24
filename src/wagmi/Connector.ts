@@ -31,8 +31,9 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
   }
   type Provider = Pick<EIP1193Provider, 'request'>
   type StorageItem = {
-    currentCredential: WebAuthnP256.P256Credential
-    publicKey: Record<string, Hex>
+    activeCredential: WebAuthnP256.P256Credential
+    lastActiveCredential: WebAuthnP256.P256Credential
+    [key: `${string}.publicKey`]: Hex
   }
 
   return createConnector<Provider, Properties, StorageItem>((config) => ({
@@ -40,7 +41,7 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
     name: 'Externally Owned Account',
     type: 'eoa',
     async setup() {
-      const credential = await config.storage?.getItem('currentCredential')
+      const credential = await config.storage?.getItem('activeCredential')
       if (!credential) return
       account = Account.fromWebAuthnP256(credential)
     },
@@ -62,26 +63,35 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
                 `Account ${new Date().toISOString().split('T')[0]}`,
             } as never,
           })
-          config.storage?.setItem('publicKey', {
-            [credential.id]: credential.publicKey,
-          })
+          config.storage?.setItem(
+            `${credential.id}.publicKey`,
+            credential.publicKey,
+          )
         } else {
           // Load credential (log in)
-          credential = await WebAuthnP256.getCredential({
+          credential = (await config.storage?.getItem('activeCredential')) as
+            | WebAuthnP256.P256Credential
+            | undefined
+
+          // If no active credential, load (last active, if present) credential from keychain.
+          const lastActiveCredential = await config.storage?.getItem(
+            'lastActiveCredential',
+          )
+          credential ??= await WebAuthnP256.getCredential({
             ...(options.getOptions ?? {}),
+            credentialId: lastActiveCredential?.id,
             async getPublicKey(credential) {
-              const publicKeyMap = (await config.storage?.getItem(
-                'publicKey',
-              )) as Record<string, Hex> | undefined
-              if (!publicKeyMap) throw new Error('publicKey not found')
-              const publicKey = publicKeyMap[credential.id]
+              const publicKey = await config.storage?.getItem(
+                `${credential.id}.publicKey`,
+              )
               if (!publicKey) throw new Error('publicKey not found')
-              return publicKey
+              return publicKey as Hex
             },
           })
         }
 
-        config.storage?.setItem('currentCredential', credential)
+        config.storage?.setItem('activeCredential', credential)
+        config.storage?.setItem('lastActiveCredential', credential)
         return Account.fromWebAuthnP256(credential)
       })()
 
@@ -98,7 +108,7 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
       }
     },
     async disconnect() {
-      await config.storage?.removeItem('currentCredential')
+      await config.storage?.removeItem('activeCredential')
       account = undefined
     },
     async getAccounts() {
