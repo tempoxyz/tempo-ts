@@ -130,6 +130,7 @@ test('createTempoClient', () => {
         "getAllowance": [Function],
         "getBalance": [Function],
         "getMetadata": [Function],
+        "getRoleAdmin": [Function],
         "grantRoles": [Function],
         "grantRolesSync": [Function],
         "hasRole": [Function],
