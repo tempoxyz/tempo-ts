@@ -1,6 +1,6 @@
 import { QueryClient } from '@tanstack/react-query'
 import { tempo, tempoLocal } from 'tempo.ts/chains'
-import { webAuthn } from 'tempo.ts/wagmi'
+import { dangerous_secp256k1, webAuthn } from 'tempo.ts/wagmi'
 import { createConfig, http } from 'wagmi'
 
 export const config = createConfig({
@@ -8,7 +8,7 @@ export const config = createConfig({
     multicall: false,
   },
   chains: [import.meta.env.VITE_LOCAL !== 'true' ? tempo : tempoLocal],
-  connectors: [webAuthn()],
+  connectors: [webAuthn(), dangerous_secp256k1()],
   multiInjectedProviderDiscovery: false,
   transports: {
     [tempo.id]: http(undefined, {

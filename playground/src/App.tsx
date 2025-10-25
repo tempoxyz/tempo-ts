@@ -78,32 +78,37 @@ function AccountDetails() {
 
 function Connect() {
   const connect = useConnect()
-  const [connector] = useConnectors()
+  const connectors = useConnectors()
   return (
     <>
-      <button
-        onClick={async () => {
-          connect.connect({
-            connector,
-            create: {
-              name: 'Tempo.ts Playground',
-            },
-          })
-        }}
-        type="button"
-      >
-        Sign up
-      </button>
-      <button
-        onClick={async () => {
-          connect.connect({
-            connector,
-          })
-        }}
-        type="button"
-      >
-        Log in
-      </button>
+      {connectors.map((connector) => (
+        <>
+          <h4>{connector.name}</h4>
+          <button
+            onClick={async () => {
+              connect.connect({
+                connector,
+                create: {
+                  name: 'Tempo.ts Playground',
+                },
+              })
+            }}
+            type="button"
+          >
+            Sign up
+          </button>
+          <button
+            onClick={async () => {
+              connect.connect({
+                connector,
+              })
+            }}
+            type="button"
+          >
+            Log in
+          </button>
+        </>
+      ))}
       {connect.error && <div>Error: {connect.error.message}</div>}
     </>
   )
