@@ -13,9 +13,9 @@ import { ChainNotConfiguredError, createConnector } from 'wagmi'
 /**
  * Connector for a Secp256k1 EOA.
  *
- * WARNING: NOT RECOMMENDED FOR PRODUCTION USAGE. 
+ * WARNING: NOT RECOMMENDED FOR PRODUCTION USAGE.
  * This connector stores private keys in clear text, and are bound to the session
- * length of the storage used. 
+ * length of the storage used.
  *
  * @returns Connector.
  */
@@ -30,8 +30,8 @@ export function dangerous_secp256k1() {
       withCapabilities?: withCapabilities | boolean | undefined
     }): Promise<{
       accounts: withCapabilities extends true
-      ? readonly { address: Address }[]
-      : readonly Address[]
+        ? readonly { address: Address }[]
+        : readonly Address[]
       chainId: number
     }>
   }
@@ -47,9 +47,7 @@ export function dangerous_secp256k1() {
     name: 'EOA (Secp256k1)',
     type: 'secp256k1',
     async setup() {
-      const address = await config.storage?.getItem(
-        'secp256k1.activeAddress',
-      )
+      const address = await config.storage?.getItem('secp256k1.activeAddress')
       const privateKey = await config.storage?.getItem(
         `secp256k1.${address}.privateKey`,
       )
@@ -125,7 +123,7 @@ export function dangerous_secp256k1() {
       if (!chain) throw new SwitchChainError(new ChainNotConfiguredError())
       return chain
     },
-    onAccountsChanged() { },
+    onAccountsChanged() {},
     onChainChanged(chain) {
       const chainId = Number(chain)
       config.emitter.emit('change', { chainId })
@@ -174,8 +172,8 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
       withCapabilities?: withCapabilities | boolean | undefined
     }): Promise<{
       accounts: withCapabilities extends true
-      ? readonly { address: Address }[]
-      : readonly Address[]
+        ? readonly { address: Address }[]
+        : readonly Address[]
       chainId: number
     }>
   }
@@ -287,7 +285,7 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
       if (!chain) throw new SwitchChainError(new ChainNotConfiguredError())
       return chain
     },
-    onAccountsChanged() { },
+    onAccountsChanged() {},
     onChainChanged(chain) {
       const chainId = Number(chain)
       config.emitter.emit('change', { chainId })
@@ -323,13 +321,13 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
 export declare namespace webAuthn {
   export type Parameters = {
     createOptions?:
-    | Pick<
-      WebAuthnP256.createCredential.Parameters,
-      'createFn' | 'name' | 'rp' | 'timeout' | 'user'
-    >
-    | undefined
+      | Pick<
+          WebAuthnP256.createCredential.Parameters,
+          'createFn' | 'name' | 'rp' | 'timeout' | 'user'
+        >
+      | undefined
     getOptions?:
-    | Pick<WebAuthnP256.getCredential.Parameters, 'getFn' | 'rpId'>
-    | undefined
+      | Pick<WebAuthnP256.getCredential.Parameters, 'getFn' | 'rpId'>
+      | undefined
   }
 }
