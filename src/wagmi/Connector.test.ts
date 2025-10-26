@@ -40,7 +40,7 @@ test('connect', async (context) => {
 
   result.current.useConnect.connect({
     connector: webAuthn(),
-    create: { name: 'Test Account' },
+    capabilities: { createAccount: { label: 'Test Account' } },
   })
 
   await vi.waitFor(() =>

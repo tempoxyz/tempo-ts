@@ -88,8 +88,8 @@ function Connect() {
             onClick={async () => {
               connect.connect({
                 connector,
-                create: {
-                  name: 'Tempo.ts Playground',
+                capabilities: {
+                  createAccount: { label: 'Tempo.ts Playground' },
                 },
               })
             }}

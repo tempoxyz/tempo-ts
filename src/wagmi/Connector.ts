@@ -24,14 +24,16 @@ export function dangerous_secp256k1() {
 
   type Properties = {
     connect<withCapabilities extends boolean = false>(parameters: {
+      capabilities?:
+        | {
+            createAccount?: boolean | undefined
+          }
+        | undefined
       chainId?: number | undefined
-      create?: boolean | undefined
       isReconnecting?: boolean | undefined
       withCapabilities?: withCapabilities | boolean | undefined
     }): Promise<{
-      accounts: withCapabilities extends true
-        ? readonly { address: Address }[]
-        : readonly Address[]
+      accounts: readonly Address[]
       chainId: number
     }>
   }
@@ -56,7 +58,10 @@ export function dangerous_secp256k1() {
     async connect(parameters = {}) {
       const address = await (async () => {
         // Create account from private key
-        if ('create' in parameters && parameters.create) {
+        if (
+          'capabilities' in parameters &&
+          parameters.capabilities?.createAccount
+        ) {
           const privateKey = generatePrivateKey()
           const account = privateKeyToAccount(privateKey)
           const address = getAddress(account.address)
@@ -167,15 +172,19 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
   type Properties = {
     connect<withCapabilities extends boolean = false>(parameters: {
       chainId?: number | undefined
-      create?: boolean | { name?: string | undefined } | undefined
+      capabilities?:
+        | {
+            createAccount?:
+              | boolean
+              | {
+                  label?: string | undefined
+                }
+              | undefined
+          }
+        | undefined
       isReconnecting?: boolean | undefined
       withCapabilities?: withCapabilities | boolean | undefined
-    }): Promise<{
-      accounts: withCapabilities extends true
-        ? readonly { address: Address }[]
-        : readonly Address[]
-      chainId: number
-    }>
+    }): Promise<{ accounts: readonly Address[]; chainId: number }>
   }
   type Provider = Pick<EIP1193Provider, 'request'>
   type StorageItem = {
@@ -199,19 +208,21 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
       account ??= await (async () => {
         let credential: WebAuthnP256.P256Credential | undefined
 
-        if ('create' in parameters && parameters.create) {
+        if (
+          'capabilities' in parameters &&
+          parameters.capabilities?.createAccount
+        ) {
           // Create credential (sign up)
           const createOptions =
-            typeof parameters.create === 'boolean' ? {} : parameters.create
+            typeof parameters.capabilities?.createAccount === 'boolean'
+              ? {}
+              : parameters.capabilities?.createAccount
           credential = await WebAuthnP256.createCredential({
             ...(options.createOptions ?? {}),
-            user: {
-              ...(options.createOptions?.user ?? {}),
-              name:
-                createOptions.name ??
-                options.createOptions?.name ??
-                `Account ${new Date().toISOString().split('T')[0]}`,
-            } as never,
+            label:
+              createOptions.label ??
+              options.createOptions?.label ??
+              `Account ${new Date().toISOString().split('T')[0]}`,
           })
           config.storage?.setItem(
             `webAuthn.${credential.id}.publicKey`,
@@ -323,7 +334,7 @@ export declare namespace webAuthn {
     createOptions?:
       | Pick<
           WebAuthnP256.createCredential.Parameters,
-          'createFn' | 'name' | 'rp' | 'timeout' | 'user'
+          'createFn' | 'label' | 'rpId' | 'userId' | 'timeout'
         >
       | undefined
     getOptions?:
