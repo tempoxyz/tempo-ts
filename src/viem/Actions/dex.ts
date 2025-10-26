@@ -1,3 +1,5 @@
+import * as Hash from 'ox/Hash'
+import * as Hex from 'ox/Hex'
 import {
   type Account,
   type Address,
@@ -798,6 +800,75 @@ export namespace getOrder {
       abi: Abis.stablecoinExchange,
       args: [orderId],
       functionName: 'getOrder',
+    })
+  }
+}
+
+/**
+ * Gets orderbook information for a trading pair.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/viem'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const book = await Actions.dex.getOrderbook(client, {
+ *   base: '0x20c...11',
+ *   quote: '0x20c...20',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The orderbook information.
+ */
+export async function getOrderbook<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getOrderbook.Parameters,
+): Promise<getOrderbook.ReturnValue> {
+  const { base, quote, ...rest } = parameters
+  return readContract(client, {
+    ...rest,
+    ...getOrderbook.call({ base, quote }),
+  })
+}
+
+export namespace getOrderbook {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** Address of the base token. */
+    base: Address
+    /** Address of the quote token. */
+    quote: Address
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.stablecoinExchange,
+    'books',
+    never
+  >
+
+  /**
+   * Defines a call to the `books` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { base, quote } = args
+    const pairKey = getPairKey(base, quote)
+    return defineCall({
+      address: Addresses.stablecoinExchange,
+      abi: Abis.stablecoinExchange,
+      args: [pairKey],
+      functionName: 'books',
     })
   }
 }
@@ -2023,4 +2094,9 @@ export namespace withdrawSync {
     /** Transaction receipt. */
     receipt: TransactionReceipt
   }>
+}
+
+function getPairKey(base: Address, quote: Address) {
+  const [tokenA, tokenB] = Hex.toBigInt(base) < Hex.toBigInt(quote) ? [base, quote] : [quote, base]
+  return Hash.keccak256(Hex.concat(tokenA, tokenB))
 }

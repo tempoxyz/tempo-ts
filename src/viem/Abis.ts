@@ -221,6 +221,23 @@ export const stablecoinExchange = [
     outputs: [{ type: 'uint128' }],
   },
   {
+    name: 'books',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'bytes32', name: 'pairKey' }],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'address', name: 'base' },
+          { type: 'address', name: 'quote' },
+          { type: 'int16', name: 'bestBidTick' },
+          { type: 'int16', name: 'bestAskTick' },
+        ],
+      },
+    ],
+  },
+  {
     name: 'PairCreated',
     type: 'event',
     inputs: [
@@ -273,6 +290,7 @@ export const stablecoinExchange = [
   { name: 'PairDoesNotExist', type: 'error', inputs: [] },
   { name: 'PairAlreadyExists', type: 'error', inputs: [] },
   { name: 'OrderDoesNotExist', type: 'error', inputs: [] },
+  { name: 'IdenticalTokens', type: 'error', inputs: [] },
   {
     name: 'TickOutOfBounds',
     type: 'error',

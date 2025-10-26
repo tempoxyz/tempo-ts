@@ -591,6 +591,162 @@ describe('getOrder', () => {
   })
 })
 
+describe('getOrderbook', () => {
+  test('default', async () => {
+    const { base, quote } = await setupTokenPair()
+
+    // Get orderbook information
+    const book = await Actions.dex.getOrderbook(client, {
+      base,
+      quote,
+    })
+
+    expect(book).toBeDefined()
+    expect(book.base).toBe(base)
+    expect(book.quote).toBe(quote)
+    expect(book.bestBidTick).toBeDefined()
+    expect(book.bestAskTick).toBeDefined()
+  })
+
+  test('behavior: shows best bid and ask after orders placed', async () => {
+    const { base, quote } = await setupTokenPair()
+
+    const bidTick = Tick.fromPrice('0.999')
+    const askTick = Tick.fromPrice('1.001')
+
+    // Place a bid order
+    await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick: bidTick,
+    })
+
+    // Place an ask order
+    await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'sell',
+      tick: askTick,
+    })
+
+    // Get orderbook
+    const book = await Actions.dex.getOrderbook(client, {
+      base,
+      quote,
+    })
+
+    expect(book.bestBidTick).toBe(bidTick)
+    expect(book.bestAskTick).toBe(askTick)
+  })
+
+  test('behavior: best ticks update after better orders placed', async () => {
+    const { base, quote } = await setupTokenPair()
+
+    // Place initial bid at 0.999
+    await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick: Tick.fromPrice('0.999'),
+    })
+
+    // Get orderbook
+    const bookBefore = await Actions.dex.getOrderbook(client, {
+      base,
+      quote,
+    })
+    expect(bookBefore.bestBidTick).toBe(Tick.fromPrice('0.999'))
+
+    // Place better bid at 1.0
+    await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick: Tick.fromPrice('1.0'),
+    })
+
+    // Get orderbook again
+    const bookAfter = await Actions.dex.getOrderbook(client, {
+      base,
+      quote,
+    })
+    expect(bookAfter.bestBidTick).toBe(Tick.fromPrice('1.0'))
+  })
+
+  test.skip('behavior: best ticks update after order cancellation', async () => {
+    const { base, quote } = await setupTokenPair()
+
+    // Place two bid orders at different ticks
+    await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('50'),
+      type: 'buy',
+      tick: Tick.fromPrice('0.999'),
+    })
+
+    const { orderId } = await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick: Tick.fromPrice('1.0'),
+    })
+
+    // Get orderbook - best bid should be 1.0
+    const bookBefore = await Actions.dex.getOrderbook(client, {
+      base,
+      quote,
+    })
+    expect(bookBefore.bestBidTick).toBe(Tick.fromPrice('1.0'))
+
+    // Cancel the better order
+    await Actions.dex.cancelSync(client, { orderId })
+
+    // Get orderbook again - best bid should fall back to 0.999
+    const bookAfter = await Actions.dex.getOrderbook(client, {
+      base,
+      quote,
+    })
+    expect(bookAfter.bestBidTick).toBe(Tick.fromPrice('0.999'))
+  })
+
+  test('behavior: multiple pairs have independent orderbooks', async () => {
+    const { base: base1, quote: quote1 } = await setupTokenPair()
+    const { base: base2, quote: quote2 } = await setupTokenPair()
+
+    // Place order on first pair
+    await Actions.dex.placeSync(client, {
+      token: base1,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick: Tick.fromPrice('1.001'),
+    })
+
+    // Place order on second pair at different tick
+    await Actions.dex.placeSync(client, {
+      token: base2,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick: Tick.fromPrice('0.999'),
+    })
+
+    // Get orderbooks
+    const book1 = await Actions.dex.getOrderbook(client, {
+      base: base1,
+      quote: quote1,
+    })
+
+    const book2 = await Actions.dex.getOrderbook(client, {
+      base: base2,
+      quote: quote2,
+    })
+
+    // Each pair should have its own best tick
+    expect(book1.bestBidTick).toBe(Tick.fromPrice('1.001'))
+    expect(book2.bestBidTick).toBe(Tick.fromPrice('0.999'))
+  })
+})
+
 describe('getPriceLevel', () => {
   test('default', async () => {
     const { base } = await setupTokenPair()
