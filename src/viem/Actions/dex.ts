@@ -2097,6 +2097,7 @@ export namespace withdrawSync {
 }
 
 function getPairKey(base: Address, quote: Address) {
-  const [tokenA, tokenB] = Hex.toBigInt(base) < Hex.toBigInt(quote) ? [base, quote] : [quote, base]
+  const [tokenA, tokenB] =
+    Hex.toBigInt(base) < Hex.toBigInt(quote) ? [base, quote] : [quote, base]
   return Hash.keccak256(Hex.concat(tokenA, tokenB))
 }
