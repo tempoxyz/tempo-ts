@@ -1,5 +1,17 @@
-import { defineChain } from 'viem'
+import type { FixedArray } from '@wagmi/core/internal'
+import { defineChain, type LocalAccount } from 'viem'
+import { mnemonicToAccount } from 'viem/accounts'
 import { tempoLocal } from '../../src/chains.js'
+import { createTempoClient } from '../../src/viem/Client.js'
+
+export const accounts = Array.from({ length: 20 }, (_, i) =>
+  mnemonicToAccount(
+    'test test test test test test test test test test test junk',
+    {
+      accountIndex: i,
+    },
+  ),
+) as unknown as FixedArray<LocalAccount, 20>
 
 export const id =
   (typeof process !== 'undefined' &&
@@ -16,4 +28,10 @@ export const tempoTest = defineChain({
       http: [rpcUrl],
     },
   },
+})
+
+export const client = createTempoClient({
+  account: accounts[0],
+  chain: tempoTest,
+  pollingInterval: 100,
 })

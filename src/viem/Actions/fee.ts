@@ -1,6 +1,7 @@
 import {
   type Account,
   type Address,
+  type BaseErrorType,
   type Chain,
   type Client,
   type ExtractAbiItem,
@@ -156,6 +157,9 @@ export namespace setUserToken {
 
   export type ReturnValue = WriteContractReturnType
 
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
   /** @internal */
   export async function inner<
     action extends typeof writeContract | typeof writeContractSync,
@@ -291,6 +295,9 @@ export namespace setUserTokenSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**

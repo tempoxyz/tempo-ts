@@ -19,11 +19,15 @@
 		"ox": "~0.9.9"
 	},
 	"peerDependencies": {
+		"@wagmi/core": ">=2.18",
 		"prool": "^0",
 		"viem": ">=2.38.4",
 		"wagmi": ">=2.18"
 	},
 	"peerDependenciesMeta": {
+		"@wagmi/core": {
+			"optional": true
+		},
 		"prool": {
 			"optional": true
 		},
@@ -50,6 +54,7 @@
 		"@changesets/changelog-github": "^0.5.0",
 		"@changesets/cli": "^2.27.7",
 		"@remix-run/node-fetch-server": "^0.10.0",
+		"@tanstack/query-core": "^5.90.5",
 		"@tanstack/react-query": "catalog:default",
 		"@types/node": "latest",
 		"@types/react": "catalog:default",
@@ -58,6 +63,7 @@
 		"@vitest/browser": "^4.0.1",
 		"@vitest/browser-playwright": "^4.0.2",
 		"@vitest/coverage-v8": "^4.0.2",
+		"@wagmi/core": "catalog:default",
 		"playwright": "^1.56.1",
 		"prool": "catalog:default",
 		"react": "catalog:default",

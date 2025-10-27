@@ -18,6 +18,9 @@ catalogs:
     '@vitejs/plugin-react':
       specifier: ^5.0.4
       version: 5.0.4
+    '@wagmi/core':
+      specifier: ^2.22.1
+      version: 2.22.1
     prool:
       specifier: latest
       version: 0.0.24
@@ -60,6 +63,9 @@ importers:
       '@remix-run/node-fetch-server':
         specifier: ^0.10.0
         version: 0.10.0
+      '@tanstack/query-core':
+        specifier: ^5.90.5
+        version: 5.90.5
       '@tanstack/react-query':
         specifier: catalog:default
         version: 5.90.5(react@19.2.0)
@@ -84,6 +90,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.0.2
         version: 4.0.2(@vitest/browser@4.0.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.9.1))(vitest@4.0.2))(vitest@4.0.2)
+      '@wagmi/core':
+        specifier: catalog:default
+        version: 2.22.1(@tanstack/query-core@5.90.5)(@types/react@19.2.2)(react@19.2.0)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.0))(viem@2.38.4(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))
       node:
         specifier: runtime:^24.5.1
         version: runtime:24.10.0

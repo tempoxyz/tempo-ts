@@ -1,29 +1,14 @@
 import { setTimeout } from 'node:timers/promises'
-import { Abis, Addresses, createTempoClient } from 'tempo.ts/viem'
-import { parseEther, publicActions } from 'viem'
-import { mnemonicToAccount } from 'viem/accounts'
+import { Abis, Addresses } from 'tempo.ts/viem'
+import { parseEther } from 'viem'
 import { writeContractSync } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
-import { tempoTest } from '../../../test/viem/config.js'
+import { accounts, client } from '../../../test/viem/config.js'
 import * as actions from './index.js'
 
-const account = mnemonicToAccount(
-  'test test test test test test test test test test test junk',
-)
-const account2 = mnemonicToAccount(
-  'test test test test test test test test test test test junk',
-  { accountIndex: 1 },
-)
-const account3 = mnemonicToAccount(
-  'test test test test test test test test test test test junk',
-  { accountIndex: 2 },
-)
-
-const client = createTempoClient({
-  account,
-  chain: tempoTest,
-  pollingInterval: 100,
-}).extend(publicActions)
+const account = accounts[0]
+const account2 = accounts[1]
+const account3 = accounts[2]
 
 describe('getUserToken', () => {
   test('default', async () => {
