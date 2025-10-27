@@ -9,9 +9,9 @@ import {
   publicActions,
   walletActions,
 } from 'viem'
-import { mnemonicToAccount, privateKeyToAccount } from 'viem/accounts'
+import { privateKeyToAccount } from 'viem/accounts'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
-import { tempoTest } from '../../test/viem/config.js'
+import { accounts, tempoTest } from '../../test/viem/config.js'
 import * as actions from './Actions/index.js'
 import { tempoActions } from './index.js'
 import { withFeePayer } from './Transport.js'
@@ -27,9 +27,7 @@ const client = createClient({
 describe('sendTransaction', () => {
   describe('secp256k1', () => {
     test('default', async () => {
-      const account = mnemonicToAccount(
-        'test test test test test test test test test test test junk',
-      )
+      const account = accounts[0]
 
       const hash = await client.sendTransaction({
         account,
@@ -91,15 +89,11 @@ describe('sendTransaction', () => {
     })
 
     test('with calls', async () => {
-      const account = mnemonicToAccount(
-        'test test test test test test test test test test test junk',
-      )
-
       const hash = await client.sendTransaction({
-        account,
+        account: accounts[0],
         calls: [
           actions.token.create.call({
-            admin: account.address,
+            admin: accounts[0].address,
             currency: 'USD',
             name: 'Test Token 3',
             symbol: 'TEST3',
@@ -165,9 +159,7 @@ describe('sendTransaction', () => {
         // unfunded PK
         '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
       )
-      const feePayer = mnemonicToAccount(
-        'test test test test test test test test test test test junk',
-      )
+      const feePayer = accounts[0]
 
       const hash = await client.sendTransaction({
         account,
@@ -242,9 +234,7 @@ describe('sendTransaction', () => {
 
       // fund account
       await client.token.transferSync({
-        account: mnemonicToAccount(
-          'test test test test test test test test test test test junk',
-        ),
+        account: accounts[0],
         to: account.address,
         amount: parseUnits('10000', 6),
       })
@@ -321,9 +311,7 @@ describe('sendTransaction', () => {
 
       // fund account
       await client.token.transferSync({
-        account: mnemonicToAccount(
-          'test test test test test test test test test test test junk',
-        ),
+        account: accounts[0],
         to: account.address,
         amount: parseUnits('10000', 6),
       })
@@ -406,9 +394,7 @@ describe('sendTransaction', () => {
         // unfunded account with different key
         '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b',
       )
-      const feePayer = mnemonicToAccount(
-        'test test test test test test test test test test test junk',
-      )
+      const feePayer = accounts[0]
 
       const hash = await client.sendTransaction({
         account,
@@ -487,9 +473,7 @@ describe('sendTransaction', () => {
 
       // fund account
       await client.token.transferSync({
-        account: mnemonicToAccount(
-          'test test test test test test test test test test test junk',
-        ),
+        account: accounts[0],
         to: account.address,
         amount: parseUnits('10000', 6),
       })
@@ -556,9 +540,7 @@ describe('sendTransaction', () => {
 
       // fund account
       await client.token.transferSync({
-        account: mnemonicToAccount(
-          'test test test test test test test test test test test junk',
-        ),
+        account: accounts[0],
         to: account.address,
         amount: parseUnits('10000', 6),
       })
@@ -586,9 +568,7 @@ describe('sendTransaction', () => {
     test('with feePayer', async () => {
       const keyPair = await WebCryptoP256.createKeyPair()
       const account = Account.fromWebCryptoP256(keyPair)
-      const feePayer = mnemonicToAccount(
-        'test test test test test test test test test test test junk',
-      )
+      const feePayer = accounts[0]
 
       const hash = await client.sendTransaction({
         account,
@@ -614,9 +594,7 @@ describe('sendTransaction', () => {
 
       // fund account
       await client.token.transferSync({
-        account: mnemonicToAccount(
-          'test test test test test test test test test test test junk',
-        ),
+        account: accounts[0],
         to: account.address,
         amount: parseUnits('10000', 6),
       })
@@ -700,9 +678,7 @@ describe('sendTransaction', () => {
 
       // fund account
       await client.token.transferSync({
-        account: mnemonicToAccount(
-          'test test test test test test test test test test test junk',
-        ),
+        account: accounts[0],
         to: account.address,
         amount: parseUnits('10000', 6),
       })
@@ -792,9 +768,7 @@ describe('sendTransaction', () => {
           origin: 'http://localhost',
         },
       )
-      const feePayer = mnemonicToAccount(
-        'test test test test test test test test test test test junk',
-      )
+      const feePayer = accounts[0]
 
       const hash = await client.sendTransaction({
         account,
@@ -876,9 +850,7 @@ describe('signTransaction', () => {
       // unfunded PK
       '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
     )
-    const feePayer = mnemonicToAccount(
-      'test test test test test test test test test test test junk',
-    )
+    const feePayer = accounts[0]
 
     const request = await client.prepareTransactionRequest({
       account,
@@ -971,9 +943,7 @@ describe('relay', () => {
     server = Http.createServer(
       createRequestListener(async (r) => {
         const client = createClient({
-          account: mnemonicToAccount(
-            'test test test test test test test test test test test junk',
-          ),
+          account: accounts[0],
           chain: tempoTest,
           transport: http(),
         }).extend(walletActions)

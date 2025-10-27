@@ -1,18 +1,9 @@
-import { Actions, Addresses, createTempoClient, Tick } from 'tempo.ts/viem'
-import { parseEther, publicActions } from 'viem'
-import { mnemonicToAccount } from 'viem/accounts'
+import { Actions, Addresses, Tick } from 'tempo.ts/viem'
+import { parseEther } from 'viem'
 import { describe, expect, test } from 'vitest'
-import { tempoTest } from '../../../test/viem/config.js'
+import { accounts, client } from '../../../test/viem/config.js'
 
-const account = mnemonicToAccount(
-  'test test test test test test test test test test test junk',
-)
-
-const client = createTempoClient({
-  account,
-  chain: tempoTest,
-  pollingInterval: 100,
-}).extend(publicActions)
+// const account = accounts[0]
 
 async function setupTokenPair() {
   // Create quote token
@@ -47,14 +38,14 @@ async function setupTokenPair() {
   // Mint base tokens
   await Actions.token.mintSync(client, {
     token: baseToken,
-    to: account.address,
+    to: client.account.address,
     amount: parseEther('10000'),
   })
 
   // Mint quote tokens
   await Actions.token.mintSync(client, {
     token: quoteToken,
-    to: account.address,
+    to: client.account.address,
     amount: parseEther('10000'),
   })
 
@@ -194,7 +185,7 @@ describe('cancel', () => {
 
     // Check initial DEX balance (should be 0)
     const dexBalanceBefore = await Actions.dex.getBalance(client, {
-      account: account.address,
+      account: client.account.address,
       token: quote,
     })
     expect(dexBalanceBefore).toBe(0n)
@@ -215,7 +206,7 @@ describe('cancel', () => {
 
     // Check DEX balance after cancel - tokens should be refunded to internal balance
     const dexBalanceAfter = await Actions.dex.getBalance(client, {
-      account: account.address,
+      account: client.account.address,
       token: quote,
     })
     expect(dexBalanceAfter).toBeGreaterThan(0n)
@@ -233,10 +224,7 @@ describe('cancel', () => {
     })
 
     // Create another account
-    const account2 = mnemonicToAccount(
-      'test test test test test test test test test test test junk',
-      { accountIndex: 1 },
-    )
+    const account2 = accounts[1]
 
     // Transfer gas to account2
     await Actions.token.transferSync(client, {
@@ -324,7 +312,7 @@ describe('getBalance', () => {
 
     // Initial balance should be 0
     const initialBalance = await Actions.dex.getBalance(client, {
-      account: account.address,
+      account: client.account.address,
       token: quote,
     })
     expect(initialBalance).toBe(0n)
@@ -343,7 +331,7 @@ describe('getBalance', () => {
 
     // Now balance should be > 0 (refunded quote tokens)
     const balance = await Actions.dex.getBalance(client, {
-      account: account.address,
+      account: client.account.address,
       token: quote,
     })
     expect(balance).toBeGreaterThan(0n)
@@ -352,10 +340,7 @@ describe('getBalance', () => {
   test('behavior: check different account', async () => {
     const { quote } = await setupTokenPair()
 
-    const account2 = mnemonicToAccount(
-      'test test test test test test test test test test test junk',
-      { accountIndex: 1 },
-    )
+    const account2 = accounts[1]
 
     // Check account2's balance (should be 0)
     const balance = await Actions.dex.getBalance(client, {
@@ -379,14 +364,14 @@ describe('getBalance', () => {
 
     // Check quote balance (should have refunded tokens)
     const quoteBalance = await Actions.dex.getBalance(client, {
-      account: account.address,
+      account: client.account.address,
       token: quote,
     })
     expect(quoteBalance).toBeGreaterThan(0n)
 
     // Check base balance (should still be 0)
     const baseBalance = await Actions.dex.getBalance(client, {
-      account: account.address,
+      account: client.account.address,
       token: base,
     })
     expect(baseBalance).toBe(0n)

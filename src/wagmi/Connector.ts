@@ -1,10 +1,10 @@
+import * as Address from 'ox/Address'
 import { Account, createTempoClient, WebAuthnP256 } from 'tempo.ts/viem'
 import {
-  type Address,
   type EIP1193Provider,
   getAddress,
   type Hex,
-  type PrivateKeyAccount,
+  type LocalAccount,
   SwitchChainError,
 } from 'viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
@@ -19,8 +19,10 @@ import { ChainNotConfiguredError, createConnector } from 'wagmi'
  *
  * @returns Connector.
  */
-export function dangerous_secp256k1() {
-  let account: PrivateKeyAccount | undefined
+export function dangerous_secp256k1(
+  options: dangerous_secp256k1.Parameters = {},
+) {
+  let account: LocalAccount | undefined
 
   type Properties = {
     connect<withCapabilities extends boolean = false>(parameters: {
@@ -33,14 +35,14 @@ export function dangerous_secp256k1() {
       isReconnecting?: boolean | undefined
       withCapabilities?: withCapabilities | boolean | undefined
     }): Promise<{
-      accounts: readonly Address[]
+      accounts: readonly Address.Address[]
       chainId: number
     }>
   }
   type Provider = Pick<EIP1193Provider, 'request'>
   type StorageItem = {
-    'secp256k1.activeAddress': Address
-    'secp256k1.lastActiveAddress': Address
+    'secp256k1.activeAddress': Address.Address
+    'secp256k1.lastActiveAddress': Address.Address
     [key: `secp256k1.${string}.privateKey`]: Hex
   }
 
@@ -54,17 +56,22 @@ export function dangerous_secp256k1() {
         `secp256k1.${address}.privateKey`,
       )
       if (privateKey) account = privateKeyToAccount(privateKey)
+      else if (
+        address &&
+        options.account &&
+        Address.isEqual(address, options.account.address)
+      )
+        account = options.account
     },
     async connect(parameters = {}) {
       const address = await (async () => {
-        // Create account from private key
         if (
           'capabilities' in parameters &&
           parameters.capabilities?.createAccount
         ) {
           const privateKey = generatePrivateKey()
           const account = privateKeyToAccount(privateKey)
-          const address = getAddress(account.address)
+          const address = account.address
           await config.storage?.setItem(
             `secp256k1.${address}.privateKey`,
             privateKey,
@@ -80,7 +87,16 @@ export function dangerous_secp256k1() {
         const privateKey = await config.storage?.getItem(
           `secp256k1.${address}.privateKey`,
         )
+
         if (privateKey) account = privateKeyToAccount(privateKey)
+        else if (options.account) {
+          account = options.account
+          await config.storage?.setItem(
+            'secp256k1.lastActiveAddress',
+            account.address,
+          )
+        }
+
         if (!account) throw new Error('account not found.')
 
         await config.storage?.setItem(
@@ -161,6 +177,12 @@ export function dangerous_secp256k1() {
   }))
 }
 
+export declare namespace dangerous_secp256k1 {
+  export type Parameters = {
+    account?: LocalAccount | undefined
+  }
+}
+
 /**
  * Connector for a WebAuthn EOA.
  *
@@ -184,7 +206,7 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
         | undefined
       isReconnecting?: boolean | undefined
       withCapabilities?: withCapabilities | boolean | undefined
-    }): Promise<{ accounts: readonly Address[]; chainId: number }>
+    }): Promise<{ accounts: readonly Address.Address[]; chainId: number }>
   }
   type Provider = Pick<EIP1193Provider, 'request'>
   type StorageItem = {
