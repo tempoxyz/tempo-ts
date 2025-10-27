@@ -570,25 +570,32 @@ export declare namespace myActionSync {
 
 Tests should be co-located with actions in `*action-name*.test.ts` files.
 
-See `src/wagmi/Actions/fee.test.ts` for a comprehensive example of test patterns and structure.
+**Important**: Wagmi action tests should follow the same test flows as the corresponding Viem action tests in `src/viem/Actions/`. This includes:
+- Setting up the same initial state (creating tokens, granting roles, minting tokens, etc.)
+- Testing the same behaviors and edge cases
+- Using the same test data and assertions where applicable
+
+The main difference is that wagmi tests use `config` instead of `client`, and mutation actions don't require explicit `account` parameters since they use the connector's account.
+
+See `src/wagmi/Actions/token.test.ts` for a comprehensive example of test patterns and structure.
 
 ##### Test Structure
 
-Organize tests by action name with a default test case:
+Organize tests by action name with a default test case. Use namespace imports for cleaner code:
 
 ```typescript
 import { connect } from '@wagmi/core'
 import { describe, expect, test } from 'vitest'
 import { accounts } from '../../../test/viem/config.js'
 import { config, queryClient } from '../../../test/wagmi/config.js'
-import { myAction, myActionSync } from './myAction.js'
+import * as myAction from './myAction.js'
 
 const account = accounts[0]
 
 // Query-based actions
 describe('myAction', () => {
   test('default', async () => {
-    const result = await myAction(config, {
+    const result = await myAction.myAction(config, {
       // ...
     })
     expect(result).toMatchInlineSnapshot(`...`)
@@ -596,7 +603,7 @@ describe('myAction', () => {
 
   describe('queryOptions', () => {
     test('default', async () => {
-      const options = myAction.queryOptions(config, {
+      const options = myAction.myAction.queryOptions(config, {
         // ...
       })
       expect(await queryClient.fetchQuery(options)).toMatchInlineSnapshot(`...`)
@@ -610,8 +617,12 @@ describe('myAction', () => {
     await connect(config, {
       connector: config.connectors[0]!,
     })
-    const hash = await myAction(config, {
-      // ...
+    
+    // Include any necessary setup from the corresponding viem test
+    // e.g., create tokens, grant roles, mint tokens, etc.
+    
+    const hash = await myAction.myAction(config, {
+      // ... (no account parameter needed)
     })
     expect(hash).toBeDefined()
   })
@@ -622,8 +633,11 @@ describe('myActionSync', () => {
     await connect(config, {
       connector: config.connectors[0]!,
     })
-    const result = await myActionSync(config, {
-      // ...
+    
+    // Include any necessary setup from the corresponding viem test
+    
+    const result = await myAction.myActionSync(config, {
+      // ... (no account parameter needed)
     })
     expect(result).toBeDefined()
   })
@@ -856,18 +870,25 @@ export declare namespace useMyActionSync {
 
 Tests should be co-located with hooks in `useHookName.test.ts` files.
 
+**Important**: Wagmi hook tests should follow the same test flows as the corresponding Viem action tests in `src/viem/Actions/`. This includes:
+- Setting up the same initial state (creating tokens, granting roles, minting tokens, etc.)
+- Testing the same behaviors and edge cases
+- Using the same test data and assertions where applicable
+
+The main difference is that hooks use React rendering patterns with `renderHook`, and mutation hooks don't require explicit `account` parameters in `mutateAsync` calls since they use the connector's account.
+
 See `src/wagmi/Hooks/fee.test.ts` for a comprehensive example of test patterns and structure.
 
 ##### Test Structure
 
-Organize tests by hook name with a default test case:
+Organize tests by hook name with a default test case. Use namespace imports for cleaner code when importing hooks:
 
 ```typescript
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
 import { accounts } from '../../../test/viem/config.js'
 import { config, renderHook } from '../../../test/wagmi/config.js'
-import { useMyAction, useMyActionSync } from './myAction.js'
+import * as hooks from './myAction.js'
 import type { Account } from 'viem'
 
 // Query hooks
@@ -875,7 +896,7 @@ describe('useMyAction', () => {
   test('default', async () => {
     let account: Account | undefined
     const { result, rerender } = await renderHook(() =>
-      useMyAction({ account }),
+      hooks.useMyAction({ account }),
     )
 
     await vi.waitFor(() => result.current.fetchStatus === 'fetching')
@@ -899,15 +920,18 @@ describe('useMyAction', () => {
   test('default', async () => {
     const { result } = await renderHook(() => ({
       connect: useConnect(),
-      myAction: useMyAction(),
+      myAction: hooks.useMyAction(),
     }))
 
     await result.current.connect.connectAsync({
       connector: config.connectors[0]!,
     })
 
+    // Include any necessary setup from the corresponding viem test
+    // e.g., create tokens, grant roles, etc. using the action's mutateAsync
+
     const hash = await result.current.myAction.mutateAsync({
-      // ... mutation parameters
+      // ... mutation parameters (no account parameter needed)
     })
     expect(hash).toBeDefined()
 
@@ -921,15 +945,17 @@ describe('useMyActionSync', () => {
   test('default', async () => {
     const { result } = await renderHook(() => ({
       connect: useConnect(),
-      myAction: useMyActionSync(),
+      myAction: hooks.useMyActionSync(),
     }))
 
     await result.current.connect.connectAsync({
       connector: config.connectors[0]!,
     })
 
+    // Include any necessary setup from the corresponding viem test
+
     const data = await result.current.myAction.mutateAsync({
-      // ... mutation parameters
+      // ... mutation parameters (no account parameter needed)
     })
     expect(data).toBeDefined()
 

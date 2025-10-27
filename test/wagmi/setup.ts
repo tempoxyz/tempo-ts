@@ -2,6 +2,11 @@ import { disconnect } from '@wagmi/core'
 import { beforeEach, vi } from 'vitest'
 import { config, rpcUrl } from '../wagmi/config.js'
 
+// @ts-expect-error
+BigInt.prototype.toJSON = function () {
+  return this.toString()
+}
+
 beforeEach(async () => {
   await fetch(`${rpcUrl}/restart`)
   await disconnect(config).catch(() => {})
