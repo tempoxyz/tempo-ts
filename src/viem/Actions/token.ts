@@ -3,6 +3,7 @@ import * as Signature from 'ox/Signature'
 import {
   type Account,
   type Address,
+  type BaseErrorType,
   type Chain,
   type Client,
   type ExtractAbiItem,
@@ -93,6 +94,9 @@ export namespace approve {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -241,6 +245,9 @@ export namespace approveSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -497,6 +504,9 @@ export namespace burn {
 
   export type ReturnValue = WriteContractReturnType
 
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
   /** @internal */
   export async function inner<
     action extends typeof writeContract | typeof writeContractSync,
@@ -647,6 +657,9 @@ export namespace burnSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -906,6 +919,9 @@ export namespace create {
 
   export type ReturnValue = WriteContractReturnType
 
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
   /** @internal */
   export async function inner<
     action extends typeof writeContract | typeof writeContractSync,
@@ -1072,6 +1088,9 @@ export namespace createSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -2032,6 +2051,9 @@ export namespace mint {
 
   export type ReturnValue = WriteContractReturnType
 
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
   /** @internal */
   export async function inner<
     action extends typeof writeContract | typeof writeContractSync,
@@ -2183,6 +2205,9 @@ export namespace mintSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -3456,6 +3481,9 @@ export namespace transfer {
 
   export type ReturnValue = WriteContractReturnType
 
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
   /** @internal */
   export async function inner<
     action extends typeof writeContract | typeof writeContractSync,
@@ -3614,6 +3642,9 @@ export namespace transferSync {
   > & {
     receipt: TransactionReceipt
   }
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**

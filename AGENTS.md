@@ -156,7 +156,16 @@ export type ReturnValue = ReadContractReturnType<typeof Abis.myAbi, 'functionNam
 export type ReturnValue = WriteContractReturnType
 ```
 
-##### 4. `call` Function
+##### 4. `ErrorType` Type (for write actions)
+
+Write actions must include an `ErrorType` export. Use `BaseErrorType` from `viem` as a placeholder with a TODO comment for future exhaustive error typing:
+
+```typescript
+// TODO: exhaustive error type
+export type ErrorType = BaseErrorType
+```
+
+##### 5. `call` Function
 
 **Required for all actions** - enables composition with other viem actions:
 
@@ -205,7 +214,7 @@ The `call` function enables these use cases:
 - `estimateContractGas` - Estimate gas costs
 - `simulateContract` - Simulate execution
 
-##### 5. `extractEvent` Function (for mutate-based actions)
+##### 6. `extractEvent` Function (for mutate-based actions)
 
 **Required for all actions that emit events**:
 
@@ -228,7 +237,7 @@ export function extractEvent(logs: Log[]) {
 }
 ```
 
-##### 6. `inner` Function (for write actions)
+##### 7. `inner` Function (for write actions)
 
 ```typescript
 /** @internal */
