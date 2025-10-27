@@ -1714,7 +1714,7 @@ describe('withdraw', () => {
 
     // Get DEX balance
     const dexBalance = await Actions.dex.getBalance(client, {
-      account: account.address,
+      account: client.account.address,
       token: quote,
     })
     expect(dexBalance).toBeGreaterThan(0n)
@@ -1735,7 +1735,7 @@ describe('withdraw', () => {
 
     // Check DEX balance is now 0
     const dexBalanceAfter = await Actions.dex.getBalance(client, {
-      account: account.address,
+      account: client.account.address,
       token: quote,
     })
     expect(dexBalanceAfter).toBe(0n)

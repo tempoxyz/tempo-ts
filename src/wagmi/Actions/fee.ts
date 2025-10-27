@@ -2,7 +2,7 @@ import type * as Query from '@tanstack/query-core'
 import { type Config, getConnectorClient } from '@wagmi/core'
 import type { ChainIdParameter, ConnectorParameter } from '@wagmi/core/internal'
 import type { Account } from 'viem'
-import type { RequiredBy } from '../../internal/types.js'
+import type { PartialBy, RequiredBy } from '../../internal/types.js'
 import * as viem_Actions from '../../viem/Actions/fee.js'
 
 /**
@@ -33,7 +33,7 @@ import * as viem_Actions from '../../viem/Actions/fee.js'
 export function getUserToken<config extends Config>(
   config: config,
   parameters: getUserToken.Parameters<config>,
-) {
+): Promise<getUserToken.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
   return viem_Actions.getUserToken(client, rest)
@@ -46,7 +46,7 @@ export namespace getUserToken {
   export type ReturnValue = viem_Actions.getUserToken.ReturnValue
 
   export function queryKey<config extends Config>(
-    parameters: Parameters<config>,
+    parameters: PartialBy<Parameters<config>, 'account'>,
   ) {
     return ['getUserToken', parameters] as const
   }
@@ -64,8 +64,9 @@ export namespace getUserToken {
       ...query,
       queryKey: queryKey(rest),
       async queryFn({ queryKey }) {
-        const [, parameters] = queryKey
-        return await getUserToken(config, parameters)
+        const [, { account, ...parameters }] = queryKey
+        if (!account) throw new Error('account is required.')
+        return await getUserToken(config, { account, ...parameters })
       },
     }
   }
@@ -74,7 +75,7 @@ export namespace getUserToken {
     export type Parameters<
       config extends Config,
       selectData = getUserToken.ReturnValue,
-    > = getUserToken.Parameters<config> & {
+    > = PartialBy<getUserToken.Parameters<config>, 'account'> & {
       query?:
         | Omit<ReturnValue<config, selectData>, 'queryKey' | 'queryFn'>
         | undefined

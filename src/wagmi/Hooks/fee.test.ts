@@ -1,19 +1,119 @@
+import type { Account } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
 import { accounts } from '../../../test/viem/config.js'
 import { config, renderHook } from '../../../test/wagmi/config.js'
 import { useSetUserToken, useSetUserTokenSync, useUserToken } from './fee.js'
 
-const account = accounts[0]
-
 describe('useUserToken', () => {
   test('default', async () => {
-    const { result } = await renderHook(() => useUserToken({ account }))
-    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
-    expect(result.current.data).toMatchInlineSnapshot(`
+    let account: Account | undefined
+
+    const { result, rerender } = await renderHook(() =>
+      useUserToken({ account }),
+    )
+
+    await vi.waitFor(() => result.current.fetchStatus === 'fetching')
+
+    expect(result.current).toMatchInlineSnapshot(`
       {
-        "address": "0x20C0000000000000000000000000000000000001",
-        "id": 1n,
+        "data": undefined,
+        "dataUpdatedAt": 0,
+        "error": null,
+        "errorUpdateCount": 0,
+        "errorUpdatedAt": 0,
+        "failureCount": 0,
+        "failureReason": null,
+        "fetchStatus": "idle",
+        "isEnabled": false,
+        "isError": false,
+        "isFetched": false,
+        "isFetchedAfterMount": false,
+        "isFetching": false,
+        "isInitialLoading": false,
+        "isLoading": false,
+        "isLoadingError": false,
+        "isPaused": false,
+        "isPending": true,
+        "isPlaceholderData": false,
+        "isRefetchError": false,
+        "isRefetching": false,
+        "isStale": false,
+        "isSuccess": false,
+        "promise": Promise {
+          "reason": [Error: experimental_prefetchInRender feature flag is not enabled],
+          "status": "rejected",
+        },
+        "queryKey": [
+          "getUserToken",
+          {
+            "account": undefined,
+            "chainId": 1337,
+          },
+        ],
+        "refetch": [Function],
+        "status": "pending",
+      }
+    `)
+
+    account = accounts[0]
+    rerender()
+
+    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
+
+    expect(result.current).toMatchInlineSnapshot(`
+      {
+        "data": {
+          "address": "0x20C0000000000000000000000000000000000001",
+          "id": 1n,
+        },
+        "dataUpdatedAt": 1675209600000,
+        "error": null,
+        "errorUpdateCount": 0,
+        "errorUpdatedAt": 0,
+        "failureCount": 0,
+        "failureReason": null,
+        "fetchStatus": "idle",
+        "isEnabled": true,
+        "isError": false,
+        "isFetched": true,
+        "isFetchedAfterMount": true,
+        "isFetching": false,
+        "isInitialLoading": false,
+        "isLoading": false,
+        "isLoadingError": false,
+        "isPaused": false,
+        "isPending": false,
+        "isPlaceholderData": false,
+        "isRefetchError": false,
+        "isRefetching": false,
+        "isStale": true,
+        "isSuccess": true,
+        "promise": Promise {
+          "reason": [Error: experimental_prefetchInRender feature flag is not enabled],
+          "status": "rejected",
+        },
+        "queryKey": [
+          "getUserToken",
+          {
+            "account": {
+              "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+              "getHdKey": [Function],
+              "nonceManager": undefined,
+              "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+              "sign": [Function],
+              "signAuthorization": [Function],
+              "signMessage": [Function],
+              "signTransaction": [Function],
+              "signTypedData": [Function],
+              "source": "hd",
+              "type": "local",
+            },
+            "chainId": 1337,
+          },
+        ],
+        "refetch": [Function],
+        "status": "success",
       }
     `)
   })
