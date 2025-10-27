@@ -22,8 +22,8 @@ catalogs:
       specifier: ^2.22.1
       version: 2.22.1
     prool:
-      specifier: latest
-      version: 0.0.24
+      specifier: 0.0.25
+      version: 0.0.25
     react:
       specifier: ^19.1.1
       version: 19.2.0
@@ -101,7 +101,7 @@ importers:
         version: 1.56.1
       prool:
         specifier: catalog:default
-        version: 0.0.24
+        version: 0.0.25
       react:
         specifier: catalog:default
         version: 19.2.0
@@ -140,7 +140,7 @@ importers:
         version: 2.15.0(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@19.2.2)(react@19.2.0)
       prool:
         specifier: catalog:default
-        version: 0.0.24
+        version: 0.0.25
       react:
         specifier: catalog:default
         version: 19.2.0
@@ -2372,8 +2372,8 @@ packages:
   process-warning@1.0.0:
     resolution: {integrity: sha512-du4wfLyj4yCZq1VupnVSZmRsPJsNuxoDQFdCFHLaYiEbFBD7QE0a+I4D7hOxrVnh78QE/YipFAj9lXHiXocV+Q==}
 
-  prool@0.0.24:
-    resolution: {integrity: sha512-L0EGUF5vK1XAQtceaiwfGxf0LGeJwurUizzc3i6JESsUyMROzGxTSMSBiajF8AoQaDYWIX2s1m00sC36CATrvQ==}
+  prool@0.0.25:
+    resolution: {integrity: sha512-RKqgb4iEkKJAQC1U0frPs6DWuC2VRfrn3sRRz09lYVr8GkBjrSH7uQLeA5N0odCRD4x75DfRwOedQTxjMkrYuQ==}
     engines: {node: '>=22'}
     peerDependencies:
       '@pimlico/alto': '*'
@@ -6098,7 +6098,7 @@ snapshots:
 
   process-warning@1.0.0: {}
 
-  prool@0.0.24:
+  prool@0.0.25:
     dependencies:
       change-case: 5.4.4
       eventemitter3: 5.0.1
