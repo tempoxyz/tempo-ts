@@ -9,7 +9,7 @@ catalog:
   "react-dom": "^19.1.1"
   "typescript": "^5.9.3"
   "viem": "^2.38.4"
-  "wagmi": "^2.18.1"
+  "wagmi": "^2.19.0"
 onlyBuiltDependencies:
   - esbuild
   - simple-git-hooks

@@ -2,6 +2,7 @@ import type { DefaultError } from '@tanstack/query-core'
 import type { UseMutationResult } from '@tanstack/react-query'
 import type { Config, ResolvedRegister } from '@wagmi/core'
 import { useChainId, useConfig } from 'wagmi'
+import type { ConfigParameter, QueryParameter } from 'wagmi/internal'
 import {
   type UseMutationParameters,
   type UseQueryReturnType,
@@ -10,7 +11,6 @@ import {
 } from 'wagmi/query'
 
 import { getUserToken, setUserToken, setUserTokenSync } from '../Actions/fee.js'
-import type { ConfigParameter, QueryParameter } from '../internal/types.js'
 
 /**
  * Hook for getting the user's default fee token.
