@@ -1,4 +1,4 @@
-import type * as Hex from 'ox/Hex'
+import * as Hex from 'ox/Hex'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
@@ -7,8 +7,10 @@ import * as WebCryptoP256 from 'ox/WebCryptoP256'
 import type { Assign, PartialBy } from '../internal/types.js'
 import * as SignatureEnvelope from '../ox/SignatureEnvelope.js'
 
+/** Key type. */
 export type Type = 'secp256k1' | 'p256' | 'webAuthn'
 
+/** Key. */
 export type Key = {
   /** Expiry (in seconds) of the key. 0 = never. */
   expiry: number
@@ -20,6 +22,48 @@ export type Key = {
   sign: (parameters: { hash: Hex.Hex }) => Promise<Hex.Hex>
   /** Type of the key. */
   type: Type
+}
+
+/** Serialized (contract-compatible) format of a key. */
+export type Serialized = {
+  expiry: number
+  isSuperAdmin: boolean
+  keyType: number
+  publicKey: Hex.Hex
+}
+
+/** Serialized (contract-compatible) key type to key type mapping. */
+export const fromSerializedKeyType = {
+  0: 'p256',
+  1: 'webAuthn',
+  2: 'secp256k1',
+} as const
+
+/** Key type to serialized (contract-compatible) key type mapping. */
+export const toSerializedKeyType = {
+  p256: 0,
+  secp256k1: 2,
+  webAuthn: 1,
+} as const
+
+/**
+ * Deserializes a key from its serialized format.
+ *
+ * @param serialized - Serialized key.
+ * @returns Key.
+ */
+export function deserialize(serialized: Serialized) {
+  const publicKey = serialized.publicKey
+  const type = (fromSerializedKeyType as any)[serialized.keyType]
+  return from({
+    expiry: serialized.expiry,
+    publicKey,
+    role: serialized.isSuperAdmin ? 'admin' : 'session',
+    async sign() {
+      throw new Error('deserialized key cannot be used to sign')
+    },
+    type,
+  })
 }
 
 /**
@@ -257,4 +301,39 @@ export declare namespace fromWebCryptoP256 {
       type: 'p256'
     }
   >
+}
+
+/**
+ * Serializes a key to a contract-compatible format.
+ *
+ * @example
+ * ```ts
+ * import * as Key from './key.js'
+ *
+ * const key = Key.createP256()
+ *
+ * const serialized = Key.serialize(key)
+ * ```
+ *
+ * @param key - Key.
+ * @returns Serialized key.
+ */
+export function serialize(key: Key): Serialized {
+  const { expiry = 0, publicKey, role, type } = key
+  return {
+    expiry,
+    isSuperAdmin: role === 'admin',
+    keyType: toSerializedKeyType[type],
+    publicKey: serializePublicKey(publicKey),
+  }
+}
+
+/**
+ * Serializes a public key.
+ *
+ * @param publicKey - Public key.
+ * @returns Serialized public key.
+ */
+export function serializePublicKey(publicKey: Hex.Hex): Hex.Hex {
+  return Hex.size(publicKey) < 32 ? Hex.padLeft(publicKey, 32) : publicKey
 }
