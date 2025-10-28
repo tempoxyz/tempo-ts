@@ -1,7 +1,6 @@
 import * as Hex from 'ox/Hex'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
-import * as Secp256k1 from 'ox/Secp256k1'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
 import { describe, expect, test } from 'vitest'
 import * as Key from './Key.js'
