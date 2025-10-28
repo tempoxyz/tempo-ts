@@ -3,6 +3,7 @@ import * as Signature from 'ox/Signature'
 import {
   type Account,
   type Address,
+  type BaseErrorType,
   type Chain,
   type Client,
   type ExtractAbiItem,
@@ -16,6 +17,7 @@ import {
   type Transport,
   type Log as viem_Log,
   type WatchContractEventParameters,
+  type WatchContractEventReturnType,
   type WriteContractReturnType,
 } from 'viem'
 import { parseAccount } from 'viem/accounts'
@@ -93,6 +95,9 @@ export namespace approve {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -241,6 +246,9 @@ export namespace approveSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -296,6 +304,9 @@ export namespace burnBlocked {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -442,6 +453,9 @@ export namespace burnBlockedSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -496,6 +510,9 @@ export namespace burn {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -647,6 +664,9 @@ export namespace burnSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -699,6 +719,9 @@ export namespace changeTransferPolicy {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -842,6 +865,9 @@ export namespace changeTransferPolicySync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -905,6 +931,9 @@ export namespace create {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1072,6 +1101,9 @@ export namespace createSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -1121,6 +1153,9 @@ export namespace finalizeUpdateQuoteToken {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1262,6 +1297,9 @@ export namespace finalizeUpdateQuoteTokenSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -1827,6 +1865,9 @@ export namespace grantRoles {
 
   export type ReturnValue = WriteContractReturnType
 
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
   /** @internal */
   export async function inner<
     action extends typeof sendTransaction | typeof sendTransactionSync,
@@ -1974,6 +2015,9 @@ export namespace grantRolesSync {
       { IndexedOnly: false; Required: true }
     >[]
   }
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -2031,6 +2075,9 @@ export namespace mint {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -2183,6 +2230,9 @@ export namespace mintSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -2232,6 +2282,9 @@ export namespace pause {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -2368,6 +2421,9 @@ export namespace pauseSync {
   > & {
     receipt: TransactionReceipt
   }
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -2431,6 +2487,9 @@ export namespace permit {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -2601,6 +2660,9 @@ export namespace permitSync {
   > & {
     receipt: TransactionReceipt
   }
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -2657,6 +2719,9 @@ export namespace renounceRoles {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -2803,6 +2868,9 @@ export namespace renounceRolesSync {
       { IndexedOnly: false; Required: true }
     >[]
   }
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -2862,6 +2930,9 @@ export namespace revokeRoles {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -3010,6 +3081,9 @@ export namespace revokeRolesSync {
       { IndexedOnly: false; Required: true }
     >[]
   }
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -3062,6 +3136,9 @@ export namespace setSupplyCap {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -3200,6 +3277,9 @@ export namespace setSupplyCapSync {
   > & {
     receipt: TransactionReceipt
   }
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -3255,6 +3335,9 @@ export namespace setRoleAdmin {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -3397,6 +3480,9 @@ export namespace setRoleAdminSync {
   > & {
     receipt: TransactionReceipt
   }
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -3455,6 +3541,9 @@ export namespace transfer {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -3614,6 +3703,9 @@ export namespace transferSync {
   > & {
     receipt: TransactionReceipt
   }
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -3663,6 +3755,9 @@ export namespace unpause {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -3799,6 +3894,9 @@ export namespace unpauseSync {
   > & {
     receipt: TransactionReceipt
   }
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -3851,6 +3949,9 @@ export namespace updateQuoteToken {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -3994,6 +4095,9 @@ export namespace updateQuoteTokenSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -4274,6 +4378,8 @@ export declare namespace watchMint {
     /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined
   }
+
+  export type ReturnValue = WatchContractEventReturnType
 }
 
 /**
