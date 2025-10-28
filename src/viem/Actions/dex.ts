@@ -3,6 +3,7 @@ import * as Hex from 'ox/Hex'
 import {
   type Account,
   type Address,
+  type BaseErrorType,
   type Chain,
   type Client,
   type ExtractAbiItem,
@@ -94,6 +95,9 @@ export namespace buy {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -213,6 +217,9 @@ export namespace buySync {
     /** Transaction receipt. */
     receipt: TransactionReceipt
   }>
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -262,6 +269,9 @@ export namespace cancel {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -402,6 +412,9 @@ export namespace cancelSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -451,6 +464,9 @@ export namespace createPair {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -591,6 +607,9 @@ export namespace createPairSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -1072,6 +1091,9 @@ export namespace place {
 
   export type ReturnValue = WriteContractReturnType
 
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
   /** @internal */
   export async function inner<
     action extends typeof writeContract | typeof writeContractSync,
@@ -1212,6 +1234,9 @@ export namespace placeFlip {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1361,6 +1386,9 @@ export namespace placeFlipSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -1428,6 +1456,9 @@ export namespace placeSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -1486,6 +1517,9 @@ export namespace sell {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1605,6 +1639,9 @@ export namespace sellSync {
     /** Transaction receipt. */
     receipt: TransactionReceipt
   }>
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -1980,6 +2017,9 @@ export namespace withdraw {
 
   export type ReturnValue = WriteContractReturnType
 
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
   /** @internal */
   export async function inner<
     action extends typeof writeContract | typeof writeContractSync,
@@ -2094,6 +2134,9 @@ export namespace withdrawSync {
     /** Transaction receipt. */
     receipt: TransactionReceipt
   }>
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 function getPairKey(base: Address, quote: Address) {
