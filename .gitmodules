@@ -1,3 +1,6 @@
-[submodule "test/tempo"]
-	path = test/tempo
+[submodule "submodules/tempo"]
+	path = submodules/tempo
 	url = git@github.com:tempoxyz/tempo.git
+[submodule "submodules/account"]
+	path = submodules/account
+	url = git@github.com:ithacaxyz/account.git

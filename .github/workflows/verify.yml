@@ -41,8 +41,8 @@ jobs:
         id: cache-tempo
         uses: actions/cache@v4
         with:
-          path: test/tempo/target/release
-          key: tempo-binary-${{ runner.os }}-${{ hashFiles('test/tempo/Cargo.lock', 'test/tempo/**/*.rs', 'test/tempo/**/Cargo.toml') }}
+          path: submodules/tempo/target/release
+          key: tempo-binary-${{ runner.os }}-${{ hashFiles('submodules/tempo/Cargo.lock', 'submodules/tempo/**/*.rs', 'submodules/tempo/**/Cargo.toml') }}
           restore-keys: |
             tempo-binary-${{ runner.os }}-
 
@@ -53,7 +53,7 @@ jobs:
 
       - name: Add Tempo binary to PATH
         shell: bash
-        run: echo "$GITHUB_WORKSPACE/test/tempo/target/release" >> $GITHUB_PATH
+        run: echo "$GITHUB_WORKSPACE/submodules/tempo/target/release" >> $GITHUB_PATH
 
       - name: Install Playwright
         run: pnpx playwright@1.56.1 install --with-deps

@@ -1,15 +1,88 @@
+import * as ChildProcess from 'node:child_process'
 import * as Fs from 'node:fs'
 import * as Path from 'node:path'
 import * as Abi from 'ox/Abi'
+
+const out = Path.resolve(import.meta.dirname, '../src/viem/Abis.ts')
+const exportNames = new Set<string>()
+
+// Initialize the output file
+try {
+  Fs.rmSync(out)
+} catch {}
+
+Fs.writeFileSync(
+  out,
+  "// Generated with `pnpm gen:abis`. Do not modify manually.\n\nimport * as Abi from 'ox/Abi'\n\n",
+)
+
+////////////////////////////////////////////////////////////////////////////////
+// Generate Contract ABIs
+
+const contracts = ['IthacaAccount.sol:IthacaAccount']
+
+const contractsDir = Path.resolve(import.meta.dirname, '../submodules/account')
+
+ChildProcess.spawnSync('forge', ['build'], {
+  cwd: contractsDir,
+  stdio: 'inherit',
+})
+
+const outDir = Path.resolve(contractsDir, 'out')
+
+for (const entry of contracts) {
+  // Parse fileName:contractName format
+  const [fileName, contractName] = entry.split(':')
+  if (!fileName || !contractName) {
+    console.error(
+      `✗ Invalid contract entry format: ${entry}. Must be in the format "fileName:contractName" (e.g. "IthacaAccount.sol:IthacaAccount")`,
+    )
+    continue
+  }
+
+  // Forge outputs to out/FileName/ContractName.json
+  const jsonPath = Path.resolve(outDir, fileName, `${contractName}.json`)
+
+  try {
+    const jsonContent = Fs.readFileSync(jsonPath, 'utf-8')
+    const contractData = JSON.parse(jsonContent)
+    const abi = contractData.abi
+
+    if (!abi || abi.length === 0) {
+      console.warn(`⚠ No ABI found for ${contractName}`)
+      continue
+    }
+
+    const exportName =
+      contractName.charAt(0).toLowerCase() + contractName.slice(1)
+
+    Fs.appendFileSync(
+      out,
+      `export const ${exportName} = ${JSON.stringify(abi)} as const\n\n`,
+    )
+
+    exportNames.add(exportName)
+  } catch (error) {
+    console.error(`✗ Failed to process ${contractName}:`, error)
+  }
+}
+
+console.log(
+  `✓ Generated ${exportNames.size} ABIs from ${contracts.length} contracts:`,
+)
+for (const exportName of exportNames) console.log(`  - ${exportName}`)
+console.log()
+
+////////////////////////////////////////////////////////////////////////////////
+// Generate Precompile ABIs
 
 const extensions: Record<string, string[]> = {
   ITIP20: ['IRolesAuth'],
 }
 
-const out = Path.resolve(import.meta.dirname, '../src/viem/Abis.ts')
 const precompilesDir = Path.resolve(
   import.meta.dirname,
-  '../test/tempo/crates/contracts/src/precompiles',
+  '../submodules/tempo/crates/contracts/src/precompiles',
 )
 
 // Read all .rs files from the precompiles directory
@@ -158,17 +231,7 @@ for (const solMatch of content.matchAll(solBlockRegex)) {
   }
 }
 
-// Generate the output file
-try {
-  Fs.rmSync(out)
-} catch {}
-
-Fs.writeFileSync(
-  out,
-  "// Generated with `pnpm gen:abis`. Do not modify manually.\n\nimport * as Abi from 'ox/Abi'\n\n",
-)
-
-// Generate ABIs for all interfaces
+// Generate ABIs for all precompile interfaces
 const processedInterfaces = new Set<string>()
 
 for (const [interfaceName, interfaceData] of interfaces.entries()) {
@@ -218,6 +281,7 @@ for (const [interfaceName, interfaceData] of interfaces.entries()) {
     .split(/[_\-. \s]+/)
     .map((w, i) => (i ? w[0]!.toUpperCase() + w.slice(1) : w))
     .join('')
+  exportNames.add(exportName)
 
   // Format items as array of strings
   const items = allItems.map((item) => {
@@ -233,5 +297,6 @@ for (const [interfaceName, interfaceData] of interfaces.entries()) {
 }
 
 console.log(
-  `✓ Generated ${processedInterfaces.size} ABIs from ${files.length} precompile files`,
+  `✓ Generated ${processedInterfaces.size} ABIs from ${files.length} precompile files:`,
 )
+for (const exportName of exportNames) console.log(`  - ${exportName}`)

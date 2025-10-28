@@ -9,6 +9,7 @@ import {
 } from 'viem/utils'
 import type { RequiredBy } from '../../internal/types.js'
 import * as SignatureEnvelope from '../../ox/SignatureEnvelope.js'
+import type * as Key from '../Key.js'
 import * as Transaction from '../Transaction.js'
 
 export type Account = RequiredBy<
@@ -25,17 +26,18 @@ export type Account = RequiredBy<
 export function toPrivateKeyAccount(
   parameters: toPrivateKeyAccount.Parameters,
 ): toPrivateKeyAccount.ReturnValue {
-  const { address, sign, source = 'privateKey' } = parameters
-  const publicKey = PublicKey.toHex(parameters.publicKey, {
+  const { address, key } = parameters
+  const publicKey = PublicKey.toHex(key.publicKey, {
     includePrefix: false,
   })
   return {
     address,
-    sign,
+    publicKey,
+    sign: key.sign,
     async signAuthorization(parameters) {
       const { chainId, nonce } = parameters
       const address = parameters.contractAddress ?? parameters.address
-      const signature = await sign({
+      const signature = await key.sign({
         hash: hashAuthorization({ address, chainId, nonce }),
       })
       const envelope = SignatureEnvelope.from(signature)
@@ -57,7 +59,7 @@ export function toPrivateKeyAccount(
     },
     async signMessage(parameters) {
       const { message } = parameters
-      const signature = await sign({ hash: hashMessage(message) })
+      const signature = await key.sign({ hash: hashMessage(message) })
       const envelope = SignatureEnvelope.from(signature)
       if (envelope.type !== 'secp256k1')
         throw new Error(
@@ -68,14 +70,14 @@ export function toPrivateKeyAccount(
       return SignatureEnvelope.serialize(envelope)
     },
     async signTransaction(transaction) {
-      const signature = await sign({
+      const signature = await key.sign({
         hash: keccak256(await Transaction.serialize(transaction)),
       })
       const envelope = SignatureEnvelope.from(signature)
       return await Transaction.serialize(transaction, envelope)
     },
     async signTypedData(typedData) {
-      const signature = await sign({ hash: hashTypedData(typedData) })
+      const signature = await key.sign({ hash: hashTypedData(typedData) })
       const envelope = SignatureEnvelope.from(signature)
       if (envelope.type !== 'secp256k1')
         throw new Error(
@@ -85,8 +87,7 @@ export function toPrivateKeyAccount(
         )
       return SignatureEnvelope.serialize(envelope)
     },
-    publicKey,
-    source,
+    source: key.type,
     type: 'local',
   }
 }
@@ -95,12 +96,8 @@ export declare namespace toPrivateKeyAccount {
   export type Parameters = {
     /** Address. */
     address: Hex.Hex
-    /** Public key. */
-    publicKey: PublicKey.PublicKey
-    /** Sign function. */
-    sign: NonNullable<LocalAccount['sign']>
-    /** Source. */
-    source?: string | undefined
+    /** Signing key. */
+    key: Key.Key
   }
 
   export type ReturnValue = Account

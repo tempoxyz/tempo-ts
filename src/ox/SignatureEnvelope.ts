@@ -10,6 +10,7 @@ import type {
   IsNarrowable,
   OneOf,
   PartialBy,
+  UnionPartialBy,
 } from '../internal/types.js'
 
 /** Signature type identifiers for encoding/decoding */
@@ -531,7 +532,7 @@ export function getType<
  * @throws {CoercionError} If the envelope cannot be serialized.
  */
 export function serialize(
-  envelope: PartialBy<SignatureEnvelope, 'prehash'>,
+  envelope: UnionPartialBy<SignatureEnvelope, 'prehash'>,
 ): Serialized {
   const type = getType(envelope)
 

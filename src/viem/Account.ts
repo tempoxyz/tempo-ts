@@ -1,13 +1,9 @@
-import { WebCryptoP256 } from 'ox'
+import type { WebCryptoP256 } from 'ox'
 import * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
-import * as P256 from 'ox/P256'
-import * as PublicKey from 'ox/PublicKey'
-import * as Secp256k1 from 'ox/Secp256k1'
-import * as Signature from 'ox/Signature'
-import * as WebAuthnP256 from 'ox/WebAuthnP256'
-import * as SignatureEnvelope from '../ox/SignatureEnvelope.js'
+import type * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as internal from './internal/account.js'
+import * as Key from './Key.js'
 
 export type { Account } from './internal/account.js'
 
@@ -27,35 +23,13 @@ export type { Account } from './internal/account.js'
 export function fromHeadlessWebAuthn(
   privateKey: Hex.Hex,
   options: fromHeadlessWebAuthn.Options,
-): fromP256.ReturnValue {
-  const { rpId, origin } = options
-
-  const publicKey = P256.getPublicKey({ privateKey })
-  const address = Address.fromPublicKey(publicKey)
+) {
+  const key = Key.fromHeadlessWebAuthn(privateKey, options)
+  const address = Address.fromPublicKey(key.publicKey)
 
   return internal.toPrivateKeyAccount({
     address,
-    publicKey,
-    async sign({ hash }) {
-      const { metadata, payload } = WebAuthnP256.getSignPayload({
-        ...options,
-        challenge: hash,
-        rpId,
-        origin,
-      })
-      const signature = P256.sign({
-        payload,
-        privateKey,
-        hash: true,
-      })
-      return SignatureEnvelope.serialize({
-        metadata,
-        signature,
-        publicKey,
-        type: 'webAuthn',
-      })
-    },
-    source: 'webAuthn',
+    key,
   })
 }
 
@@ -67,8 +41,6 @@ export declare namespace fromHeadlessWebAuthn {
     rpId: string
     origin: string
   }
-
-  export type ReturnValue = internal.toPrivateKeyAccount.ReturnValue
 }
 
 /**
@@ -84,27 +56,14 @@ export declare namespace fromHeadlessWebAuthn {
  * @param privateKey P256 private key.
  * @returns Account.
  */
-export function fromP256(privateKey: Hex.Hex): fromP256.ReturnValue {
-  const publicKey = P256.getPublicKey({ privateKey })
-  const address = Address.fromPublicKey(publicKey)
+export function fromP256(privateKey: Hex.Hex) {
+  const key = Key.fromP256(privateKey)
+  const address = Address.fromPublicKey(key.publicKey)
 
   return internal.toPrivateKeyAccount({
     address,
-    publicKey,
-    async sign({ hash }) {
-      const signature = P256.sign({ payload: hash, privateKey })
-      return SignatureEnvelope.serialize({
-        signature,
-        publicKey,
-        type: 'p256',
-      })
-    },
-    source: 'p256',
+    key,
   })
-}
-
-export declare namespace fromP256 {
-  export type ReturnValue = internal.toPrivateKeyAccount.ReturnValue
 }
 
 /**
@@ -121,22 +80,14 @@ export declare namespace fromP256 {
  * @returns Account.
  */
 // TODO: this function will be redundant when Viem migrates to Ox.
-export function fromSecp256k1(privateKey: Hex.Hex): fromSecp256k1.ReturnValue {
-  const publicKey = Secp256k1.getPublicKey({ privateKey })
+export function fromSecp256k1(privateKey: Hex.Hex) {
+  const key = Key.fromSecp256k1(privateKey)
+  const address = Address.fromPublicKey(key.publicKey)
 
   return internal.toPrivateKeyAccount({
-    address: Address.fromPublicKey(publicKey),
-    publicKey,
-    async sign(parameters) {
-      const { hash } = parameters
-      const signature = Secp256k1.sign({ payload: hash, privateKey })
-      return Signature.toHex(signature)
-    },
+    address,
+    key,
   })
-}
-
-export declare namespace fromSecp256k1 {
-  export type ReturnValue = internal.toPrivateKeyAccount.ReturnValue
 }
 
 /**
@@ -199,41 +150,20 @@ export declare namespace fromSecp256k1 {
 export function fromWebAuthnP256(
   credential: fromWebAuthnP256.Credential,
   options: fromWebAuthnP256.Options = {},
-): fromWebAuthnP256.ReturnValue {
-  const { id } = credential
-  const publicKey = PublicKey.fromHex(credential.publicKey)
+) {
+  const key = Key.fromWebAuthnP256(credential, options)
+  const address = Address.fromPublicKey(key.publicKey)
+
   return internal.toPrivateKeyAccount({
-    address: Address.fromPublicKey(publicKey),
-    publicKey,
-    async sign({ hash }) {
-      const { metadata, signature } = await WebAuthnP256.sign({
-        ...options,
-        challenge: hash,
-        credentialId: id,
-      })
-      return SignatureEnvelope.serialize({
-        publicKey,
-        metadata,
-        signature,
-        type: 'webAuthn',
-      })
-    },
-    source: 'webAuthn',
+    address,
+    key,
   })
 }
 
 export declare namespace fromWebAuthnP256 {
-  export type Credential = {
-    id: WebAuthnP256.P256Credential['id']
-    publicKey: Hex.Hex
-  }
+  export type Credential = Key.fromWebAuthnP256.Credential
 
-  export type Options = {
-    getFn?: WebAuthnP256.sign.Options['getFn'] | undefined
-    rpId?: WebAuthnP256.sign.Options['rpId'] | undefined
-  }
-
-  export type ReturnValue = internal.toPrivateKeyAccount.ReturnValue
+  export type Options = Key.fromWebAuthnP256.Options
 }
 
 /**
@@ -254,26 +184,12 @@ export declare namespace fromWebAuthnP256 {
  */
 export function fromWebCryptoP256(
   keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>,
-): fromWebCryptoP256.ReturnValue {
-  const { publicKey, privateKey } = keyPair
-  const address = Address.fromPublicKey(publicKey)
+) {
+  const key = Key.fromWebCryptoP256(keyPair)
+  const address = Address.fromPublicKey(key.publicKey)
 
   return internal.toPrivateKeyAccount({
     address,
-    publicKey,
-    async sign({ hash }) {
-      const signature = await WebCryptoP256.sign({ payload: hash, privateKey })
-      return SignatureEnvelope.serialize({
-        signature,
-        prehash: true,
-        publicKey,
-        type: 'p256',
-      })
-    },
-    source: 'p256',
+    key,
   })
-}
-
-export declare namespace fromWebCryptoP256 {
-  export type ReturnValue = internal.toPrivateKeyAccount.ReturnValue
 }

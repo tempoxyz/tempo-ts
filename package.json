@@ -13,10 +13,10 @@
 		"preconstruct": "zile dev --project ./tsconfig.build.json && pnpm check",
 		"submodules:pull": "git submodule foreach git pull origin main && pnpm gen:abis",
 		"test": "vitest",
-		"test:install": "cd test/tempo && cargo install --path bin/tempo && cargo run --bin tempo-bench generate-genesis --accounts 1 --output ../../src/prool/internal/chain.json"
+		"test:install": "cd submodules/tempo && cargo install --path bin/tempo && cargo run --bin tempo-bench generate-genesis --accounts 1 --output ../../src/prool/internal/chain.json"
 	},
 	"dependencies": {
-		"ox": "~0.9.9"
+		"ox": "~0.9.14"
 	},
 	"peerDependencies": {
 		"prool": "^0",
