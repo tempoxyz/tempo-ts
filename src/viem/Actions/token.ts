@@ -17,6 +17,7 @@ import {
   type Transport,
   type Log as viem_Log,
   type WatchContractEventParameters,
+  type WatchContractEventReturnType,
   type WriteContractReturnType,
 } from 'viem'
 import { parseAccount } from 'viem/accounts'
@@ -4377,6 +4378,8 @@ export declare namespace watchMint {
     /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined
   }
+
+  export type ReturnValue = WatchContractEventReturnType
 }
 
 /**

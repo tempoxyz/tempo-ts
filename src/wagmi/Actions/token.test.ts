@@ -1028,3 +1028,265 @@ describe('finalizeUpdateQuoteTokenSync', () => {
 describe.todo('permit')
 
 describe.todo('permitSync')
+
+describe('watchAdminRole', () => {
+  test('default', async () => {
+    await connect(config, {
+      connector: config.connectors[0]!,
+    })
+
+    // Create a new token
+    const { token: tokenAddr } = await token.createSync(config, {
+      currency: 'USD',
+      name: 'Watch Admin Role Token',
+      symbol: 'WATCHADMIN',
+    })
+
+    const events: any[] = []
+    const unwatch = token.watchAdminRole(config, {
+      token: tokenAddr,
+      onRoleAdminUpdated: (args) => {
+        events.push(args)
+      },
+    })
+
+    // Trigger event by setting a role admin
+    await token.setRoleAdminSync(config, {
+      token: tokenAddr,
+      role: 'issuer',
+      adminRole: 'pause',
+    })
+
+    // Wait a bit for the event to be processed
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    expect(events.length).toBeGreaterThan(0)
+    expect(events[0]).toBeDefined()
+    unwatch()
+  })
+})
+
+describe('watchApprove', () => {
+  test('default', async () => {
+    await connect(config, {
+      connector: config.connectors[0]!,
+    })
+
+    const events: any[] = []
+    const unwatch = token.watchApprove(config, {
+      onApproval: (args) => {
+        events.push(args)
+      },
+    })
+
+    // Trigger approval event
+    await token.approveSync(config, {
+      spender: account2.address,
+      amount: parseEther('50'),
+    })
+
+    // Wait a bit for the event to be processed
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    expect(events.length).toBeGreaterThan(0)
+    expect(events[0]?.owner).toBe(account.address)
+    expect(events[0]?.spender).toBe(account2.address)
+    expect(events[0]?.amount).toBe(parseEther('50'))
+    unwatch()
+  })
+})
+
+describe('watchBurn', () => {
+  test('default', async () => {
+    await connect(config, {
+      connector: config.connectors[0]!,
+    })
+
+    // Create a new token
+    const { token: tokenAddr } = await token.createSync(config, {
+      currency: 'USD',
+      name: 'Watch Burn Token',
+      symbol: 'WATCHBURN',
+    })
+
+    // Grant issuer role and mint tokens
+    await token.grantRolesSync(config, {
+      token: tokenAddr,
+      roles: ['issuer'],
+      to: account.address,
+    })
+    await token.mintSync(config, {
+      token: tokenAddr,
+      to: account.address,
+      amount: parseEther('1000'),
+    })
+
+    const events: any[] = []
+    const unwatch = token.watchBurn(config, {
+      token: tokenAddr,
+      onBurn: (args) => {
+        events.push(args)
+      },
+    })
+
+    // Trigger burn event
+    await token.burnSync(config, {
+      token: tokenAddr,
+      amount: parseEther('10'),
+    })
+
+    // Wait a bit for the event to be processed
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    expect(events.length).toBeGreaterThan(0)
+    expect(events[0]?.from).toBe(account.address)
+    expect(events[0]?.amount).toBe(parseEther('10'))
+    unwatch()
+  })
+})
+
+describe('watchCreate', () => {
+  test('default', async () => {
+    await connect(config, {
+      connector: config.connectors[0]!,
+    })
+
+    const events: any[] = []
+    const unwatch = token.watchCreate(config, {
+      onTokenCreated: (args) => {
+        events.push(args)
+      },
+    })
+
+    // Trigger token creation event
+    await token.createSync(config, {
+      name: 'Watch Create Token',
+      symbol: 'WATCHCREATE',
+      currency: 'USD',
+    })
+
+    // Wait a bit for the event to be processed
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    expect(events.length).toBeGreaterThan(0)
+    expect(events[0]?.name).toBe('Watch Create Token')
+    expect(events[0]?.symbol).toBe('WATCHCREATE')
+    expect(events[0]?.currency).toBe('USD')
+    expect(events[0]?.admin).toBe(account.address)
+    unwatch()
+  })
+})
+
+describe('watchMint', () => {
+  test('default', async () => {
+    await connect(config, {
+      connector: config.connectors[0]!,
+    })
+
+    // Create a new token
+    const { token: tokenAddr } = await token.createSync(config, {
+      currency: 'USD',
+      name: 'Watch Mint Token',
+      symbol: 'WATCHMINT',
+    })
+
+    // Grant issuer role
+    await token.grantRolesSync(config, {
+      token: tokenAddr,
+      roles: ['issuer'],
+      to: account.address,
+    })
+
+    const events: any[] = []
+    const unwatch = token.watchMint(config, {
+      token: tokenAddr,
+      onMint: (args) => {
+        events.push(args)
+      },
+    })
+
+    // Trigger mint event
+    await token.mintSync(config, {
+      token: tokenAddr,
+      to: account.address,
+      amount: parseEther('100'),
+    })
+
+    // Wait a bit for the event to be processed
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    expect(events.length).toBeGreaterThan(0)
+    expect(events[0]?.to).toBe(account.address)
+    expect(events[0]?.amount).toBe(parseEther('100'))
+    unwatch()
+  })
+})
+
+describe('watchRole', () => {
+  test('default', async () => {
+    await connect(config, {
+      connector: config.connectors[0]!,
+    })
+
+    // Create a new token
+    const { token: tokenAddr } = await token.createSync(config, {
+      currency: 'USD',
+      name: 'Watch Role Token',
+      symbol: 'WATCHROLE',
+    })
+
+    const events: any[] = []
+    const unwatch = token.watchRole(config, {
+      token: tokenAddr,
+      onRoleUpdated: (args) => {
+        events.push(args)
+      },
+    })
+
+    // Trigger role update event by granting a role
+    await token.grantRolesSync(config, {
+      token: tokenAddr,
+      roles: ['issuer'],
+      to: account2.address,
+    })
+
+    // Wait a bit for the event to be processed
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    expect(events.length).toBeGreaterThan(0)
+    expect(events[0]?.account).toBe(account2.address)
+    expect(events[0]?.hasRole).toBe(true)
+    expect(events[0]?.type).toBe('granted')
+    unwatch()
+  })
+})
+
+describe('watchTransfer', () => {
+  test('default', async () => {
+    await connect(config, {
+      connector: config.connectors[0]!,
+    })
+
+    const events: any[] = []
+    const unwatch = token.watchTransfer(config, {
+      onTransfer: (args) => {
+        events.push(args)
+      },
+    })
+
+    // Trigger transfer event
+    await token.transferSync(config, {
+      to: account2.address,
+      amount: parseEther('5'),
+    })
+
+    // Wait a bit for the event to be processed
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    expect(events.length).toBeGreaterThan(0)
+    expect(events[0]?.from).toBe(account.address)
+    expect(events[0]?.to).toBe(account2.address)
+    expect(events[0]?.amount).toBe(parseEther('5'))
+    unwatch()
+  })
+})

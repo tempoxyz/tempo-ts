@@ -397,6 +397,8 @@ export declare namespace changeTransferPolicy {
     >
 
   export type ReturnValue = viem_Actions.changeTransferPolicy.ReturnValue
+
+  export type ErrorType = viem_Actions.changeTransferPolicy.ErrorType
 }
 
 /**
@@ -456,6 +458,8 @@ export declare namespace changeTransferPolicySync {
     >
 
   export type ReturnValue = viem_Actions.changeTransferPolicySync.ReturnValue
+
+  export type ErrorType = viem_Actions.changeTransferPolicySync.ErrorType
 }
 
 /**
@@ -2393,4 +2397,337 @@ export declare namespace updateQuoteTokenSync {
   export type ReturnValue = viem_Actions.updateQuoteTokenSync.ReturnValue
 
   export type ErrorType = viem_Actions.updateQuoteTokenSync.ErrorType
+}
+
+/**
+ * Watches for TIP20 token role admin updates.
+ *
+ * @example
+ * ```ts
+ * import { createConfig, http } from '@wagmi/core'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/wagmi'
+ *
+ * const config = createConfig({
+ *   chains: [tempo],
+ *   transports: {
+ *     [tempo.id]: http(),
+ *   },
+ * })
+ *
+ * const unwatch = Actions.token.watchAdminRole(config, {
+ *   onRoleAdminUpdated: (args, log) => {
+ *     console.log('Role admin updated:', args)
+ *   },
+ * })
+ * ```
+ *
+ * @param config - Config.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchAdminRole<config extends Config>(
+  config: config,
+  parameters: watchAdminRole.Parameters<config>,
+) {
+  const { chainId, ...rest } = parameters
+  const client = config.getClient({ chainId })
+  return viem_Actions.watchAdminRole(client, rest)
+}
+
+export declare namespace watchAdminRole {
+  export type Parameters<config extends Config> = ChainIdParameter<config> &
+    viem_Actions.watchAdminRole.Parameters
+}
+
+/**
+ * Watches for TIP20 token approval events.
+ *
+ * @example
+ * ```ts
+ * import { createConfig, http } from '@wagmi/core'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/wagmi'
+ *
+ * const config = createConfig({
+ *   chains: [tempo],
+ *   transports: {
+ *     [tempo.id]: http(),
+ *   },
+ * })
+ *
+ * const unwatch = Actions.token.watchApprove(config, {
+ *   onApproval: (args, log) => {
+ *     console.log('Approval:', args)
+ *   },
+ * })
+ * ```
+ *
+ * @param config - Config.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchApprove<config extends Config>(
+  config: config,
+  parameters: watchApprove.Parameters<config>,
+) {
+  const { chainId, ...rest } = parameters
+  const client = config.getClient({ chainId })
+  return viem_Actions.watchApprove(client, rest)
+}
+
+export declare namespace watchApprove {
+  export type Parameters<config extends Config> = ChainIdParameter<config> &
+    viem_Actions.watchApprove.Parameters
+}
+
+/**
+ * Watches for TIP20 token burn events.
+ *
+ * @example
+ * ```ts
+ * import { createConfig, http } from '@wagmi/core'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/wagmi'
+ *
+ * const config = createConfig({
+ *   chains: [tempo],
+ *   transports: {
+ *     [tempo.id]: http(),
+ *   },
+ * })
+ *
+ * const unwatch = Actions.token.watchBurn(config, {
+ *   onBurn: (args, log) => {
+ *     console.log('Burn:', args)
+ *   },
+ * })
+ * ```
+ *
+ * @param config - Config.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchBurn<config extends Config>(
+  config: config,
+  parameters: watchBurn.Parameters<config>,
+) {
+  const { chainId, ...rest } = parameters
+  const client = config.getClient({ chainId })
+  return viem_Actions.watchBurn(client, rest)
+}
+
+export declare namespace watchBurn {
+  export type Parameters<config extends Config> = ChainIdParameter<config> &
+    viem_Actions.watchBurn.Parameters
+}
+
+/**
+ * Watches for new TIP20 tokens created.
+ *
+ * @example
+ * ```ts
+ * import { createConfig, http } from '@wagmi/core'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/wagmi'
+ *
+ * const config = createConfig({
+ *   chains: [tempo],
+ *   transports: {
+ *     [tempo.id]: http(),
+ *   },
+ * })
+ *
+ * const unwatch = Actions.token.watchCreate(config, {
+ *   onTokenCreated: (args, log) => {
+ *     console.log('Token created:', args)
+ *   },
+ * })
+ * ```
+ *
+ * @param config - Config.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchCreate<config extends Config>(
+  config: config,
+  parameters: watchCreate.Parameters<config>,
+) {
+  const { chainId, ...rest } = parameters
+  const client = config.getClient({ chainId })
+  return viem_Actions.watchCreate(client, rest)
+}
+
+export declare namespace watchCreate {
+  export type Parameters<config extends Config> = ChainIdParameter<config> &
+    viem_Actions.watchCreate.Parameters
+}
+
+/**
+ * Watches for TIP20 token mint events.
+ *
+ * @example
+ * ```ts
+ * import { createConfig, http } from '@wagmi/core'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/wagmi'
+ *
+ * const config = createConfig({
+ *   chains: [tempo],
+ *   transports: {
+ *     [tempo.id]: http(),
+ *   },
+ * })
+ *
+ * const unwatch = Actions.token.watchMint(config, {
+ *   onMint: (args, log) => {
+ *     console.log('Mint:', args)
+ *   },
+ * })
+ * ```
+ *
+ * @param config - Config.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchMint<config extends Config>(
+  config: config,
+  parameters: watchMint.Parameters<config>,
+) {
+  const { chainId, ...rest } = parameters
+  const client = config.getClient({ chainId })
+  return viem_Actions.watchMint(client, rest)
+}
+
+export declare namespace watchMint {
+  export type Parameters<config extends Config> = ChainIdParameter<config> &
+    viem_Actions.watchMint.Parameters
+
+  export type ReturnValue = viem_Actions.watchMint.ReturnValue
+}
+
+/**
+ * Watches for TIP20 token role membership updates.
+ *
+ * @example
+ * ```ts
+ * import { createConfig, http } from '@wagmi/core'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/wagmi'
+ *
+ * const config = createConfig({
+ *   chains: [tempo],
+ *   transports: {
+ *     [tempo.id]: http(),
+ *   },
+ * })
+ *
+ * const unwatch = Actions.token.watchRole(config, {
+ *   onRoleUpdated: (args, log) => {
+ *     console.log('Role updated:', args)
+ *   },
+ * })
+ * ```
+ *
+ * @param config - Config.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchRole<config extends Config>(
+  config: config,
+  parameters: watchRole.Parameters<config>,
+) {
+  const { chainId, ...rest } = parameters
+  const client = config.getClient({ chainId })
+  return viem_Actions.watchRole(client, rest)
+}
+
+export declare namespace watchRole {
+  export type Parameters<config extends Config> = ChainIdParameter<config> &
+    viem_Actions.watchRole.Parameters
+}
+
+/**
+ * Watches for TIP20 token transfer events.
+ *
+ * @example
+ * ```ts
+ * import { createConfig, http } from '@wagmi/core'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/wagmi'
+ *
+ * const config = createConfig({
+ *   chains: [tempo],
+ *   transports: {
+ *     [tempo.id]: http(),
+ *   },
+ * })
+ *
+ * const unwatch = Actions.token.watchTransfer(config, {
+ *   onTransfer: (args, log) => {
+ *     console.log('Transfer:', args)
+ *   },
+ * })
+ * ```
+ *
+ * @param config - Config.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchTransfer<config extends Config>(
+  config: config,
+  parameters: watchTransfer.Parameters<config>,
+) {
+  const { chainId, ...rest } = parameters
+  const client = config.getClient({ chainId })
+  return viem_Actions.watchTransfer(client, rest)
+}
+
+export declare namespace watchTransfer {
+  export type Parameters<config extends Config> = ChainIdParameter<config> &
+    viem_Actions.watchTransfer.Parameters
+}
+
+/**
+ * Watches for TIP20 token quote token update events.
+ *
+ * @example
+ * ```ts
+ * import { createConfig, http } from '@wagmi/core'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/wagmi'
+ *
+ * const config = createConfig({
+ *   chains: [tempo],
+ *   transports: {
+ *     [tempo.id]: http(),
+ *   },
+ * })
+ *
+ * const unwatch = Actions.token.watchUpdateQuoteToken(config, {
+ *   onUpdateQuoteToken: (args, log) => {
+ *     if (args.finalized)
+ *       console.log('quote token update finalized:', args.newQuoteToken)
+ *     else
+ *       console.log('quote token update proposed:', args.newQuoteToken)
+ *   },
+ * })
+ * ```
+ *
+ * @param config - Config.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchUpdateQuoteToken<config extends Config>(
+  config: config,
+  parameters: watchUpdateQuoteToken.Parameters<config>,
+) {
+  const { chainId, ...rest } = parameters
+  const client = config.getClient({ chainId })
+  return viem_Actions.watchUpdateQuoteToken(client, rest)
+}
+
+export declare namespace watchUpdateQuoteToken {
+  export type Parameters<config extends Config> = ChainIdParameter<config> &
+    viem_Actions.watchUpdateQuoteToken.Parameters
 }

@@ -700,15 +700,18 @@ For read-only hooks that fetch data:
 - Use `useQuery` from `wagmi/query`
 - Use `useConfig` and `useChainId` from `wagmi`
 - Call the corresponding action's `queryOptions` function
-- May include `enabled` logic based on required parameters
+- All parameters should be optional. Use `ExactPartial` to make all query parameters optional
 - Support optional `query` parameter for TanStack Query options
+- Default `parameters` to `{}` only if all parameters are truly optional (no required non-reactive parameters like `token`, `role`, etc.)
+- Include `enabled` logic to disable the query when required reactive parameters (e.g. addresses) are undefined
+- The `enabled` conditional must check ALL required reactive parameters (e.g., `account && spender` for allowance checks)
 
 ```typescript
 export function useMyAction<
   config extends Config = ResolvedRegister['config'],
   selectData = myAction.ReturnValue,
->(parameters: useMyAction.Parameters<config, selectData>) {
-  const { query = {} } = parameters
+>(parameters: useMyAction.Parameters<config, selectData> = {}) {
+  const { account, query = {} } = parameters
 
   const config = useConfig(parameters)
   const chainId = useChainId({ config })
@@ -717,10 +720,10 @@ export function useMyAction<
     ...parameters,
     chainId: parameters.chainId ?? chainId,
     query: undefined,
-  })
-  const enabled = Boolean(/* (e.g. `parameters.account`) */ && (query.enabled ?? true))
+  } as never)
+  const enabled = Boolean(account && (query.enabled ?? true))
 
-  return useQuery({ ...query, ...options })
+  return useQuery({ ...query, ...options, enabled })
 }
 ```
 
@@ -770,6 +773,70 @@ export function useMyActionSync<
 }
 ```
 
+#### Watch Hooks
+
+For event watching hooks:
+
+- Call the corresponding action's watch function inside `useEffect`
+- All parameters should be optional using `ExactPartial`
+- Include an `enabled` parameter (defaults to `true`) to control whether the watcher is active
+- Check if the callback is defined before setting up the watcher
+- Return the unwatch function from the `useEffect` for cleanup
+
+All watch hooks must include comprehensive JSDoc with:
+1. **Function description** - What events the hook watches for
+2. **`@example` block** - Complete working example showing hook usage in a React component
+3. **`@param` tag** - Parameters description
+
+```typescript
+/**
+ * Hook for watching TIP20 token mint events.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   Hooks.token.useWatchMint({
+ *     onMint(args) {
+ *       console.log('Mint:', args)
+ *     },
+ *   })
+ *
+ *   return <div>Watching for mints...</div>
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ */
+export function useWatchMyEvent<
+  config extends Config = ResolvedRegister['config'],
+>(parameters: useWatchMyEvent.Parameters<config> = {}) {
+  const { enabled = true, onMyEvent, ...rest } = parameters
+
+  const config = useConfig({ config: parameters.config })
+  const configChainId = useChainId({ config })
+  const chainId = parameters.chainId ?? configChainId
+
+  useEffect(() => {
+    if (!enabled) return
+    if (!onMyEvent) return
+    return Actions.watchMyEvent(config, {
+      ...rest,
+      chainId,
+      onMyEvent,
+    })
+  }, [config, enabled, onMyEvent, rest])
+}
+
+export declare namespace useWatchMyEvent {
+  type Parameters<config extends Config = Config> = UnionCompute<
+    ExactPartial<Actions.watchMyEvent.Parameters<config>> &
+      ConfigParameter<config> & { enabled?: boolean | undefined }
+  >
+}
+```
+
 #### Namespace Properties
 
 ##### Query Hooks
@@ -780,7 +847,7 @@ All query hooks must include the following components:
 export function useMyAction<
   config extends Config = ResolvedRegister['config'],
   selectData = myAction.ReturnValue,
->(parameters: useMyAction.Parameters<config, selectData>) { ... }
+>(parameters: useMyAction.Parameters<config, selectData> = {}) { ... }
 
 export declare namespace useMyAction {
   export type Parameters<
@@ -793,13 +860,36 @@ export declare namespace useMyAction {
       selectData,
       myAction.QueryKey<config>
     > &
-    Omit<myAction.queryOptions.Parameters<config, selectData>, 'query'>
+    ExactPartial<
+      Omit<myAction.queryOptions.Parameters<config, selectData>, 'query'>
+    >
 
   export type ReturnValue<selectData = myAction.ReturnValue> =
     UseQueryReturnType<selectData, Error>
 }
 ```
 
+**Note:** Use `ExactPartial<T>` to make all query parameters optional. This ensures that reactive parameters can be undefined initially and populated later for proper reactivity.
+
+
+##### Watch Hooks
+
+All watch hooks must include the following components:
+
+```typescript
+export function useWatchMyEvent<
+  config extends Config = ResolvedRegister['config'],
+>(parameters: useWatchMyEvent.Parameters<config> = {}) { ... }
+
+export declare namespace useWatchMyEvent {
+  type Parameters<config extends Config = Config> = UnionCompute<
+    ExactPartial<Actions.watchMyEvent.Parameters<config>> &
+      ConfigParameter<config> & { enabled?: boolean | undefined }
+  >
+}
+```
+
+**Note:** Watch hooks don't have a return value - they set up event listeners in a `useEffect` and automatically clean up when the component unmounts or dependencies change.
 
 ##### Mutation Hooks
 
@@ -884,34 +974,50 @@ See `src/wagmi/Hooks/fee.test.ts` for a comprehensive example of test patterns a
 Organize tests by hook name with a default test case. Use namespace imports for cleaner code when importing hooks:
 
 ```typescript
+import { type Address } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
 import { accounts } from '../../../test/viem/config.js'
 import { config, renderHook } from '../../../test/wagmi/config.js'
 import * as hooks from './myAction.js'
-import type { Account } from 'viem'
 
 // Query hooks
 describe('useMyAction', () => {
   test('default', async () => {
-    let account: Account | undefined
+    const { result } = await renderHook(() =>
+      hooks.useMyAction({ account: account.address }),
+    )
+
+    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
+
+    expect(result.current.data).toBeDefined()
+    // Additional assertions...
+  })
+
+  test('reactivity: account parameter', async () => {
+    let accountAddress: Address | undefined
+
     const { result, rerender } = await renderHook(() =>
-      hooks.useMyAction({ account }),
+      hooks.useMyAction({ account: accountAddress }),
     )
 
     await vi.waitFor(() => result.current.fetchStatus === 'fetching')
 
-    // Verify initial state (disabled/pending when required params missing)
-    expect(result.current).toMatchInlineSnapshot(`...`)
+    // Should be disabled when account is undefined
+    expect(result.current.data).toBeUndefined()
+    expect(result.current.isPending).toBe(true)
+    expect(result.current.isEnabled).toBe(false)
 
-    // Set required parameter and rerender
-    account = accounts[0]
+    // Set account
+    accountAddress = account.address
     rerender()
 
     await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
-    // Verify successful state
-    expect(result.current).toMatchInlineSnapshot(`...`)
+    // Should now be enabled and have data
+    expect(result.current.isEnabled).toBe(true)
+    expect(result.current.data).toBeDefined()
+    // Additional assertions...
   })
 })
 
@@ -962,6 +1068,41 @@ describe('useMyActionSync', () => {
     await vi.waitFor(() =>
       expect(result.current.myAction.isSuccess).toBeTruthy(),
     )
+  })
+})
+
+// Watch hooks
+describe('useWatchMyEvent', () => {
+  test('default', async () => {
+    const { result: connectResult } = await renderHook(() => ({
+      connect: useConnect(),
+      createSync: hooks.useCreateSync(),
+      // ... any other setup hooks needed
+    }))
+
+    await connectResult.current.connect.connectAsync({
+      connector: config.connectors[0]!,
+    })
+
+    // Include any necessary setup (e.g., create token, grant roles)
+
+    const events: any[] = []
+    await renderHook(() =>
+      hooks.useWatchMyEvent({
+        // ... parameters
+        onMyEvent(args) {
+          events.push(args)
+        },
+      }),
+    )
+
+    // Trigger the event by calling a sync action
+    // e.g., await connectResult.current.myActionSync.mutateAsync({ ... })
+
+    await vi.waitUntil(() => events.length >= 1)
+
+    expect(events.length).toBeGreaterThanOrEqual(1)
+    expect(events[0]?.someField).toBe(expectedValue)
   })
 })
 ```
