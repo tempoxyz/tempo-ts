@@ -234,6 +234,215 @@ describe('sendTransaction', () => {
     })
   })
 
+  describe('secp256k1 (with Account.fromSecp256k1)', () => {
+    test('default', async () => {
+      const account = Account.fromSecp256k1(
+        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      )
+
+      const hash = await client.sendTransaction({
+        account,
+        data: '0xdeadbeef',
+        feeToken: '0x20c0000000000000000000000000000000000001',
+        to: '0x0000000000000000000000000000000000000000',
+      })
+      await client.waitForTransactionReceipt({ hash })
+
+      const {
+        blockHash: _,
+        blockNumber: __,
+        ...transaction
+      } = await client.getTransaction({ hash })
+
+      expect(transaction).toMatchInlineSnapshot(`
+        {
+          "accessList": [],
+          "authorizationList": undefined,
+          "calls": [
+            {
+              "data": "0xdeadbeef",
+              "to": "0x0000000000000000000000000000000000000000",
+              "value": 0n,
+            },
+          ],
+          "chainId": 1337,
+          "data": undefined,
+          "feePayerSignature": undefined,
+          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "gas": 24002n,
+          "gasPrice": 44n,
+          "hash": "0x91c1c55e893015734d9173b991ad0dbad176656bcdd122b237ad8e66c8bb8d27",
+          "maxFeePerBlobGas": undefined,
+          "maxFeePerGas": 52n,
+          "maxPriorityFeePerGas": 0n,
+          "nonce": 0,
+          "nonceKey": 0n,
+          "signature": {
+            "signature": {
+              "r": 109138999611428423935638076183946123521306623193860567277616743266345498830820n,
+              "s": 12860439641179187070338651426150505874828490137488252860826886918175099614794n,
+              "yParity": 1,
+            },
+            "type": "secp256k1",
+          },
+          "to": null,
+          "transactionIndex": 0,
+          "type": "aa",
+          "typeHex": "0x76",
+          "v": undefined,
+          "validAfter": null,
+          "validBefore": null,
+          "value": 0n,
+          "yParity": undefined,
+        }
+      `)
+    })
+
+    test('with calls', async () => {
+      const account = Account.fromSecp256k1(
+        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      )
+
+      const hash = await client.sendTransaction({
+        account,
+        calls: [
+          actions.token.create.call({
+            admin: account.address,
+            currency: 'USD',
+            name: 'Test Token fromSecp256k1',
+            symbol: 'TESTSK1',
+          }),
+        ],
+      })
+      await client.waitForTransactionReceipt({ hash })
+
+      const transaction = await client.getTransaction({ hash })
+      expect({
+        ...transaction,
+        blockHash: undefined,
+        blockNumber: undefined,
+      }).toMatchInlineSnapshot(`
+        {
+          "accessList": [],
+          "authorizationList": undefined,
+          "blockHash": undefined,
+          "blockNumber": undefined,
+          "calls": [
+            {
+              "data": "0xb395b9ac00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000020c0000000000000000000000000000000000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000000000000000000000000000000000000000000185465737420546f6b656e2066726f6d536563703235366b310000000000000000000000000000000000000000000000000000000000000000000000000000000754455354534b310000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000035553440000000000000000000000000000000000000000000000000000000000",
+              "to": "0x20fc000000000000000000000000000000000000",
+              "value": 0n,
+            },
+          ],
+          "chainId": 1337,
+          "data": undefined,
+          "feePayerSignature": undefined,
+          "feeToken": null,
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "gas": 27172n,
+          "gasPrice": 44n,
+          "hash": "0x400e275e1540c17086b05ecd6e4daa37fddafbd676b47b1f0981bc8216eb654a",
+          "maxFeePerBlobGas": undefined,
+          "maxFeePerGas": 52n,
+          "maxPriorityFeePerGas": 0n,
+          "nonce": 0,
+          "nonceKey": 0n,
+          "signature": {
+            "signature": {
+              "r": 73995635588157864110703635405456507247469597044411573177334972366428354808217n,
+              "s": 37740248009926202386196453489803538196386444896263721074378075064733528728206n,
+              "yParity": 0,
+            },
+            "type": "secp256k1",
+          },
+          "to": null,
+          "transactionIndex": 0,
+          "type": "aa",
+          "typeHex": "0x76",
+          "v": undefined,
+          "validAfter": null,
+          "validBefore": null,
+          "value": 0n,
+          "yParity": undefined,
+        }
+      `)
+    })
+
+    test('with feePayer', async () => {
+      const account = Account.fromSecp256k1(
+        // unfunded PK
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+      const feePayer = mnemonicToAccount(
+        'test test test test test test test test test test test junk',
+      )
+
+      const hash = await client.sendTransaction({
+        account,
+        feePayer,
+        to: '0x0000000000000000000000000000000000000000',
+      })
+      await client.waitForTransactionReceipt({ hash })
+
+      const {
+        blockHash: _,
+        blockNumber: __,
+        ...transaction
+      } = await client.getTransaction({ hash })
+
+      expect(transaction).toMatchInlineSnapshot(`
+        {
+          "accessList": [],
+          "authorizationList": undefined,
+          "calls": [
+            {
+              "data": "0x",
+              "to": "0x0000000000000000000000000000000000000000",
+              "value": 0n,
+            },
+          ],
+          "chainId": 1337,
+          "data": undefined,
+          "feePayer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "feePayerSignature": {
+            "r": "0xbd4c2efa889264b73ea58da963f689c68ea3e79983e44804b87a42dba4d535e1",
+            "s": "0x5f60684acb7ab75a918e27ff7101eefed088d91faaf0bba0e7511a9e4aa0e1fd",
+            "v": 28n,
+            "yParity": 1,
+          },
+          "feeToken": null,
+          "from": "0x740474977e01d056f04a314b5537e4dd88f35952",
+          "gas": 23938n,
+          "gasPrice": 44n,
+          "hash": "0xab4e8c5d81e6844c0bf4849c2d1110a22830e7f6bf38e08ccf56fe096a2a6a92",
+          "maxFeePerBlobGas": undefined,
+          "maxFeePerGas": 52n,
+          "maxPriorityFeePerGas": 0n,
+          "nonce": 0,
+          "nonceKey": 0n,
+          "signature": {
+            "signature": {
+              "r": 57529433750104717587188830658740614931036289821226247990356551183525592780540n,
+              "s": 10002488104883700305011101877673344375623420672519358767427885699981263116256n,
+              "yParity": 1,
+            },
+            "type": "secp256k1",
+          },
+          "to": null,
+          "transactionIndex": 0,
+          "type": "aa",
+          "typeHex": "0x76",
+          "v": undefined,
+          "validAfter": null,
+          "validBefore": null,
+          "value": 0n,
+          "yParity": undefined,
+        }
+      `)
+    })
+  })
+
   describe('p256', () => {
     test('default', async () => {
       const account = Account.fromP256(

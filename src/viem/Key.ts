@@ -1,4 +1,5 @@
-import type * as Hex from 'ox/Hex'
+import * as Address from 'ox/Address'
+import * as Hex from 'ox/Hex'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
@@ -13,7 +14,7 @@ export type Key = {
   /** Expiry (in seconds) of the key. 0 = never. */
   expiry: number
   /** Public key. */
-  publicKey: PublicKey.PublicKey
+  publicKey: Hex.Hex
   /** Key role. */
   role: 'admin' | 'session'
   /** Sign function. */
@@ -62,9 +63,12 @@ export function fromSecp256k1(
   options: fromSecp256k1.Options = {},
 ) {
   const publicKey = Secp256k1.getPublicKey({ privateKey })
+  const publicKeyHex = PublicKey.toHex(publicKey, {
+    includePrefix: false,
+  })
   return from({
     ...options,
-    publicKey,
+    publicKey: publicKeyHex,
     sign: async ({ hash }) => {
       const signature = Secp256k1.sign({ payload: hash, privateKey })
       return SignatureEnvelope.serialize({ signature, type: 'secp256k1' })
@@ -86,9 +90,12 @@ export namespace fromSecp256k1 {
  */
 export function fromP256(privateKey: Hex.Hex, options: fromP256.Options = {}) {
   const publicKey = P256.getPublicKey({ privateKey })
+  const publicKeyHex = PublicKey.toHex(publicKey, {
+    includePrefix: false,
+  })
   return from({
     ...options,
-    publicKey,
+    publicKey: publicKeyHex,
     sign: async ({ hash }) => {
       const signature = P256.sign({ payload: hash, privateKey })
       return SignatureEnvelope.serialize({ publicKey, signature, type: 'p256' })
@@ -115,10 +122,13 @@ export function fromHeadlessWebAuthn(
   const { rpId, origin, ...rest } = options
 
   const publicKey = P256.getPublicKey({ privateKey })
+  const publicKeyHex = PublicKey.toHex(publicKey, {
+    includePrefix: false,
+  })
 
   return from({
     ...rest,
-    publicKey,
+    publicKey: publicKeyHex,
     sign: async ({ hash }) => {
       const { metadata, payload } = WebAuthnP256.getSignPayload({
         ...options,
@@ -165,11 +175,12 @@ export function fromWebAuthnP256(
 ): fromWebAuthnP256.ReturnValue {
   const { id } = credential
   const { rpId, getFn, ...rest } = options
+
   const publicKey = PublicKey.fromHex(credential.publicKey)
 
   return from({
     ...rest,
-    publicKey,
+    publicKey: credential.publicKey,
     sign: async ({ hash }) => {
       const { metadata, signature } = await WebAuthnP256.sign({
         challenge: hash,
@@ -219,9 +230,13 @@ export function fromWebCryptoP256(
 ): fromWebCryptoP256.ReturnValue {
   const { publicKey, privateKey } = keyPair
 
+  const publicKeyHex = PublicKey.toHex(publicKey, {
+    includePrefix: false,
+  })
+
   return from({
     ...options,
-    publicKey,
+    publicKey: publicKeyHex,
     sign: async ({ hash }) => {
       const signature = await WebCryptoP256.sign({ payload: hash, privateKey })
       return SignatureEnvelope.serialize({

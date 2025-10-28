@@ -1,5 +1,4 @@
 import * as Hex from 'ox/Hex'
-import * as PublicKey from 'ox/PublicKey'
 import type { LocalAccount } from 'viem'
 import {
   hashAuthorization,
@@ -27,12 +26,9 @@ export function toPrivateKeyAccount(
   parameters: toPrivateKeyAccount.Parameters,
 ): toPrivateKeyAccount.ReturnValue {
   const { address, key } = parameters
-  const publicKey = PublicKey.toHex(key.publicKey, {
-    includePrefix: false,
-  })
   return {
     address,
-    publicKey,
+    publicKey: key.publicKey,
     sign: key.sign,
     async signAuthorization(parameters) {
       const { chainId, nonce } = parameters

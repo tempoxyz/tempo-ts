@@ -1,16 +1,16 @@
 import type * as Hex from 'ox/Hex'
-import type * as PublicKey from 'ox/PublicKey'
+import * as PublicKey from 'ox/PublicKey'
 import { describe, expectTypeOf, test } from 'vitest'
 import * as Key from './Key.js'
 
 describe('from', () => {
   test('accepts all required properties', () => {
     const mockSign = async ({ hash }: { hash: Hex.Hex }) => hash as Hex.Hex
-    const publicKey: PublicKey.PublicKey = {
+    const publicKey = PublicKey.toHex({
       prefix: 4,
       x: 123n,
       y: 456n,
-    }
+    })
 
     const key = Key.from({
       publicKey,
@@ -29,11 +29,11 @@ describe('from', () => {
 
   test('expiry is optional', () => {
     const mockSign = async ({ hash }: { hash: Hex.Hex }) => hash as Hex.Hex
-    const publicKey: PublicKey.PublicKey = {
+    const publicKey = PublicKey.toHex({
       prefix: 4,
       x: 123n,
       y: 456n,
-    }
+    })
 
     const key = Key.from({
       publicKey,
@@ -47,11 +47,11 @@ describe('from', () => {
 
   test('role is optional', () => {
     const mockSign = async ({ hash }: { hash: Hex.Hex }) => hash as Hex.Hex
-    const publicKey: PublicKey.PublicKey = {
+    const publicKey = PublicKey.toHex({
       prefix: 4,
       x: 123n,
       y: 456n,
-    }
+    })
 
     const key = Key.from({
       publicKey,
@@ -65,11 +65,11 @@ describe('from', () => {
 
   test('both expiry and role are optional', () => {
     const mockSign = async ({ hash }: { hash: Hex.Hex }) => hash as Hex.Hex
-    const publicKey: PublicKey.PublicKey = {
+    const publicKey = PublicKey.toHex({
       prefix: 4,
       x: 123n,
       y: 456n,
-    }
+    })
 
     const key = Key.from({
       publicKey,
@@ -82,11 +82,11 @@ describe('from', () => {
 
   test('behavior: narrowed type - secp256k1', () => {
     const mockSign = async ({ hash }: { hash: Hex.Hex }) => hash as Hex.Hex
-    const publicKey: PublicKey.PublicKey = {
+    const publicKey = PublicKey.toHex({
       prefix: 4,
       x: 123n,
       y: 456n,
-    }
+    })
 
     const key = Key.from({
       publicKey,
@@ -99,11 +99,11 @@ describe('from', () => {
 
   test('behavior: narrowed type - p256', () => {
     const mockSign = async ({ hash }: { hash: Hex.Hex }) => hash as Hex.Hex
-    const publicKey: PublicKey.PublicKey = {
+    const publicKey = PublicKey.toHex({
       prefix: 4,
       x: 123n,
       y: 456n,
-    }
+    })
 
     const key = Key.from({
       publicKey,
@@ -116,11 +116,11 @@ describe('from', () => {
 
   test('behavior: narrowed type - webAuthn', () => {
     const mockSign = async ({ hash }: { hash: Hex.Hex }) => hash as Hex.Hex
-    const publicKey: PublicKey.PublicKey = {
+    const publicKey = PublicKey.toHex({
       prefix: 4,
       x: 123n,
       y: 456n,
-    }
+    })
 
     const key = Key.from({
       publicKey,
@@ -133,11 +133,11 @@ describe('from', () => {
 
   test('behavior: broadened type - Key.Type union', () => {
     const mockSign = async ({ hash }: { hash: Hex.Hex }) => hash as Hex.Hex
-    const publicKey: PublicKey.PublicKey = {
+    const publicKey = PublicKey.toHex({
       prefix: 4,
       x: 123n,
       y: 456n,
-    }
+    })
 
     const keyType: Key.Type = 'secp256k1'
     const key = Key.from({
@@ -151,11 +151,11 @@ describe('from', () => {
 
   test('behavior: narrowed role - admin', () => {
     const mockSign = async ({ hash }: { hash: Hex.Hex }) => hash as Hex.Hex
-    const publicKey: PublicKey.PublicKey = {
+    const publicKey = PublicKey.toHex({
       prefix: 4,
       x: 123n,
       y: 456n,
-    }
+    })
 
     const key = Key.from({
       publicKey,
@@ -169,11 +169,11 @@ describe('from', () => {
 
   test('behavior: narrowed role - session', () => {
     const mockSign = async ({ hash }: { hash: Hex.Hex }) => hash as Hex.Hex
-    const publicKey: PublicKey.PublicKey = {
+    const publicKey = PublicKey.toHex({
       prefix: 4,
       x: 123n,
       y: 456n,
-    }
+    })
 
     const key = Key.from({
       publicKey,
@@ -187,11 +187,11 @@ describe('from', () => {
 
   test('behavior: broadened role - union type', () => {
     const mockSign = async ({ hash }: { hash: Hex.Hex }) => hash as Hex.Hex
-    const publicKey: PublicKey.PublicKey = {
+    const publicKey = PublicKey.toHex({
       prefix: 4,
       x: 123n,
       y: 456n,
-    }
+    })
 
     const role: 'admin' | 'session' = 'admin'
     const key = Key.from({
@@ -206,11 +206,11 @@ describe('from', () => {
 
   test('behavior: narrowed expiry - literal', () => {
     const mockSign = async ({ hash }: { hash: Hex.Hex }) => hash as Hex.Hex
-    const publicKey: PublicKey.PublicKey = {
+    const publicKey = PublicKey.toHex({
       prefix: 4,
       x: 123n,
       y: 456n,
-    }
+    })
 
     const key = Key.from({
       publicKey,
@@ -224,11 +224,11 @@ describe('from', () => {
 
   test('behavior: broadened expiry - number', () => {
     const mockSign = async ({ hash }: { hash: Hex.Hex }) => hash as Hex.Hex
-    const publicKey: PublicKey.PublicKey = {
+    const publicKey = PublicKey.toHex({
       prefix: 4,
       x: 123n,
       y: 456n,
-    }
+    })
 
     const expiry: number = 1234567890
     const key = Key.from({
@@ -243,11 +243,11 @@ describe('from', () => {
 
   test('behavior: combined narrowed types', () => {
     const mockSign = async ({ hash }: { hash: Hex.Hex }) => hash as Hex.Hex
-    const publicKey: PublicKey.PublicKey = {
+    const publicKey = PublicKey.toHex({
       prefix: 4,
       x: 123n,
       y: 456n,
-    }
+    })
 
     const key = Key.from({
       publicKey,
@@ -264,11 +264,11 @@ describe('from', () => {
 
   test('behavior: combined broadened types', () => {
     const mockSign = async ({ hash }: { hash: Hex.Hex }) => hash as Hex.Hex
-    const publicKey: PublicKey.PublicKey = {
+    const publicKey = PublicKey.toHex({
       prefix: 4,
       x: 123n,
       y: 456n,
-    }
+    })
 
     const keyType: Key.Type = 'webAuthn'
     const role: 'admin' | 'session' = 'admin'
@@ -289,11 +289,11 @@ describe('from', () => {
 
   test('sign function signature', () => {
     const mockSign = async ({ hash }: { hash: Hex.Hex }) => hash as Hex.Hex
-    const publicKey: PublicKey.PublicKey = {
+    const publicKey = PublicKey.toHex({
       prefix: 4,
       x: 123n,
       y: 456n,
-    }
+    })
 
     const key = Key.from({
       publicKey,

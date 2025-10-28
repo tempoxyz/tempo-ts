@@ -1,7 +1,8 @@
-import type { WebCryptoP256 } from 'ox'
 import * as Address from 'ox/Address'
-import type * as Hex from 'ox/Hex'
+import * as Hex from 'ox/Hex'
+import * as PublicKey from 'ox/PublicKey'
 import type * as WebAuthnP256 from 'ox/WebAuthnP256'
+import type * as WebCryptoP256 from 'ox/WebCryptoP256'
 import * as internal from './internal/account.js'
 import * as Key from './Key.js'
 
@@ -25,12 +26,7 @@ export function fromHeadlessWebAuthn(
   options: fromHeadlessWebAuthn.Options,
 ) {
   const key = Key.fromHeadlessWebAuthn(privateKey, options)
-  const address = Address.fromPublicKey(key.publicKey)
-
-  return internal.toPrivateKeyAccount({
-    address,
-    key,
-  })
+  return fromKey(key)
 }
 
 export declare namespace fromHeadlessWebAuthn {
@@ -41,6 +37,37 @@ export declare namespace fromHeadlessWebAuthn {
     rpId: string
     origin: string
   }
+}
+
+/**
+ * Instantiates an Account from a root signing Key.
+ *
+ * @example
+ * ```ts
+ * import { Account, Key } from 'tempo.ts/viem'
+ *
+ * const key = Key.fromSecp256k1('0x...')
+ * const account = Account.fromKey(key)
+ * ```
+ *
+ * @param key Key.
+ * @returns Account.
+ */
+export function fromKey(key: Key.Key) {
+  const address = (() => {
+    if (key.type === 'secp256k1') {
+      const publicKey = key.publicKey
+      const isAddress =
+        Hex.size(publicKey) === 20 ||
+        Hex.toBigInt(Hex.slice(publicKey, 0, 12)) === 0n
+      if (isAddress) return Hex.slice(publicKey, -20)
+    }
+    return Address.fromPublicKey(PublicKey.fromHex(key.publicKey))
+  })()
+  return internal.toPrivateKeyAccount({
+    address,
+    key,
+  })
 }
 
 /**
@@ -58,12 +85,7 @@ export declare namespace fromHeadlessWebAuthn {
  */
 export function fromP256(privateKey: Hex.Hex) {
   const key = Key.fromP256(privateKey)
-  const address = Address.fromPublicKey(key.publicKey)
-
-  return internal.toPrivateKeyAccount({
-    address,
-    key,
-  })
+  return fromKey(key)
 }
 
 /**
@@ -82,12 +104,7 @@ export function fromP256(privateKey: Hex.Hex) {
 // TODO: this function will be redundant when Viem migrates to Ox.
 export function fromSecp256k1(privateKey: Hex.Hex) {
   const key = Key.fromSecp256k1(privateKey)
-  const address = Address.fromPublicKey(key.publicKey)
-
-  return internal.toPrivateKeyAccount({
-    address,
-    key,
-  })
+  return fromKey(key)
 }
 
 /**
@@ -152,12 +169,7 @@ export function fromWebAuthnP256(
   options: fromWebAuthnP256.Options = {},
 ) {
   const key = Key.fromWebAuthnP256(credential, options)
-  const address = Address.fromPublicKey(key.publicKey)
-
-  return internal.toPrivateKeyAccount({
-    address,
-    key,
-  })
+  return fromKey(key)
 }
 
 export declare namespace fromWebAuthnP256 {
@@ -186,10 +198,5 @@ export function fromWebCryptoP256(
   keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>,
 ) {
   const key = Key.fromWebCryptoP256(keyPair)
-  const address = Address.fromPublicKey(key.publicKey)
-
-  return internal.toPrivateKeyAccount({
-    address,
-    key,
-  })
+  return fromKey(key)
 }
