@@ -5,7 +5,10 @@ export * as Addresses from './Addresses.js'
 export * as Chain from './Chain.js'
 export * as Client from './Client.js'
 export { createTempoClient } from './Client.js'
-export { decorator as tempoActions } from './Decorator.js'
+export {
+  type Decorator as TempoActions,
+  decorator as tempoActions,
+} from './Decorator.js'
 export * as Formatters from './Formatters.js'
 export * as P256 from './P256.js'
 export * as Secp256k1 from './Secp256k1.js'

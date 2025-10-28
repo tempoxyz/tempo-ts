@@ -22,6 +22,7 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
     chain = path.resolve(import.meta.dirname, './internal/chain.json'),
     dev,
     faucet,
+    log = process.env.RUST_LOG,
     ...args
   } = parameters
   const { deadline = 3, gaslimit = 3000000000, maxTasks = 8 } = builder ?? {}
@@ -33,7 +34,7 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
   } = faucet ?? {}
 
   const name = 'tempo'
-  const process = execa({ name })
+  const process_ = execa({ name })
 
   const tmp = `./tmp/${crypto.randomUUID()}`
 
@@ -41,7 +42,7 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
     _internal: {
       args,
       get process() {
-        return process._internal.process
+        return process_._internal.process
       },
     },
     host: args.host ?? 'localhost',
@@ -52,9 +53,15 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
         fs.rmSync(tmp, { recursive: true })
       } catch {}
       fs.mkdirSync(tmp, { recursive: true })
-      return await process.start(
+
+      const env: Record<string, string> = {}
+      if (log && typeof log !== 'boolean') env.RUST_LOG = log
+
+      return await process_.start(
         ($) =>
-          $`${binary} node --http --dev --no-consensus --engine.disable-precompile-cache --faucet.enabled ${toArgs(
+          $(
+            Object.keys(env).length > 0 ? { env } : {},
+          )`${binary} node --http --dev --no-consensus --engine.disable-precompile-cache --faucet.enabled ${toArgs(
             {
               ...args,
               builder: {
@@ -92,11 +99,13 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
           resolver({ process, reject, resolve }) {
             process.stdout.on('data', (data) => {
               const message = data.toString()
+              if (log) console.log(message)
               if (message.includes('shutting down')) reject(message)
               if (message.includes('RPC HTTP server started')) resolve()
             })
             process.stderr.on('data', (data) => {
               const message = data.toString()
+              if (log) console.error(message)
               reject(message)
             })
           },
@@ -107,7 +116,7 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
       try {
         fs.rmSync(tmp, { recursive: true })
       } catch {}
-      await process.stop()
+      await process_.stop()
     },
   }
 })
@@ -170,6 +179,19 @@ export declare namespace tempo {
            */
           privateKey?: string | undefined
         }
+      | undefined
+    /**
+     * Rust log level configuration (sets RUST_LOG environment variable).
+     * Can be a log level or a custom filter string.
+     */
+    log?:
+      | 'trace'
+      | 'debug'
+      | 'info'
+      | 'warn'
+      | 'error'
+      | (string & {})
+      | boolean
       | undefined
     /**
      * Host the server will listen on.
