@@ -1,5 +1,5 @@
-import * as Hex from 'ox/Hex'
 import * as Hash from 'ox/Hash'
+import * as Hex from 'ox/Hex'
 import * as TokenId from './TokenId.js'
 
 /**
