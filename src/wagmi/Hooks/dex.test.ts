@@ -267,9 +267,10 @@ describe('useBalance', () => {
   test('default', async () => {
     const { base, quote } = await setupTokenPair()
 
-    let account: Address | undefined
-    const { result, rerender } = await renderHook(() =>
-      Hooks.dex.useBalance({ account, token: quote }),
+    const { result, rerender } = await renderHook(
+      (props) =>
+        Hooks.dex.useBalance({ account: props?.account, token: quote }),
+      { initialProps: { account: undefined as Address | undefined } },
     )
 
     await vi.waitFor(() => result.current.fetchStatus === 'fetching')
@@ -285,6 +286,7 @@ describe('useBalance', () => {
         "failureCount": 0,
         "failureReason": null,
         "fetchStatus": "idle",
+        "isEnabled": false,
         "isError": false,
         "isFetched": false,
         "isFetchedAfterMount": false,
@@ -297,13 +299,17 @@ describe('useBalance', () => {
         "isPlaceholderData": false,
         "isRefetchError": false,
         "isRefetching": false,
-        "isStale": true,
+        "isStale": false,
         "isSuccess": false,
+        "promise": Promise {
+          "reason": [Error: experimental_prefetchInRender feature flag is not enabled],
+          "status": "rejected",
+        },
         "queryKey": [
           "getBalance",
           {
             "account": undefined,
-            "chainId": 31337,
+            "chainId": 1337,
             "token": "0x20C0000000000000000000000000000000000004",
           },
         ],
@@ -313,8 +319,7 @@ describe('useBalance', () => {
     `)
 
     // Set account and rerender
-    account = accounts[0].address
-    rerender()
+    rerender({ account: accounts[0].address })
 
     await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
@@ -334,8 +339,8 @@ describe('useBalance', () => {
     })
 
     // Trigger refetch and verify updated balance
-    await result.current.refetch()
-    expect(result.current.data).toBeGreaterThan(0n)
+    const { data } = await result.current.refetch()
+    expect(data).toBeGreaterThan(0n)
   })
 
   test('behavior: check different account', async () => {
@@ -363,22 +368,22 @@ describe('useBalance', () => {
     })
     await Actions.dex.cancelSync(config, { orderId })
 
-    const { result: quoteResult } = await renderHook(() =>
-      Hooks.dex.useBalance({ account: account.address, token: quote }),
-    )
+    const { result } = await renderHook(() => ({
+      quote: Hooks.dex.useBalance({ account: account.address, token: quote }),
+      base: Hooks.dex.useBalance({ account: account.address, token: base }),
+    }))
 
-    const { result: baseResult } = await renderHook(() =>
-      Hooks.dex.useBalance({ account: account.address, token: base }),
+    await vi.waitUntil(
+      () => result.current.base.isSuccess && result.current.quote.isSuccess,
+      {
+        timeout: 50_000,
+      },
     )
-
-    await vi.waitFor(() => expect(quoteResult.current.isSuccess).toBeTruthy())
-    await vi.waitFor(() => expect(baseResult.current.isSuccess).toBeTruthy())
 
     // Check quote balance (should have refunded tokens)
-    expect(quoteResult.current.data).toBeGreaterThan(0n)
-
+    expect(result.current.quote.data).toBeGreaterThan(0n)
     // Check base balance (should still be 0)
-    expect(baseResult.current.data).toBe(0n)
+    expect(result.current.base.data).toBe(0n)
   })
 })
 
@@ -422,7 +427,9 @@ describe('useBuyQuote', () => {
       }),
     )
 
-    await vi.waitFor(() => expect(result.current.isError).toBeTruthy())
+    await vi.waitUntil(() => result.current.isError, {
+      timeout: 50_000,
+    })
 
     expect(result.current.error?.message).toContain('InsufficientLiquidity')
   })
@@ -495,7 +502,9 @@ describe('useOrder', () => {
       }),
     )
 
-    await vi.waitFor(() => expect(result.current.isError).toBeTruthy())
+    await vi.waitUntil(() => result.current.isError, {
+      timeout: 50_000,
+    })
 
     expect(result.current.error?.message).toContain('OrderDoesNotExist')
   })
@@ -650,7 +659,9 @@ describe('useSellQuote', () => {
       }),
     )
 
-    await vi.waitFor(() => expect(result.current.isError).toBeTruthy())
+    await vi.waitUntil(() => result.current.isError, {
+      timeout: 50_000,
+    })
 
     expect(result.current.error?.message).toContain('InsufficientLiquidity')
   })

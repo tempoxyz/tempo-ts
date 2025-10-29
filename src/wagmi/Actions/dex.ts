@@ -1328,6 +1328,51 @@ export declare namespace watchOrderCancelled {
 }
 
 /**
+ * Watches for order filled events on the DEX.
+ *
+ * @example
+ * ```ts
+ * import { createConfig, http } from '@wagmi/core'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/wagmi'
+ *
+ * const config = createConfig({
+ *   chains: [tempo],
+ *   transports: {
+ *     [tempo.id]: http(),
+ *   },
+ * })
+ *
+ * const unwatch = Actions.dex.watchOrderFilled(config, {
+ *   onOrderFilled: (args, log) => {
+ *     console.log('Order filled:', args)
+ *   },
+ * })
+ * ```
+ *
+ * @param config - Config.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchOrderFilled<config extends Config>(
+  config: config,
+  parameters: watchOrderFilled.Parameters<config>,
+) {
+  const { chainId, ...rest } = parameters
+  const client = config.getClient({ chainId })
+  return viem_Actions.watchOrderFilled(client, rest)
+}
+
+export declare namespace watchOrderFilled {
+  export type Parameters<config extends Config> = ChainIdParameter<config> &
+    viem_Actions.watchOrderFilled.Parameters
+
+  export type Args = viem_Actions.watchOrderFilled.Args
+
+  export type Log = viem_Actions.watchOrderFilled.Log
+}
+
+/**
  * Watches for order placement events on the DEX.
  *
  * @example
