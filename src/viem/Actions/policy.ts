@@ -1,6 +1,7 @@
 import {
   type Account,
   type Address,
+  type BaseErrorType,
   type Chain,
   type Client,
   type ExtractAbiItem,
@@ -90,6 +91,9 @@ export namespace create {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -259,6 +263,9 @@ export namespace createSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -311,6 +318,9 @@ export namespace setAdmin {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -456,6 +466,9 @@ export namespace setAdminSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -511,6 +524,9 @@ export namespace modifyWhitelist {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -663,6 +679,9 @@ export namespace modifyWhitelistSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -718,6 +737,9 @@ export namespace modifyBlacklist {
   }
 
   export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -870,6 +892,9 @@ export namespace modifyBlacklistSync {
       receipt: TransactionReceipt
     }
   >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
