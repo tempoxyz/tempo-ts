@@ -15,6 +15,20 @@ export const tempoAndante = /*#__PURE__*/ defineChain({
   },
 })
 
+export const tempoDev = /*#__PURE__*/ defineChain({
+  ...Chain.config,
+  id: 42427,
+  name: 'Tempo Devnet',
+  nativeCurrency: {
+    name: 'USD',
+    symbol: 'USD',
+    decimals: 6,
+  },
+  rpcUrls: {
+    default: { http: ['https://rpc-devnet.tempoxyz.dev'] },
+  },
+})
+
 export const tempoLocal = /*#__PURE__*/ defineChain({
   ...Chain.config,
   id: 1337,

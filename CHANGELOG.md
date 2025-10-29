@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.1.5
+
+### Patch Changes
+
+- [`09eb31f`](https://github.com/tempoxyz/tempo-ts/commit/09eb31fa3050bff0f9dc9b459656c2ce4b2297f9) Thanks [@jxom](https://github.com/jxom)! - Added `log` option to `tempo` instance.
+
 ## 0.1.4
 
 ### Patch Changes
