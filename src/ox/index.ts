@@ -1,3 +1,4 @@
+export * as PoolId from './PoolId.js'
 export * as SignatureEnvelope from './SignatureEnvelope.js'
 export * as TokenId from './TokenId.js'
 export * as TokenRole from './TokenRole.js'

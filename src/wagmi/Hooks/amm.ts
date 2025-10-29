@@ -15,72 +15,6 @@ import type { ExactPartial, UnionCompute } from '../../internal/types.js'
 import * as Actions from '../Actions/amm.js'
 
 /**
- * Hook for getting the pool ID for a token pair.
- *
- * @example
- * ```tsx
- * import { Hooks } from 'tempo.ts/wagmi'
- *
- * function App() {
- *   const { data, isLoading } = Hooks.amm.usePoolId({
- *     userToken: '0x...',
- *     validatorToken: '0x...',
- *   })
- *
- *   if (isLoading) return <div>Loading...</div>
- *   return <div>Pool ID: {data}</div>
- * }
- * ```
- *
- * @param parameters - Parameters.
- * @returns Query result with the pool ID.
- */
-export function usePoolId<
-  config extends Config = ResolvedRegister['config'],
-  selectData = Actions.getPoolId.ReturnValue,
->(parameters: usePoolId.Parameters<config, selectData>) {
-  const { userToken, validatorToken, query = {} } = parameters
-
-  const config = useConfig(parameters)
-  const chainId = useChainId({ config })
-
-  const options = Actions.getPoolId.queryOptions(config, {
-    ...parameters,
-    chainId: parameters.chainId ?? chainId,
-    query: undefined,
-  } as never)
-  const enabled = Boolean(
-    userToken !== undefined &&
-      validatorToken !== undefined &&
-      (query.enabled ?? true),
-  )
-
-  return useQuery({ ...query, ...options, enabled })
-}
-
-export declare namespace usePoolId {
-  export type Parameters<
-    config extends Config = ResolvedRegister['config'],
-    selectData = Actions.getPoolId.ReturnValue,
-  > = ConfigParameter<config> &
-    QueryParameter<
-      Actions.getPoolId.ReturnValue,
-      DefaultError,
-      selectData,
-      Actions.getPoolId.QueryKey<config>
-    > &
-    ExactPartial<
-      Omit<
-        Actions.getPoolId.queryOptions.Parameters<config, selectData>,
-        'query'
-      >
-    >
-
-  export type ReturnValue<selectData = Actions.getPoolId.ReturnValue> =
-    UseQueryReturnType<selectData, Error>
-}
-
-/**
  * Hook for getting the reserves for a liquidity pool.
  *
  * @example
@@ -149,72 +83,6 @@ export declare namespace usePool {
 }
 
 /**
- * Hook for getting the total supply of LP tokens for a pool.
- *
- * @example
- * ```tsx
- * import { Hooks } from 'tempo.ts/wagmi'
- *
- * function App() {
- *   const { data: poolId } = Hooks.amm.usePoolId({
- *     userToken: '0x...',
- *     validatorToken: '0x...',
- *   })
- *
- *   const { data, isLoading } = Hooks.amm.useTotalSupply({
- *     poolId,
- *   })
- *
- *   if (isLoading) return <div>Loading...</div>
- *   return <div>Total Supply: {data?.toString()}</div>
- * }
- * ```
- *
- * @param parameters - Parameters.
- * @returns Query result with the total supply of LP tokens.
- */
-export function useTotalSupply<
-  config extends Config = ResolvedRegister['config'],
-  selectData = Actions.getTotalSupply.ReturnValue,
->(parameters: useTotalSupply.Parameters<config, selectData> = {}) {
-  const { poolId, query = {} } = parameters
-
-  const config = useConfig(parameters)
-  const chainId = useChainId({ config })
-
-  const options = Actions.getTotalSupply.queryOptions(config, {
-    ...parameters,
-    chainId: parameters.chainId ?? chainId,
-    query: undefined,
-  } as never)
-  const enabled = Boolean(poolId && (query.enabled ?? true))
-
-  return useQuery({ ...query, ...options, enabled })
-}
-
-export declare namespace useTotalSupply {
-  export type Parameters<
-    config extends Config = ResolvedRegister['config'],
-    selectData = Actions.getTotalSupply.ReturnValue,
-  > = ConfigParameter<config> &
-    QueryParameter<
-      Actions.getTotalSupply.ReturnValue,
-      DefaultError,
-      selectData,
-      Actions.getTotalSupply.QueryKey<config>
-    > &
-    ExactPartial<
-      Omit<
-        Actions.getTotalSupply.queryOptions.Parameters<config, selectData>,
-        'query'
-      >
-    >
-
-  export type ReturnValue<selectData = Actions.getTotalSupply.ReturnValue> =
-    UseQueryReturnType<selectData, Error>
-}
-
-/**
  * Hook for getting the LP token balance for an account in a specific pool.
  *
  * @example
@@ -244,7 +112,7 @@ export function useLiquidityBalance<
   config extends Config = ResolvedRegister['config'],
   selectData = Actions.getLiquidityBalance.ReturnValue,
 >(parameters: useLiquidityBalance.Parameters<config, selectData> = {}) {
-  const { address, poolId, query = {} } = parameters
+  const { address, poolId, userToken, validatorToken, query = {} } = parameters
 
   const config = useConfig(parameters)
   const chainId = useChainId({ config })
@@ -254,7 +122,11 @@ export function useLiquidityBalance<
     chainId: parameters.chainId ?? chainId,
     query: undefined,
   } as never)
-  const enabled = Boolean(address && poolId && (query.enabled ?? true))
+  const enabled = Boolean(
+    address &&
+      (poolId || (userToken !== undefined && validatorToken !== undefined)) &&
+      (query.enabled ?? true),
+  )
 
   return useQuery({ ...query, ...options, enabled })
 }

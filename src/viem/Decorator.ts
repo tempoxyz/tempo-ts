@@ -11,27 +11,6 @@ export type Decorator<
 > = {
   amm: {
     /**
-     * Gets the pool ID for a token pair.
-     *
-     * @example
-     * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
-     *
-     * const client = createTempoClient()
-     *
-     * const poolId = await client.amm.getPoolId({
-     *   userToken: '0x...',
-     *   validatorToken: '0x...',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The pool ID.
-     */
-    getPoolId: (
-      parameters: ammActions.getPoolId.Parameters,
-    ) => Promise<ammActions.getPoolId.ReturnValue>
-    /**
      * Gets the reserves for a liquidity pool.
      *
      * @example
@@ -52,29 +31,6 @@ export type Decorator<
     getPool: (
       parameters: ammActions.getPool.Parameters,
     ) => Promise<ammActions.getPool.ReturnValue>
-    /**
-     * Gets the total supply of LP tokens for a pool.
-     *
-     * @example
-     * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
-     *
-     * const client = createTempoClient()
-     *
-     * const poolId = await client.amm.getPoolId({
-     *   userToken: '0x...',
-     *   validatorToken: '0x...',
-     * })
-     *
-     * const totalSupply = await client.amm.getTotalSupply({ poolId })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The total supply of LP tokens.
-     */
-    getTotalSupply: (
-      parameters: ammActions.getTotalSupply.Parameters,
-    ) => Promise<ammActions.getTotalSupply.ReturnValue>
     /**
      * Gets the LP token balance for an account in a specific pool.
      *
@@ -2379,10 +2335,7 @@ export function decorator() {
   ): Decorator<chain, account> => {
     return {
       amm: {
-        getPoolId: (parameters) => ammActions.getPoolId(client, parameters),
         getPool: (parameters) => ammActions.getPool(client, parameters),
-        getTotalSupply: (parameters) =>
-          ammActions.getTotalSupply(client, parameters),
         getLiquidityBalance: (parameters) =>
           ammActions.getLiquidityBalance(client, parameters),
         rebalanceSwap: (parameters) =>

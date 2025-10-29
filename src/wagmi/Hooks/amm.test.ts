@@ -10,68 +10,6 @@ import * as tokenHooks from './token.js'
 
 const account = accounts[0]
 
-describe('usePoolId', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() =>
-      hooks.usePoolId({
-        userToken: Addresses.defaultFeeToken,
-        validatorToken: '0x20c0000000000000000000000000000000000001',
-      }),
-    )
-
-    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
-
-    expect(result.current.data).toMatchInlineSnapshot(
-      `"0x8d817539e245fc5135c31fa999ff2f8db11f3aec71a32e6cce211463e53576c7"`,
-    )
-  })
-
-  test('behavior: token id', async () => {
-    const { result } = await renderHook(() =>
-      hooks.usePoolId({
-        userToken: 0n,
-        validatorToken: 1n,
-      }),
-    )
-
-    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
-
-    expect(result.current.data).toMatchInlineSnapshot(
-      `"0x24fc92718dfd933b7f831893444e0dc6072ce0fff68198eaf48e86cb1f2ee2dc"`,
-    )
-  })
-
-  test('reactivity: token parameters', async () => {
-    let userToken: Address | undefined
-    let validatorToken: Address | undefined
-
-    const { result, rerender } = await renderHook(() =>
-      hooks.usePoolId({
-        userToken,
-        validatorToken,
-      }),
-    )
-
-    await vi.waitFor(() => result.current.fetchStatus === 'idle')
-
-    // Should be disabled when tokens are undefined
-    expect(result.current.data).toBeUndefined()
-    expect(result.current.isPending).toBe(true)
-    expect(result.current.isEnabled).toBe(false)
-
-    // Set tokens
-    userToken = Addresses.defaultFeeToken
-    validatorToken = '0x20c0000000000000000000000000000000000001'
-    rerender()
-
-    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
-
-    // Should now be enabled and have data
-    expect(result.current.isEnabled).toBe(true)
-    expect(result.current.data).toBeDefined()
-  })
-})
-
 describe('usePool', () => {
   test('default', async () => {
     const { result } = await renderHook(() =>
@@ -87,6 +25,7 @@ describe('usePool', () => {
       {
         "reserveUserToken": 0n,
         "reserveValidatorToken": 0n,
+        "totalSupply": 0n,
       }
     `)
   })
@@ -122,87 +61,32 @@ describe('usePool', () => {
   })
 })
 
-describe('useTotalSupply', () => {
-  test('default', async () => {
-    const { result: poolIdResult } = await renderHook(() =>
-      hooks.usePoolId({
-        userToken: Addresses.defaultFeeToken,
-        validatorToken: '0x20c0000000000000000000000000000000000001',
-      }),
-    )
-
-    await vi.waitFor(() => expect(poolIdResult.current.isSuccess).toBeTruthy())
-
-    const { result } = await renderHook(() =>
-      hooks.useTotalSupply({
-        poolId: poolIdResult.current.data,
-      }),
-    )
-
-    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
-
-    expect(result.current.data).toMatchInlineSnapshot(`0n`)
-  })
-
-  test('reactivity: poolId parameter', async () => {
-    let poolId: `0x${string}` | undefined
-
-    const { result, rerender } = await renderHook(() =>
-      hooks.useTotalSupply({
-        poolId,
-      }),
-    )
-
-    await vi.waitFor(() => result.current.fetchStatus === 'idle')
-
-    // Should be disabled when poolId is undefined
-    expect(result.current.data).toBeUndefined()
-    expect(result.current.isPending).toBe(true)
-    expect(result.current.isEnabled).toBe(false)
-
-    // Set poolId
-    poolId =
-      '0x8d817539e245fc5135c31fa999ff2f8db11f3aec71a32e6cce211463e53576c7'
-    rerender()
-
-    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
-
-    // Should now be enabled and have data
-    expect(result.current.isEnabled).toBe(true)
-    expect(result.current.data).toBeDefined()
-  })
-})
-
 describe('useLiquidityBalance', () => {
   test('default', async () => {
-    const { result: poolIdResult } = await renderHook(() =>
-      hooks.usePoolId({
+    const { result } = await renderHook(() =>
+      hooks.useLiquidityBalance({
+        address: account.address,
         userToken: Addresses.defaultFeeToken,
         validatorToken: '0x20c0000000000000000000000000000000000001',
       }),
     )
 
-    await vi.waitFor(() => expect(poolIdResult.current.isSuccess).toBeTruthy())
-
-    const { result } = await renderHook(() =>
-      hooks.useLiquidityBalance({
-        poolId: poolIdResult.current.data,
-        address: account.address,
-      }),
-    )
-
-    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
+    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy(), {
+      timeout: 5_000,
+    })
 
     expect(result.current.data).toMatchInlineSnapshot(`0n`)
   })
 
   test('reactivity: poolId and address parameters', async () => {
-    let poolId: `0x${string}` | undefined
+    let userToken: Address | undefined
+    let validatorToken: Address | undefined
     let address: Address | undefined
 
     const { result, rerender } = await renderHook(() =>
       hooks.useLiquidityBalance({
-        poolId,
+        userToken,
+        validatorToken,
         address,
       }),
     )
@@ -215,8 +99,8 @@ describe('useLiquidityBalance', () => {
     expect(result.current.isEnabled).toBe(false)
 
     // Set parameters
-    poolId =
-      '0x8d817539e245fc5135c31fa999ff2f8db11f3aec71a32e6cce211463e53576c7'
+    userToken = Addresses.defaultFeeToken
+    validatorToken = '0x20c0000000000000000000000000000000000001'
     address = account.address
     rerender()
 
@@ -291,7 +175,6 @@ describe('useBurnSync', () => {
     const { result } = await renderHook(() => ({
       connect: useConnect(),
       burnSync: hooks.useBurnSync(),
-      getPoolId: hooks.usePoolId,
       getLiquidityBalance: hooks.useLiquidityBalance,
     }))
 
@@ -303,18 +186,10 @@ describe('useBurnSync', () => {
     const { tokenAddress } = await setupPoolWithLiquidity(client)
 
     // Get LP balance before burn
-    const { result: poolIdResult } = await renderHook(() =>
-      result.current.getPoolId({
-        userToken: tokenAddress,
-        validatorToken: Addresses.defaultFeeToken,
-      }),
-    )
-
-    await vi.waitFor(() => expect(poolIdResult.current.isSuccess).toBeTruthy())
-
     const { result: balanceResult } = await renderHook(() =>
       result.current.getLiquidityBalance({
-        poolId: poolIdResult.current.data,
+        userToken: tokenAddress,
+        validatorToken: Addresses.defaultFeeToken,
         address: account.address,
       }),
     )
@@ -492,7 +367,6 @@ describe('useWatchBurn', () => {
     const { result: connectResult } = await renderHook(() => ({
       connect: useConnect(),
       burnSync: hooks.useBurnSync(),
-      getPoolId: hooks.usePoolId,
       getLiquidityBalance: hooks.useLiquidityBalance,
     }))
 
@@ -504,18 +378,10 @@ describe('useWatchBurn', () => {
     const { tokenAddress } = await setupPoolWithLiquidity(client)
 
     // Get LP balance
-    const { result: poolIdResult } = await renderHook(() =>
-      connectResult.current.getPoolId({
-        userToken: tokenAddress,
-        validatorToken: Addresses.defaultFeeToken,
-      }),
-    )
-
-    await vi.waitFor(() => expect(poolIdResult.current.isSuccess).toBeTruthy())
-
     const { result: balanceResult } = await renderHook(() =>
       connectResult.current.getLiquidityBalance({
-        poolId: poolIdResult.current.data,
+        userToken: tokenAddress,
+        validatorToken: Addresses.defaultFeeToken,
         address: account.address,
       }),
     )

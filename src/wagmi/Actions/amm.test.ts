@@ -9,41 +9,6 @@ import * as tokenActions from './token.js'
 
 const account = accounts[0]
 
-describe('getPoolId', () => {
-  test('default', async () => {
-    const poolId = await ammActions.getPoolId(config, {
-      userToken: Addresses.defaultFeeToken,
-      validatorToken: '0x20c0000000000000000000000000000000000001',
-    })
-    expect(poolId).toMatchInlineSnapshot(
-      `"0x8d817539e245fc5135c31fa999ff2f8db11f3aec71a32e6cce211463e53576c7"`,
-    )
-  })
-
-  test('behavior: token id', async () => {
-    const poolId = await ammActions.getPoolId(config, {
-      userToken: 0n,
-      validatorToken: 1n,
-    })
-    expect(poolId).toMatchInlineSnapshot(
-      `"0x24fc92718dfd933b7f831893444e0dc6072ce0fff68198eaf48e86cb1f2ee2dc"`,
-    )
-  })
-
-  describe('queryOptions', () => {
-    test('default', async () => {
-      const options = ammActions.getPoolId.queryOptions(config, {
-        userToken: Addresses.defaultFeeToken,
-        validatorToken: '0x20c0000000000000000000000000000000000001',
-      })
-      const poolId = await queryClient.fetchQuery(options)
-      expect(poolId).toMatchInlineSnapshot(
-        `"0x8d817539e245fc5135c31fa999ff2f8db11f3aec71a32e6cce211463e53576c7"`,
-      )
-    })
-  })
-})
-
 describe('getPool', () => {
   test('default', async () => {
     const pool = await ammActions.getPool(config, {
@@ -54,6 +19,7 @@ describe('getPool', () => {
       {
         "reserveUserToken": 0n,
         "reserveValidatorToken": 0n,
+        "totalSupply": 0n,
       }
     `)
   })
@@ -69,45 +35,18 @@ describe('getPool', () => {
         {
           "reserveUserToken": 0n,
           "reserveValidatorToken": 0n,
+          "totalSupply": 0n,
         }
       `)
     })
   })
 })
 
-describe('getTotalSupply', () => {
-  test('default', async () => {
-    const poolId = await ammActions.getPoolId(config, {
-      userToken: Addresses.defaultFeeToken,
-      validatorToken: '0x20c0000000000000000000000000000000000001',
-    })
-    const totalSupply = await ammActions.getTotalSupply(config, { poolId })
-    expect(totalSupply).toMatchInlineSnapshot(`0n`)
-  })
-
-  describe('queryOptions', () => {
-    test('default', async () => {
-      const poolId = await ammActions.getPoolId(config, {
-        userToken: Addresses.defaultFeeToken,
-        validatorToken: '0x20c0000000000000000000000000000000000001',
-      })
-      const options = ammActions.getTotalSupply.queryOptions(config, {
-        poolId,
-      })
-      const totalSupply = await queryClient.fetchQuery(options)
-      expect(totalSupply).toMatchInlineSnapshot(`0n`)
-    })
-  })
-})
-
 describe('getLiquidityBalance', () => {
   test('default', async () => {
-    const poolId = await ammActions.getPoolId(config, {
+    const balance = await ammActions.getLiquidityBalance(config, {
       userToken: Addresses.defaultFeeToken,
       validatorToken: '0x20c0000000000000000000000000000000000001',
-    })
-    const balance = await ammActions.getLiquidityBalance(config, {
-      poolId,
       address: account.address,
     })
     expect(balance).toMatchInlineSnapshot(`0n`)
@@ -115,12 +54,9 @@ describe('getLiquidityBalance', () => {
 
   describe('queryOptions', () => {
     test('default', async () => {
-      const poolId = await ammActions.getPoolId(config, {
+      const options = ammActions.getLiquidityBalance.queryOptions(config, {
         userToken: Addresses.defaultFeeToken,
         validatorToken: '0x20c0000000000000000000000000000000000001',
-      })
-      const options = ammActions.getLiquidityBalance.queryOptions(config, {
-        poolId,
         address: account.address,
       })
       const balance = await queryClient.fetchQuery(options)
@@ -195,12 +131,9 @@ describe('burnSync', () => {
     const { tokenAddress } = await setupPoolWithLiquidity(client)
 
     // Get LP balance before burn
-    const poolId = await ammActions.getPoolId(config, {
+    const lpBalanceBefore = await ammActions.getLiquidityBalance(config, {
       userToken: tokenAddress,
       validatorToken: Addresses.defaultFeeToken,
-    })
-    const lpBalanceBefore = await ammActions.getLiquidityBalance(config, {
-      poolId,
       address: account.address,
     })
 
