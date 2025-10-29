@@ -1,12 +1,12 @@
+import { getConnectorClient } from '@wagmi/core'
 import { Addresses } from 'tempo.ts/viem'
 import { type Address, parseEther } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
 import { accounts, setupPoolWithLiquidity } from '../../../test/viem/config.js'
 import { config, renderHook } from '../../../test/wagmi/config.js'
-import * as tokenHooks from './token.js'
 import * as hooks from './amm.js'
-import { getConnectorClient } from '@wagmi/core'
+import * as tokenHooks from './token.js'
 
 const account = accounts[0]
 

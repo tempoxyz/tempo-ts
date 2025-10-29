@@ -1,15 +1,15 @@
 import type { FixedArray } from '@wagmi/core/internal'
+import { Actions, Addresses } from 'tempo.ts/viem'
 import {
-  defineChain,
-  parseEther,
   type Account,
   type Chain,
   type Client,
+  defineChain,
   type LocalAccount,
+  parseEther,
   type Transport,
 } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
-import { Actions, Addresses } from 'tempo.ts/viem'
 import { tempoLocal } from '../../src/chains.js'
 import { createTempoClient } from '../../src/viem/Client.js'
 
