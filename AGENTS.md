@@ -995,10 +995,10 @@ describe('useMyAction', () => {
   })
 
   test('reactivity: account parameter', async () => {
-    let accountAddress: Address | undefined
-
-    const { result, rerender } = await renderHook(() =>
-      hooks.useMyAction({ account: accountAddress }),
+    const { result, rerender } = await renderHook(
+      (props) =>
+        hooks.useMyAction({ account: props?.account }),
+      { initialProps: { account: undefined as Address | undefined } },
     )
 
     await vi.waitFor(() => result.current.fetchStatus === 'fetching')
@@ -1009,8 +1009,7 @@ describe('useMyAction', () => {
     expect(result.current.isEnabled).toBe(false)
 
     // Set account
-    accountAddress = account.address
-    rerender()
+    rerender({ account: account.address })
 
     await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 

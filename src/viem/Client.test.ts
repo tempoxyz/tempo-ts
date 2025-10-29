@@ -11,8 +11,6 @@ test('createTempoClient', () => {
         "burnSync": [Function],
         "getLiquidityBalance": [Function],
         "getPool": [Function],
-        "getPoolId": [Function],
-        "getTotalSupply": [Function],
         "mint": [Function],
         "mintSync": [Function],
         "rebalanceSwap": [Function],

@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { connect, getAccount, getConnectorClient } from '@wagmi/core'
 import * as React from 'react'
 import { defineChain, http } from 'viem'
 import {
@@ -11,7 +12,11 @@ import {
 import { createConfig, WagmiProvider } from 'wagmi'
 import { tempoLocal } from '../../src/chains.js'
 import { dangerous_secp256k1 } from '../../src/wagmi/Connector.js'
-import { accounts } from '../viem/config.js'
+import {
+  accounts,
+  setupPoolWithLiquidity as viem_setupPoolWithLiquidity,
+  setupTokenPair as viem_setupTokenPair,
+} from '../viem/config.js'
 
 export const id =
   (typeof process !== 'undefined' &&
@@ -38,6 +43,9 @@ export const config = createConfig({
   connectors: [
     dangerous_secp256k1({
       account: accounts.at(0),
+    }),
+    dangerous_secp256k1({
+      account: accounts.at(1),
     }),
   ],
   pollingInterval: 100,
@@ -86,6 +94,24 @@ export function render(
     ...args[1],
     wrapper: createWrapper(WagmiProvider, { config, reconnectOnMount: false }),
   })
+}
+
+export async function setupPoolWithLiquidity() {
+  if (getAccount(config).status === 'disconnected')
+    await connect(config, {
+      connector: config.connectors[0]!,
+    })
+  const client = await getConnectorClient(config)
+  return viem_setupPoolWithLiquidity(client as never)
+}
+
+export async function setupTokenPair() {
+  if (getAccount(config).status === 'disconnected')
+    await connect(config, {
+      connector: config.connectors[0]!,
+    })
+  const client = await getConnectorClient(config)
+  return viem_setupTokenPair(client as never)
 }
 
 declare module 'wagmi' {

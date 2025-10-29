@@ -84,3 +84,69 @@ export async function setupPoolWithLiquidity(
 
   return { tokenAddress: token }
 }
+
+export async function setupTokenPair(
+  client: Client<Transport, Chain, Account>,
+) {
+  // Create quote token
+  const { token: quoteToken } = await Actions.token.createSync(client, {
+    name: 'Test Quote Token',
+    symbol: 'QUOTE',
+    currency: 'USD',
+  })
+
+  // Create base token
+  const { token: baseToken } = await Actions.token.createSync(client, {
+    name: 'Test Base Token',
+    symbol: 'BASE',
+    currency: 'USD',
+    quoteToken,
+  })
+
+  // Grant issuer role to mint base tokens
+  await Actions.token.grantRolesSync(client, {
+    token: baseToken,
+    roles: ['issuer'],
+    to: client.account.address,
+  })
+
+  // Grant issuer role to mint quote tokens
+  await Actions.token.grantRolesSync(client, {
+    token: quoteToken,
+    roles: ['issuer'],
+    to: client.account.address,
+  })
+
+  // Mint base tokens
+  await Actions.token.mintSync(client, {
+    token: baseToken,
+    to: client.account.address,
+    amount: parseEther('10000'),
+  })
+
+  // Mint quote tokens
+  await Actions.token.mintSync(client, {
+    token: quoteToken,
+    to: client.account.address,
+    amount: parseEther('10000'),
+  })
+
+  // Approve DEX to spend base tokens
+  await Actions.token.approveSync(client, {
+    token: baseToken,
+    spender: Addresses.stablecoinExchange,
+    amount: parseEther('10000'),
+  })
+
+  // Approve DEX to spend quote tokens
+  await Actions.token.approveSync(client, {
+    token: quoteToken,
+    spender: Addresses.stablecoinExchange,
+    amount: parseEther('10000'),
+  })
+
+  // Create the pair on the DEX
+  return await Actions.dex.createPairSync(client, {
+    base: baseToken,
+  })
+}

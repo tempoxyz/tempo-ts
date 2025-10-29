@@ -1,14 +1,20 @@
-import { Actions, Addresses, Tick } from 'tempo.ts/viem'
-import { parseEther } from 'viem'
+import { connect } from '@wagmi/core'
+import { Addresses, Tick } from 'tempo.ts/viem'
+import { Actions } from 'tempo.ts/wagmi'
+import { isAddress, parseEther } from 'viem'
 import { describe, expect, test } from 'vitest'
-import { accounts, client, setupTokenPair } from '../../../test/viem/config.js'
+import { accounts } from '../../../test/viem/config.js'
+import { config, setupTokenPair } from '../../../test/wagmi/config.js'
+
+const account = accounts[0]
+const account2 = accounts[1]
 
 describe('buy', () => {
   test('default', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // Place ask order to create liquidity
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('500'),
       type: 'sell',
@@ -16,12 +22,13 @@ describe('buy', () => {
     })
 
     // Get initial balances
-    const baseBalanceBefore = await Actions.token.getBalance(client, {
+    const baseBalanceBefore = await Actions.token.getBalance(config, {
       token: base,
+      account: account.address,
     })
 
     // Buy base tokens with quote tokens
-    const { receipt } = await Actions.dex.buySync(client, {
+    const { receipt } = await Actions.dex.buySync(config, {
       tokenIn: quote,
       tokenOut: base,
       amountOut: parseEther('100'),
@@ -32,8 +39,9 @@ describe('buy', () => {
     expect(receipt.status).toBe('success')
 
     // Verify balances changed
-    const baseBalanceAfter = await Actions.token.getBalance(client, {
+    const baseBalanceAfter = await Actions.token.getBalance(config, {
       token: base,
+      account: account.address,
     })
 
     // Should have received base tokens
@@ -41,10 +49,10 @@ describe('buy', () => {
   })
 
   test('behavior: respects maxAmountIn', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // Place ask order at high price
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('500'),
       type: 'sell',
@@ -53,7 +61,7 @@ describe('buy', () => {
 
     // Try to buy with insufficient maxAmountIn - should fail
     await expect(
-      Actions.dex.buySync(client, {
+      Actions.dex.buySync(config, {
         tokenIn: quote,
         tokenOut: base,
         amountOut: parseEther('100'),
@@ -76,13 +84,13 @@ describe('buy', () => {
   })
 
   test('behavior: fails with insufficient liquidity', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // Don't place any orders - no liquidity
 
     // Try to buy - should fail due to no liquidity
     await expect(
-      Actions.dex.buySync(client, {
+      Actions.dex.buySync(config, {
         tokenIn: quote,
         tokenOut: base,
         amountOut: parseEther('100'),
@@ -107,10 +115,10 @@ describe('buy', () => {
 
 describe('cancel', () => {
   test('default', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // Place a bid order
-    const { orderId } = await Actions.dex.placeSync(client, {
+    const { orderId } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'buy',
@@ -118,14 +126,14 @@ describe('cancel', () => {
     })
 
     // Check initial DEX balance (should be 0)
-    const dexBalanceBefore = await Actions.dex.getBalance(client, {
-      account: client.account.address,
+    const dexBalanceBefore = await Actions.dex.getBalance(config, {
+      account: account.address,
       token: quote,
     })
     expect(dexBalanceBefore).toBe(0n)
 
     // Cancel the order
-    const { receipt, ...result } = await Actions.dex.cancelSync(client, {
+    const { receipt, ...result } = await Actions.dex.cancelSync(config, {
       orderId,
     })
 
@@ -139,38 +147,39 @@ describe('cancel', () => {
     `)
 
     // Check DEX balance after cancel - tokens should be refunded to internal balance
-    const dexBalanceAfter = await Actions.dex.getBalance(client, {
-      account: client.account.address,
+    const dexBalanceAfter = await Actions.dex.getBalance(config, {
+      account: account.address,
       token: quote,
     })
     expect(dexBalanceAfter).toBeGreaterThan(0n)
   })
 
   test('behavior: only maker can cancel', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     // Account places order
-    const { orderId } = await Actions.dex.placeSync(client, {
+    const { orderId } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
     })
 
-    // Create another account
-    const account2 = accounts[1]
-
     // Transfer gas to account2
-    await Actions.token.transferSync(client, {
+    await Actions.token.transferSync(config, {
       to: account2.address,
       amount: parseEther('1'),
       token: Addresses.defaultFeeToken,
     })
 
+    // Use a different account via the connector
+    await connect(config, {
+      connector: config.connectors[1]!,
+    })
+
     // Account2 tries to cancel - should fail
     await expect(
-      Actions.dex.cancelSync(client, {
-        account: account2,
+      Actions.dex.cancelSync(config, {
         orderId,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -190,11 +199,11 @@ describe('cancel', () => {
   })
 
   test('behavior: cannot cancel non-existent order', async () => {
-    await setupTokenPair(client)
+    await setupTokenPair()
 
     // Try to cancel an order that doesn't exist
     await expect(
-      Actions.dex.cancelSync(client, {
+      Actions.dex.cancelSync(config, {
         orderId: 999n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -216,13 +225,18 @@ describe('cancel', () => {
 
 describe('createPair', () => {
   test('default', async () => {
-    const { token: baseToken } = await Actions.token.createSync(client, {
+    await connect(config, {
+      connector: config.connectors[0]!,
+    })
+
+    const { token: baseToken } = await Actions.token.createSync(config, {
       name: 'Test Base Token',
       symbol: 'BASE',
       currency: 'USD',
+      admin: account,
     })
 
-    const { receipt, ...result } = await Actions.dex.createPairSync(client, {
+    const { receipt, ...result } = await Actions.dex.createPairSync(config, {
       base: baseToken,
     })
 
@@ -231,53 +245,51 @@ describe('createPair', () => {
 
     const { key, ...rest } = result
     expect(key).toBeDefined()
-    expect(rest).toMatchInlineSnapshot(`
-      {
-        "base": "0x20C0000000000000000000000000000000000004",
-        "quote": "0x20C0000000000000000000000000000000000000",
-      }
-    `)
+    expect(rest).toEqual(
+      expect.objectContaining({
+        base: expect.toSatisfy(isAddress),
+        quote: expect.toSatisfy(isAddress),
+      }),
+    )
   })
 })
 
 describe('getBalance', () => {
   test('default', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // Initial balance should be 0
-    const initialBalance = await Actions.dex.getBalance(client, {
-      account: client.account.address,
+    const initialBalance = await Actions.dex.getBalance(config, {
+      account: account.address,
       token: quote,
     })
     expect(initialBalance).toBe(0n)
 
     // Place and cancel order to create internal balance
-    const { orderId } = await Actions.dex.placeSync(client, {
+    const { orderId } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('50'),
       type: 'buy',
       tick: Tick.fromPrice('1.0005'),
     })
 
-    await Actions.dex.cancelSync(client, {
+    await Actions.dex.cancelSync(config, {
       orderId,
     })
 
     // Now balance should be > 0 (refunded quote tokens)
-    const balance = await Actions.dex.getBalance(client, {
-      account: client.account.address,
+    const balance = await Actions.dex.getBalance(config, {
+      account: account.address,
       token: quote,
     })
     expect(balance).toBeGreaterThan(0n)
   })
 
   test('behavior: check different account', async () => {
-    const { quote } = await setupTokenPair(client)
-
-    const account2 = accounts[1]
+    const { quote } = await setupTokenPair()
 
     // Check account2's balance (should be 0)
-    const balance = await Actions.dex.getBalance(client, {
+    const balance = await Actions.dex.getBalance(config, {
       account: account2.address,
       token: quote,
     })
@@ -285,27 +297,27 @@ describe('getBalance', () => {
   })
 
   test('behavior: balances are per-token', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // Create balance in quote token
-    const { orderId } = await Actions.dex.placeSync(client, {
+    const { orderId } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
     })
-    await Actions.dex.cancelSync(client, { orderId })
+    await Actions.dex.cancelSync(config, { orderId })
 
     // Check quote balance (should have refunded tokens)
-    const quoteBalance = await Actions.dex.getBalance(client, {
-      account: client.account.address,
+    const quoteBalance = await Actions.dex.getBalance(config, {
+      account: account.address,
       token: quote,
     })
     expect(quoteBalance).toBeGreaterThan(0n)
 
     // Check base balance (should still be 0)
-    const baseBalance = await Actions.dex.getBalance(client, {
-      account: client.account.address,
+    const baseBalance = await Actions.dex.getBalance(config, {
+      account: account.address,
       token: base,
     })
     expect(baseBalance).toBe(0n)
@@ -314,10 +326,10 @@ describe('getBalance', () => {
 
 describe('getBuyQuote', () => {
   test('default', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // Place ask orders to create liquidity
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('500'),
       type: 'sell',
@@ -325,7 +337,7 @@ describe('getBuyQuote', () => {
     })
 
     // Get quote for buying base tokens
-    const amountIn = await Actions.dex.getBuyQuote(client, {
+    const amountIn = await Actions.dex.getBuyQuote(config, {
       tokenIn: quote,
       tokenOut: base,
       amountOut: parseEther('100'),
@@ -337,13 +349,13 @@ describe('getBuyQuote', () => {
   })
 
   test('behavior: fails with no liquidity', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // No orders placed - no liquidity
 
     // Quote should fail
     await expect(
-      Actions.dex.getBuyQuote(client, {
+      Actions.dex.getBuyQuote(config, {
         tokenIn: quote,
         tokenOut: base,
         amountOut: parseEther('100'),
@@ -366,10 +378,10 @@ describe('getBuyQuote', () => {
 
 describe('getOrder', () => {
   test('default', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     // Place an order to get an order ID
-    const { orderId } = await Actions.dex.placeSync(client, {
+    const { orderId } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'buy',
@@ -377,12 +389,12 @@ describe('getOrder', () => {
     })
 
     // Get the order details
-    const order = await Actions.dex.getOrder(client, {
+    const order = await Actions.dex.getOrder(config, {
       orderId,
     })
 
     expect(order).toBeDefined()
-    expect(order.maker).toBe(client.account.address)
+    expect(order.maker).toBe(account.address)
     expect(order.isBid).toBe(true)
     expect(order.tick).toBe(Tick.fromPrice('1.001'))
     expect(order.amount).toBe(parseEther('100'))
@@ -391,10 +403,10 @@ describe('getOrder', () => {
   })
 
   test('behavior: returns flip order details', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     // Place a flip order
-    const { orderId } = await Actions.dex.placeFlipSync(client, {
+    const { orderId } = await Actions.dex.placeFlipSync(config, {
       token: base,
       amount: parseEther('50'),
       type: 'buy',
@@ -403,12 +415,12 @@ describe('getOrder', () => {
     })
 
     // Get the order details
-    const order = await Actions.dex.getOrder(client, {
+    const order = await Actions.dex.getOrder(config, {
       orderId,
     })
 
     expect(order).toBeDefined()
-    expect(order.maker).toBe(client.account.address)
+    expect(order.maker).toBe(account.address)
     expect(order.isBid).toBe(true)
     expect(order.tick).toBe(Tick.fromPrice('1.001'))
     expect(order.amount).toBe(parseEther('50'))
@@ -417,11 +429,11 @@ describe('getOrder', () => {
   })
 
   test('behavior: fails for non-existent order', async () => {
-    await setupTokenPair(client)
+    await setupTokenPair()
 
     // Try to get an order that doesn't exist
     await expect(
-      Actions.dex.getOrder(client, {
+      Actions.dex.getOrder(config, {
         orderId: 999n,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -440,10 +452,10 @@ describe('getOrder', () => {
   })
 
   test('behavior: reflects order state after partial fill', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // Place a large sell order
-    const { orderId } = await Actions.dex.placeSync(client, {
+    const { orderId } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('500'),
       type: 'sell',
@@ -451,14 +463,14 @@ describe('getOrder', () => {
     })
 
     // Get initial order state
-    const orderBefore = await Actions.dex.getOrder(client, {
+    const orderBefore = await Actions.dex.getOrder(config, {
       orderId,
     })
     expect(orderBefore.amount).toBe(parseEther('500'))
     expect(orderBefore.remaining).toBe(parseEther('500'))
 
     // Partially fill the order with a buy
-    await Actions.dex.buySync(client, {
+    await Actions.dex.buySync(config, {
       tokenIn: quote,
       tokenOut: base,
       amountOut: parseEther('100'),
@@ -466,7 +478,7 @@ describe('getOrder', () => {
     })
 
     // Get order state after partial fill
-    const orderAfter = await Actions.dex.getOrder(client, {
+    const orderAfter = await Actions.dex.getOrder(config, {
       orderId,
     })
     expect(orderAfter.amount).toBe(parseEther('500')) // amount unchanged
@@ -474,12 +486,12 @@ describe('getOrder', () => {
   })
 
   test('behavior: linked list pointers for multiple orders at same tick', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     const tick = Tick.fromPrice('1.001')
 
     // Place first order
-    const { orderId: orderId1 } = await Actions.dex.placeSync(client, {
+    const { orderId: orderId1 } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'buy',
@@ -487,7 +499,7 @@ describe('getOrder', () => {
     })
 
     // Place second order at same tick
-    const { orderId: orderId2 } = await Actions.dex.placeSync(client, {
+    const { orderId: orderId2 } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('50'),
       type: 'buy',
@@ -495,14 +507,14 @@ describe('getOrder', () => {
     })
 
     // Get first order
-    const order1 = await Actions.dex.getOrder(client, {
+    const order1 = await Actions.dex.getOrder(config, {
       orderId: orderId1,
     })
     expect(order1.prev).toBe(0n) // should be 0 as it's first
     expect(order1.next).toBe(orderId2) // should point to second order
 
     // Get second order
-    const order2 = await Actions.dex.getOrder(client, {
+    const order2 = await Actions.dex.getOrder(config, {
       orderId: orderId2,
     })
     expect(order2.prev).toBe(orderId1) // should point to first order
@@ -512,10 +524,10 @@ describe('getOrder', () => {
 
 describe('getOrderbook', () => {
   test('default', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // Get orderbook information
-    const book = await Actions.dex.getOrderbook(client, {
+    const book = await Actions.dex.getOrderbook(config, {
       base,
       quote,
     })
@@ -528,13 +540,13 @@ describe('getOrderbook', () => {
   })
 
   test('behavior: shows best bid and ask after orders placed', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     const bidTick = Tick.fromPrice('0.999')
     const askTick = Tick.fromPrice('1.001')
 
     // Place a bid order
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'buy',
@@ -542,7 +554,7 @@ describe('getOrderbook', () => {
     })
 
     // Place an ask order
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'sell',
@@ -550,7 +562,7 @@ describe('getOrderbook', () => {
     })
 
     // Get orderbook
-    const book = await Actions.dex.getOrderbook(client, {
+    const book = await Actions.dex.getOrderbook(config, {
       base,
       quote,
     })
@@ -560,10 +572,10 @@ describe('getOrderbook', () => {
   })
 
   test('behavior: best ticks update after better orders placed', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // Place initial bid at 0.999
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'buy',
@@ -571,14 +583,14 @@ describe('getOrderbook', () => {
     })
 
     // Get orderbook
-    const bookBefore = await Actions.dex.getOrderbook(client, {
+    const bookBefore = await Actions.dex.getOrderbook(config, {
       base,
       quote,
     })
     expect(bookBefore.bestBidTick).toBe(Tick.fromPrice('0.999'))
 
     // Place better bid at 1.0
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'buy',
@@ -586,55 +598,21 @@ describe('getOrderbook', () => {
     })
 
     // Get orderbook again
-    const bookAfter = await Actions.dex.getOrderbook(client, {
+    const bookAfter = await Actions.dex.getOrderbook(config, {
       base,
       quote,
     })
     expect(bookAfter.bestBidTick).toBe(Tick.fromPrice('1.0'))
   })
 
-  test.skip('behavior: best ticks update after order cancellation', async () => {
-    const { base, quote } = await setupTokenPair(client)
-
-    // Place two bid orders at different ticks
-    await Actions.dex.placeSync(client, {
-      token: base,
-      amount: parseEther('50'),
-      type: 'buy',
-      tick: Tick.fromPrice('0.999'),
-    })
-
-    const { orderId } = await Actions.dex.placeSync(client, {
-      token: base,
-      amount: parseEther('100'),
-      type: 'buy',
-      tick: Tick.fromPrice('1.0'),
-    })
-
-    // Get orderbook - best bid should be 1.0
-    const bookBefore = await Actions.dex.getOrderbook(client, {
-      base,
-      quote,
-    })
-    expect(bookBefore.bestBidTick).toBe(Tick.fromPrice('1.0'))
-
-    // Cancel the better order
-    await Actions.dex.cancelSync(client, { orderId })
-
-    // Get orderbook again - best bid should fall back to 0.999
-    const bookAfter = await Actions.dex.getOrderbook(client, {
-      base,
-      quote,
-    })
-    expect(bookAfter.bestBidTick).toBe(Tick.fromPrice('0.999'))
-  })
+  test.todo('behavior: best ticks update after order cancellation')
 
   test('behavior: multiple pairs have independent orderbooks', async () => {
-    const { base: base1, quote: quote1 } = await setupTokenPair(client)
-    const { base: base2, quote: quote2 } = await setupTokenPair(client)
+    const { base: base1, quote: quote1 } = await setupTokenPair()
+    const { base: base2, quote: quote2 } = await setupTokenPair()
 
     // Place order on first pair
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base1,
       amount: parseEther('100'),
       type: 'buy',
@@ -642,7 +620,7 @@ describe('getOrderbook', () => {
     })
 
     // Place order on second pair at different tick
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base2,
       amount: parseEther('100'),
       type: 'buy',
@@ -650,12 +628,12 @@ describe('getOrderbook', () => {
     })
 
     // Get orderbooks
-    const book1 = await Actions.dex.getOrderbook(client, {
+    const book1 = await Actions.dex.getOrderbook(config, {
       base: base1,
       quote: quote1,
     })
 
-    const book2 = await Actions.dex.getOrderbook(client, {
+    const book2 = await Actions.dex.getOrderbook(config, {
       base: base2,
       quote: quote2,
     })
@@ -668,12 +646,12 @@ describe('getOrderbook', () => {
 
 describe('getPriceLevel', () => {
   test('default', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     const tick = Tick.fromPrice('1.001')
 
     // Place an order to create liquidity at this tick
-    const { orderId } = await Actions.dex.placeSync(client, {
+    const { orderId } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'buy',
@@ -681,7 +659,7 @@ describe('getPriceLevel', () => {
     })
 
     // Get the price level
-    const level = await Actions.dex.getPriceLevel(client, {
+    const level = await Actions.dex.getPriceLevel(config, {
       base,
       tick,
       isBid: true,
@@ -694,12 +672,12 @@ describe('getPriceLevel', () => {
   })
 
   test('behavior: empty price level', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     const tick = Tick.fromPrice('1.001')
 
     // Query a tick with no orders
-    const level = await Actions.dex.getPriceLevel(client, {
+    const level = await Actions.dex.getPriceLevel(config, {
       base,
       tick,
       isBid: true,
@@ -712,12 +690,12 @@ describe('getPriceLevel', () => {
   })
 
   test('behavior: multiple orders at same tick', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     const tick = Tick.fromPrice('1.001')
 
     // Place first order
-    const { orderId: orderId1 } = await Actions.dex.placeSync(client, {
+    const { orderId: orderId1 } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'buy',
@@ -725,7 +703,7 @@ describe('getPriceLevel', () => {
     })
 
     // Place second order at same tick
-    const { orderId: orderId2 } = await Actions.dex.placeSync(client, {
+    const { orderId: orderId2 } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('50'),
       type: 'buy',
@@ -733,7 +711,7 @@ describe('getPriceLevel', () => {
     })
 
     // Get the price level
-    const level = await Actions.dex.getPriceLevel(client, {
+    const level = await Actions.dex.getPriceLevel(config, {
       base,
       tick,
       isBid: true,
@@ -746,12 +724,12 @@ describe('getPriceLevel', () => {
   })
 
   test('behavior: bid vs ask sides', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     const tick = Tick.fromPrice('1.001')
 
     // Place a buy order (bid)
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'buy',
@@ -759,7 +737,7 @@ describe('getPriceLevel', () => {
     })
 
     // Place a sell order (ask) at same tick
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('50'),
       type: 'sell',
@@ -767,14 +745,14 @@ describe('getPriceLevel', () => {
     })
 
     // Get bid side
-    const bidLevel = await Actions.dex.getPriceLevel(client, {
+    const bidLevel = await Actions.dex.getPriceLevel(config, {
       base,
       tick,
       isBid: true,
     })
 
     // Get ask side
-    const askLevel = await Actions.dex.getPriceLevel(client, {
+    const askLevel = await Actions.dex.getPriceLevel(config, {
       base,
       tick,
       isBid: false,
@@ -787,19 +765,19 @@ describe('getPriceLevel', () => {
   })
 
   test('behavior: liquidity changes after order cancellation', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     const tick = Tick.fromPrice('1.001')
 
     // Place orders
-    const { orderId: orderId1 } = await Actions.dex.placeSync(client, {
+    const { orderId: orderId1 } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'buy',
       tick,
     })
 
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('50'),
       type: 'buy',
@@ -807,19 +785,19 @@ describe('getPriceLevel', () => {
     })
 
     // Get level before cancellation
-    const levelBefore = await Actions.dex.getPriceLevel(client, {
+    const levelBefore = await Actions.dex.getPriceLevel(config, {
       base,
       tick,
       isBid: true,
     })
 
     // Cancel first order
-    await Actions.dex.cancelSync(client, {
+    await Actions.dex.cancelSync(config, {
       orderId: orderId1,
     })
 
     // Get level after cancellation
-    const levelAfter = await Actions.dex.getPriceLevel(client, {
+    const levelAfter = await Actions.dex.getPriceLevel(config, {
       base,
       tick,
       isBid: true,
@@ -830,12 +808,12 @@ describe('getPriceLevel', () => {
   })
 
   test('behavior: liquidity changes after partial fill', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     const tick = Tick.fromPrice('1.001')
 
     // Place sell order
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('500'),
       type: 'sell',
@@ -843,14 +821,14 @@ describe('getPriceLevel', () => {
     })
 
     // Get level before fill
-    const levelBefore = await Actions.dex.getPriceLevel(client, {
+    const levelBefore = await Actions.dex.getPriceLevel(config, {
       base,
       tick,
       isBid: false,
     })
 
     // Partially fill the order
-    await Actions.dex.buySync(client, {
+    await Actions.dex.buySync(config, {
       tokenIn: quote,
       tokenOut: base,
       amountOut: parseEther('100'),
@@ -858,7 +836,7 @@ describe('getPriceLevel', () => {
     })
 
     // Get level after fill
-    const levelAfter = await Actions.dex.getPriceLevel(client, {
+    const levelAfter = await Actions.dex.getPriceLevel(config, {
       base,
       tick,
       isBid: false,
@@ -869,10 +847,10 @@ describe('getPriceLevel', () => {
   })
 
   test('behavior: tick at boundaries', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     // Place order at min tick
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('10'),
       type: 'sell',
@@ -880,7 +858,7 @@ describe('getPriceLevel', () => {
     })
 
     // Query min tick
-    const minLevel = await Actions.dex.getPriceLevel(client, {
+    const minLevel = await Actions.dex.getPriceLevel(config, {
       base,
       tick: Tick.minTick,
       isBid: false,
@@ -888,7 +866,7 @@ describe('getPriceLevel', () => {
     expect(minLevel.totalLiquidity).toBeGreaterThan(0n)
 
     // Place order at max tick
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('10'),
       type: 'buy',
@@ -896,7 +874,7 @@ describe('getPriceLevel', () => {
     })
 
     // Query max tick
-    const maxLevel = await Actions.dex.getPriceLevel(client, {
+    const maxLevel = await Actions.dex.getPriceLevel(config, {
       base,
       tick: Tick.maxTick,
       isBid: true,
@@ -907,10 +885,10 @@ describe('getPriceLevel', () => {
 
 describe('getSellQuote', () => {
   test('default', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // Place bid orders to create liquidity
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('500'),
       type: 'buy',
@@ -918,7 +896,7 @@ describe('getSellQuote', () => {
     })
 
     // Get quote for selling base tokens
-    const amountOut = await Actions.dex.getSellQuote(client, {
+    const amountOut = await Actions.dex.getSellQuote(config, {
       tokenIn: base,
       tokenOut: quote,
       amountIn: parseEther('100'),
@@ -930,11 +908,11 @@ describe('getSellQuote', () => {
   })
 
   test('behavior: fails with no liquidity', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // Quote should fail with no liquidity
     await expect(
-      Actions.dex.getSellQuote(client, {
+      Actions.dex.getSellQuote(config, {
         tokenIn: base,
         tokenOut: quote,
         amountIn: parseEther('100'),
@@ -958,10 +936,10 @@ describe('getSellQuote', () => {
 describe('place', () => {
   test('default', async () => {
     // Setup token pair
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     // Place a sell order
-    const { receipt, ...result } = await Actions.dex.placeSync(client, {
+    const { receipt, ...result } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'sell',
@@ -984,7 +962,7 @@ describe('place', () => {
 
     // Place a buy order
     const { receipt: receipt2, ...result2 } = await Actions.dex.placeSync(
-      client,
+      config,
       {
         token: base,
         amount: parseEther('100'),
@@ -1007,11 +985,11 @@ describe('place', () => {
   })
 
   test('behavior: tick at boundaries', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     // Test at min tick (-2000)
     const { receipt: receipt1, ...result1 } = await Actions.dex.placeSync(
-      client,
+      config,
       {
         token: base,
         amount: parseEther('10'),
@@ -1024,7 +1002,7 @@ describe('place', () => {
 
     // Test at max tick (2000)
     const { receipt: receipt2, ...result2 } = await Actions.dex.placeSync(
-      client,
+      config,
       {
         token: base,
         amount: parseEther('10'),
@@ -1037,11 +1015,11 @@ describe('place', () => {
   })
 
   test('behavior: tick validation fails outside bounds', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
-    // Test tick above max tix should fail
+    // Test tick above max tick should fail
     await expect(
-      Actions.dex.placeSync(client, {
+      Actions.dex.placeSync(config, {
         token: base,
         amount: parseEther('10'),
         type: 'buy',
@@ -1065,7 +1043,7 @@ describe('place', () => {
 
     // Test tick below min tick should fail
     await expect(
-      Actions.dex.placeSync(client, {
+      Actions.dex.placeSync(config, {
         token: base,
         amount: parseEther('10'),
         type: 'sell',
@@ -1089,20 +1067,22 @@ describe('place', () => {
   })
 
   test('behavior: transfers from wallet', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // Get balances before placing order
-    const baseBalanceBefore = await Actions.token.getBalance(client, {
+    const baseBalanceBefore = await Actions.token.getBalance(config, {
       token: base,
+      account: account.address,
     })
-    const quoteBalanceBefore = await Actions.token.getBalance(client, {
+    const quoteBalanceBefore = await Actions.token.getBalance(config, {
       token: quote,
+      account: account.address,
     })
 
     // Place a buy order - should transfer quote tokens to escrow
     const orderAmount = parseEther('100')
     const tick = Tick.fromPrice('1.001')
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: orderAmount,
       type: 'buy',
@@ -1110,11 +1090,13 @@ describe('place', () => {
     })
 
     // Get balances after placing order
-    const baseBalanceAfter = await Actions.token.getBalance(client, {
+    const baseBalanceAfter = await Actions.token.getBalance(config, {
       token: base,
+      account: account.address,
     })
-    const quoteBalanceAfter = await Actions.token.getBalance(client, {
+    const quoteBalanceAfter = await Actions.token.getBalance(config, {
       token: quote,
+      account: account.address,
     })
 
     // Base token balance should be unchanged (we're buying base, not selling)
@@ -1130,12 +1112,12 @@ describe('place', () => {
   })
 
   test('behavior: multiple orders at same tick', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     const tick = Tick.fromPrice('1.0005')
 
     // Place first order
-    const { orderId: orderId1 } = await Actions.dex.placeSync(client, {
+    const { orderId: orderId1 } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'buy',
@@ -1143,7 +1125,7 @@ describe('place', () => {
     })
 
     // Place second order at same tick
-    const { orderId: orderId2 } = await Actions.dex.placeSync(client, {
+    const { orderId: orderId2 } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('50'),
       type: 'buy',
@@ -1157,10 +1139,10 @@ describe('place', () => {
 
 describe('placeFlip', () => {
   test('default', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     // Place a flip bid order
-    const { receipt, ...result } = await Actions.dex.placeFlipSync(client, {
+    const { receipt, ...result } = await Actions.dex.placeFlipSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'buy',
@@ -1186,10 +1168,10 @@ describe('placeFlip', () => {
   })
 
   test('behavior: flip bid requires flipTick > tick', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     // Valid: flipTick > tick for bid
-    const { receipt: receipt1 } = await Actions.dex.placeFlipSync(client, {
+    const { receipt: receipt1 } = await Actions.dex.placeFlipSync(config, {
       token: base,
       amount: parseEther('10'),
       type: 'buy',
@@ -1200,7 +1182,7 @@ describe('placeFlip', () => {
 
     // Invalid: flipTick <= tick for bid should fail
     await expect(
-      Actions.dex.placeFlipSync(client, {
+      Actions.dex.placeFlipSync(config, {
         token: base,
         amount: parseEther('10'),
         type: 'buy',
@@ -1223,7 +1205,7 @@ describe('placeFlip', () => {
     `)
 
     await expect(
-      Actions.dex.placeFlipSync(client, {
+      Actions.dex.placeFlipSync(config, {
         token: base,
         amount: parseEther('10'),
         type: 'buy',
@@ -1247,10 +1229,10 @@ describe('placeFlip', () => {
   })
 
   test('behavior: flip ask requires flipTick < tick', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     // Valid: flipTick < tick for ask
-    const { receipt: receipt1 } = await Actions.dex.placeFlipSync(client, {
+    const { receipt: receipt1 } = await Actions.dex.placeFlipSync(config, {
       token: base,
       amount: parseEther('10'),
       type: 'sell',
@@ -1261,7 +1243,7 @@ describe('placeFlip', () => {
 
     // Invalid: flipTick >= tick for ask should fail
     await expect(
-      Actions.dex.placeFlipSync(client, {
+      Actions.dex.placeFlipSync(config, {
         token: base,
         amount: parseEther('10'),
         type: 'sell',
@@ -1284,7 +1266,7 @@ describe('placeFlip', () => {
     `)
 
     await expect(
-      Actions.dex.placeFlipSync(client, {
+      Actions.dex.placeFlipSync(config, {
         token: base,
         amount: parseEther('10'),
         type: 'sell',
@@ -1308,10 +1290,10 @@ describe('placeFlip', () => {
   })
 
   test('behavior: flip ticks at boundaries', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     // Flip order with ticks at extreme boundaries
-    const { receipt } = await Actions.dex.placeFlipSync(client, {
+    const { receipt } = await Actions.dex.placeFlipSync(config, {
       token: base,
       amount: parseEther('10'),
       type: 'buy',
@@ -1324,10 +1306,10 @@ describe('placeFlip', () => {
 
 describe('sell', () => {
   test('default', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // Place bid order to create liquidity
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('500'),
       type: 'buy',
@@ -1335,7 +1317,7 @@ describe('sell', () => {
     })
 
     // Sell base tokens
-    const { receipt } = await Actions.dex.sellSync(client, {
+    const { receipt } = await Actions.dex.sellSync(config, {
       tokenIn: base,
       tokenOut: quote,
       amountIn: parseEther('100'),
@@ -1347,10 +1329,10 @@ describe('sell', () => {
   })
 
   test('behavior: respects minAmountOut', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // Place bid order at low price
-    await Actions.dex.placeSync(client, {
+    await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('500'),
       type: 'buy',
@@ -1359,7 +1341,7 @@ describe('sell', () => {
 
     // Try to sell with too high minAmountOut - should fail
     await expect(
-      Actions.dex.sellSync(client, {
+      Actions.dex.sellSync(config, {
         tokenIn: base,
         tokenOut: quote,
         amountIn: parseEther('100'),
@@ -1382,13 +1364,13 @@ describe('sell', () => {
   })
 
   test('behavior: fails with insufficient liquidity', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // No orders - no liquidity
 
     // Try to sell - should fail
     await expect(
-      Actions.dex.sellSync(client, {
+      Actions.dex.sellSync(config, {
         tokenIn: base,
         tokenOut: quote,
         amountIn: parseEther('100'),
@@ -1413,14 +1395,14 @@ describe('sell', () => {
 
 describe('watchFlipOrderPlaced', () => {
   test('default', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     const receivedOrders: Array<{
       args: Actions.dex.watchFlipOrderPlaced.Args
       log: Actions.dex.watchFlipOrderPlaced.Log
     }> = []
 
-    const unwatch = Actions.dex.watchFlipOrderPlaced(client, {
+    const unwatch = Actions.dex.watchFlipOrderPlaced(config, {
       onFlipOrderPlaced: (args, log) => {
         receivedOrders.push({ args, log })
       },
@@ -1428,7 +1410,7 @@ describe('watchFlipOrderPlaced', () => {
 
     try {
       // Place flip order
-      await Actions.dex.placeFlipSync(client, {
+      await Actions.dex.placeFlipSync(config, {
         token: base,
         amount: parseEther('100'),
         type: 'buy',
@@ -1449,14 +1431,14 @@ describe('watchFlipOrderPlaced', () => {
 
 describe('watchOrderCancelled', () => {
   test('default', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     const receivedCancellations: Array<{
       args: Actions.dex.watchOrderCancelled.Args
       log: Actions.dex.watchOrderCancelled.Log
     }> = []
 
-    const unwatch = Actions.dex.watchOrderCancelled(client, {
+    const unwatch = Actions.dex.watchOrderCancelled(config, {
       onOrderCancelled: (args, log) => {
         receivedCancellations.push({ args, log })
       },
@@ -1464,7 +1446,7 @@ describe('watchOrderCancelled', () => {
 
     try {
       // Place order
-      const { orderId } = await Actions.dex.placeSync(client, {
+      const { orderId } = await Actions.dex.placeSync(config, {
         token: base,
         amount: parseEther('100'),
         type: 'buy',
@@ -1472,7 +1454,7 @@ describe('watchOrderCancelled', () => {
       })
 
       // Cancel order
-      await Actions.dex.cancelSync(client, {
+      await Actions.dex.cancelSync(config, {
         orderId,
       })
 
@@ -1486,17 +1468,17 @@ describe('watchOrderCancelled', () => {
   })
 
   test('behavior: filter by orderId', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     // Place two orders
-    const { orderId: orderId1 } = await Actions.dex.placeSync(client, {
+    const { orderId: orderId1 } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
     })
 
-    const { orderId: orderId2 } = await Actions.dex.placeSync(client, {
+    const { orderId: orderId2 } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('50'),
       type: 'buy',
@@ -1509,7 +1491,7 @@ describe('watchOrderCancelled', () => {
     }> = []
 
     // Watch only for cancellation of orderId1
-    const unwatch = Actions.dex.watchOrderCancelled(client, {
+    const unwatch = Actions.dex.watchOrderCancelled(config, {
       orderId: orderId1,
       onOrderCancelled: (args, log) => {
         receivedCancellations.push({ args, log })
@@ -1518,12 +1500,12 @@ describe('watchOrderCancelled', () => {
 
     try {
       // Cancel orderId1 (should be captured)
-      await Actions.dex.cancelSync(client, {
+      await Actions.dex.cancelSync(config, {
         orderId: orderId1,
       })
 
       // Cancel orderId2 (should NOT be captured)
-      await Actions.dex.cancelSync(client, {
+      await Actions.dex.cancelSync(config, {
         orderId: orderId2,
       })
 
@@ -1542,14 +1524,14 @@ describe.todo('watchOrderFilled')
 
 describe('watchOrderPlaced', () => {
   test('default', async () => {
-    const { base } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
 
     const receivedOrders: Array<{
       args: Actions.dex.watchOrderPlaced.Args
       log: Actions.dex.watchOrderPlaced.Log
     }> = []
 
-    const unwatch = Actions.dex.watchOrderPlaced(client, {
+    const unwatch = Actions.dex.watchOrderPlaced(config, {
       onOrderPlaced: (args, log) => {
         receivedOrders.push({ args, log })
       },
@@ -1557,7 +1539,7 @@ describe('watchOrderPlaced', () => {
 
     try {
       // Place first order
-      await Actions.dex.placeSync(client, {
+      await Actions.dex.placeSync(config, {
         token: base,
         amount: parseEther('100'),
         type: 'buy',
@@ -1565,7 +1547,7 @@ describe('watchOrderPlaced', () => {
       })
 
       // Place second order
-      await Actions.dex.placeSync(client, {
+      await Actions.dex.placeSync(config, {
         token: base,
         amount: parseEther('50'),
         type: 'sell',
@@ -1586,8 +1568,8 @@ describe('watchOrderPlaced', () => {
   })
 
   test('behavior: filter by token', async () => {
-    const { base } = await setupTokenPair(client)
-    const { base: base2 } = await setupTokenPair(client)
+    const { base } = await setupTokenPair()
+    const { base: base2 } = await setupTokenPair()
 
     const receivedOrders: Array<{
       args: Actions.dex.watchOrderPlaced.Args
@@ -1595,7 +1577,7 @@ describe('watchOrderPlaced', () => {
     }> = []
 
     // Watch only for orders on base
-    const unwatch = Actions.dex.watchOrderPlaced(client, {
+    const unwatch = Actions.dex.watchOrderPlaced(config, {
       token: base,
       onOrderPlaced: (args, log) => {
         receivedOrders.push({ args, log })
@@ -1604,7 +1586,7 @@ describe('watchOrderPlaced', () => {
 
     try {
       // Place order on base (should be captured)
-      await Actions.dex.placeSync(client, {
+      await Actions.dex.placeSync(config, {
         token: base,
         amount: parseEther('100'),
         type: 'buy',
@@ -1612,7 +1594,7 @@ describe('watchOrderPlaced', () => {
       })
 
       // Place order on base2 (should NOT be captured)
-      await Actions.dex.placeSync(client, {
+      await Actions.dex.placeSync(config, {
         token: base2,
         amount: parseEther('50'),
         type: 'buy',
@@ -1634,32 +1616,33 @@ describe('watchOrderPlaced', () => {
 
 describe('withdraw', () => {
   test('default', async () => {
-    const { base, quote } = await setupTokenPair(client)
+    const { base, quote } = await setupTokenPair()
 
     // Create internal balance
-    const { orderId } = await Actions.dex.placeSync(client, {
+    const { orderId } = await Actions.dex.placeSync(config, {
       token: base,
       amount: parseEther('100'),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
     })
 
-    await Actions.dex.cancelSync(client, { orderId })
+    await Actions.dex.cancelSync(config, { orderId })
 
     // Get DEX balance
-    const dexBalance = await Actions.dex.getBalance(client, {
-      account: client.account.address,
+    const dexBalance = await Actions.dex.getBalance(config, {
+      account: account.address,
       token: quote,
     })
     expect(dexBalance).toBeGreaterThan(0n)
 
     // Get wallet balance before withdraw
-    const walletBalanceBefore = await Actions.token.getBalance(client, {
+    const walletBalanceBefore = await Actions.token.getBalance(config, {
       token: quote,
+      account: account.address,
     })
 
     // Withdraw from DEX
-    const { receipt } = await Actions.dex.withdrawSync(client, {
+    const { receipt } = await Actions.dex.withdrawSync(config, {
       token: quote,
       amount: dexBalance,
     })
@@ -1668,15 +1651,16 @@ describe('withdraw', () => {
     expect(receipt.status).toBe('success')
 
     // Check DEX balance is now 0
-    const dexBalanceAfter = await Actions.dex.getBalance(client, {
-      account: client.account.address,
+    const dexBalanceAfter = await Actions.dex.getBalance(config, {
+      account: account.address,
       token: quote,
     })
     expect(dexBalanceAfter).toBe(0n)
 
     // Check wallet balance increased
-    const walletBalanceAfter = await Actions.token.getBalance(client, {
+    const walletBalanceAfter = await Actions.token.getBalance(config, {
       token: quote,
+      account: account.address,
     })
     expect(walletBalanceAfter).toBeGreaterThan(walletBalanceBefore)
   })
