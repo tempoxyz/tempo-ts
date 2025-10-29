@@ -3,48 +3,14 @@ import { Abis, Actions, Addresses } from 'tempo.ts/viem'
 import { parseEther } from 'viem'
 import { writeContractSync } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
-import { accounts, client } from '../../../test/viem/config.js'
+import {
+  accounts,
+  client,
+  setupPoolWithLiquidity,
+} from '../../../test/viem/config.js'
 
 const account = accounts[0]
 const account2 = accounts[1]
-
-async function setupPoolWithLiquidity() {
-  // Create a new token for testing
-  const { token } = await Actions.token.createSync(client, {
-    name: 'Test Token',
-    symbol: 'TEST',
-    currency: 'USD',
-  })
-
-  // Grant issuer role to mint tokens
-  await Actions.token.grantRolesSync(client, {
-    token,
-    roles: ['issuer'],
-    to: client.account.address,
-  })
-
-  // Mint some tokens to account
-  await Actions.token.mintSync(client, {
-    to: account.address,
-    amount: parseEther('1000'),
-    token,
-  })
-
-  // Add liquidity to pool
-  await Actions.amm.mintSync(client, {
-    userToken: {
-      address: token,
-      amount: parseEther('100'),
-    },
-    validatorToken: {
-      address: Addresses.defaultFeeToken,
-      amount: parseEther('100'),
-    },
-    to: account.address,
-  })
-
-  return { tokenAddress: token }
-}
 
 describe('getPoolId', () => {
   test('default', async () => {
@@ -177,7 +143,7 @@ describe('mint', () => {
 
 describe('burn', () => {
   test('default', async () => {
-    const { tokenAddress } = await setupPoolWithLiquidity()
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
 
     // Get LP balance before burn
     const poolId = await Actions.amm.getPoolId(client, {
@@ -232,7 +198,7 @@ describe('burn', () => {
 
 describe('rebalanceSwap', () => {
   test('default', async () => {
-    const { tokenAddress } = await setupPoolWithLiquidity()
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
 
     // Get balance before swap
     const balanceBefore = await Actions.token.getBalance(client, {
@@ -271,7 +237,7 @@ describe('rebalanceSwap', () => {
 
 describe('watchRebalanceSwap', () => {
   test('default', async () => {
-    const { tokenAddress } = await setupPoolWithLiquidity()
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
 
     let eventArgs: any = null
     const unwatch = Actions.amm.watchRebalanceSwap(client, {
@@ -369,7 +335,7 @@ describe('watchMint', () => {
 
 describe('watchBurn', () => {
   test('default', async () => {
-    const { tokenAddress } = await setupPoolWithLiquidity()
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
 
     // Get LP balance
     const poolId = await Actions.amm.getPoolId(client, {

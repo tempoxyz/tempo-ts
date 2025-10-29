@@ -1,6 +1,15 @@
 import type { FixedArray } from '@wagmi/core/internal'
-import { defineChain, type LocalAccount } from 'viem'
+import {
+  defineChain,
+  parseEther,
+  type Account,
+  type Chain,
+  type Client,
+  type LocalAccount,
+  type Transport,
+} from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
+import { Actions, Addresses } from 'tempo.ts/viem'
 import { tempoLocal } from '../../src/chains.js'
 import { createTempoClient } from '../../src/viem/Client.js'
 
@@ -35,3 +44,43 @@ export const client = createTempoClient({
   chain: tempoTest,
   pollingInterval: 100,
 })
+
+export async function setupPoolWithLiquidity(
+  client: Client<Transport, Chain, Account>,
+) {
+  // Create a new token for testing
+  const { token } = await Actions.token.createSync(client, {
+    name: 'Test Token',
+    symbol: 'TEST',
+    currency: 'USD',
+  })
+
+  // Grant issuer role to mint tokens
+  await Actions.token.grantRolesSync(client, {
+    token,
+    roles: ['issuer'],
+    to: client.account.address,
+  })
+
+  // Mint some tokens to account
+  await Actions.token.mintSync(client, {
+    to: client.account.address,
+    amount: parseEther('1000'),
+    token,
+  })
+
+  // Add liquidity to pool
+  await Actions.amm.mintSync(client, {
+    userToken: {
+      address: token,
+      amount: parseEther('100'),
+    },
+    validatorToken: {
+      address: Addresses.defaultFeeToken,
+      amount: parseEther('100'),
+    },
+    to: client.account.address,
+  })
+
+  return { tokenAddress: token }
+}
