@@ -3,68 +3,14 @@ import { Abis, Actions, Addresses } from 'tempo.ts/viem'
 import { parseEther } from 'viem'
 import { writeContractSync } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
-import { accounts, client } from '../../../test/viem/config.js'
+import {
+  accounts,
+  client,
+  setupPoolWithLiquidity,
+} from '../../../test/viem/config.js'
 
 const account = accounts[0]
 const account2 = accounts[1]
-
-async function setupPoolWithLiquidity() {
-  // Create a new token for testing
-  const { token } = await Actions.token.createSync(client, {
-    name: 'Test Token',
-    symbol: 'TEST',
-    currency: 'USD',
-  })
-
-  // Grant issuer role to mint tokens
-  await Actions.token.grantRolesSync(client, {
-    token,
-    roles: ['issuer'],
-    to: client.account.address,
-  })
-
-  // Mint some tokens to account
-  await Actions.token.mintSync(client, {
-    to: account.address,
-    amount: parseEther('1000'),
-    token,
-  })
-
-  // Add liquidity to pool
-  await Actions.amm.mintSync(client, {
-    userToken: {
-      address: token,
-      amount: parseEther('100'),
-    },
-    validatorToken: {
-      address: Addresses.defaultFeeToken,
-      amount: parseEther('100'),
-    },
-    to: account.address,
-  })
-
-  return { tokenAddress: token }
-}
-
-describe('getPoolId', () => {
-  test('default', async () => {
-    const poolId = await Actions.amm.getPoolId(client, {
-      userToken: Addresses.defaultFeeToken,
-      validatorToken: '0x20c0000000000000000000000000000000000001',
-    })
-    expect(poolId).toBeDefined()
-    expect(typeof poolId).toBe('string')
-  })
-
-  test('behavior: token id', async () => {
-    const poolId = await Actions.amm.getPoolId(client, {
-      userToken: 0n,
-      validatorToken: 1n,
-    })
-    expect(poolId).toBeDefined()
-    expect(typeof poolId).toBe('string')
-  })
-})
 
 describe('getPool', () => {
   test('default', async () => {
@@ -72,33 +18,22 @@ describe('getPool', () => {
       userToken: Addresses.defaultFeeToken,
       validatorToken: '0x20c0000000000000000000000000000000000001',
     })
-    expect(pool).toMatchObject({
-      reserveUserToken: expect.any(BigInt),
-      reserveValidatorToken: expect.any(BigInt),
-    })
-  })
-})
-
-describe('getTotalSupply', () => {
-  test('default', async () => {
-    const poolId = await Actions.amm.getPoolId(client, {
-      userToken: Addresses.defaultFeeToken,
-      validatorToken: '0x20c0000000000000000000000000000000000001',
-    })
-    const totalSupply = await Actions.amm.getTotalSupply(client, { poolId })
-    expect(typeof totalSupply).toBe('bigint')
+    expect(pool).toMatchInlineSnapshot(`
+      {
+        "reserveUserToken": 0n,
+        "reserveValidatorToken": 0n,
+        "totalSupply": 0n,
+      }
+    `)
   })
 })
 
 describe('getLiquidityBalance', () => {
   test('default', async () => {
-    const poolId = await Actions.amm.getPoolId(client, {
+    const balance = await Actions.amm.getLiquidityBalance(client, {
+      address: account.address,
       userToken: Addresses.defaultFeeToken,
       validatorToken: '0x20c0000000000000000000000000000000000001',
-    })
-    const balance = await Actions.amm.getLiquidityBalance(client, {
-      poolId,
-      address: account.address,
     })
     expect(typeof balance).toBe('bigint')
   })
@@ -159,17 +94,19 @@ describe('mint', () => {
       userToken: token,
       validatorToken: Addresses.defaultFeeToken,
     })
-    expect(pool.reserveUserToken).toBe(parseEther('100'))
-    expect(pool.reserveValidatorToken).toBe(parseEther('100'))
+    expect(pool).toMatchInlineSnapshot(`
+      {
+        "reserveUserToken": 100000000000000000000n,
+        "reserveValidatorToken": 100000000000000000000n,
+        "totalSupply": 5000000000000000000000000000000000000000n,
+      }
+    `)
 
     // Verify LP token balance
-    const poolId = await Actions.amm.getPoolId(client, {
+    const lpBalance = await Actions.amm.getLiquidityBalance(client, {
+      address: account.address,
       userToken: token,
       validatorToken: Addresses.defaultFeeToken,
-    })
-    const lpBalance = await Actions.amm.getLiquidityBalance(client, {
-      poolId,
-      address: account.address,
     })
     expect(lpBalance).toBeGreaterThan(0n)
   })
@@ -177,16 +114,13 @@ describe('mint', () => {
 
 describe('burn', () => {
   test('default', async () => {
-    const { tokenAddress } = await setupPoolWithLiquidity()
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
 
     // Get LP balance before burn
-    const poolId = await Actions.amm.getPoolId(client, {
+    const lpBalanceBefore = await Actions.amm.getLiquidityBalance(client, {
+      address: account.address,
       userToken: tokenAddress,
       validatorToken: Addresses.defaultFeeToken,
-    })
-    const lpBalanceBefore = await Actions.amm.getLiquidityBalance(client, {
-      poolId,
-      address: account.address,
     })
 
     // Burn half of LP tokens
@@ -214,8 +148,9 @@ describe('burn', () => {
 
     // Verify LP balance decreased
     const lpBalanceAfter = await Actions.amm.getLiquidityBalance(client, {
-      poolId,
       address: account.address,
+      userToken: tokenAddress,
+      validatorToken: Addresses.defaultFeeToken,
     })
     expect(lpBalanceAfter).toBeLessThan(lpBalanceBefore)
     expect(lpBalanceAfter).toBe(lpBalanceBefore / 2n)
@@ -225,14 +160,19 @@ describe('burn', () => {
       userToken: tokenAddress,
       validatorToken: Addresses.defaultFeeToken,
     })
-    expect(pool.reserveUserToken).toBeLessThan(parseEther('100'))
-    expect(pool.reserveValidatorToken).toBeLessThan(parseEther('100'))
+    expect(pool).toMatchInlineSnapshot(`
+      {
+        "reserveUserToken": 50000000000000000001n,
+        "reserveValidatorToken": 50000000000000000001n,
+        "totalSupply": 2500000000000000000000000000000000000500n,
+      }
+    `)
   })
 })
 
 describe('rebalanceSwap', () => {
   test('default', async () => {
-    const { tokenAddress } = await setupPoolWithLiquidity()
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
 
     // Get balance before swap
     const balanceBefore = await Actions.token.getBalance(client, {
@@ -271,7 +211,7 @@ describe('rebalanceSwap', () => {
 
 describe('watchRebalanceSwap', () => {
   test('default', async () => {
-    const { tokenAddress } = await setupPoolWithLiquidity()
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
 
     let eventArgs: any = null
     const unwatch = Actions.amm.watchRebalanceSwap(client, {
@@ -369,15 +309,12 @@ describe('watchMint', () => {
 
 describe('watchBurn', () => {
   test('default', async () => {
-    const { tokenAddress } = await setupPoolWithLiquidity()
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
 
     // Get LP balance
-    const poolId = await Actions.amm.getPoolId(client, {
+    const lpBalance = await Actions.amm.getLiquidityBalance(client, {
       userToken: tokenAddress,
       validatorToken: Addresses.defaultFeeToken,
-    })
-    const lpBalance = await Actions.amm.getLiquidityBalance(client, {
-      poolId,
       address: account.address,
     })
 

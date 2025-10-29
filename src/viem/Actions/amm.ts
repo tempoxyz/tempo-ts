@@ -7,6 +7,7 @@ import {
   type GetEventArgs,
   type Hex,
   type Log,
+  type MulticallParameters,
   parseEventLogs,
   type ReadContractReturnType,
   type TransactionReceipt,
@@ -16,85 +17,19 @@ import {
   type WriteContractReturnType,
 } from 'viem'
 import {
+  multicall,
   readContract,
   watchContractEvent,
   writeContract,
   writeContractSync,
 } from 'viem/actions'
-import type { Compute, UnionOmit } from '../../internal/types.js'
+import type { Compute, OneOf, UnionOmit } from '../../internal/types.js'
+import * as PoolId from '../../ox/PoolId.js'
 import * as TokenId from '../../ox/TokenId.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
-
-/**
- * Gets the pool ID for a token pair.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
- *
- * const client = createClient({
- *   chain: tempo,
- *   transport: http(),
- * })
- *
- * const poolId = await actions.amm.getPoolId(client, {
- *   userToken: '0x...',
- *   validatorToken: '0x...',
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The pool ID.
- */
-export async function getPoolId<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: getPoolId.Parameters,
-): Promise<getPoolId.ReturnValue> {
-  const { userToken, validatorToken, ...rest } = parameters
-  return readContract(client, {
-    ...rest,
-    ...getPoolId.call({ userToken, validatorToken }),
-  })
-}
-
-export namespace getPoolId {
-  export type Parameters = ReadParameters & Args
-
-  export type Args = {
-    /** Address or ID of the user token. */
-    userToken: TokenId.TokenIdOrAddress
-    /** Address or ID of the validator token. */
-    validatorToken: TokenId.TokenIdOrAddress
-  }
-
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.feeAmm,
-    'getPoolId',
-    never
-  >
-
-  /**
-   * Defines a call to the `getPoolId` function.
-   *
-   * @param args - Arguments.
-   * @returns The call.
-   */
-  export function call(args: Args) {
-    const { userToken, validatorToken } = args
-    return defineCall({
-      address: Addresses.feeManager,
-      abi: Abis.feeAmm,
-      args: [TokenId.toAddress(userToken), TokenId.toAddress(validatorToken)],
-      functionName: 'getPoolId',
-    })
-  }
-}
 
 /**
  * Gets the reserves for a liquidity pool.
@@ -125,14 +60,25 @@ export async function getPool<chain extends Chain | undefined>(
   parameters: getPool.Parameters,
 ): Promise<getPool.ReturnValue> {
   const { userToken, validatorToken, ...rest } = parameters
-  return readContract(client, {
+  const [pool, totalSupply] = await multicall(client, {
     ...rest,
-    ...getPool.call({ userToken, validatorToken }),
+    contracts: getPool.calls({ userToken, validatorToken }),
+    allowFailure: false,
+    deployless: true,
   })
+  return {
+    reserveUserToken: pool.reserveUserToken,
+    reserveValidatorToken: pool.reserveValidatorToken,
+    totalSupply,
+  }
 }
 
 export namespace getPool {
-  export type Parameters = ReadParameters & Args
+  export type Parameters = UnionOmit<
+    MulticallParameters,
+    'allowFailure' | 'contracts' | 'deployless'
+  > &
+    Args
 
   export type Args = {
     /** Address or ID of the user token. */
@@ -146,90 +92,32 @@ export namespace getPool {
     reserveUserToken: bigint
     /** Reserve of validator token. */
     reserveValidatorToken: bigint
+    /** Total supply of LP tokens. */
+    totalSupply: bigint
   }>
 
   /**
-   * Defines a call to the `getPool` function.
+   * Defines calls to the `getPool` and `totalSupply` functions.
    *
    * @param args - Arguments.
-   * @returns The call.
+   * @returns The calls.
    */
-  export function call(args: Args) {
+  export function calls(args: Args) {
     const { userToken, validatorToken } = args
-    return defineCall({
-      address: Addresses.feeManager,
-      abi: Abis.feeAmm,
-      args: [TokenId.toAddress(userToken), TokenId.toAddress(validatorToken)],
-      functionName: 'getPool',
-    })
-  }
-}
-
-/**
- * Gets the total supply of LP tokens for a pool.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
- *
- * const client = createClient({
- *   chain: tempo,
- *   transport: http(),
- * })
- *
- * const poolId = await actions.amm.getPoolId(client, {
- *   userToken: '0x...',
- *   validatorToken: '0x...',
- * })
- *
- * const totalSupply = await actions.amm.getTotalSupply(client, { poolId })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The total supply of LP tokens.
- */
-export async function getTotalSupply<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: getTotalSupply.Parameters,
-): Promise<getTotalSupply.ReturnValue> {
-  const { poolId, ...rest } = parameters
-  return readContract(client, {
-    ...rest,
-    ...getTotalSupply.call({ poolId }),
-  })
-}
-
-export namespace getTotalSupply {
-  export type Parameters = ReadParameters & Args
-
-  export type Args = {
-    /** Pool ID. */
-    poolId: Hex
-  }
-
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.feeAmm,
-    'totalSupply',
-    never
-  >
-
-  /**
-   * Defines a call to the `totalSupply` function.
-   *
-   * @param args - Arguments.
-   * @returns The call.
-   */
-  export function call(args: Args) {
-    const { poolId } = args
-    return defineCall({
-      address: Addresses.feeManager,
-      abi: Abis.feeAmm,
-      args: [poolId],
-      functionName: 'totalSupply',
-    })
+    return [
+      defineCall({
+        address: Addresses.feeManager,
+        abi: Abis.feeAmm,
+        args: [TokenId.toAddress(userToken), TokenId.toAddress(validatorToken)],
+        functionName: 'getPool',
+      }),
+      defineCall({
+        address: Addresses.feeManager,
+        abi: Abis.feeAmm,
+        args: [PoolId.from({ userToken, validatorToken })],
+        functionName: 'totalSupply',
+      }),
+    ] as const
   }
 }
 
@@ -266,10 +154,15 @@ export async function getLiquidityBalance<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getLiquidityBalance.Parameters,
 ): Promise<getLiquidityBalance.ReturnValue> {
-  const { address, poolId, ...rest } = parameters
+  const { address, poolId, userToken, validatorToken, ...rest } = parameters
   return readContract(client, {
     ...rest,
-    ...getLiquidityBalance.call({ address, poolId }),
+    ...getLiquidityBalance.call({
+      address,
+      poolId,
+      userToken,
+      validatorToken,
+    } as never),
   })
 }
 
@@ -279,9 +172,18 @@ export namespace getLiquidityBalance {
   export type Args = {
     /** Address to check balance for. */
     address: Address
-    /** Pool ID. */
-    poolId: Hex
-  }
+  } & OneOf<
+    | {
+        /** Pool ID. */
+        poolId: Hex
+      }
+    | {
+        /** User token. */
+        userToken: TokenId.TokenIdOrAddress
+        /** Validator token. */
+        validatorToken: TokenId.TokenIdOrAddress
+      }
+  >
 
   export type ReturnValue = ReadContractReturnType<
     typeof Abis.feeAmm,
@@ -296,7 +198,18 @@ export namespace getLiquidityBalance {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { address, poolId } = args
+    const { address } = args
+    const poolId = (() => {
+      if ('poolId' in args && args.poolId) return args.poolId!
+      if ('userToken' in args && 'validatorToken' in args)
+        return PoolId.from({
+          userToken: args.userToken,
+          validatorToken: args.validatorToken,
+        })
+      throw new Error(
+        '`poolId`, or `userToken` and `validatorToken` must be provided.',
+      )
+    })()
     return defineCall({
       address: Addresses.feeManager,
       abi: Abis.feeAmm,

@@ -14,6 +14,7 @@ import { tempoLocal } from '../../src/chains.js'
 import { dangerous_secp256k1 } from '../../src/wagmi/Connector.js'
 import {
   accounts,
+  setupPoolWithLiquidity as viem_setupPoolWithLiquidity,
   setupTokenPair as viem_setupTokenPair,
 } from '../viem/config.js'
 
@@ -93,6 +94,15 @@ export function render(
     ...args[1],
     wrapper: createWrapper(WagmiProvider, { config, reconnectOnMount: false }),
   })
+}
+
+export async function setupPoolWithLiquidity() {
+  if (getAccount(config).status === 'disconnected')
+    await connect(config, {
+      connector: config.connectors[0]!,
+    })
+  const client = await getConnectorClient(config)
+  return viem_setupPoolWithLiquidity(client as never)
 }
 
 export async function setupTokenPair() {
