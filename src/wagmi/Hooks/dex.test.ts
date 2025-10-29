@@ -851,6 +851,196 @@ describe('useSell', () => {
   })
 })
 
+describe('useWatchFlipOrderPlaced', () => {
+  test('default', async () => {
+    const { base } = await setupTokenPair()
+
+    const { result } = await renderHook(() => Hooks.dex.usePlaceFlipSync())
+
+    const events: any[] = []
+    await renderHook(() =>
+      Hooks.dex.useWatchFlipOrderPlaced({
+        onFlipOrderPlaced(args) {
+          events.push(args)
+        },
+      }),
+    )
+
+    // Place flip order to trigger event
+    await result.current.mutateAsync({
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick: Tick.fromPrice('1.001'),
+      flipTick: Tick.fromPrice('1.002'),
+    })
+
+    await vi.waitUntil(() => events.length >= 1)
+
+    expect(events.length).toBeGreaterThanOrEqual(1)
+    expect(events[0]?.flipTick).toBe(Tick.fromPrice('1.002'))
+    expect(events[0]?.tick).toBe(Tick.fromPrice('1.001'))
+    expect(events[0]?.isBid).toBe(true)
+    expect(events[0]?.amount).toBe(parseEther('100'))
+  })
+})
+
+describe('useWatchOrderCancelled', () => {
+  test('default', async () => {
+    const { base } = await setupTokenPair()
+
+    // Place order first
+    const { orderId } = await Actions.dex.placeSync(config, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick: Tick.fromPrice('1.001'),
+    })
+
+    const events: any[] = []
+    await renderHook(() =>
+      Hooks.dex.useWatchOrderCancelled({
+        onOrderCancelled(args) {
+          events.push(args)
+        },
+      }),
+    )
+
+    // Cancel order to trigger event
+    await Actions.dex.cancelSync(config, {
+      orderId,
+    })
+
+    await vi.waitUntil(() => events.length >= 1)
+
+    expect(events.length).toBeGreaterThanOrEqual(1)
+    expect(events[0]?.orderId).toBe(orderId)
+  })
+
+  test('behavior: filter by orderId', async () => {
+    const { base } = await setupTokenPair()
+
+    // Place two orders
+    const { orderId: orderId1 } = await Actions.dex.placeSync(config, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick: Tick.fromPrice('1.001'),
+    })
+
+    const { orderId: orderId2 } = await Actions.dex.placeSync(config, {
+      token: base,
+      amount: parseEther('50'),
+      type: 'buy',
+      tick: Tick.fromPrice('1.001'),
+    })
+
+    const events: any[] = []
+    await renderHook(() =>
+      Hooks.dex.useWatchOrderCancelled({
+        orderId: orderId1, // Filter for only orderId1
+        onOrderCancelled(args) {
+          events.push(args)
+        },
+      }),
+    )
+
+    // Cancel orderId1 (should be captured)
+    await Actions.dex.cancelSync(config, {
+      orderId: orderId1,
+    })
+
+    // Cancel orderId2 (should NOT be captured due to filter)
+    await Actions.dex.cancelSync(config, {
+      orderId: orderId2,
+    })
+
+    await vi.waitUntil(() => events.length >= 1, { timeout: 2000 })
+
+    // Should only receive 1 event (for orderId1)
+    expect(events.length).toBe(1)
+    expect(events[0]?.orderId).toBe(orderId1)
+  })
+})
+
+describe.todo('useWatchOrderFilled')
+
+describe('useWatchOrderPlaced', () => {
+  test('default', async () => {
+    const { base } = await setupTokenPair()
+
+    const events: any[] = []
+    await renderHook(() =>
+      Hooks.dex.useWatchOrderPlaced({
+        onOrderPlaced(args) {
+          events.push(args)
+        },
+      }),
+    )
+
+    // Place first order
+    await Actions.dex.placeSync(config, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick: Tick.fromPrice('1.001'),
+    })
+
+    // Place second order
+    await Actions.dex.placeSync(config, {
+      token: base,
+      amount: parseEther('50'),
+      type: 'sell',
+      tick: Tick.fromPrice('0.999'),
+    })
+
+    await vi.waitUntil(() => events.length >= 2)
+
+    expect(events.length).toBeGreaterThanOrEqual(2)
+    expect(events[0]?.isBid).toBe(true)
+    expect(events[0]?.amount).toBe(parseEther('100'))
+    expect(events[1]?.isBid).toBe(false)
+    expect(events[1]?.amount).toBe(parseEther('50'))
+  })
+
+  test('behavior: filter by token', async () => {
+    const { base } = await setupTokenPair()
+    const { base: base2 } = await setupTokenPair()
+
+    const events: any[] = []
+    await renderHook(() =>
+      Hooks.dex.useWatchOrderPlaced({
+        token: base, // Filter for only base token
+        onOrderPlaced(args) {
+          events.push(args)
+        },
+      }),
+    )
+
+    // Place order on base (should be captured)
+    await Actions.dex.placeSync(config, {
+      token: base,
+      amount: parseEther('100'),
+      type: 'buy',
+      tick: Tick.fromPrice('1.001'),
+    })
+
+    // Place order on base2 (should NOT be captured due to filter)
+    await Actions.dex.placeSync(config, {
+      token: base2,
+      amount: parseEther('50'),
+      type: 'buy',
+      tick: Tick.fromPrice('1.001'),
+    })
+
+    await vi.waitUntil(() => events.length >= 1, { timeout: 2000 })
+
+    // Should only receive 1 event (for base token)
+    expect(events.length).toBe(1)
+    expect(events[0]?.token.toLowerCase()).toBe(base.toLowerCase())
+  })
+})
+
 describe('useWithdraw', () => {
   test('default', async () => {
     const { base, quote } = await setupTokenPair()

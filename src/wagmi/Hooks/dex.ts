@@ -1,6 +1,7 @@
 import type { DefaultError } from '@tanstack/query-core'
 import type { UseMutationResult } from '@tanstack/react-query'
 import type { Config, ResolvedRegister } from '@wagmi/core'
+import { useEffect } from 'react'
 import { useChainId, useConfig } from 'wagmi'
 import type { ConfigParameter, QueryParameter } from 'wagmi/internal'
 import {
@@ -9,6 +10,7 @@ import {
   useMutation,
   useQuery,
 } from 'wagmi/query'
+import type { ExactPartial, UnionCompute } from '../../internal/types.js'
 
 import {
   buy,
@@ -29,6 +31,10 @@ import {
   placeSync,
   sell,
   sellSync,
+  watchFlipOrderPlaced,
+  watchOrderCancelled,
+  watchOrderFilled,
+  watchOrderPlaced,
   withdraw,
   withdrawSync,
 } from '../Actions/dex.js'
@@ -1400,5 +1406,193 @@ export declare namespace useWithdrawSync {
     withdrawSync.ErrorType,
     withdrawSync.Parameters<config>,
     context
+  >
+}
+
+/**
+ * Hook for watching flip order placement events on the DEX.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   Hooks.dex.useWatchFlipOrderPlaced({
+ *     onFlipOrderPlaced(args) {
+ *       console.log('Flip order placed:', args)
+ *     },
+ *   })
+ *
+ *   return <div>Watching for flip order placements...</div>
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ */
+export function useWatchFlipOrderPlaced<
+  config extends Config = ResolvedRegister['config'],
+>(parameters: useWatchFlipOrderPlaced.Parameters<config> = {}) {
+  const { enabled = true, onFlipOrderPlaced, ...rest } = parameters
+
+  const config = useConfig({ config: parameters.config })
+  const configChainId = useChainId({ config })
+  const chainId = parameters.chainId ?? configChainId
+
+  useEffect(() => {
+    if (!enabled) return
+    if (!onFlipOrderPlaced) return
+    return watchFlipOrderPlaced(config, {
+      ...rest,
+      chainId,
+      onFlipOrderPlaced,
+    })
+  }, [config, enabled, onFlipOrderPlaced, rest, chainId])
+}
+
+export declare namespace useWatchFlipOrderPlaced {
+  type Parameters<config extends Config = Config> = UnionCompute<
+    ExactPartial<watchFlipOrderPlaced.Parameters<config>> &
+      ConfigParameter<config> & { enabled?: boolean | undefined }
+  >
+}
+
+/**
+ * Hook for watching order cancellation events on the DEX.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   Hooks.dex.useWatchOrderCancelled({
+ *     onOrderCancelled(args) {
+ *       console.log('Order cancelled:', args)
+ *     },
+ *   })
+ *
+ *   return <div>Watching for order cancellations...</div>
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ */
+export function useWatchOrderCancelled<
+  config extends Config = ResolvedRegister['config'],
+>(parameters: useWatchOrderCancelled.Parameters<config> = {}) {
+  const { enabled = true, onOrderCancelled, ...rest } = parameters
+
+  const config = useConfig({ config: parameters.config })
+  const configChainId = useChainId({ config })
+  const chainId = parameters.chainId ?? configChainId
+
+  useEffect(() => {
+    if (!enabled) return
+    if (!onOrderCancelled) return
+    return watchOrderCancelled(config, {
+      ...rest,
+      chainId,
+      onOrderCancelled,
+    })
+  }, [config, enabled, onOrderCancelled, rest, chainId])
+}
+
+export declare namespace useWatchOrderCancelled {
+  type Parameters<config extends Config = Config> = UnionCompute<
+    ExactPartial<watchOrderCancelled.Parameters<config>> &
+      ConfigParameter<config> & { enabled?: boolean | undefined }
+  >
+}
+
+/**
+ * Hook for watching order filled events on the DEX.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   Hooks.dex.useWatchOrderFilled({
+ *     onOrderFilled(args) {
+ *       console.log('Order filled:', args)
+ *     },
+ *   })
+ *
+ *   return <div>Watching for order fills...</div>
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ */
+export function useWatchOrderFilled<
+  config extends Config = ResolvedRegister['config'],
+>(parameters: useWatchOrderFilled.Parameters<config> = {}) {
+  const { enabled = true, onOrderFilled, ...rest } = parameters
+
+  const config = useConfig({ config: parameters.config })
+  const configChainId = useChainId({ config })
+  const chainId = parameters.chainId ?? configChainId
+
+  useEffect(() => {
+    if (!enabled) return
+    if (!onOrderFilled) return
+    return watchOrderFilled(config, {
+      ...rest,
+      chainId,
+      onOrderFilled,
+    })
+  }, [config, enabled, onOrderFilled, rest, chainId])
+}
+
+export declare namespace useWatchOrderFilled {
+  type Parameters<config extends Config = Config> = UnionCompute<
+    ExactPartial<watchOrderFilled.Parameters<config>> &
+      ConfigParameter<config> & { enabled?: boolean | undefined }
+  >
+}
+
+/**
+ * Hook for watching order placement events on the DEX.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   Hooks.dex.useWatchOrderPlaced({
+ *     onOrderPlaced(args) {
+ *       console.log('Order placed:', args)
+ *     },
+ *   })
+ *
+ *   return <div>Watching for order placements...</div>
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ */
+export function useWatchOrderPlaced<
+  config extends Config = ResolvedRegister['config'],
+>(parameters: useWatchOrderPlaced.Parameters<config> = {}) {
+  const { enabled = true, onOrderPlaced, ...rest } = parameters
+
+  const config = useConfig({ config: parameters.config })
+  const configChainId = useChainId({ config })
+  const chainId = parameters.chainId ?? configChainId
+
+  useEffect(() => {
+    if (!enabled) return
+    if (!onOrderPlaced) return
+    return watchOrderPlaced(config, {
+      ...rest,
+      chainId,
+      onOrderPlaced,
+    })
+  }, [config, enabled, onOrderPlaced, rest, chainId])
+}
+
+export declare namespace useWatchOrderPlaced {
+  type Parameters<config extends Config = Config> = UnionCompute<
+    ExactPartial<watchOrderPlaced.Parameters<config>> &
+      ConfigParameter<config> & { enabled?: boolean | undefined }
   >
 }
