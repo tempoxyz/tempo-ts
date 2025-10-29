@@ -1,7 +1,7 @@
 {
 	"name": "tempo.ts",
 	"type": "module",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"scripts": {
 		"build": "zile --project ./tsconfig.build.json",
 		"changeset:publish": "pnpm build && changeset publish",
