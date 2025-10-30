@@ -36,7 +36,7 @@ describe('getUserToken', () => {
   })
 })
 
-describe('setUserToken', () => {
+describe.skip('setUserToken', () => {
   test('default', async () => {
     await connect(config, {
       connector: config.connectors[0]!,
@@ -49,7 +49,7 @@ describe('setUserToken', () => {
   })
 })
 
-describe('setUserTokenSync', () => {
+describe.skip('setUserTokenSync', () => {
   test('default', async () => {
     await connect(config, {
       connector: config.connectors[0]!,

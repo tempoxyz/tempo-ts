@@ -19,7 +19,9 @@ describe('usePool', () => {
       }),
     )
 
-    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
+    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy(), {
+      timeout: 5_000,
+    })
 
     expect(result.current.data).toMatchInlineSnapshot(`
       {

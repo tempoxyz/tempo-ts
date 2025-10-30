@@ -11,7 +11,7 @@ export default defineConfig({
   },
   test: {
     retry: 3,
-    testTimeout: 60_000,
+    testTimeout: 10_000,
     reporters: process.env.CI ? ['tree'] : [],
     projects: [
       {
@@ -24,6 +24,7 @@ export default defineConfig({
           typecheck: {
             enabled: true,
           },
+          sequence: { groupOrder: 0 },
         },
       },
       {
@@ -32,6 +33,7 @@ export default defineConfig({
           name: 'prool',
           root: './src/prool',
           environment: 'node',
+          sequence: { groupOrder: 1 },
         },
       },
       {
@@ -40,10 +42,10 @@ export default defineConfig({
           globalSetup: [
             join(import.meta.dirname, './test/viem/setup.global.ts'),
           ],
-          setupFiles: [join(import.meta.dirname, './test/viem/setup.ts')],
           name: 'viem',
           root: './src/viem',
           environment: 'node',
+          sequence: { groupOrder: 2 },
         },
       },
       // {
@@ -75,6 +77,7 @@ export default defineConfig({
           setupFiles: [join(import.meta.dirname, './test/wagmi/setup.ts')],
           name: 'wagmi',
           root: './src/wagmi',
+          sequence: { groupOrder: 3 },
         },
       },
     ],

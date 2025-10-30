@@ -124,16 +124,18 @@ describe('burn', () => {
     })
 
     // Burn half of LP tokens
-    const { receipt: burnReceipt, ...burnResult } = await Actions.amm.burnSync(
-      client,
-      {
-        userToken: tokenAddress,
-        validatorToken: Addresses.defaultFeeToken,
-        liquidity: lpBalanceBefore / 2n,
-        to: account.address,
-      },
-    )
+    const {
+      receipt: burnReceipt,
+      userToken,
+      ...burnResult
+    } = await Actions.amm.burnSync(client, {
+      userToken: tokenAddress,
+      validatorToken: Addresses.defaultFeeToken,
+      liquidity: lpBalanceBefore / 2n,
+      to: account.address,
+    })
     expect(burnReceipt).toBeDefined()
+    expect(userToken).toBe(tokenAddress)
     expect(burnResult).toMatchInlineSnapshot(`
       {
         "amountUserToken": 49999999999999999999n,
@@ -141,7 +143,6 @@ describe('burn', () => {
         "liquidity": 2499999999999999999999999999999999999500n,
         "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "userToken": "0x20C0000000000000000000000000000000000004",
         "validatorToken": "0x20C0000000000000000000000000000000000001",
       }
     `)
@@ -181,21 +182,24 @@ describe('rebalanceSwap', () => {
     })
 
     // Perform rebalance swap
-    const { receipt: swapReceipt, ...swapResult } =
-      await Actions.amm.rebalanceSwapSync(client, {
-        userToken: tokenAddress,
-        validatorToken: Addresses.defaultFeeToken,
-        amountOut: parseEther('10'),
-        to: account2.address,
-        account: account,
-      })
+    const {
+      receipt: swapReceipt,
+      userToken,
+      ...swapResult
+    } = await Actions.amm.rebalanceSwapSync(client, {
+      userToken: tokenAddress,
+      validatorToken: Addresses.defaultFeeToken,
+      amountOut: parseEther('10'),
+      to: account2.address,
+      account: account,
+    })
     expect(swapReceipt).toBeDefined()
+    expect(userToken).toBe(tokenAddress)
     expect(swapResult).toMatchInlineSnapshot(`
       {
         "amountIn": 9985000000000000001n,
         "amountOut": 10000000000000000000n,
         "swapper": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "userToken": "0x20C0000000000000000000000000000000000004",
         "validatorToken": "0x20C0000000000000000000000000000000000001",
       }
     `)

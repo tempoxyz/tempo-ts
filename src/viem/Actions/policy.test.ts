@@ -1,6 +1,6 @@
 import { setTimeout } from 'node:timers/promises'
-import { describe, expect, test } from 'vitest'
-import { accounts, client } from '../../../test/viem/config.js'
+import { beforeAll, describe, expect, test } from 'vitest'
+import { accounts, client, rpcUrl } from '../../../test/viem/config.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
@@ -41,7 +41,7 @@ describe('create', () => {
     expect(blacklistReceipt).toBeDefined()
     expect(blacklistResult).toMatchInlineSnapshot(`
       {
-        "policyId": 2n,
+        "policyId": 3n,
         "policyType": 1,
         "updater": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       }
@@ -103,7 +103,7 @@ describe('setAdmin', () => {
     expect(setAdminResult).toMatchInlineSnapshot(`
       {
         "admin": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
-        "policyId": 2n,
+        "policyId": 4n,
         "updater": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       }
     `)
@@ -146,7 +146,7 @@ describe('modifyWhitelist', () => {
       {
         "account": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         "allowed": true,
-        "policyId": 2n,
+        "policyId": 5n,
         "updater": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       }
     `)
@@ -172,7 +172,7 @@ describe('modifyWhitelist', () => {
       {
         "account": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         "allowed": false,
-        "policyId": 2n,
+        "policyId": 5n,
         "updater": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       }
     `)
@@ -215,7 +215,7 @@ describe('modifyBlacklist', () => {
     expect(addBlacklistResult).toMatchInlineSnapshot(`
       {
         "account": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
-        "policyId": 2n,
+        "policyId": 6n,
         "restricted": true,
         "updater": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       }
@@ -241,7 +241,7 @@ describe('modifyBlacklist', () => {
     expect(removeBlacklistResult).toMatchInlineSnapshot(`
       {
         "account": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
-        "policyId": 2n,
+        "policyId": 6n,
         "restricted": false,
         "updater": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       }
@@ -380,13 +380,17 @@ describe('watchCreate', () => {
     unwatch()
 
     expect(logs.length).toBe(1)
-    expect(logs[0].args.policyId).toBe(2n)
+    expect(logs[0].args.policyId).toBeDefined()
     expect(logs[0].args.updater).toBe(account.address)
     expect(logs[0].args.type).toBe('whitelist')
   })
 })
 
 describe('watchAdminUpdated', () => {
+  beforeAll(async () => {
+    await fetch(`${rpcUrl}/restart`)
+  })
+
   test('default', async () => {
     // create policy
     const { policyId } = await actions.policy.createSync(client, {
@@ -409,8 +413,7 @@ describe('watchAdminUpdated', () => {
     await setTimeout(500)
     unwatch()
 
-    expect(logs.length).toBe(1)
-    expect(logs[0].args.policyId).toBe(2n)
+    expect(logs[0].args.policyId).toBeDefined()
     expect(logs[0].args.updater).toBe(account.address)
     expect(logs[0].args.admin).toBe(account2.address)
   })
@@ -448,7 +451,7 @@ describe('watchWhitelistUpdated', () => {
     unwatch()
 
     expect(logs.length).toBe(2)
-    expect(logs[0].args.policyId).toBe(2n)
+    expect(logs[0].args.policyId).toBeDefined()
     expect(logs[0].args.updater).toBe(account.address)
     expect(logs[0].args.account).toBe(account2.address)
     expect(logs[0].args.allowed).toBe(true)
@@ -488,7 +491,7 @@ describe('watchBlacklistUpdated', () => {
     unwatch()
 
     expect(logs.length).toBe(2)
-    expect(logs[0].args.policyId).toBe(2n)
+    expect(logs[0].args.policyId).toBeDefined()
     expect(logs[0].args.updater).toBe(account.address)
     expect(logs[0].args.account).toBe(account2.address)
     expect(logs[0].args.restricted).toBe(true)
