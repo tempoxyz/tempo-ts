@@ -215,10 +215,11 @@ export function deserialize(
     validAfter,
     feeToken,
     feePayerSignatureOrSender,
+    _authorizationList, // TODO: add
     signature,
   ] = transactionArray as readonly Hex.Hex[]
 
-  if (!(transactionArray.length === 12 || transactionArray.length === 13))
+  if (!(transactionArray.length === 13 || transactionArray.length === 14))
     throw new TransactionEnvelope.InvalidSerializedError({
       attributes: {
         chainId,
@@ -561,6 +562,7 @@ export function serialize(
       ? TokenId.toAddress(feeToken)
       : '0x',
     feePayerSignatureOrSender,
+    [], // TODO: authlist
     ...(signature
       ? [SignatureEnvelope.serialize(SignatureEnvelope.from(signature))]
       : []),

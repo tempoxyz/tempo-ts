@@ -342,6 +342,7 @@ describe('deserialize', () => {
       '0x', // validAfter
       '0x', // feeToken
       '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // feePayerSignatureOrSender (address)
+      [], // authorizationList
     ]).slice(2)}` as const
     const deserialized = TransactionEnvelopeAA.deserialize(serialized)
     expect(deserialized.feePayerSignature).toBe(null)
@@ -367,6 +368,7 @@ describe('deserialize', () => {
       '0x', // validAfter
       '0x', // feeToken
       [Hex.fromNumber(0), Hex.fromNumber(1), Hex.fromNumber(2)], // feePayerSignatureOrSender (signature tuple)
+      [], // authorizationList
     ]).slice(2)}` as const
     const deserialized = TransactionEnvelopeAA.deserialize(serialized)
     expect(deserialized.feePayerSignature).toEqual({
@@ -397,6 +399,7 @@ describe('deserialize', () => {
         '0x', // validAfter
         '0x', // feeToken
         '0x', // feePayerSignature
+        [], // authorizationList
       ]).slice(2)}` as const
       expect(
         TransactionEnvelopeAA.deserialize(serialized),
@@ -439,6 +442,7 @@ describe('deserialize', () => {
         '0x', // validAfter
         '0x', // feeToken
         '0x', // feePayerSignature
+        [], // authorizationList
       ]).slice(2)}` as const
       expect(
         TransactionEnvelopeAA.deserialize(serialized),
@@ -503,6 +507,7 @@ describe('deserialize', () => {
             '0x', // validAfter
             '0x', // feeToken
             '0x', // feePayerSignature
+            [], // authorizationList
           ]).slice(2)}`,
         ),
       ).toThrowErrorMatchingInlineSnapshot(
@@ -532,6 +537,7 @@ describe('deserialize', () => {
             '0x', // validAfter
             '0x', // feeToken
             '0x', // feePayerSignature
+            [], // authorizationList
             '0x1234', // signature
             '0x5678', // extra field
           ]).slice(2)}`,
@@ -539,7 +545,7 @@ describe('deserialize', () => {
       ).toThrowErrorMatchingInlineSnapshot(`
         [TransactionEnvelope.InvalidSerializedError: Invalid serialized transaction of type "aa" was provided.
 
-        Serialized Transaction: "0x76ea01010101d8d7940000000000000000000000000000000000000000008080000080808080821234825678"]
+        Serialized Transaction: "0x76eb01010101d8d7940000000000000000000000000000000000000000008080000080808080c0821234825678"]
       `)
     })
   })
@@ -729,7 +735,7 @@ describe('serialize', () => {
       maxPriorityFeePerGas: Value.fromGwei('2'),
     })
     expect(TransactionEnvelopeAA.serialize(transaction)).toMatchInlineSnapshot(
-      `"0x76f6018477359400847735940080e0df9470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c08082031180808080"`,
+      `"0x76f7018477359400847735940080e0df9470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c08082031180808080c0"`,
     )
   })
 
@@ -740,7 +746,7 @@ describe('serialize', () => {
       nonce: 0n,
     })
     expect(TransactionEnvelopeAA.serialize(transaction)).toMatchInlineSnapshot(
-      `"0x76d001808080c4c3808080c0808080808080"`,
+      `"0x76d101808080c4c3808080c0808080808080c0"`,
     )
   })
 
@@ -753,7 +759,7 @@ describe('serialize', () => {
     })
     const serialized = TransactionEnvelopeAA.serialize(transaction)
     expect(serialized).toMatchInlineSnapshot(
-      `"0x76d001808080c4c3808080c0808080808080"`,
+      `"0x76d101808080c4c3808080c0808080808080c0"`,
     )
   })
 
@@ -774,7 +780,7 @@ describe('serialize', () => {
       nonce: 0n,
     })
     expect(TransactionEnvelopeAA.serialize(transaction)).toMatchInlineSnapshot(
-      `"0x76f84f01808080f842df9470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080e1943c44cdddb6a900fa2b585dd299e03d12fa4293bc881bc16d674ec80000821234c0808080808080"`,
+      `"0x76f85001808080f842df9470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080e1943c44cdddb6a900fa2b585dd299e03d12fa4293bc881bc16d674ec80000821234c0808080808080c0"`,
     )
   })
 
@@ -794,7 +800,7 @@ describe('serialize', () => {
           signature: SignatureEnvelope.from(signature),
         }),
       ).toMatchInlineSnapshot(
-        `"0x76f86701808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c0808080808080b841e333995974d0f82e5dfdb201476c03516d849f1fd3b05db4bb1595dba9ad207827aca889a4780887341008f2d3fac949b145304735ea395b5d68498e80e138be1b"`,
+        `"0x76f86801808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c0808080808080c0b8416b37e17bf41d92dfee5ffdce55431bf01dd7875b2229d6258350c5ee6fe6a54225b867dc1b19c9ec97833ebdccd830d2846c5b724b72dcd754d694d08b5e80ee1c"`,
       )
     })
 
@@ -843,7 +849,7 @@ describe('serialize', () => {
         },
       }),
     ).toMatchInlineSnapshot(
-      `"0x76e701808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c08080808080c3800102"`,
+      `"0x76e801808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c08080808080c3800102c0"`,
     )
   })
 
@@ -858,7 +864,7 @@ describe('serialize', () => {
         feePayerSignature: null,
       }),
     ).toMatchInlineSnapshot(
-      `"0x76e401808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c0808080808000"`,
+      `"0x76e501808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c0808080808000c0"`,
     )
   })
 
@@ -874,7 +880,7 @@ describe('serialize', () => {
         format: 'feePayer',
       }),
     ).toMatchInlineSnapshot(
-      `"0x78f83801808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c0808080808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266"`,
+      `"0x78f83901808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c0808080808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266c0"`,
     )
   })
 })
@@ -900,7 +906,7 @@ describe('hash', () => {
         signature: SignatureEnvelope.from(signature),
       })
       expect(TransactionEnvelopeAA.hash(signed)).toMatchInlineSnapshot(
-        `"0x3f46e9635e9a55ceb7c4efa5a652227446c392becf1853ca024078974451ba36"`,
+        `"0xc91fd71bacac6ae31c46c7b585b44c8c0be2a9f21f53c13c2b1ad4753765958b"`,
       )
     })
   })
@@ -919,7 +925,7 @@ describe('hash', () => {
     expect(
       TransactionEnvelopeAA.hash(transaction, { presign: true }),
     ).toMatchInlineSnapshot(
-      `"0x10470898907327464194b05c9d6cbc6bc6c4dab48e6287898c0600dd231f111d"`,
+      `"0xb20a442331d0ff8c96bca51b09841c4c404aee2c31ee0cb1335facc31e89a8dc"`,
     )
   })
 })
@@ -939,7 +945,7 @@ describe('getSignPayload', () => {
     expect(
       TransactionEnvelopeAA.getSignPayload(transaction),
     ).toMatchInlineSnapshot(
-      `"0x10470898907327464194b05c9d6cbc6bc6c4dab48e6287898c0600dd231f111d"`,
+      `"0xb20a442331d0ff8c96bca51b09841c4c404aee2c31ee0cb1335facc31e89a8dc"`,
     )
   })
 })
@@ -961,7 +967,7 @@ describe('getFeePayerSignPayload', () => {
         sender: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
       }),
     ).toMatchInlineSnapshot(
-      `"0xaeee7aa3df5d00d3ca8fe76e524f1bc728741f4dfb3e99cbb908d666926a1cf6"`,
+      `"0x9b9af14ebc42d5c5e92f59bac37b4eaafeae432fb17c9acf5778e33dc6956e4c"`,
     )
   })
 
@@ -1086,6 +1092,7 @@ describe('e2e', () => {
       expect(blockHash).toBeDefined()
       expect(rest).toMatchInlineSnapshot(`
         {
+          "aaAuthorizationList": [],
           "accessList": [],
           "calls": [
             {
@@ -1101,17 +1108,17 @@ describe('e2e', () => {
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "gas": "0x186a0",
           "gasPrice": "0x2540be42c",
-          "hash": "0x619a731fb6541ad920821eb1cb11fa0bc718dbd894913d7952be322f6245c98e",
+          "hash": "0xe8d36d90b594a0120c9dd4d0eb7e8cc9cd7bb1024691b19f874df01ebc09b474",
           "maxFeePerGas": "0x4a817c800",
           "maxPriorityFeePerGas": "0x2540be400",
           "nonce": "0x0",
           "nonceKey": "0x0",
           "signature": {
-            "r": "0xe43858180a3fb0849348c721682a8610ee0583328f20644c5a20aa51acef479c",
-            "s": "0x3106b71428823fe3f9199d1476605220af5855f1cb1b0483a48a50d7bc36096b",
+            "r": "0x8eef3ac28259f44f7943e77bb04b4d7e622740f66d6b9177c84823b062a35fb9",
+            "s": "0x1c688c8f91305d2c73a7c45792290101c8465984a60bb8925eec9d5fc7a3b4f3",
             "type": "secp256k1",
-            "v": "0x1",
-            "yParity": "0x1",
+            "v": "0x0",
+            "yParity": "0x0",
           },
           "transactionIndex": "0x0",
           "type": "0x76",
@@ -1136,7 +1143,7 @@ describe('e2e', () => {
         "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
         "status": "0x0",
         "to": "0x0000000000000000000000000000000000000000",
-        "transactionHash": "0x619a731fb6541ad920821eb1cb11fa0bc718dbd894913d7952be322f6245c98e",
+        "transactionHash": "0xe8d36d90b594a0120c9dd4d0eb7e8cc9cd7bb1024691b19f874df01ebc09b474",
         "transactionIndex": "0x0",
         "type": "0x76",
       }
@@ -1209,6 +1216,7 @@ describe('e2e', () => {
       expect(blockHash).toBeDefined()
       expect(rest).toMatchInlineSnapshot(`
         {
+          "aaAuthorizationList": [],
           "accessList": [],
           "calls": [
             {
@@ -1224,7 +1232,7 @@ describe('e2e', () => {
           "from": "0x6472aeab3269f4165775753156702c06ccc70f8b",
           "gas": "0x186a0",
           "gasPrice": "0x2540be42c",
-          "hash": "0x6555ebf80163ff84929f864a281fd475685c15279b516233035d4a243f427bfe",
+          "hash": "0x9d06746bfc697544c9ebf42794b92b3b6467a35365886a8500fbfa67695fb0b0",
           "maxFeePerGas": "0x4a817c800",
           "maxPriorityFeePerGas": "0x2540be400",
           "nonce": "0x0",
@@ -1233,8 +1241,8 @@ describe('e2e', () => {
             "preHash": false,
             "pubKeyX": "0xecbf69146add5d7c649c96d90b64d90702c6faae7115adbad50e5e61b2c5f40d",
             "pubKeyY": "0xeca3a5fc6dc4225b4f3f9720750651d43c6eb45c0492b8e9930394d1524784c6",
-            "r": "0x78de783595944c23338512ed47edac09c3908e6fdbcd1283cebd86ddb24f160f",
-            "s": "0x442099a953b4db06ae2eaa901c29979cbda1f126169c99e534855c4691c220ca",
+            "r": "0xab946fe807b163d6f700fa51d9c8fc0ec7934d5e56cd30cdd92e4385e9d96488",
+            "s": "0x1e069bb91262e530dc63492751ed3e78ea0dddbd804793b07b6262ce9cc540df",
             "type": "p256",
           },
           "transactionIndex": "0x0",
@@ -1260,7 +1268,7 @@ describe('e2e', () => {
         "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
         "status": "0x0",
         "to": "0x0000000000000000000000000000000000000000",
-        "transactionHash": "0x6555ebf80163ff84929f864a281fd475685c15279b516233035d4a243f427bfe",
+        "transactionHash": "0x9d06746bfc697544c9ebf42794b92b3b6467a35365886a8500fbfa67695fb0b0",
         "transactionIndex": "0x0",
         "type": "0x76",
       }
@@ -1335,6 +1343,7 @@ describe('e2e', () => {
       expect(signature).toBeDefined()
       expect(rest).toMatchInlineSnapshot(`
         {
+          "aaAuthorizationList": [],
           "accessList": [],
           "calls": [
             {
@@ -1455,6 +1464,7 @@ describe('e2e', () => {
       expect(blockHash).toBeDefined()
       expect(rest).toMatchInlineSnapshot(`
         {
+          "aaAuthorizationList": [],
           "accessList": [],
           "calls": [
             {
@@ -1470,7 +1480,7 @@ describe('e2e', () => {
           "from": "0x6472aeab3269f4165775753156702c06ccc70f8b",
           "gas": "0x186a0",
           "gasPrice": "0x2540be42c",
-          "hash": "0x69f56d391d297b45ce3767fa803c93b14ceb1662db67b3822795da9032dab925",
+          "hash": "0x13a50edc4483a97af7ab30abea40317ed15ea24acca354a506e594546e4e4d5d",
           "maxFeePerGas": "0x4a817c800",
           "maxPriorityFeePerGas": "0x2540be400",
           "nonce": "0x0",
@@ -1478,10 +1488,10 @@ describe('e2e', () => {
           "signature": {
             "pubKeyX": "0xecbf69146add5d7c649c96d90b64d90702c6faae7115adbad50e5e61b2c5f40d",
             "pubKeyY": "0xeca3a5fc6dc4225b4f3f9720750651d43c6eb45c0492b8e9930394d1524784c6",
-            "r": "0x85ab9affd4d7f867f4cc7c4a89995ddeab77c803cf201a22d4797a23852bde22",
-            "s": "0x451d76d4db09f1ab6a635d46eaece7bd006c0dc67d750830d4154fbee599dcc1",
+            "r": "0x0eeec9c88593ffd3d8a42fa308b671032810bb9ff4dece947274689b90ae675b",
+            "s": "0x393c0a20608cf9e4983541bc2560387657367c2292ee6a0de36aba4fa0234b2f",
             "type": "webAuthn",
-            "webauthnData": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a225a7275684846506271366434384f646c4f326658574c52697456457739674d5944594f6141704333744538222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d",
+            "webauthnData": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a22484b66643161365637696a496a3455624849716f7772752d4d35473651566c49725a394c753152685a494d222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d",
           },
           "transactionIndex": "0x0",
           "type": "0x76",
@@ -1506,7 +1516,7 @@ describe('e2e', () => {
         "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
         "status": "0x0",
         "to": "0x0000000000000000000000000000000000000000",
-        "transactionHash": "0x69f56d391d297b45ce3767fa803c93b14ceb1662db67b3822795da9032dab925",
+        "transactionHash": "0x13a50edc4483a97af7ab30abea40317ed15ea24acca354a506e594546e4e4d5d",
         "transactionIndex": "0x0",
         "type": "0x76",
       }
@@ -1587,7 +1597,7 @@ describe('e2e', () => {
         "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000008000000000008000000000000000000000000000000000000000000000000000100000000000000000000000000000010000000000000000000000000000000000020000000000000100000000040000000000000000020000000000000000000000000000000000000000000000000000000000000000002000000200000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
         "status": "0x1",
         "to": "0x0000000000000000000000000000000000000000",
-        "transactionHash": "0x4dfc9ff9ca1613f5598aef948a6582f5b1e703cac2a9c42ff6aee17594e8e410",
+        "transactionHash": "0xa7da95d6ab81e4b067f56460bab6a268fb408548ea8ef742e6aedf0f691ceac2",
         "transactionIndex": "0x0",
         "type": "0x76",
       }
@@ -1606,6 +1616,7 @@ describe('e2e', () => {
       blockNumber: undefined,
     }).toMatchInlineSnapshot(`
       {
+        "aaAuthorizationList": [],
         "accessList": [],
         "blockHash": undefined,
         "blockNumber": undefined,
@@ -1620,24 +1631,24 @@ describe('e2e', () => {
         "data": undefined,
         "feePayer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "feePayerSignature": {
-          "r": 43378281592208347441865552210308016112467267198196289074355464650745129225935n,
-          "s": 27085416135574431106158684173224223218527774861914424707575629469330173001812n,
-          "v": 27,
-          "yParity": 0,
+          "r": 80512447202767849793858007846678479347358589501648358215388253619035192271938n,
+          "s": 40238221849216766843789597100279112253563554288667311120962193909435547813492n,
+          "v": 28,
+          "yParity": 1,
         },
         "feeToken": null,
         "from": "0x0a275bee91b39092dfd57089dee0eb0539020b90",
         "gas": 100000n,
         "gasPrice": 44n,
-        "hash": "0x4dfc9ff9ca1613f5598aef948a6582f5b1e703cac2a9c42ff6aee17594e8e410",
+        "hash": "0xa7da95d6ab81e4b067f56460bab6a268fb408548ea8ef742e6aedf0f691ceac2",
         "maxFeePerGas": 44n,
         "maxPriorityFeePerGas": 44n,
         "nonce": 0n,
         "nonceKey": 0n,
         "signature": {
           "signature": {
-            "r": 58903572187112378577233587639727517391280428405029588654830213610953355580984n,
-            "s": 37751027942634060522067136615803679123517065498160046803985825017412584342835n,
+            "r": 52952797707669259512756898069028386149476743542977942578051655184821265263545n,
+            "s": 4936024390624906872836313019860217652684780007900128953460482337968721326972n,
             "yParity": 1,
           },
           "type": "secp256k1",
