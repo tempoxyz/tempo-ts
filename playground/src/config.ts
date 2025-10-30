@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
-import { tempo, tempoLocal } from 'tempo.ts/chains'
+import { tempoDev, tempoLocal } from 'tempo.ts/chains'
 import { dangerous_secp256k1, webAuthn } from 'tempo.ts/wagmi'
 import { createConfig, http } from 'wagmi'
 
@@ -7,11 +7,11 @@ export const config = createConfig({
   batch: {
     multicall: false,
   },
-  chains: [import.meta.env.VITE_LOCAL !== 'true' ? tempo : tempoLocal],
+  chains: [import.meta.env.VITE_LOCAL !== 'true' ? tempoDev : tempoLocal],
   connectors: [webAuthn(), dangerous_secp256k1()],
   multiInjectedProviderDiscovery: false,
   transports: {
-    [tempo.id]: http(undefined, {
+    [tempoDev.id]: http(undefined, {
       batch: true,
       fetchOptions: {
         headers: {
