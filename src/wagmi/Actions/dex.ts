@@ -681,16 +681,16 @@ export namespace getOrders {
     config: Config,
     parameters: infiniteQueryOptions.Parameters<config, selectData>,
   ): infiniteQueryOptions.ReturnValue<config, selectData> {
-    const { query, ...rest } = parameters
+    const { cursor, query, ...rest } = parameters
     return {
       pages: 1,
       ...query,
       getNextPageParam: (x) => x.nextCursor,
-      initialPageParam: rest.cursor ?? undefined,
+      initialPageParam: cursor ?? undefined,
       queryKey: queryKey(rest),
-      async queryFn({ queryKey }) {
+      async queryFn({ queryKey, pageParam: cursor }) {
         const [, parameters] = queryKey
-        return await getOrders(config, parameters)
+        return await getOrders(config, { ...parameters, cursor })
       },
     }
   }
