@@ -531,18 +531,11 @@ describe('getOrders', () => {
   test('default', async () => {
     await setupOrders()
 
-    // Get orders with default pagination
     const response = await Actions.dex.getOrders(config, {
       limit: 10,
     })
 
-    expect(response.orders.length).toBe(10)
-    expect(response.nextCursor).not.toBeNull()
-
-    // Verify conversion from RPC - amounts should be bigints
-    expect(typeof response.orders[0]?.amount).toBe('bigint')
-    expect(typeof response.orders[0]?.orderId).toBe('bigint')
-    expect(typeof response.orders[0]?.remaining).toBe('bigint')
+    expect(response).matchSnapshot()
   })
 
   describe('infiniteQueryOptions', () => {

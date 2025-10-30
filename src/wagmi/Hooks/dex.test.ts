@@ -523,10 +523,16 @@ describe('useGetOrders', () => {
 
     await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
-    const data = result.current.data!
-    expect(data.pages.length).toBeGreaterThan(0)
-    expect(data.pages[0]?.orders.length).toBe(10)
-    expect(result.current.hasNextPage).toBe(true)
+    expect(result.current.data).matchSnapshot()
+
+    // fetch next page
+    result.current.fetchNextPage()
+
+    await vi.waitFor(() => {
+      expect(result.current.data?.pages.length).toBe(2)
+    })
+
+    expect(result.current.data).matchSnapshot()
   })
 })
 
