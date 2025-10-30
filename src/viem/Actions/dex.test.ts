@@ -628,7 +628,7 @@ describe('getOrders', () => {
     expect(response).matchSnapshot()
   })
 
-  test.skip('behavior: filter by remaining range', async () => {
+  test('behavior: filter by remaining range', async () => {
     await setupOrders(client)
 
     // Get orders with remaining between 100 and 300

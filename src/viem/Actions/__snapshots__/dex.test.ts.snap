@@ -319,6 +319,84 @@ exports[`getOrders > behavior: filter by maker 1`] = `
 }
 `;
 
+exports[`getOrders > behavior: filter by remaining range 1`] = `
+{
+  "nextCursor": "0xa",
+  "orders": [
+    {
+      "amount": 260000000000000000000n,
+      "baseToken": "0x20c0000000000000000000000000000000000007",
+      "flipTick": 0,
+      "isBid": false,
+      "isFlip": false,
+      "maker": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "next": 42n,
+      "orderId": 22n,
+      "prev": 2n,
+      "quoteToken": "0x20c0000000000000000000000000000000000006",
+      "remaining": 260000000000000000000n,
+      "tick": -900,
+    },
+    {
+      "amount": 280000000000000000000n,
+      "baseToken": "0x20c0000000000000000000000000000000000007",
+      "flipTick": 0,
+      "isBid": false,
+      "isFlip": false,
+      "maker": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "next": 44n,
+      "orderId": 24n,
+      "prev": 4n,
+      "quoteToken": "0x20c0000000000000000000000000000000000006",
+      "remaining": 280000000000000000000n,
+      "tick": -700,
+    },
+    {
+      "amount": 100000000000000000000n,
+      "baseToken": "0x20c0000000000000000000000000000000000007",
+      "flipTick": 0,
+      "isBid": false,
+      "isFlip": false,
+      "maker": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "next": 26n,
+      "orderId": 6n,
+      "prev": 0n,
+      "quoteToken": "0x20c0000000000000000000000000000000000006",
+      "remaining": 100000000000000000000n,
+      "tick": -500,
+    },
+    {
+      "amount": 300000000000000000000n,
+      "baseToken": "0x20c0000000000000000000000000000000000007",
+      "flipTick": 0,
+      "isBid": false,
+      "isFlip": false,
+      "maker": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "next": 46n,
+      "orderId": 26n,
+      "prev": 6n,
+      "quoteToken": "0x20c0000000000000000000000000000000000006",
+      "remaining": 300000000000000000000n,
+      "tick": -500,
+    },
+    {
+      "amount": 120000000000000000000n,
+      "baseToken": "0x20c0000000000000000000000000000000000007",
+      "flipTick": 0,
+      "isBid": false,
+      "isFlip": false,
+      "maker": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "next": 28n,
+      "orderId": 8n,
+      "prev": 0n,
+      "quoteToken": "0x20c0000000000000000000000000000000000006",
+      "remaining": 120000000000000000000n,
+      "tick": -300,
+    },
+  ],
+}
+`;
+
 exports[`getOrders > behavior: filter by tick range 1`] = `
 {
   "nextCursor": null,
