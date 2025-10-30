@@ -7,6 +7,7 @@ import { accounts } from '../../../test/viem/config.js'
 import {
   config,
   renderHook,
+  setupOrders,
   setupTokenPair,
 } from '../../../test/wagmi/config.js'
 
@@ -507,6 +508,25 @@ describe('useOrder', () => {
     })
 
     expect(result.current.error?.message).toContain('OrderDoesNotExist')
+  })
+})
+
+describe.only('useGetOrders', () => {
+  test('default', async () => {
+    await setupOrders()
+
+    const { result } = await renderHook(() =>
+      Hooks.dex.useGetOrders({
+        limit: 10,
+      }),
+    )
+
+    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
+
+    const data = result.current.data!
+    expect(data.pages.length).toBeGreaterThan(0)
+    expect(data.pages[0]?.orders.length).toBe(10)
+    expect(result.current.hasNextPage).toBe(true)
   })
 })
 

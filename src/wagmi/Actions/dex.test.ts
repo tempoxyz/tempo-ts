@@ -1,10 +1,16 @@
 import { connect } from '@wagmi/core'
+import * as Address from 'ox/Address'
 import { Addresses, Tick } from 'tempo.ts/viem'
 import { Actions } from 'tempo.ts/wagmi'
 import { isAddress, parseEther } from 'viem'
 import { describe, expect, test } from 'vitest'
 import { accounts } from '../../../test/viem/config.js'
-import { config, setupTokenPair } from '../../../test/wagmi/config.js'
+import {
+  config,
+  queryClient,
+  setupOrders,
+  setupTokenPair,
+} from '../../../test/wagmi/config.js'
 
 const account = accounts[0]
 const account2 = accounts[1]
@@ -519,6 +525,42 @@ describe('getOrder', () => {
     })
     expect(order2.prev).toBe(orderId1) // should point to first order
     expect(order2.next).toBe(0n) // should be 0 as it's last
+  })
+})
+
+describe('getOrders', () => {
+  test('default', async () => {
+    await setupOrders()
+
+    // Get orders with default pagination
+    const response = await Actions.dex.getOrders(config, {
+      limit: 10,
+    })
+
+    expect(response.orders.length).toBe(10)
+    expect(response.nextCursor).not.toBeNull()
+
+    // Verify conversion from RPC - amounts should be bigints
+    expect(typeof response.orders[0]?.amount).toBe('bigint')
+    expect(typeof response.orders[0]?.orderId).toBe('bigint')
+    expect(typeof response.orders[0]?.remaining).toBe('bigint')
+  })
+
+  describe('infiniteQueryOptions', () => {
+    test('default', async () => {
+      await setupOrders()
+
+      const options = Actions.dex.getOrders.infiniteQueryOptions(config, {
+        limit: 5,
+        query: {
+          pages: 2,
+        },
+      })
+
+      const result = await queryClient.fetchInfiniteQuery(options)
+
+      expect(result).matchSnapshot()
+    })
   })
 })
 
