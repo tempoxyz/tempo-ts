@@ -1,5 +1,5 @@
-import { Actions, Addresses, Tick } from 'tempo.ts/viem'
 import * as Address from 'ox/Address'
+import { Actions, Addresses, Tick } from 'tempo.ts/viem'
 import { parseEther } from 'viem'
 import { describe, expect, test } from 'vitest'
 import {
@@ -516,7 +516,7 @@ describe('getOrder', () => {
   })
 })
 
-describe.only('getOrders', () => {
+describe('getOrders', () => {
   test('default', async () => {
     await setupOrders(client)
 

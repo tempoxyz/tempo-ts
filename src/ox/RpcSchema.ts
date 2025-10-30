@@ -1,8 +1,8 @@
 import type * as RpcSchema from 'ox/RpcSchema'
-import type * as OrdersFilters from './OrdersFilters.js'
-import type * as Order from './Order.js'
-import type * as Pagination from './Pagination.js'
 import type { UnionToTuple } from '../internal/types.js'
+import type * as Order from './Order.js'
+import type * as OrdersFilters from './OrdersFilters.js'
+import type * as Pagination from './Pagination.js'
 
 /**
  * Union of all JSON-RPC Methods for the `dex_` namespace.

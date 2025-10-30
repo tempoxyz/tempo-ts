@@ -1,5 +1,5 @@
-import { describe, expect, test } from 'vitest'
 import { Order, OrdersFilters, Pagination } from 'tempo.ts/ox'
+import { describe, expect, test } from 'vitest'
 
 describe('toRpcParameters', () => {
   test('default', () => {

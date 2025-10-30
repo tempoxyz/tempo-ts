@@ -5,7 +5,6 @@ import {
   type Chain,
   type Client,
   defineChain,
-  http,
   type LocalAccount,
   parseEther,
   type Transport,

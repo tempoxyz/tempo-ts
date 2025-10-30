@@ -1,5 +1,5 @@
-import { describe, expect, test } from 'vitest'
 import { OrdersFilters } from 'tempo.ts/ox'
+import { describe, expect, test } from 'vitest'
 
 describe('fromRpc', () => {
   test('default', () => {
