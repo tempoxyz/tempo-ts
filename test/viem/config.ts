@@ -1,15 +1,17 @@
 import type { FixedArray } from '@wagmi/core/internal'
-import { Actions, Addresses } from 'tempo.ts/viem'
+import { Actions, Addresses, Tick } from 'tempo.ts/viem'
 import {
   type Account,
   type Chain,
   type Client,
   defineChain,
+  http,
   type LocalAccount,
   parseEther,
   type Transport,
 } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
+import { sendTransactionSync } from 'viem/actions'
 import { tempoLocal } from '../../src/chains.js'
 import { createTempoClient } from '../../src/viem/Client.js'
 
@@ -149,4 +151,34 @@ export async function setupTokenPair(
   return await Actions.dex.createPairSync(client, {
     base: baseToken,
   })
+}
+
+export async function setupOrders(client: Client<Transport, Chain, Account>) {
+  const { base: base1 } = await setupTokenPair(client)
+  const { base: base2 } = await setupTokenPair(client)
+
+  const bases = [base1, base2]
+
+  // Create 50 orders with varying amounts, ticks, and tokens
+  const calls = []
+  for (let i = 0; i < 50; i++) {
+    const token = bases[i % bases.length]!
+    const amount = parseEther(String(50 + i * 10))
+    const isBuy = i % 2 === 0
+    const tickPrice = 1.0 + ((i % 20) - 10) * 0.001
+    const tick = Tick.fromPrice(String(tickPrice))
+
+    calls.push(
+      Actions.dex.place.call({
+        token,
+        amount,
+        type: isBuy ? 'buy' : 'sell',
+        tick,
+      }),
+    )
+  }
+
+  await sendTransactionSync(client, { calls } as never)
+
+  return { bases }
 }

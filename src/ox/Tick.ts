@@ -21,6 +21,11 @@ export const maxTick = 2000
 export const priceScale = 100_000
 
 /**
+ * Tick type.
+ */
+export type Tick = number
+
+/**
  * Converts a tick to a price string.
  *
  * @example
