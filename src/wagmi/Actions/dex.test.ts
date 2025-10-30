@@ -1,5 +1,4 @@
 import { connect } from '@wagmi/core'
-import * as Address from 'ox/Address'
 import { Addresses, Tick } from 'tempo.ts/viem'
 import { Actions } from 'tempo.ts/wagmi'
 import { isAddress, parseEther } from 'viem'

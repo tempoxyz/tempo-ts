@@ -1,7 +1,7 @@
 import type * as Query from '@tanstack/query-core'
-import type * as Hex from 'ox/Hex'
 import { type Config, getConnectorClient } from '@wagmi/core'
 import type { ChainIdParameter, ConnectorParameter } from '@wagmi/core/internal'
+import type * as Hex from 'ox/Hex'
 import type { Account } from 'viem'
 import type {
   PartialBy,

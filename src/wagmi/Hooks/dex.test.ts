@@ -511,7 +511,7 @@ describe('useOrder', () => {
   })
 })
 
-describe.only('useGetOrders', () => {
+describe('useGetOrders', () => {
   test('default', async () => {
     await setupOrders()
 
