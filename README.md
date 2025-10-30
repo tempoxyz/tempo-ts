@@ -23,6 +23,7 @@ cargo install --path bin/tempo
 | Entrypoint       | Description                              |
 | ---------------- | ---------------------------------------- |
 | `tempo.ts/viem`  | Tempo extension for Viem.                |
+| `tempo.ts/wagmi` | Tempo actions/hooks for Wagmi.           |
 | `tempo.ts/ox`    | Tempo primitives for Ox.                 |
 | `tempo.ts/prool` | Tempo instance for pooled HTTP/WS tests. |
 
@@ -50,6 +51,37 @@ const hash = await client.sendTransaction({
 });
 
 const transaction = await client.getTransaction({ hash });
+```
+
+### `tempo.ts/wagmi`
+
+```ts
+import { createConfig, http } from 'wagmi';
+import { tempo } from 'tempo.ts/chains';
+import { Actions, Hooks, webauthn } from 'tempo.ts/wagmi';
+
+export const config = createConfig({
+  chains: [tempo],
+  connectors: [webAuthn()],
+  transports: {
+    [tempo.id]: http(),
+  },
+});
+
+const { receipt } = await Actions.dex.buySync(config, {
+  tokenIn: '0x...',
+  tokenOut: '0x...',
+  amountOut: parseEther('100'),
+  maxAmountIn: parseEther('150'),
+});
+
+const { data, mutate } = Hooks.dex.useBuySync();
+mutate({
+  tokenIn: '0x...',
+  tokenOut: '0x...',
+  amountOut: parseEther('100'),
+  maxAmountIn: parseEther('150'),
+});
 ```
 
 ### `tempo.ts/ox`
