@@ -25,6 +25,9 @@ import {
   writeContractSync,
 } from 'viem/actions'
 import type { Compute, UnionOmit } from '../../internal/types.js'
+import * as Order from '../../ox/Order.js'
+import * as OrdersFilters from '../../ox/OrdersFilters.js'
+import * as Pagination from '../../ox/Pagination.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
 import type {
@@ -821,6 +824,56 @@ export namespace getOrder {
       functionName: 'getOrder',
     })
   }
+}
+
+/**
+ * Gets paginated orders from the orderbook.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/viem'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const { items, nextCursor } = await Actions.dex.getOrders(client, {
+ *   limit: 100,
+ *   filters: {
+ *     baseToken: '0x20c0...',
+ *     isBid: true,
+ *   }
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Paginated orders and next cursor.
+ */
+export async function getOrders<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getOrders.Parameters = {},
+): Promise<getOrders.ReturnValue> {
+  const params = Pagination.toRpcParameters(parameters, {
+    toRpcFilters: OrdersFilters.toRpc,
+  })
+  const response = await client.request<any>({
+    method: 'dex_getOrders',
+    params: [params],
+  })
+  return Pagination.fromRpcResponse(response, {
+    key: 'orders',
+    fromRpc: Order.fromRpc,
+  })
+}
+
+export namespace getOrders {
+  export type Parameters = Pagination.Params<OrdersFilters.OrdersFilters>
+
+  export type ReturnValue = Pagination.Response<'orders', Order.Order>
 }
 
 /**

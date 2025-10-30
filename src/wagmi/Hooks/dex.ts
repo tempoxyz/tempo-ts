@@ -1,12 +1,14 @@
-import type { DefaultError } from '@tanstack/query-core'
+import type { DefaultError, InfiniteData } from '@tanstack/query-core'
 import type { UseMutationResult } from '@tanstack/react-query'
 import type { Config, ResolvedRegister } from '@wagmi/core'
 import { useEffect } from 'react'
 import { useChainId, useConfig } from 'wagmi'
 import type { ConfigParameter, QueryParameter } from 'wagmi/internal'
 import {
+  type UseInfiniteQueryReturnType,
   type UseMutationParameters,
   type UseQueryReturnType,
+  useInfiniteQuery,
   useMutation,
   useQuery,
 } from 'wagmi/query'
@@ -23,6 +25,7 @@ import {
   getBuyQuote,
   getOrder,
   getOrderbook,
+  getOrders,
   getPriceLevel,
   getSellQuote,
   place,
@@ -636,6 +639,90 @@ export declare namespace useOrder {
 
   export type ReturnValue<selectData = getOrder.ReturnValue> =
     UseQueryReturnType<selectData, Error>
+}
+
+/**
+ * Hook for getting paginated orders from the orderbook.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = Hooks.dex.useGetOrders({
+ *     limit: 10,
+ *     filters: {
+ *       baseToken: '0x20c0...',
+ *       isBid: true,
+ *     }
+ *   })
+ *
+ *   return (
+ *     <div>
+ *       {data?.pages.map((page, i) => (
+ *         <div key={i}>
+ *           {page.orders.map((order) => (
+ *             <div key={order.orderId.toString()}>{order.amount.toString()}</div>
+ *           ))}
+ *         </div>
+ *       ))}
+ *       {hasNextPage && (
+ *         <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+ *           Load More
+ *         </button>
+ *       )}
+ *     </div>
+ *   )
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ * @returns Infinite query result with paginated orders.
+ */
+export function useGetOrders<
+  config extends Config = ResolvedRegister['config'],
+  selectData = getOrders.ReturnValue,
+>(parameters: useGetOrders.Parameters<config, selectData> = {}) {
+  const { query = {}, ...rest } = parameters
+
+  const config = useConfig(parameters)
+  const chainId = useChainId({ config })
+
+  const options = getOrders.infiniteQueryOptions(config, {
+    ...rest,
+    chainId: parameters.chainId ?? chainId,
+    query: undefined,
+  })
+
+  return useInfiniteQuery({
+    ...query,
+    ...options,
+  } as never) as useGetOrders.ReturnValue<selectData>
+}
+
+export declare namespace useGetOrders {
+  export type Parameters<
+    config extends Config = ResolvedRegister['config'],
+    selectData = getOrders.ReturnValue,
+  > = ConfigParameter<config> &
+    Omit<
+      QueryParameter<
+        getOrders.ReturnValue,
+        DefaultError,
+        selectData,
+        getOrders.QueryKey<config>
+      >,
+      'queryFn' | 'queryKey'
+    > &
+    ExactPartial<
+      Omit<
+        getOrders.infiniteQueryOptions.Parameters<config, selectData>,
+        'query'
+      >
+    >
+
+  export type ReturnValue<selectData = getOrders.ReturnValue> =
+    UseInfiniteQueryReturnType<InfiniteData<selectData>, Error>
 }
 
 /**

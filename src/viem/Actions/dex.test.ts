@@ -1,7 +1,13 @@
+import * as Address from 'ox/Address'
 import { Actions, Addresses, Tick } from 'tempo.ts/viem'
 import { parseEther } from 'viem'
 import { describe, expect, test } from 'vitest'
-import { accounts, client, setupTokenPair } from '../../../test/viem/config.js'
+import {
+  accounts,
+  client,
+  setupOrders,
+  setupTokenPair,
+} from '../../../test/viem/config.js'
 
 describe('buy', () => {
   test('default', async () => {
@@ -507,6 +513,209 @@ describe('getOrder', () => {
     })
     expect(order2.prev).toBe(orderId1) // should point to first order
     expect(order2.next).toBe(0n) // should be 0 as it's last
+  })
+})
+
+describe('getOrders', () => {
+  test('default', async () => {
+    await setupOrders(client)
+
+    // Get orders with default pagination
+    const response = await Actions.dex.getOrders(client, {
+      limit: 10,
+    })
+
+    expect(response).matchSnapshot()
+
+    // Get orders with cursor
+    const response2 = await Actions.dex.getOrders(client, {
+      cursor: response.nextCursor!,
+      limit: 10,
+    })
+
+    expect(response2).matchSnapshot()
+  })
+
+  test.skip('behavior: filter by baseToken', async () => {
+    const { bases } = await setupOrders(client)
+
+    // Get orders filtered by base1
+    const response = await Actions.dex.getOrders(client, {
+      filters: {
+        baseToken: bases[0],
+      },
+      limit: 5,
+    })
+
+    // Verify all orders match the filter
+    expect(response.orders.length).toBeGreaterThan(0)
+    expect(response.orders.every((order) => order.baseToken === bases[0])).toBe(
+      true,
+    )
+
+    expect(response).matchSnapshot()
+  })
+
+  test('behavior: filter by isBid', async () => {
+    await setupOrders(client)
+
+    // Get only buy orders
+    const buyOrders = await Actions.dex.getOrders(client, {
+      filters: {
+        isBid: true,
+      },
+      limit: 5,
+    })
+
+    // Verify all orders are buy orders
+    expect(buyOrders.orders.length).toBeGreaterThan(0)
+    expect(buyOrders.orders.every((order) => order.isBid === true)).toBe(true)
+
+    expect(buyOrders).matchSnapshot()
+
+    // Get only sell orders
+    const sellOrders = await Actions.dex.getOrders(client, {
+      filters: {
+        isBid: false,
+      },
+      limit: 5,
+    })
+
+    // Verify all orders are sell orders
+    expect(sellOrders.orders.length).toBeGreaterThan(0)
+    expect(sellOrders.orders.every((order) => order.isBid === false)).toBe(true)
+
+    expect(sellOrders).matchSnapshot()
+  })
+
+  test('behavior: filter by maker', async () => {
+    await setupOrders(client)
+
+    // Filter by account's address
+    const response = await Actions.dex.getOrders(client, {
+      filters: {
+        maker: client.account.address,
+      },
+      limit: 5,
+    })
+
+    // Verify all orders are from the maker
+    expect(response.orders.length).toBeGreaterThan(0)
+    expect(
+      response.orders.every((order) =>
+        Address.isEqual(order.maker, client.account.address),
+      ),
+    ).toBe(true)
+
+    expect(response).matchSnapshot()
+  })
+
+  test('behavior: filter by isFlip', async () => {
+    await setupOrders(client)
+
+    // Get only non-flip orders (setupOrders creates non-flip orders)
+    const response = await Actions.dex.getOrders(client, {
+      filters: {
+        isFlip: false,
+      },
+      limit: 5,
+    })
+
+    // Verify all orders are non-flip orders
+    expect(response.orders.length).toBeGreaterThan(0)
+    expect(response.orders.every((order) => order.isFlip === false)).toBe(true)
+
+    expect(response).matchSnapshot()
+  })
+
+  test('behavior: filter by remaining range', async () => {
+    await setupOrders(client)
+
+    // Get orders with remaining between 100 and 300
+    const response = await Actions.dex.getOrders(client, {
+      filters: {
+        remaining: {
+          min: parseEther('100'),
+          max: parseEther('300'),
+        },
+      },
+      limit: 5,
+    })
+
+    // Verify all orders are within the range
+    expect(response.orders.length).toBeGreaterThan(0)
+    expect(
+      response.orders.every(
+        (order) =>
+          order.remaining >= parseEther('100') &&
+          order.remaining <= parseEther('300'),
+      ),
+    ).toBe(true)
+
+    expect(response).matchSnapshot()
+  })
+
+  test('behavior: filter by tick range', async () => {
+    await setupOrders(client)
+
+    // Get orders with tick between -100 and 100
+    const response = await Actions.dex.getOrders(client, {
+      filters: {
+        tick: {
+          min: -100,
+          max: 100,
+        },
+      },
+      limit: 5,
+    })
+
+    // Verify all orders are within the tick range
+    expect(response.orders.length).toBeGreaterThan(0)
+    expect(
+      response.orders.every((order) => order.tick >= -100 && order.tick <= 100),
+    ).toBe(true)
+
+    expect(response).matchSnapshot()
+  })
+
+  test('behavior: multiple filters combined', async () => {
+    const { bases } = await setupOrders(client)
+
+    // Filter by multiple conditions
+    const response = await Actions.dex.getOrders(client, {
+      filters: {
+        baseToken: bases[0],
+        isBid: true,
+      },
+      limit: 5,
+    })
+
+    // Verify all orders match all filters
+    expect(response.orders.length).toBeGreaterThan(0)
+    expect(
+      response.orders.every(
+        (order) => order.baseToken === bases[0] && order.isBid === true,
+      ),
+    ).toBe(true)
+
+    expect(response).matchSnapshot()
+  })
+
+  test('behavior: empty result', async () => {
+    await setupTokenPair(client)
+
+    // Get orders with filter that matches nothing
+    const response = await Actions.dex.getOrders(client, {
+      filters: {
+        maker: '0x0000000000000000000000000000000000000001',
+      },
+    })
+
+    // Verify empty result
+    expect(response.orders).toHaveLength(0)
+    expect(response.nextCursor).toBeNull()
+
+    expect(response).matchSnapshot()
   })
 })
 

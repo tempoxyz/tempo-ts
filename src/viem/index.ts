@@ -1,3 +1,4 @@
+export * as Tick from '../ox/Tick.js'
 export * as Abis from './Abis.js'
 export * as Account from './Account.js'
 export * as Actions from './Actions/index.js'
@@ -12,7 +13,6 @@ export {
 export * as Formatters from './Formatters.js'
 export * as P256 from './P256.js'
 export * as Secp256k1 from './Secp256k1.js'
-export * as Tick from './Tick.js'
 export * as TokenIds from './TokenIds.js'
 export * as Transaction from './Transaction.js'
 export * as Transport from './Transport.js'

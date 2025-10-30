@@ -1,8 +1,13 @@
 import type * as Query from '@tanstack/query-core'
 import { type Config, getConnectorClient } from '@wagmi/core'
 import type { ChainIdParameter, ConnectorParameter } from '@wagmi/core/internal'
+import type * as Hex from 'ox/Hex'
 import type { Account } from 'viem'
-import type { PartialBy, RequiredBy } from '../../internal/types.js'
+import type {
+  PartialBy,
+  RequiredBy,
+  UnionRequiredBy,
+} from '../../internal/types.js'
 import * as viem_Actions from '../../viem/Actions/dex.js'
 
 /**
@@ -609,6 +614,110 @@ export namespace getOrder {
         Query.DefaultError,
         selectData,
         getOrder.QueryKey<config>
+      >,
+      'queryKey' | 'queryFn'
+    >
+  }
+}
+
+/**
+ * Gets paginated orders from the orderbook.
+ *
+ * @example
+ * ```ts
+ * import { createConfig, http } from '@wagmi/core'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/wagmi'
+ *
+ * const config = createConfig({
+ *   chains: [tempo],
+ *   transports: {
+ *     [tempo.id]: http(),
+ *   },
+ * })
+ *
+ * const { orders, nextCursor } = await Actions.dex.getOrders(config, {
+ *   limit: 100,
+ *   filters: {
+ *     baseToken: '0x20c0...',
+ *     isBid: true,
+ *   }
+ * })
+ * ```
+ *
+ * @param config - Config.
+ * @param parameters - Parameters.
+ * @returns Paginated orders and next cursor.
+ */
+export function getOrders<config extends Config>(
+  config: config,
+  parameters: getOrders.Parameters<config> = {},
+): Promise<getOrders.ReturnValue> {
+  const { chainId, ...rest } = parameters
+  const client = config.getClient({ chainId })
+  return viem_Actions.getOrders(client, rest)
+}
+
+export namespace getOrders {
+  export type Parameters<config extends Config> = ChainIdParameter<config> &
+    viem_Actions.getOrders.Parameters
+
+  export type ReturnValue = viem_Actions.getOrders.ReturnValue
+
+  export function queryKey<config extends Config>(
+    parameters: Parameters<config>,
+  ) {
+    return ['getOrders', parameters] as const
+  }
+
+  export type QueryKey<config extends Config> = ReturnType<
+    typeof queryKey<config>
+  >
+
+  export function infiniteQueryOptions<
+    config extends Config,
+    selectData = ReturnValue,
+  >(
+    config: Config,
+    parameters: infiniteQueryOptions.Parameters<config, selectData>,
+  ): infiniteQueryOptions.ReturnValue<config, selectData> {
+    const { cursor, query, ...rest } = parameters
+    return {
+      pages: 1,
+      ...query,
+      getNextPageParam: (x) => x.nextCursor,
+      initialPageParam: cursor ?? undefined,
+      queryKey: queryKey(rest),
+      async queryFn({ queryKey, pageParam: cursor }) {
+        const [, parameters] = queryKey
+        return await getOrders(config, { ...parameters, cursor })
+      },
+    }
+  }
+
+  export declare namespace infiniteQueryOptions {
+    export type Parameters<
+      config extends Config,
+      selectData = getOrders.ReturnValue,
+    > = getOrders.Parameters<config> & {
+      query?:
+        | Omit<
+            ReturnValue<config, selectData>,
+            'initialPageParam' | 'queryKey' | 'queryFn'
+          >
+        | undefined
+    }
+
+    export type ReturnValue<
+      config extends Config,
+      selectData = getOrders.ReturnValue,
+    > = UnionRequiredBy<
+      Query.FetchInfiniteQueryOptions<
+        getOrders.ReturnValue,
+        Query.DefaultError,
+        selectData,
+        getOrders.QueryKey<config>,
+        Hex.Hex | undefined
       >,
       'queryKey' | 'queryFn'
     >

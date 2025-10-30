@@ -4,7 +4,12 @@ import { Actions } from 'tempo.ts/wagmi'
 import { isAddress, parseEther } from 'viem'
 import { describe, expect, test } from 'vitest'
 import { accounts } from '../../../test/viem/config.js'
-import { config, setupTokenPair } from '../../../test/wagmi/config.js'
+import {
+  config,
+  queryClient,
+  setupOrders,
+  setupTokenPair,
+} from '../../../test/wagmi/config.js'
 
 const account = accounts[0]
 const account2 = accounts[1]
@@ -519,6 +524,35 @@ describe('getOrder', () => {
     })
     expect(order2.prev).toBe(orderId1) // should point to first order
     expect(order2.next).toBe(0n) // should be 0 as it's last
+  })
+})
+
+describe('getOrders', () => {
+  test('default', async () => {
+    await setupOrders()
+
+    const response = await Actions.dex.getOrders(config, {
+      limit: 10,
+    })
+
+    expect(response).matchSnapshot()
+  })
+
+  describe('infiniteQueryOptions', () => {
+    test('default', async () => {
+      await setupOrders()
+
+      const options = Actions.dex.getOrders.infiniteQueryOptions(config, {
+        limit: 5,
+        query: {
+          pages: 2,
+        },
+      })
+
+      const result = await queryClient.fetchInfiniteQuery(options)
+
+      expect(result).matchSnapshot()
+    })
   })
 })
 

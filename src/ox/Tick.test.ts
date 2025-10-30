@@ -1,5 +1,5 @@
+import { Tick } from 'tempo.ts/ox'
 import { describe, expect, test } from 'vitest'
-import * as Tick from './Tick.js'
 
 describe('toPrice', () => {
   test('converts tick 0 to price 1', () => {
