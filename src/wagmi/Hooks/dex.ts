@@ -697,7 +697,7 @@ export function useGetOrders<
   return useInfiniteQuery({
     ...query,
     ...options,
-  } as never) as useGetOrders.ReturnValue
+  } as never) as useGetOrders.ReturnValue<selectData>
 }
 
 export declare namespace useGetOrders {
