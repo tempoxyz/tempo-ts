@@ -1,11 +1,12 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
+import { Address } from 'ox'
+import { useState } from 'react'
 import { Actions } from 'tempo.ts/viem'
+import { Hooks } from 'tempo.ts/wagmi'
 import {
-  type Address,
   type Chain,
   type Client,
   formatUnits,
-  type Hex,
   parseUnits,
   stringify,
   type Transport,
@@ -15,14 +16,13 @@ import {
   useAccount,
   useClient,
   useConnect,
-  useConnectorClient,
   useConnectors,
   useDisconnect,
 } from 'wagmi'
 
 export function App() {
   const account = useAccount()
-  const balance = useBalance({ address: account?.address })
+  const balance = Hooks.token.useGetBalance({ account: account?.address })
 
   return (
     <div>
@@ -118,7 +118,7 @@ function Balance() {
   const account = useAccount()
   const client = useClient()
 
-  const balance = useBalance({ address: account?.address })
+  const balance = Hooks.token.useGetBalance({ account: account?.address })
 
   const fundAccount = useMutation({
     async mutationFn() {
@@ -158,23 +158,7 @@ function Balance() {
 }
 
 function Transfer() {
-  const account = useAccount()
-  const client = useClient()
-  const { data: connectorClient } = useConnectorClient()
-
-  // TODO: Hooks.token.useTransferSync() in `tempo.ts/wagmi`
-  const sendUsd = useMutation({
-    async mutationFn(parameters: { amount: string; to: Hex }) {
-      const { amount, to } = parameters
-      if (!account.address) throw new Error('account.address not found')
-      if (!client) throw new Error('client not found')
-      if (!connectorClient) throw new Error('connectorClient not found')
-      return await Actions.token.transferSync(connectorClient, {
-        amount: parseUnits(amount, 6),
-        to,
-      })
-    },
-  })
+  const transfer = Hooks.token.useTransferSync()
 
   return (
     <form
@@ -183,7 +167,7 @@ function Transfer() {
         const formData = new FormData(event.target as HTMLFormElement)
         const to = formData.get('to') as `0x${string}`
         const amount = formData.get('amount') as string
-        sendUsd.mutate({ amount, to })
+        transfer.mutate({ amount: parseUnits(amount, 6), to })
       }}
     >
       <div>
@@ -198,17 +182,17 @@ function Transfer() {
         <input type="text" name="amount" placeholder="Amount (USD)" />
       </div>
       <div>
-        <button type="submit" disabled={sendUsd.isPending}>
-          {sendUsd.isPending ? 'Sending...' : 'Send'}
+        <button type="submit" disabled={transfer.isPending}>
+          {transfer.isPending ? 'Sending...' : 'Send'}
         </button>
       </div>
-      {sendUsd.isError && (
-        <div style={{ color: 'red' }}>Error: {sendUsd.error?.message}</div>
+      {transfer.isError && (
+        <div style={{ color: 'red' }}>Error: {transfer.error?.message}</div>
       )}
-      {sendUsd.data && (
+      {transfer.data && (
         <>
           <div>Transaction sent successfully!</div>
-          <pre>{stringify(sendUsd.data, null, 2)}</pre>
+          <pre>{stringify(transfer.data, null, 2)}</pre>
         </>
       )}
     </form>
@@ -216,19 +200,7 @@ function Transfer() {
 }
 
 function CreateToken() {
-  const { data: connectorClient } = useConnectorClient()
-
-  const createToken = useMutation({
-    async mutationFn(parameters: { name: string; symbol: string }) {
-      const { name, symbol } = parameters
-      if (!connectorClient) throw new Error('connectorClient not found')
-      return await Actions.token.createSync(connectorClient, {
-        name,
-        symbol,
-        currency: 'USD',
-      })
-    },
-  })
+  const create = Hooks.token.useCreateSync()
 
   return (
     <form
@@ -237,7 +209,11 @@ function CreateToken() {
         const formData = new FormData(event.target as HTMLFormElement)
         const name = formData.get('name') as string
         const symbol = formData.get('symbol') as string
-        createToken.mutate({ name, symbol })
+        create.mutate({
+          name,
+          symbol,
+          currency: 'USD',
+        })
       }}
     >
       <div>
@@ -247,15 +223,15 @@ function CreateToken() {
         <input type="text" name="symbol" placeholder="Symbol" />
       </div>
       <div>
-        <button type="submit" disabled={createToken.isPending}>
-          {createToken.isPending ? 'Creating...' : 'Create'}
+        <button type="submit" disabled={create.isPending}>
+          {create.isPending ? 'Creating...' : 'Create'}
         </button>
       </div>
-      {createToken.isError && <div>Error: {createToken.error?.message}</div>}
-      {createToken.isSuccess && (
+      {create.isError && <div>Error: {create.error?.message}</div>}
+      {create.isSuccess && (
         <>
           <div>Token created successfully!</div>
-          <pre>{stringify(createToken.data, undefined, 2)}</pre>
+          <pre>{stringify(create.data, undefined, 2)}</pre>
         </>
       )}
     </form>
@@ -263,18 +239,15 @@ function CreateToken() {
 }
 
 function TokenMetadata() {
-  const client = useClient()
-
-  const getMetadata = useMutation({
-    async mutationFn(parameters: { token: string }) {
-      const { token } = parameters
-      if (!client) throw new Error('client not found')
-      return await Actions.token.getMetadata(
-        client as Client<Transport, Chain>,
-        {
-          token: token.startsWith('0x') ? (token as Address) : BigInt(token),
-        },
-      )
+  const [token, setToken] = useState<Address.Address | undefined>(undefined)
+  const metadata = Hooks.token.useGetMetadata({
+    token: token
+      ? Address.validate(token)
+        ? token
+        : BigInt(token)
+      : undefined,
+    query: {
+      enabled: !!token,
     },
   })
 
@@ -283,8 +256,8 @@ function TokenMetadata() {
       onSubmit={(event) => {
         event.preventDefault()
         const formData = new FormData(event.target as HTMLFormElement)
-        const token = formData.get('token') as Address
-        getMetadata.mutate({ token })
+        const token = formData.get('token') as Address.Address
+        setToken(token)
       }}
     >
       <div>
@@ -296,51 +269,19 @@ function TokenMetadata() {
         />
       </div>
       <div>
-        <button type="submit" disabled={getMetadata.isPending}>
-          {getMetadata.isPending ? 'Fetching...' : 'Get Metadata'}
+        <button type="submit" disabled={metadata.isFetching}>
+          {metadata.isFetching ? 'Fetching...' : 'Get Metadata'}
         </button>
       </div>
-      {getMetadata.isError && (
-        <div style={{ color: 'red' }}>Error: {getMetadata.error?.message}</div>
+      {metadata.isError && (
+        <div style={{ color: 'red' }}>Error: {metadata.error?.message}</div>
       )}
-      {getMetadata.data && (
+      {metadata.data && (
         <>
           <div>Token metadata:</div>
-          <pre>{stringify(getMetadata.data, null, 2)}</pre>
+          <pre>{stringify(metadata.data, null, 2)}</pre>
         </>
       )}
     </form>
   )
-}
-
-// TODO: Hooks.token.useBalance() in `tempo.ts/wagmi`
-// biome-ignore lint/correctness/noUnusedVariables: _
-function useBalance(parameters: useBalance.Parameters) {
-  const { address } = parameters
-  const client = useClient()
-
-  return useQuery({
-    enabled: !!address,
-    queryKey: ['balance', client?.uid, { address }] as const,
-    async queryFn({ queryKey }) {
-      const [, , { address }] = queryKey
-
-      if (!address) throw new Error('address not found')
-      if (!client) throw new Error('client not found')
-
-      return await Actions.token.getBalance(
-        client as Client<Transport, Chain>,
-        {
-          account: address,
-        },
-      )
-    },
-    refetchInterval: 4_000,
-  })
-}
-
-export declare namespace useBalance {
-  type Parameters = {
-    address?: Address | undefined
-  }
 }

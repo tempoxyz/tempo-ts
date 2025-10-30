@@ -42,18 +42,14 @@ export type TransactionEnvelopeAA<
     authorizationList?:
       | Authorization.ListSigned<bigintType, numberType>
       | undefined
+    /** Array of calls to execute. */
+    calls: readonly Call<bigintType>[]
     /** EIP-155 Chain ID. */
     chainId: numberType
     /** Sender of the transaction. */
     from?: Address.Address | undefined
     /** Gas provided for transaction execution */
     gas?: bigintType | undefined
-    /** Unique number identifying this transaction */
-    nonce?: bigintType | undefined
-    /** Transaction type */
-    type: type
-    /** Array of calls to execute. */
-    calls: readonly Call<bigintType>[]
     /** Fee payer signature. */
     feePayerSignature?:
       | Signature.Signature<true, bigintType, numberType>
@@ -67,6 +63,10 @@ export type TransactionEnvelopeAA<
     maxPriorityFeePerGas?: bigintType | undefined
     /** Nonce key for 2D nonce system (192 bits). */
     nonceKey?: bigintType | undefined
+    /** Unique number identifying this transaction */
+    nonce?: bigintType | undefined
+    /** Transaction type */
+    type: type
     /** Transaction can only be included in a block before this timestamp. */
     validBefore?: numberType | undefined
     /** Transaction can only be included in a block after this timestamp. */

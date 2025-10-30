@@ -1,5 +1,5 @@
 ---
-"tempo.ts": patch
+"tempo.ts": minor
 ---
 
 Added support for Native "Account Abstraction" accounts.
