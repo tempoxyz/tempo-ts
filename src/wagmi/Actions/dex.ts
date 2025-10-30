@@ -686,7 +686,7 @@ export namespace getOrders {
       pages: 1,
       ...query,
       getNextPageParam: (x) => x.nextCursor,
-      initialPageParam: undefined,
+      initialPageParam: rest.cursor ?? undefined,
       queryKey: queryKey(rest),
       async queryFn({ queryKey }) {
         const [, parameters] = queryKey
