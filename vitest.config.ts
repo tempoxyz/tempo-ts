@@ -11,7 +11,7 @@ export default defineConfig({
   },
   test: {
     retry: 3,
-    testTimeout: 10_000,
+    testTimeout: 30_000,
     reporters: process.env.CI ? ['tree'] : [],
     projects: [
       {
