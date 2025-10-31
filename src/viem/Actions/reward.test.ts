@@ -46,7 +46,7 @@ describe('cancelSync', () => {
     const rewardAmount = parseEther('100')
     const { id: streamId } = await actions.reward.startSync(client, {
       amount: rewardAmount,
-      seconds: 3600n, // 1 hour to avoid stream ending during test
+      seconds: 3600, // 1 hour to avoid stream ending during test
       token,
     })
 
@@ -76,7 +76,7 @@ describe('getStream', () => {
 
     // Start a reward stream
     const rewardAmount = parseEther('100')
-    const duration = 10n
+    const duration = 10
     const { id: streamId } = await actions.reward.startSync(client, {
       amount: rewardAmount,
       seconds: duration,
@@ -110,7 +110,7 @@ describe('getStream', () => {
     const rewardAmount = parseEther('100')
     const { id: streamId } = await actions.reward.startSync(client, {
       amount: rewardAmount,
-      seconds: 3600n, // 1 hour to avoid stream ending during test
+      seconds: 3600, // 1 hour to avoid stream ending during test
       token,
     })
 
@@ -153,7 +153,7 @@ describe('getTotalPerSecond', () => {
 
     // Start a reward stream
     const rewardAmount = parseEther('100')
-    const duration = 100n
+    const duration = 100
     await actions.reward.startSync(client, {
       amount: rewardAmount,
       seconds: duration,
@@ -167,7 +167,7 @@ describe('getTotalPerSecond', () => {
 
     // Expected rate = (amount * ACC_PRECISION) / seconds
     // ACC_PRECISION = 1e18
-    const expectedRate = (rewardAmount * parseEther('1')) / duration
+    const expectedRate = (rewardAmount * parseEther('1')) / BigInt(duration)
     expect(rate).toBe(expectedRate)
   })
 })
@@ -216,7 +216,7 @@ describe('startSync', () => {
     const { token } = await setupToken(client)
 
     // Start a reward stream
-    const duration = 10n
+    const duration = 10
     const rewardAmount = parseEther('100')
     const { id, receipt, ...result } = await actions.reward.startSync(client, {
       amount: rewardAmount,
@@ -256,7 +256,7 @@ describe('startSync', () => {
     const totalRate = await actions.reward.getTotalPerSecond(client, {
       token,
     })
-    const expectedRate = (rewardAmount * parseEther('1')) / duration
+    const expectedRate = (rewardAmount * parseEther('1')) / BigInt(duration)
     expect(totalRate).toBe(expectedRate)
   })
 
@@ -264,7 +264,7 @@ describe('startSync', () => {
     const { token } = await setupToken(client)
 
     // Start a streaming reward
-    const duration = 3600n
+    const duration = 3600
     const rewardAmount = parseEther('100')
     const { id } = await actions.reward.startSync(client, {
       amount: rewardAmount,
@@ -279,7 +279,7 @@ describe('startSync', () => {
       token,
     })
 
-    const expectedRate = (rewardAmount * parseEther('1')) / duration
+    const expectedRate = (rewardAmount * parseEther('1')) / BigInt(duration)
     expect(totalRate).toBe(expectedRate)
   })
 
@@ -307,7 +307,7 @@ describe('startSync', () => {
     // Start immediate reward (seconds = 0)
     const { id } = await actions.reward.startSync(client, {
       amount: rewardAmount,
-      seconds: 0n,
+      seconds: 0,
       token,
     })
 
@@ -357,7 +357,7 @@ describe('startSync', () => {
     const { amount, durationSeconds, funder, id } =
       await actions.reward.startSync(client, {
         amount: rewardAmount,
-        seconds: 0n,
+        seconds: 0,
         token,
       })
 

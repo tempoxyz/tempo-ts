@@ -1453,7 +1453,7 @@ export type Decorator<
      *
      * const hash = await client.reward.start({
      *   amount: 100000000000000000000n,
-     *   seconds: 86400n,
+     *   seconds: 86400,
      *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
@@ -1478,7 +1478,7 @@ export type Decorator<
      *
      * const result = await client.reward.startSync({
      *   amount: 100000000000000000000n,
-     *   seconds: 86400n,
+     *   seconds: 86400,
      *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```

@@ -609,7 +609,7 @@ export declare namespace setRecipientSync {
  *
  * const hash = await actions.rewards.start(client, {
  *   amount: 100000000000000000000n,
- *   seconds: 86400n,
+ *   seconds: 86400,
  *   token: '0x20c0000000000000000000000000000000000001',
  * })
  * ```
@@ -658,7 +658,7 @@ export async function start<
  *
  * const { id, receipt } = await actions.rewards.startSync(client, {
  *   amount: 100000000000000000000n,
- *   seconds: 86400n,
+ *   seconds: 86400,
  *   token: '0x20c0000000000000000000000000000000000001',
  * })
  * ```
@@ -691,7 +691,7 @@ export namespace start {
     /** The amount of tokens to distribute (must be > 0) */
     amount: bigint
     /** The duration in seconds (0 for immediate distribution, >0 for linear streaming) */
-    seconds: bigint
+    seconds: number
     /** The TIP20 token address */
     token: Address
   }
@@ -746,7 +746,7 @@ export namespace start {
    * const hash = await client.sendTransaction({
    *   calls: [actions.rewards.start.call({
    *     amount: 100000000000000000000n,
-   *     seconds: 86400n,
+   *     seconds: 86400,
    *     token: '0x20c0000000000000000000000000000000000001',
    *   })],
    * })
@@ -760,7 +760,7 @@ export namespace start {
     return defineCall({
       address: token,
       abi: Abis.tip20,
-      args: [amount, seconds],
+      args: [amount, BigInt(seconds)],
       functionName: 'startReward',
     })
   }
