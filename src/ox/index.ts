@@ -1,3 +1,4 @@
+export * as AuthorizationAA from './AuthorizationAA.js'
 export * as Order from './Order.js'
 export * as OrdersFilters from './OrdersFilters.js'
 export * as Pagination from './Pagination.js'
