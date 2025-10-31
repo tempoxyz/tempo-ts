@@ -16,8 +16,11 @@ import {
   accounts,
   setupOrders as viem_setupOrders,
   setupPoolWithLiquidity as viem_setupPoolWithLiquidity,
+  setupToken as viem_setupToken,
   setupTokenPair as viem_setupTokenPair,
 } from '../viem/config.js'
+
+export { accounts }
 
 export const id =
   (typeof process !== 'undefined' &&
@@ -95,6 +98,15 @@ export function render(
     ...args[1],
     wrapper: createWrapper(WagmiProvider, { config, reconnectOnMount: false }),
   })
+}
+
+export async function setupToken() {
+  if (getAccount(config).status === 'disconnected')
+    await connect(config, {
+      connector: config.connectors[0]!,
+    })
+  const client = await getConnectorClient(config)
+  return viem_setupToken(client as never)
 }
 
 export async function setupPoolWithLiquidity() {

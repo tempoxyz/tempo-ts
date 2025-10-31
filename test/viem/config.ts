@@ -46,6 +46,34 @@ export const client = createTempoClient({
   pollingInterval: 100,
 })
 
+export async function setupToken(
+  client: Client<Transport, Chain, Account>,
+  parameters: Partial<
+    Awaited<ReturnType<typeof Actions.token.createSync>>
+  > = {},
+) {
+  const token = await Actions.token.createSync(client, {
+    currency: 'USD',
+    name: 'Test Token',
+    symbol: 'TST',
+    ...parameters,
+  })
+
+  await Actions.token.grantRolesSync(client, {
+    roles: ['issuer'],
+    to: client.account.address,
+    token: token.token,
+  })
+
+  await Actions.token.mintSync(client, {
+    amount: parseEther('10000'),
+    to: client.account.address,
+    token: token.token,
+  })
+
+  return token
+}
+
 export async function setupPoolWithLiquidity(
   client: Client<Transport, Chain, Account>,
 ) {

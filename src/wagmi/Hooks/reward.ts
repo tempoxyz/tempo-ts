@@ -1,0 +1,540 @@
+import type { DefaultError } from '@tanstack/query-core'
+import type { UseMutationResult } from '@tanstack/react-query'
+import type { Config, ResolvedRegister } from '@wagmi/core'
+import { useChainId, useConfig } from 'wagmi'
+import type { ConfigParameter, QueryParameter } from 'wagmi/internal'
+import {
+  type UseMutationParameters,
+  type UseQueryReturnType,
+  useMutation,
+  useQuery,
+} from 'wagmi/query'
+import type { ExactPartial } from '../../internal/types.js'
+import * as Actions from '../Actions/reward.js'
+
+/**
+ * Hook for canceling an active reward stream.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   const { mutate: cancel } = Hooks.reward.useCancel()
+ *
+ *   return (
+ *     <button onClick={() => cancel({
+ *       id: 1n,
+ *       token: '0x20c0000000000000000000000000000000000001'
+ *     })}>
+ *       Cancel Stream
+ *     </button>
+ *   )
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ * @returns Mutation result.
+ */
+export function useCancel<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useCancel.Parameters<config, context> = {},
+): useCancel.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return Actions.cancel(config, variables)
+    },
+    mutationKey: ['cancel'],
+  })
+}
+
+export declare namespace useCancel {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> & {
+    mutation?:
+      | UseMutationParameters<
+          Actions.cancel.ReturnValue,
+          Actions.cancel.ErrorType,
+          Actions.cancel.Parameters<config>,
+          context
+        >
+      | undefined
+  }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    Actions.cancel.ReturnValue,
+    Actions.cancel.ErrorType,
+    Actions.cancel.Parameters<config>,
+    context
+  >
+}
+
+/**
+ * Hook for canceling an active reward stream and waiting for confirmation.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   const { mutate: cancelSync } = Hooks.reward.useCancelSync()
+ *
+ *   return (
+ *     <button onClick={() => cancelSync({
+ *       id: 1n,
+ *       token: '0x20c0000000000000000000000000000000000001'
+ *     })}>
+ *       Cancel Stream
+ *     </button>
+ *   )
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ * @returns Mutation result.
+ */
+export function useCancelSync<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useCancelSync.Parameters<config, context> = {},
+): useCancelSync.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return Actions.cancelSync(config, variables)
+    },
+    mutationKey: ['cancelSync'],
+  })
+}
+
+export declare namespace useCancelSync {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> & {
+    mutation?:
+      | UseMutationParameters<
+          Actions.cancelSync.ReturnValue,
+          Actions.cancelSync.ErrorType,
+          Actions.cancelSync.Parameters<config>,
+          context
+        >
+      | undefined
+  }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    Actions.cancelSync.ReturnValue,
+    Actions.cancelSync.ErrorType,
+    Actions.cancelSync.Parameters<config>,
+    context
+  >
+}
+
+/**
+ * Hook for getting a reward stream by its ID.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   const { data, isLoading } = Hooks.reward.useGetStream({
+ *     id: 1n,
+ *     token: '0x20c0000000000000000000000000000000000001',
+ *   })
+ *
+ *   if (isLoading) return <div>Loading...</div>
+ *   return <div>Funder: {data?.funder}</div>
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ * @returns Query result with stream details.
+ */
+export function useGetStream<
+  config extends Config = ResolvedRegister['config'],
+  selectData = Actions.getStream.ReturnValue,
+>(parameters: useGetStream.Parameters<config, selectData> = {}) {
+  const { id, query = {}, token } = parameters
+
+  const config = useConfig(parameters)
+  const chainId = useChainId({ config })
+
+  const options = Actions.getStream.queryOptions(config, {
+    ...parameters,
+    chainId: parameters.chainId ?? chainId,
+    query: undefined,
+  } as never)
+  const enabled = Boolean(id !== undefined && token && (query.enabled ?? true))
+
+  return useQuery({ ...query, ...options, enabled })
+}
+
+export declare namespace useGetStream {
+  export type Parameters<
+    config extends Config = ResolvedRegister['config'],
+    selectData = Actions.getStream.ReturnValue,
+  > = ConfigParameter<config> &
+    QueryParameter<
+      Actions.getStream.ReturnValue,
+      DefaultError,
+      selectData,
+      Actions.getStream.QueryKey<config>
+    > &
+    ExactPartial<
+      Omit<
+        Actions.getStream.queryOptions.Parameters<config, selectData>,
+        'query'
+      >
+    >
+
+  export type ReturnValue<selectData = Actions.getStream.ReturnValue> =
+    UseQueryReturnType<selectData, Error>
+}
+
+/**
+ * Hook for getting the total reward per second rate.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   const { data, isLoading } = Hooks.reward.useGetTotalPerSecond({
+ *     token: '0x20c0000000000000000000000000000000000001',
+ *   })
+ *
+ *   if (isLoading) return <div>Loading...</div>
+ *   return <div>Rate: {data?.toString()}</div>
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ * @returns Query result with total reward per second.
+ */
+export function useGetTotalPerSecond<
+  config extends Config = ResolvedRegister['config'],
+  selectData = Actions.getTotalPerSecond.ReturnValue,
+>(parameters: useGetTotalPerSecond.Parameters<config, selectData> = {}) {
+  const { query = {}, token } = parameters
+
+  const config = useConfig(parameters)
+  const chainId = useChainId({ config })
+
+  const options = Actions.getTotalPerSecond.queryOptions(config, {
+    ...parameters,
+    chainId: parameters.chainId ?? chainId,
+    query: undefined,
+  } as never)
+  const enabled = Boolean(token && (query.enabled ?? true))
+
+  return useQuery({ ...query, ...options, enabled })
+}
+
+export declare namespace useGetTotalPerSecond {
+  export type Parameters<
+    config extends Config = ResolvedRegister['config'],
+    selectData = Actions.getTotalPerSecond.ReturnValue,
+  > = ConfigParameter<config> &
+    QueryParameter<
+      Actions.getTotalPerSecond.ReturnValue,
+      DefaultError,
+      selectData,
+      Actions.getTotalPerSecond.QueryKey<config>
+    > &
+    ExactPartial<
+      Omit<
+        Actions.getTotalPerSecond.queryOptions.Parameters<config, selectData>,
+        'query'
+      >
+    >
+
+  export type ReturnValue<selectData = Actions.getTotalPerSecond.ReturnValue> =
+    UseQueryReturnType<selectData, Error>
+}
+
+/**
+ * Hook for setting the reward recipient for a token holder.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   const { mutate: setRecipient } = Hooks.reward.useSetRecipient()
+ *
+ *   return (
+ *     <button onClick={() => setRecipient({
+ *       recipient: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+ *       token: '0x20c0000000000000000000000000000000000001',
+ *     })}>
+ *       Set Recipient
+ *     </button>
+ *   )
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ * @returns Mutation result.
+ */
+export function useSetRecipient<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useSetRecipient.Parameters<config, context> = {},
+): useSetRecipient.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return Actions.setRecipient(config, variables)
+    },
+    mutationKey: ['setRecipient'],
+  })
+}
+
+export declare namespace useSetRecipient {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> & {
+    mutation?:
+      | UseMutationParameters<
+          Actions.setRecipient.ReturnValue,
+          Actions.setRecipient.ErrorType,
+          Actions.setRecipient.Parameters<config>,
+          context
+        >
+      | undefined
+  }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    Actions.setRecipient.ReturnValue,
+    Actions.setRecipient.ErrorType,
+    Actions.setRecipient.Parameters<config>,
+    context
+  >
+}
+
+/**
+ * Hook for setting the reward recipient and waiting for confirmation.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   const { mutate: setRecipientSync } = Hooks.reward.useSetRecipientSync()
+ *
+ *   return (
+ *     <button onClick={() => setRecipientSync({
+ *       recipient: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+ *       token: '0x20c0000000000000000000000000000000000001',
+ *     })}>
+ *       Set Recipient
+ *     </button>
+ *   )
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ * @returns Mutation result.
+ */
+export function useSetRecipientSync<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useSetRecipientSync.Parameters<config, context> = {},
+): useSetRecipientSync.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return Actions.setRecipientSync(config, variables)
+    },
+    mutationKey: ['setRecipientSync'],
+  })
+}
+
+export declare namespace useSetRecipientSync {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> & {
+    mutation?:
+      | UseMutationParameters<
+          Actions.setRecipientSync.ReturnValue,
+          Actions.setRecipientSync.ErrorType,
+          Actions.setRecipientSync.Parameters<config>,
+          context
+        >
+      | undefined
+  }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    Actions.setRecipientSync.ReturnValue,
+    Actions.setRecipientSync.ErrorType,
+    Actions.setRecipientSync.Parameters<config>,
+    context
+  >
+}
+
+/**
+ * Hook for starting a new reward stream.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   const { mutate: start } = Hooks.reward.useStart()
+ *
+ *   return (
+ *     <button onClick={() => start({
+ *       amount: 100000000000000000000n,
+ *       seconds: 86400,
+ *       token: '0x20c0000000000000000000000000000000000001',
+ *     })}>
+ *       Start Reward
+ *     </button>
+ *   )
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ * @returns Mutation result.
+ */
+export function useStart<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useStart.Parameters<config, context> = {},
+): useStart.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return Actions.start(config, variables)
+    },
+    mutationKey: ['start'],
+  })
+}
+
+export declare namespace useStart {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> & {
+    mutation?:
+      | UseMutationParameters<
+          Actions.start.ReturnValue,
+          Actions.start.ErrorType,
+          Actions.start.Parameters<config>,
+          context
+        >
+      | undefined
+  }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    Actions.start.ReturnValue,
+    Actions.start.ErrorType,
+    Actions.start.Parameters<config>,
+    context
+  >
+}
+
+/**
+ * Hook for starting a new reward stream and waiting for confirmation.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   const { mutate: startSync } = Hooks.reward.useStartSync()
+ *
+ *   return (
+ *     <button onClick={() => startSync({
+ *       amount: 100000000000000000000n,
+ *       seconds: 86400,
+ *       token: '0x20c0000000000000000000000000000000000001',
+ *     })}>
+ *       Start Reward
+ *     </button>
+ *   )
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ * @returns Mutation result.
+ */
+export function useStartSync<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useStartSync.Parameters<config, context> = {},
+): useStartSync.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return Actions.startSync(config, variables)
+    },
+    mutationKey: ['startSync'],
+  })
+}
+
+export declare namespace useStartSync {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> & {
+    mutation?:
+      | UseMutationParameters<
+          Actions.startSync.ReturnValue,
+          Actions.startSync.ErrorType,
+          Actions.startSync.Parameters<config>,
+          context
+        >
+      | undefined
+  }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    Actions.startSync.ReturnValue,
+    Actions.startSync.ErrorType,
+    Actions.startSync.Parameters<config>,
+    context
+  >
+}

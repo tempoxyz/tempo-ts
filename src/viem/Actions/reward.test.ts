@@ -1,42 +1,9 @@
-import {
-  type Account,
-  type Chain,
-  type Client,
-  parseEther,
-  type Transport,
-} from 'viem'
+import { parseEther } from 'viem'
 import { describe, expect, test } from 'vitest'
-import { client } from '../../../test/viem/config.js'
+import { client, setupToken } from '../../../test/viem/config.js'
 import * as actions from './index.js'
-import type { createSync as createTokenSync } from './token.js'
 
 const account = client.account
-
-async function setupToken(
-  client: Client<Transport, Chain, Account>,
-  parameters: Partial<createTokenSync.Parameters> = {},
-) {
-  const token = await actions.token.createSync(client, {
-    currency: 'USD',
-    name: 'Test Token',
-    symbol: 'TST',
-    ...parameters,
-  })
-
-  await actions.token.grantRolesSync(client, {
-    roles: ['issuer'],
-    to: account.address,
-    token: token.token,
-  })
-
-  await actions.token.mintSync(client, {
-    amount: parseEther('10000'),
-    to: account.address,
-    token: token.token,
-  })
-
-  return token
-}
 
 describe('cancelSync', () => {
   test('default', async () => {
