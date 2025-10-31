@@ -593,7 +593,7 @@ export const tip20 = [
   {
     name: 'getStream',
     type: 'function',
-    stateMutability: 'nonpayable',
+    stateMutability: 'view',
     inputs: [{ type: 'uint64', name: 'id' }],
     outputs: [
       {
@@ -611,7 +611,7 @@ export const tip20 = [
   {
     name: 'totalRewardPerSecond',
     type: 'function',
-    stateMutability: 'nonpayable',
+    stateMutability: 'view',
     inputs: [],
     outputs: [{ type: 'uint256' }],
   },
