@@ -25,7 +25,7 @@ export const id =
       Math.floor(Math.random() * 10_000)) ||
   1 + Math.floor(Math.random() * 10_000)
 
-export const rpcUrl = `http://localhost:8546/${id}`
+export const rpcUrl = `http://localhost:4000/${id}`
 
 export const tempoTest = defineChain({
   ...tempoLocal,

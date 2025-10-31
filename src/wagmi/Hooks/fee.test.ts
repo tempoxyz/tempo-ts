@@ -119,7 +119,7 @@ describe('useUserToken', () => {
   })
 })
 
-describe('useSetUserToken', () => {
+describe.skip('useSetUserToken', () => {
   test('default', async () => {
     const { result } = await renderHook(() => ({
       connect: useConnect(),

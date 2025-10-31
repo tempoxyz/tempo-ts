@@ -72,7 +72,8 @@ describe('fromRpcResponse', () => {
 
     expect(response).toMatchInlineSnapshot(`
       {
-        "items": [
+        "nextCursor": "0x123",
+        "orders": [
           {
             "amount": 100n,
             "baseToken": "0x20c0000000000000000000000000000000000001",
@@ -88,7 +89,6 @@ describe('fromRpcResponse', () => {
             "tick": 100,
           },
         ],
-        "nextCursor": "0x123",
       }
     `)
   })
@@ -153,8 +153,8 @@ describe('fromRpcResponse', () => {
 
     expect(response).toMatchInlineSnapshot(`
       {
-        "items": [],
         "nextCursor": null,
+        "orders": [],
       }
     `)
   })

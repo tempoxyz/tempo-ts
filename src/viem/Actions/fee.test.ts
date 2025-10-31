@@ -2,13 +2,17 @@ import { setTimeout } from 'node:timers/promises'
 import { Abis, Addresses } from 'tempo.ts/viem'
 import { parseEther } from 'viem'
 import { writeContractSync } from 'viem/actions'
-import { describe, expect, test } from 'vitest'
-import { accounts, client } from '../../../test/viem/config.js'
+import { afterEach, describe, expect, test } from 'vitest'
+import { accounts, client, rpcUrl } from '../../../test/viem/config.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
 const account2 = accounts[1]
 const account3 = accounts[2]
+
+afterEach(async () => {
+  await fetch(`${rpcUrl}/restart`)
+})
 
 describe('getUserToken', () => {
   test('default', async () => {
@@ -122,7 +126,7 @@ describe('setUserToken', () => {
   })
 })
 
-describe('watchSetUserToken', () => {
+describe('watchSetUserToken', async () => {
   test('default', async () => {
     const receivedSets: Array<{
       args: actions.fee.watchSetUserToken.Args

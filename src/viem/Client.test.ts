@@ -72,6 +72,7 @@ test('createTempoClient', () => {
         "getBalance": [Function],
         "getBuyQuote": [Function],
         "getOrder": [Function],
+        "getOrders": [Function],
         "getPriceLevel": [Function],
         "getSellQuote": [Function],
         "place": [Function],

@@ -10,8 +10,8 @@ import {
   walletActions,
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { afterAll, beforeAll, describe, expect, test } from 'vitest'
-import { accounts, tempoTest } from '../../test/viem/config.js'
+import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest'
+import { accounts, rpcUrl, tempoTest } from '../../test/viem/config.js'
 import * as actions from './Actions/index.js'
 import { tempoActions } from './index.js'
 import { withFeePayer } from './Transport.js'
@@ -129,17 +129,17 @@ describe('sendTransaction', () => {
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "gas": 27004n,
           "gasPrice": 44n,
-          "hash": "0xc13fb04a76de10922f4f25ca13dfe39d86bc476adf4aee55e7e39397eb8bd85e",
+          "hash": "0x440c7ed7586bc5a9a9a8339ae9d174662399c08132cc3e0ea3d490bfa7d67c94",
           "maxFeePerBlobGas": undefined,
           "maxFeePerGas": 52n,
           "maxPriorityFeePerGas": 0n,
-          "nonce": 0,
+          "nonce": 1,
           "nonceKey": 0n,
           "signature": {
             "signature": {
-              "r": 31815582443541521272783297971589616696210133160704101890736710249069613818007n,
-              "s": 42889064821323118918916337932499463472889432737698909385691881416313919667760n,
-              "yParity": 1,
+              "r": 34079586225678081993349612991213675540894534383460164725159196016718922586191n,
+              "s": 20498822090654151669411489919923303940277044078776117601166179118868759637578n,
+              "yParity": 0,
             },
             "type": "secp256k1",
           },
@@ -362,11 +362,11 @@ describe('sendTransaction', () => {
           "from": "0xfc39755d501fa7b79164f74efb906e87ecde342c",
           "gas": 100000n,
           "gasPrice": 44n,
-          "hash": "0x8c6481afd7534594e5f0f2f1cfd44044704377c9a0043e09dffd472c7e525ed2",
+          "hash": "0x7f7f5bc29fc4ae82678e427d2b078abd49d1b5c2204541a4d084d38c0d402c4a",
           "maxFeePerBlobGas": undefined,
           "maxFeePerGas": 52n,
           "maxPriorityFeePerGas": 0n,
-          "nonce": 0,
+          "nonce": 1,
           "nonceKey": 0n,
           "signature": {
             "prehash": undefined,
@@ -376,8 +376,8 @@ describe('sendTransaction', () => {
               "y": 28479403900638612718017087999484027026245572142646745985103165612268853186552n,
             },
             "signature": {
-              "r": 99082336687458947816222089346176911086084347199257100867216035225739664722266n,
-              "s": 56481476046517336162149243158491184153176430212286822526492956792269355616999n,
+              "r": 25179063734587962352961198227527205604561212584972854705446453308780961109073n,
+              "s": 18430120490437089334861356754585334793932266818585130689224034618819372680474n,
             },
             "type": "p256",
           },
@@ -640,16 +640,16 @@ describe('sendTransaction', () => {
           "from": "0xfc39755d501fa7b79164f74efb906e87ecde342c",
           "gas": 41404n,
           "gasPrice": 44n,
-          "hash": "0x98851d89ad3233eb1b2670a29b4d4c4ff4b41cb81ea27a9a5939028b3b92e842",
+          "hash": "0x03ae36142ab9499f46460b53001018fefbc5bf491a82a2168baa5e6a4882fc55",
           "maxFeePerBlobGas": undefined,
           "maxFeePerGas": 52n,
           "maxPriorityFeePerGas": 0n,
-          "nonce": 0,
+          "nonce": 2,
           "nonceKey": 0n,
           "signature": {
             "metadata": {
               "authenticatorData": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000",
-              "clientDataJSON": "{"type":"webauthn.get","challenge":"kV4eFkbidnUXXsKSK8XGIC8h6cPlBTpxvWqqC42T3-U","origin":"http://localhost","crossOrigin":false}",
+              "clientDataJSON": "{"type":"webauthn.get","challenge":"vCdQlEkDox2BZDsRbqTXSyTGYOuXr-n-6AQtYq0jhr8","origin":"http://localhost","crossOrigin":false}",
             },
             "publicKey": {
               "prefix": 4,
@@ -657,8 +657,8 @@ describe('sendTransaction', () => {
               "y": 28479403900638612718017087999484027026245572142646745985103165612268853186552n,
             },
             "signature": {
-              "r": 20416766519544121444203655252487360580185467844303323055232736364207624936747n,
-              "s": 44899519836733448546611022891056204778818616781544240383432909031376945448890n,
+              "r": 76644942445998783767357871570076484780308698220926309345859709562487882388352n,
+              "s": 14106135538450514858553897700741479086729759745582125828674182288111168793148n,
             },
             "type": "webAuthn",
           },
@@ -733,16 +733,16 @@ describe('sendTransaction', () => {
           "from": "0xfc39755d501fa7b79164f74efb906e87ecde342c",
           "gas": 100000n,
           "gasPrice": 44n,
-          "hash": "0x5660ae5c08e959f8a7cfbb9fb3ea270c07f515900f046ebec20c184d9038ba3c",
+          "hash": "0xab734faa1c7b8678ee7d66fbafeca0c435e26d353fdd2040aead9dc271f964a1",
           "maxFeePerBlobGas": undefined,
           "maxFeePerGas": 52n,
           "maxPriorityFeePerGas": 0n,
-          "nonce": 0,
+          "nonce": 3,
           "nonceKey": 0n,
           "signature": {
             "metadata": {
               "authenticatorData": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000",
-              "clientDataJSON": "{"type":"webauthn.get","challenge":"7l8Ijtx-29-cS5NUMoWrQT6IFmZGlNVlLn6UD5XX7Mw","origin":"http://localhost","crossOrigin":false}",
+              "clientDataJSON": "{"type":"webauthn.get","challenge":"P6aVHHEfuh5HkqHh3eUajPzpvhk0m-zE3ZcJCWGoY70","origin":"http://localhost","crossOrigin":false}",
             },
             "publicKey": {
               "prefix": 4,
@@ -750,8 +750,8 @@ describe('sendTransaction', () => {
               "y": 28479403900638612718017087999484027026245572142646745985103165612268853186552n,
             },
             "signature": {
-              "r": 111799608486239759292228800452847694183356321561277343867539739610355859024935n,
-              "s": 35662503658353014113603717294445040317137089372625500990159024456444576296737n,
+              "r": 93988210004850287617311911789579060836104927921164400200191678169894927418324n,
+              "s": 15676483694519198373255690954766875203133508742969464397089702475123019111995n,
             },
             "type": "webAuthn",
           },
@@ -808,8 +808,8 @@ describe('sendTransaction', () => {
           "data": undefined,
           "feePayer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "feePayerSignature": {
-            "r": "0x7c41f44f256cc44bd746fbf9c53824c8f9ff9d912147d6497447761d3e8b4c56",
-            "s": "0x4b54a1077f2c84e422f241bfba1c60ceaed953120ac95d4300c96c4b75a84e76",
+            "r": "0x7f98b968793b34e05dfccb921abd870c922b3ea6179e166329290a6432e38297",
+            "s": "0x7f007ccaee13b6af240a79d66fd19619f36c2ebca3913412c6441e1a2c2f4ca0",
             "v": 27n,
             "yParity": 0,
           },
@@ -817,16 +817,16 @@ describe('sendTransaction', () => {
           "from": "0x5f704c6c7075acd14ee36527f03b5b5dcb4a966f",
           "gas": 41340n,
           "gasPrice": 44n,
-          "hash": "0x91fb3020327feb91ef19f1381cf39436b02e4826dcd744a8e9ba7e310301c772",
+          "hash": "0x89b074bf102e74ceec58b5c5d943949a07961ff07095d499f02fa5c8a607903e",
           "maxFeePerBlobGas": undefined,
           "maxFeePerGas": 52n,
           "maxPriorityFeePerGas": 0n,
-          "nonce": 0,
+          "nonce": 1,
           "nonceKey": 0n,
           "signature": {
             "metadata": {
               "authenticatorData": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000",
-              "clientDataJSON": "{"type":"webauthn.get","challenge":"oEtHb75yMUE0S2qcagGQxHnQVQIHk3Rgx7uUD81ODqM","origin":"http://localhost","crossOrigin":false}",
+              "clientDataJSON": "{"type":"webauthn.get","challenge":"oQy4q7hgD4UIBveoSiFCIx_1N4FEPbk92Wi2L_HkJBg","origin":"http://localhost","crossOrigin":false}",
             },
             "publicKey": {
               "prefix": 4,
@@ -834,8 +834,8 @@ describe('sendTransaction', () => {
               "y": 21692506528696391747937034302216251793515398807520467579078748804389014172835n,
             },
             "signature": {
-              "r": 53407118628889131677806537019325476211322829943729808104946468897412766841970n,
-              "s": 4172224459986075332977905274980480550000842088057258805632903338751023967141n,
+              "r": 68713172717031890628040400977875556742363541965191531685237092460705947160119n,
+              "s": 53812955254767839416173680495338654503476867128861961948316617157881207106694n,
             },
             "type": "webAuthn",
           },
@@ -903,26 +903,26 @@ describe('signTransaction', () => {
         "data": undefined,
         "feePayer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "feePayerSignature": {
-          "r": "0x3f2f275a94fceb60ac0aa083876a77b9f03dee6612ae04fbf76abb93f47d30f3",
-          "s": "0x6ec65c307435b19de9d70587e39549475137acfdb4b1d7dda907ba22278c4135",
-          "v": 28n,
-          "yParity": 1,
+          "r": "0x80beaa5381876ac1507c461b149b9fd043606271880b994903e18d939d90dd93",
+          "s": "0x22b31493d0a1e56baa3b8ab2d73683e1b3ef94e3d012e0986ae107d2b612cc2f",
+          "v": 27n,
+          "yParity": 0,
         },
         "feeToken": null,
         "from": "0x740474977e01d056f04a314b5537e4dd88f35952",
         "gas": 24002n,
         "gasPrice": 44n,
-        "hash": "0x6c01a1fb11574776ec6961cfef3f570d3b3f25d23a0d5322d4bfdc20b581a39c",
+        "hash": "0xc57a1502736db19fb408d1a480ddac2daea531caf0bc38e4489b1237f19b9515",
         "maxFeePerBlobGas": undefined,
         "maxFeePerGas": 52n,
         "maxPriorityFeePerGas": 0n,
-        "nonce": 0,
+        "nonce": 1,
         "nonceKey": 0n,
         "signature": {
           "signature": {
-            "r": 79147419201519776258473563628213298170594129332036588382566801047897037627799n,
-            "s": 42700589096929199071120567069366538664482064520851690695431801717488361123919n,
-            "yParity": 0,
+            "r": 52735524792574190840520498982070728093123048440595094256905564344291800687253n,
+            "s": 31495087581738078854148080741214063142857215274731560918923441723076153480664n,
+            "yParity": 1,
           },
           "type": "secp256k1",
         },
@@ -949,6 +949,10 @@ describe('relay', () => {
     .extend(walletActions)
     .extend(publicActions)
   let server: Http.Server
+
+  afterEach(async () => {
+    await fetch(`${rpcUrl}/restart`)
+  })
 
   beforeAll(async () => {
     server = Http.createServer(
@@ -1060,8 +1064,8 @@ describe('relay', () => {
           "data": undefined,
           "feePayer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "feePayerSignature": {
-            "r": "0xccd668561b6f45581163de9fcaaefabca9d0a07067a882b822aa79ebb4ab75b9",
-            "s": "0x3a9d24d3b8bd88c66f3775bdc95343ff867b0b678c8346a1f2623b8e90213814",
+            "r": "0x1499c63a4a88953b9dad576e80c4bde6aeae27b96ddc9b30a688428b855aca33",
+            "s": "0x41a9b02afb869b1bfe57ffe6f39fd5f4acece6665b540821595e46571306f60d",
             "v": 27n,
             "yParity": 0,
           },
@@ -1069,17 +1073,17 @@ describe('relay', () => {
           "from": "0x740474977e01d056f04a314b5537e4dd88f35952",
           "gas": 25168n,
           "gasPrice": 44n,
-          "hash": "0x68396bcb0a57a8c28f6020204248c8cd71b1c8e7c741f7fe50eda98be4a8f16b",
+          "hash": "0x303cd89739021be95b36326c4139f92d92c851918569be2abfdd01f4f0e5269d",
           "maxFeePerBlobGas": undefined,
           "maxFeePerGas": 52n,
           "maxPriorityFeePerGas": 0n,
-          "nonce": 0,
+          "nonce": 2,
           "nonceKey": 0n,
           "signature": {
             "signature": {
-              "r": 40480015442793840529090368381917074368441780536175825308130578789249307476215n,
-              "s": 23720921895520735542076395689541764286120681162528906124639416417043593032400n,
-              "yParity": 1,
+              "r": 10482761088727015622330159979044783693664827056034612027872210332822539135903n,
+              "s": 69640078814344139394110133611452099326228122043574125436812807797760497486n,
+              "yParity": 0,
             },
             "type": "secp256k1",
           },
