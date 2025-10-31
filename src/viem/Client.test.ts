@@ -115,6 +115,16 @@ test('createTempoClient', () => {
       },
       "pollingInterval": 500,
       "request": [Function],
+      "reward": {
+        "cancel": [Function],
+        "cancelSync": [Function],
+        "getStream": [Function],
+        "getTotalPerSecond": [Function],
+        "setRecipient": [Function],
+        "setRecipientSync": [Function],
+        "start": [Function],
+        "startSync": [Function],
+      },
       "token": {
         "approve": [Function],
         "approveSync": [Function],
