@@ -29,6 +29,7 @@ describe('decorator', () => {
         "dex",
         "fee",
         "policy",
+        "reward",
         "token",
       ]
     `)

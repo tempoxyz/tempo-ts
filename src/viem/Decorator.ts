@@ -3,6 +3,7 @@ import * as ammActions from './Actions/amm.js'
 import * as dexActions from './Actions/dex.js'
 import * as feeActions from './Actions/fee.js'
 import * as policyActions from './Actions/policy.js'
+import * as rewardActions from './Actions/reward.js'
 import * as tokenActions from './Actions/token.js'
 
 export type Decorator<
@@ -1300,6 +1301,195 @@ export type Decorator<
       parameters: policyActions.watchBlacklistUpdated.Parameters,
     ) => () => void
   }
+  reward: {
+    /**
+     * Cancels an active reward stream and refunds remaining tokens.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const hash = await client.reward.cancel({
+     *   id: 1n,
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    cancel: (
+      parameters: rewardActions.cancel.Parameters<chain, account>,
+    ) => Promise<rewardActions.cancel.ReturnValue>
+    /**
+     * Cancels an active reward stream and waits for confirmation.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const result = await client.reward.cancelSync({
+     *   id: 1n,
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    cancelSync: (
+      parameters: rewardActions.cancelSync.Parameters<chain, account>,
+    ) => Promise<rewardActions.cancelSync.ReturnValue>
+    /**
+     * Gets a reward stream by its ID.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     *
+     * const client = createTempoClient()
+     *
+     * const stream = await client.reward.getStream({
+     *   id: 1n,
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The reward stream details.
+     */
+    getStream: (
+      parameters: rewardActions.getStream.Parameters,
+    ) => Promise<rewardActions.getStream.ReturnValue>
+    /**
+     * Gets the total reward per second rate for all active streams.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     *
+     * const client = createTempoClient()
+     *
+     * const rate = await client.reward.getTotalPerSecond({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The total reward per second (scaled by 1e18).
+     */
+    getTotalPerSecond: (
+      parameters: rewardActions.getTotalPerSecond.Parameters,
+    ) => Promise<rewardActions.getTotalPerSecond.ReturnValue>
+    /**
+     * Sets or changes the reward recipient for a token holder.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const hash = await client.reward.setRecipient({
+     *   recipient: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    setRecipient: (
+      parameters: rewardActions.setRecipient.Parameters<chain, account>,
+    ) => Promise<rewardActions.setRecipient.ReturnValue>
+    /**
+     * Sets or changes the reward recipient for a token holder and waits for confirmation.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const result = await client.reward.setRecipientSync({
+     *   recipient: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    setRecipientSync: (
+      parameters: rewardActions.setRecipientSync.Parameters<chain, account>,
+    ) => Promise<rewardActions.setRecipientSync.ReturnValue>
+    /**
+     * Starts a new reward stream that distributes tokens to opted-in holders.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const hash = await client.reward.start({
+     *   amount: 100000000000000000000n,
+     *   seconds: 86400,
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    start: (
+      parameters: rewardActions.start.Parameters<chain, account>,
+    ) => Promise<rewardActions.start.ReturnValue>
+    /**
+     * Starts a new reward stream that distributes tokens to opted-in holders and waits for confirmation.
+     *
+     * @example
+     * ```ts
+     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createTempoClient({
+     *   account: privateKeyToAccount('0x...')
+     * })
+     *
+     * const result = await client.reward.startSync({
+     *   amount: 100000000000000000000n,
+     *   seconds: 86400,
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    startSync: (
+      parameters: rewardActions.startSync.Parameters<chain, account>,
+    ) => Promise<rewardActions.startSync.ReturnValue>
+  }
   token: {
     /**
      * Approves a spender to transfer TIP20 tokens on behalf of the caller.
@@ -2450,6 +2640,20 @@ export function decorator() {
           policyActions.watchWhitelistUpdated(client, parameters),
         watchBlacklistUpdated: (parameters) =>
           policyActions.watchBlacklistUpdated(client, parameters),
+      },
+      reward: {
+        cancel: (parameters) => rewardActions.cancel(client, parameters),
+        cancelSync: (parameters) =>
+          rewardActions.cancelSync(client, parameters),
+        getStream: (parameters) => rewardActions.getStream(client, parameters),
+        getTotalPerSecond: (parameters) =>
+          rewardActions.getTotalPerSecond(client, parameters),
+        setRecipient: (parameters) =>
+          rewardActions.setRecipient(client, parameters),
+        setRecipientSync: (parameters) =>
+          rewardActions.setRecipientSync(client, parameters),
+        start: (parameters) => rewardActions.start(client, parameters),
+        startSync: (parameters) => rewardActions.startSync(client, parameters),
       },
       token: {
         approve: (parameters) => tokenActions.approve(client, parameters),
