@@ -2,8 +2,8 @@ import { getAccount } from '@wagmi/core'
 import { parseEther } from 'viem'
 import { describe, expect, test } from 'vitest'
 import { config, queryClient, setupToken } from '../../../test/wagmi/config.js'
-import * as tokenActions from './token.js'
 import * as actions from './reward.js'
+import * as tokenActions from './token.js'
 
 describe('cancelSync', () => {
   test('default', async () => {
