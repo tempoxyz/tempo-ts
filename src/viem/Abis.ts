@@ -570,7 +570,7 @@ export const tip20 = [
     stateMutability: 'nonpayable',
     inputs: [
       { type: 'uint256', name: 'amount' },
-      { type: 'uint128', name: 'seconds' },
+      { type: 'uint32', name: 'secs' },
     ],
     outputs: [{ type: 'uint64' }],
   },

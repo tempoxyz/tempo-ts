@@ -953,7 +953,7 @@ export namespace start {
     return defineCall({
       address: token,
       abi: Abis.tip20,
-      args: [amount, BigInt(seconds)],
+      args: [amount, seconds],
       functionName: 'startReward',
     })
   }
