@@ -1,6 +1,6 @@
 import { getConnectorClient } from '@wagmi/core'
 import { Addresses } from 'tempo.ts/viem'
-import { type Address, parseEther } from 'viem'
+import { type Address, parseUnits } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
 import { accounts, setupPoolWithLiquidity } from '../../../test/viem/config.js'
@@ -145,7 +145,7 @@ describe('useMintSync', () => {
     // Mint some tokens to account
     await result.current.mintTokenSync.mutateAsync({
       to: account.address,
-      amount: parseEther('1000'),
+      amount: parseUnits('1000', 6),
       token,
     })
 
@@ -153,11 +153,11 @@ describe('useMintSync', () => {
     const data = await result.current.mintSync.mutateAsync({
       userToken: {
         address: token,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
       },
       validatorToken: {
         address: Addresses.defaultFeeToken,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
       },
       to: account.address,
     })
@@ -167,8 +167,8 @@ describe('useMintSync', () => {
     )
 
     expect(data.receipt).toBeDefined()
-    expect(data.amountUserToken).toBe(parseEther('100'))
-    expect(data.amountValidatorToken).toBe(parseEther('100'))
+    expect(data.amountUserToken).toBe(parseUnits('100', 6))
+    expect(data.amountValidatorToken).toBe(parseUnits('100', 6))
   })
 })
 
@@ -237,7 +237,7 @@ describe('useRebalanceSwapSync', () => {
     const data = await result.current.rebalanceSwapSync.mutateAsync({
       userToken: tokenAddress,
       validatorToken: Addresses.defaultFeeToken,
-      amountOut: parseEther('10'),
+      amountOut: parseUnits('10', 6),
       to: account2.address,
     })
 
@@ -246,7 +246,7 @@ describe('useRebalanceSwapSync', () => {
     )
 
     expect(data.receipt).toBeDefined()
-    expect(data.amountOut).toBe(parseEther('10'))
+    expect(data.amountOut).toBe(parseUnits('10', 6))
     expect(data.swapper).toBe(account.address)
   })
 })
@@ -280,7 +280,7 @@ describe('useWatchRebalanceSwap', () => {
     await connectResult.current.rebalanceSwapSync.mutateAsync({
       userToken: tokenAddress,
       validatorToken: Addresses.defaultFeeToken,
-      amountOut: parseEther('10'),
+      amountOut: parseUnits('10', 6),
       to: account2.address,
     })
 
@@ -291,7 +291,7 @@ describe('useWatchRebalanceSwap', () => {
     expect(events[0]?.validatorToken.toLowerCase()).toBe(
       Addresses.defaultFeeToken.toLowerCase(),
     )
-    expect(events[0]?.amountOut).toBe(parseEther('10'))
+    expect(events[0]?.amountOut).toBe(parseUnits('10', 6))
   })
 })
 
@@ -326,7 +326,7 @@ describe('useWatchMint', () => {
     // Mint some tokens to account
     await connectResult.current.mintTokenSync.mutateAsync({
       to: account.address,
-      amount: parseEther('1000'),
+      amount: parseUnits('1000', 6),
       token,
     })
 
@@ -343,11 +343,11 @@ describe('useWatchMint', () => {
     await connectResult.current.mintSync.mutateAsync({
       userToken: {
         address: token,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
       },
       validatorToken: {
         address: Addresses.defaultFeeToken,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
       },
       to: account.address,
     })
@@ -359,8 +359,8 @@ describe('useWatchMint', () => {
     expect(events[0]?.validatorToken.address.toLowerCase()).toBe(
       Addresses.defaultFeeToken.toLowerCase(),
     )
-    expect(events[0]?.userToken.amount).toBe(parseEther('100'))
-    expect(events[0]?.validatorToken.amount).toBe(parseEther('100'))
+    expect(events[0]?.userToken.amount).toBe(parseUnits('100', 6))
+    expect(events[0]?.validatorToken.amount).toBe(parseUnits('100', 6))
   })
 })
 

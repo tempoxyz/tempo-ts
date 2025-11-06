@@ -6,7 +6,7 @@ import {
   type Client,
   defineChain,
   type LocalAccount,
-  parseEther,
+  parseUnits,
   type Transport,
 } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
@@ -66,7 +66,7 @@ export async function setupToken(
   })
 
   await Actions.token.mintSync(client, {
-    amount: parseEther('10000'),
+    amount: parseUnits('10000', 6),
     to: client.account.address,
     token: token.token,
   })
@@ -94,7 +94,7 @@ export async function setupPoolWithLiquidity(
   // Mint some tokens to account
   await Actions.token.mintSync(client, {
     to: client.account.address,
-    amount: parseEther('1000'),
+    amount: parseUnits('1000', 6),
     token,
   })
 
@@ -102,11 +102,11 @@ export async function setupPoolWithLiquidity(
   await Actions.amm.mintSync(client, {
     userToken: {
       address: token,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     },
     validatorToken: {
       address: Addresses.defaultFeeToken,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     },
     to: client.account.address,
   })
@@ -150,28 +150,28 @@ export async function setupTokenPair(
   await Actions.token.mintSync(client, {
     token: baseToken,
     to: client.account.address,
-    amount: parseEther('10000'),
+    amount: parseUnits('10000', 6),
   })
 
   // Mint quote tokens
   await Actions.token.mintSync(client, {
     token: quoteToken,
     to: client.account.address,
-    amount: parseEther('10000'),
+    amount: parseUnits('10000', 6),
   })
 
   // Approve DEX to spend base tokens
   await Actions.token.approveSync(client, {
     token: baseToken,
     spender: Addresses.stablecoinExchange,
-    amount: parseEther('10000'),
+    amount: parseUnits('10000', 6),
   })
 
   // Approve DEX to spend quote tokens
   await Actions.token.approveSync(client, {
     token: quoteToken,
     spender: Addresses.stablecoinExchange,
-    amount: parseEther('10000'),
+    amount: parseUnits('10000', 6),
   })
 
   // Create the pair on the DEX
@@ -190,7 +190,7 @@ export async function setupOrders(client: Client<Transport, Chain, Account>) {
   const calls = []
   for (let i = 0; i < 50; i++) {
     const token = bases[i % bases.length]!
-    const amount = parseEther(String(50 + i * 10))
+    const amount = parseUnits(String(50 + i * 10), 6)
     const isBuy = i % 2 === 0
     const tickPrice = 1.0 + ((i % 20) - 10) * 0.001
     const tick = Tick.fromPrice(String(tickPrice))

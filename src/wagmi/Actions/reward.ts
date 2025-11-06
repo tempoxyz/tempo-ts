@@ -118,6 +118,113 @@ export declare namespace cancelSync {
 }
 
 /**
+ * Claims accumulated rewards for a recipient.
+ *
+ * @example
+ * ```ts
+ * import { createConfig, http } from '@wagmi/core'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/wagmi'
+ *
+ * const config = createConfig({
+ *   chains: [tempo],
+ *   transports: {
+ *     [tempo.id]: http(),
+ *   },
+ * })
+ *
+ * const hash = await Actions.reward.claim(config, {
+ *   token: '0x20c0000000000000000000000000000000000001',
+ * })
+ * ```
+ *
+ * @param config - Config.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function claim<config extends Config>(
+  config: config,
+  parameters: claim.Parameters<config>,
+): Promise<viem_Actions.claim.ReturnValue> {
+  const { account, chainId, connector } = parameters
+
+  const client = await getConnectorClient(config, {
+    account,
+    assertChainId: false,
+    chainId,
+    connector,
+  })
+
+  return viem_Actions.claim(client, parameters as viem_Actions.claim.Parameters)
+}
+
+export declare namespace claim {
+  export type Parameters<config extends Config = Config> =
+    ChainIdParameter<config> &
+      ConnectorParameter &
+      Omit<viem_Actions.claim.Parameters<undefined, Account>, 'chain'>
+
+  export type ReturnValue = viem_Actions.claim.ReturnValue
+
+  export type ErrorType = viem_Actions.claim.ErrorType
+}
+
+/**
+ * Claims accumulated rewards for a recipient and waits for confirmation.
+ *
+ * @example
+ * ```ts
+ * import { createConfig, http } from '@wagmi/core'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/wagmi'
+ *
+ * const config = createConfig({
+ *   chains: [tempo],
+ *   transports: {
+ *     [tempo.id]: http(),
+ *   },
+ * })
+ *
+ * const result = await Actions.reward.claimSync(config, {
+ *   token: '0x20c0000000000000000000000000000000000001',
+ * })
+ * ```
+ *
+ * @param config - Config.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt.
+ */
+export async function claimSync<config extends Config>(
+  config: config,
+  parameters: claimSync.Parameters<config>,
+): Promise<viem_Actions.claimSync.ReturnValue> {
+  const { account, chainId, connector } = parameters
+
+  const client = await getConnectorClient(config, {
+    account,
+    assertChainId: false,
+    chainId,
+    connector,
+  })
+
+  return viem_Actions.claimSync(
+    client,
+    parameters as viem_Actions.claimSync.Parameters,
+  )
+}
+
+export declare namespace claimSync {
+  export type Parameters<config extends Config = Config> =
+    ChainIdParameter<config> &
+      ConnectorParameter &
+      Omit<viem_Actions.claimSync.Parameters<undefined, Account>, 'chain'>
+
+  export type ReturnValue = viem_Actions.claimSync.ReturnValue
+
+  export type ErrorType = viem_Actions.claimSync.ErrorType
+}
+
+/**
  * Gets a reward stream by its ID.
  *
  * @example

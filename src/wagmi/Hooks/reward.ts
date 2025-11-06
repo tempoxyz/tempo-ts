@@ -147,6 +147,138 @@ export declare namespace useCancelSync {
 }
 
 /**
+ * Hook for claiming accumulated rewards.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   const { mutate: claim } = Hooks.reward.useClaim()
+ *
+ *   return (
+ *     <button onClick={() => claim({
+ *       token: '0x20c0000000000000000000000000000000000001'
+ *     })}>
+ *       Claim Rewards
+ *     </button>
+ *   )
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ * @returns Mutation result.
+ */
+export function useClaim<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useClaim.Parameters<config, context> = {},
+): useClaim.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return Actions.claim(config, variables)
+    },
+    mutationKey: ['claim'],
+  })
+}
+
+export declare namespace useClaim {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> & {
+    mutation?:
+      | UseMutationParameters<
+          Actions.claim.ReturnValue,
+          Actions.claim.ErrorType,
+          Actions.claim.Parameters<config>,
+          context
+        >
+      | undefined
+  }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    Actions.claim.ReturnValue,
+    Actions.claim.ErrorType,
+    Actions.claim.Parameters<config>,
+    context
+  >
+}
+
+/**
+ * Hook for claiming accumulated rewards and waiting for confirmation.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   const { mutate: claimSync } = Hooks.reward.useClaimSync()
+ *
+ *   return (
+ *     <button onClick={() => claimSync({
+ *       token: '0x20c0000000000000000000000000000000000001'
+ *     })}>
+ *       Claim Rewards
+ *     </button>
+ *   )
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ * @returns Mutation result.
+ */
+export function useClaimSync<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useClaimSync.Parameters<config, context> = {},
+): useClaimSync.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return Actions.claimSync(config, variables)
+    },
+    mutationKey: ['claimSync'],
+  })
+}
+
+export declare namespace useClaimSync {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> & {
+    mutation?:
+      | UseMutationParameters<
+          Actions.claimSync.ReturnValue,
+          Actions.claimSync.ErrorType,
+          Actions.claimSync.Parameters<config>,
+          context
+        >
+      | undefined
+  }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    Actions.claimSync.ReturnValue,
+    Actions.claimSync.ErrorType,
+    Actions.claimSync.Parameters<config>,
+    context
+  >
+}
+
+/**
  * Hook for getting a reward stream by its ID.
  *
  * @example

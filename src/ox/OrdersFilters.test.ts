@@ -76,6 +76,7 @@ describe('fromRpc', () => {
 
     expect(filters.remaining).toMatchInlineSnapshot(`
       {
+        "max": null,
         "min": 100n,
       }
     `)
@@ -166,6 +167,7 @@ describe('toRpc', () => {
     expect(rpcFilters.remaining).toMatchInlineSnapshot(`
       {
         "max": "0x3e8",
+        "min": null,
       }
     `)
   })

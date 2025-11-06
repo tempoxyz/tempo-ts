@@ -1,6 +1,6 @@
 import { Addresses, Tick } from 'tempo.ts/viem'
 import { Actions, Hooks } from 'tempo.ts/wagmi'
-import { type Address, isAddress, parseEther } from 'viem'
+import { type Address, isAddress, parseUnits } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
 import { accounts } from '../../../test/viem/config.js'
@@ -23,7 +23,7 @@ describe('useBuy', () => {
     // Place ask order to create liquidity
     await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('500'),
+      amount: parseUnits('500', 6),
       type: 'sell',
       tick: Tick.fromPrice('1.001'),
     })
@@ -32,8 +32,8 @@ describe('useBuy', () => {
     const { receipt } = await result.current.mutateAsync({
       tokenIn: quote,
       tokenOut: base,
-      amountOut: parseEther('100'),
-      maxAmountIn: parseEther('150'),
+      amountOut: parseUnits('100', 6),
+      maxAmountIn: parseUnits('150', 6),
     })
 
     expect(receipt).toBeDefined()
@@ -50,7 +50,7 @@ describe('useBuy', () => {
     // Place ask order at high price
     await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('500'),
+      amount: parseUnits('500', 6),
       type: 'sell',
       tick: Tick.fromPrice('1.01'), // 1% above peg
     })
@@ -60,8 +60,8 @@ describe('useBuy', () => {
       result.current.mutateAsync({
         tokenIn: quote,
         tokenOut: base,
-        amountOut: parseEther('100'),
-        maxAmountIn: parseEther('50'), // Way too low for 1% premium
+        amountOut: parseUnits('100', 6),
+        maxAmountIn: parseUnits('50', 6), // Way too low for 1% premium
       }),
     ).rejects.toThrow('The contract function "swapExactAmountOut" reverted')
   })
@@ -78,8 +78,8 @@ describe('useBuy', () => {
       result.current.mutateAsync({
         tokenIn: quote,
         tokenOut: base,
-        amountOut: parseEther('100'),
-        maxAmountIn: parseEther('150'),
+        amountOut: parseUnits('100', 6),
+        maxAmountIn: parseUnits('150', 6),
       }),
     ).rejects.toThrow('The contract function "swapExactAmountOut" reverted')
   })
@@ -97,7 +97,7 @@ describe('useCancel', () => {
     // Place a bid order
     const { orderId } = await result.current.place.mutateAsync({
       token: base,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
     })
@@ -141,7 +141,7 @@ describe('useCancel', () => {
     // Account places order
     const { orderId } = await result.current.place.mutateAsync({
       token: base,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
     })
@@ -149,7 +149,7 @@ describe('useCancel', () => {
     // Transfer gas to account2
     await Actions.token.transferSync(config, {
       to: account2.address,
-      amount: parseEther('1'),
+      amount: parseUnits('1', 6),
       token: Addresses.defaultFeeToken,
     })
 
@@ -239,7 +239,7 @@ describe('useBalance', () => {
     // Place and cancel order to create internal balance
     const { orderId } = await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('50'),
+      amount: parseUnits('50', 6),
       type: 'buy',
       tick: Tick.fromPrice('1.0005'),
     })
@@ -272,7 +272,7 @@ describe('useBalance', () => {
     // Create balance in quote token
     const { orderId } = await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
     })
@@ -304,7 +304,7 @@ describe('useBuyQuote', () => {
     // Place ask orders to create liquidity
     await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('500'),
+      amount: parseUnits('500', 6),
       type: 'sell',
       tick: Tick.fromPrice('1.001'),
     })
@@ -313,7 +313,7 @@ describe('useBuyQuote', () => {
       Hooks.dex.useBuyQuote({
         tokenIn: quote,
         tokenOut: base,
-        amountOut: parseEther('100'),
+        amountOut: parseUnits('100', 6),
       }),
     )
 
@@ -321,7 +321,7 @@ describe('useBuyQuote', () => {
 
     expect(result.current.data).toBeGreaterThan(0n)
     // Should be approximately 100 * 1.001 = 100.1
-    expect(result.current.data).toBeGreaterThan(parseEther('100'))
+    expect(result.current.data).toBeGreaterThan(parseUnits('100', 6))
   })
 
   test('behavior: fails with no liquidity', async () => {
@@ -333,7 +333,7 @@ describe('useBuyQuote', () => {
       Hooks.dex.useBuyQuote({
         tokenIn: quote,
         tokenOut: base,
-        amountOut: parseEther('100'),
+        amountOut: parseUnits('100', 6),
       }),
     )
 
@@ -352,7 +352,7 @@ describe('useOrder', () => {
     // Place an order to get an order ID
     const { orderId } = await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
     })
@@ -369,8 +369,8 @@ describe('useOrder', () => {
     expect(order.maker).toBe(account.address)
     expect(order.isBid).toBe(true)
     expect(order.tick).toBe(Tick.fromPrice('1.001'))
-    expect(order.amount).toBe(parseEther('100'))
-    expect(order.remaining).toBe(parseEther('100'))
+    expect(order.amount).toBe(parseUnits('100', 6))
+    expect(order.remaining).toBe(parseUnits('100', 6))
     expect(order.isFlip).toBe(false)
   })
 
@@ -380,7 +380,7 @@ describe('useOrder', () => {
     // Place a flip order
     const { orderId } = await Actions.dex.placeFlipSync(config, {
       token: base,
-      amount: parseEther('50'),
+      amount: parseUnits('50', 6),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
       flipTick: Tick.fromPrice('1.002'),
@@ -398,7 +398,7 @@ describe('useOrder', () => {
     expect(order.maker).toBe(account.address)
     expect(order.isBid).toBe(true)
     expect(order.tick).toBe(Tick.fromPrice('1.001'))
-    expect(order.amount).toBe(parseEther('50'))
+    expect(order.amount).toBe(parseUnits('50', 6))
     expect(order.isFlip).toBe(true)
     expect(order.flipTick).toBe(Tick.fromPrice('1.002'))
   })
@@ -474,7 +474,7 @@ describe('useOrderbook', () => {
     // Place a bid order
     await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       type: 'buy',
       tick: bidTick,
     })
@@ -482,7 +482,7 @@ describe('useOrderbook', () => {
     // Place an ask order
     await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       type: 'sell',
       tick: askTick,
     })
@@ -511,7 +511,7 @@ describe('usePriceLevel', () => {
     // Place an order to create liquidity at this tick
     const { orderId } = await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       type: 'buy',
       tick,
     })
@@ -562,7 +562,7 @@ describe('useSellQuote', () => {
     // Place bid orders to create liquidity
     await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('500'),
+      amount: parseUnits('500', 6),
       type: 'buy',
       tick: Tick.fromPrice('0.999'),
     })
@@ -571,7 +571,7 @@ describe('useSellQuote', () => {
       Hooks.dex.useSellQuote({
         tokenIn: base,
         tokenOut: quote,
-        amountIn: parseEther('100'),
+        amountIn: parseUnits('100', 6),
       }),
     )
 
@@ -579,7 +579,7 @@ describe('useSellQuote', () => {
 
     expect(result.current.data).toBeGreaterThan(0n)
     // Should be approximately 100 * 0.999 = 99.9
-    expect(result.current.data).toBeLessThan(parseEther('100'))
+    expect(result.current.data).toBeLessThan(parseUnits('100', 6))
   })
 
   test('behavior: fails with no liquidity', async () => {
@@ -590,7 +590,7 @@ describe('useSellQuote', () => {
       Hooks.dex.useSellQuote({
         tokenIn: base,
         tokenOut: quote,
-        amountIn: parseEther('100'),
+        amountIn: parseUnits('100', 6),
       }),
     )
 
@@ -612,7 +612,7 @@ describe('usePlace', () => {
     const { receipt, orderId, token, ...resultData } =
       await result.current.mutateAsync({
         token: base,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
         type: 'sell',
         tick: Tick.fromPrice('1.001'),
       })
@@ -623,7 +623,7 @@ describe('usePlace', () => {
     expect(token).toBe(base)
     expect(resultData).toMatchInlineSnapshot(`
       {
-        "amount": 100000000000000000000n,
+        "amount": 100000000n,
         "isBid": false,
         "maker": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "tick": 100,
@@ -640,7 +640,7 @@ describe('usePlace', () => {
       ...result2
     } = await result.current.mutateAsync({
       token: base,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
     })
@@ -649,7 +649,7 @@ describe('usePlace', () => {
     expect(token2).toBe(base)
     expect(result2).toMatchInlineSnapshot(`
       {
-        "amount": 100000000000000000000n,
+        "amount": 100000000n,
         "isBid": true,
         "maker": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "tick": 100,
@@ -668,7 +668,7 @@ describe('usePlaceFlip', () => {
     const { receipt, orderId, token, ...resultData } =
       await result.current.mutateAsync({
         token: base,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
         type: 'buy',
         tick: Tick.fromPrice('1.001'),
         flipTick: Tick.fromPrice('1.002'),
@@ -681,7 +681,7 @@ describe('usePlaceFlip', () => {
     expect(resultData.flipTick).toBe(Tick.fromPrice('1.002'))
     expect(resultData).toMatchInlineSnapshot(`
       {
-        "amount": 100000000000000000000n,
+        "amount": 100000000n,
         "flipTick": 200,
         "isBid": true,
         "maker": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -702,7 +702,7 @@ describe('useSell', () => {
     // Place bid order to create liquidity
     await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('500'),
+      amount: parseUnits('500', 6),
       type: 'buy',
       tick: Tick.fromPrice('0.999'),
     })
@@ -711,8 +711,8 @@ describe('useSell', () => {
     const { receipt } = await result.current.mutateAsync({
       tokenIn: base,
       tokenOut: quote,
-      amountIn: parseEther('100'),
-      minAmountOut: parseEther('50'),
+      amountIn: parseUnits('100', 6),
+      minAmountOut: parseUnits('50', 6),
     })
 
     expect(receipt).toBeDefined()
@@ -729,7 +729,7 @@ describe('useSell', () => {
     // Place bid order at low price
     await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('500'),
+      amount: parseUnits('500', 6),
       type: 'buy',
       tick: Tick.fromPrice('0.99'), // 1% below peg
     })
@@ -739,8 +739,8 @@ describe('useSell', () => {
       result.current.mutateAsync({
         tokenIn: base,
         tokenOut: quote,
-        amountIn: parseEther('100'),
-        minAmountOut: parseEther('150'), // Way too high
+        amountIn: parseUnits('100', 6),
+        minAmountOut: parseUnits('150', 6), // Way too high
       }),
     ).rejects.toThrow('The contract function "swapExactAmountIn" reverted')
   })
@@ -757,8 +757,8 @@ describe('useSell', () => {
       result.current.mutateAsync({
         tokenIn: base,
         tokenOut: quote,
-        amountIn: parseEther('100'),
-        minAmountOut: parseEther('50'),
+        amountIn: parseUnits('100', 6),
+        minAmountOut: parseUnits('50', 6),
       }),
     ).rejects.toThrow('The contract function "swapExactAmountIn" reverted')
   })
@@ -782,7 +782,7 @@ describe('useWatchFlipOrderPlaced', () => {
     // Place flip order to trigger event
     await result.current.mutateAsync({
       token: base,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
       flipTick: Tick.fromPrice('1.002'),
@@ -794,7 +794,7 @@ describe('useWatchFlipOrderPlaced', () => {
     expect(events[0]?.flipTick).toBe(Tick.fromPrice('1.002'))
     expect(events[0]?.tick).toBe(Tick.fromPrice('1.001'))
     expect(events[0]?.isBid).toBe(true)
-    expect(events[0]?.amount).toBe(parseEther('100'))
+    expect(events[0]?.amount).toBe(parseUnits('100', 6))
   })
 })
 
@@ -805,7 +805,7 @@ describe('useWatchOrderCancelled', () => {
     // Place order first
     const { orderId } = await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
     })
@@ -836,14 +836,14 @@ describe('useWatchOrderCancelled', () => {
     // Place two orders
     const { orderId: orderId1 } = await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
     })
 
     const { orderId: orderId2 } = await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('50'),
+      amount: parseUnits('50', 6),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
     })
@@ -894,7 +894,7 @@ describe('useWatchOrderPlaced', () => {
     // Place first order
     await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
     })
@@ -902,7 +902,7 @@ describe('useWatchOrderPlaced', () => {
     // Place second order
     await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('50'),
+      amount: parseUnits('50', 6),
       type: 'sell',
       tick: Tick.fromPrice('0.999'),
     })
@@ -911,9 +911,9 @@ describe('useWatchOrderPlaced', () => {
 
     expect(events.length).toBeGreaterThanOrEqual(2)
     expect(events[0]?.isBid).toBe(true)
-    expect(events[0]?.amount).toBe(parseEther('100'))
+    expect(events[0]?.amount).toBe(parseUnits('100', 6))
     expect(events[1]?.isBid).toBe(false)
-    expect(events[1]?.amount).toBe(parseEther('50'))
+    expect(events[1]?.amount).toBe(parseUnits('50', 6))
   })
 
   test('behavior: filter by token', async () => {
@@ -933,7 +933,7 @@ describe('useWatchOrderPlaced', () => {
     // Place order on base (should be captured)
     await Actions.dex.placeSync(config, {
       token: base,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
     })
@@ -941,7 +941,7 @@ describe('useWatchOrderPlaced', () => {
     // Place order on base2 (should NOT be captured due to filter)
     await Actions.dex.placeSync(config, {
       token: base2,
-      amount: parseEther('50'),
+      amount: parseUnits('50', 6),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
     })
@@ -967,7 +967,7 @@ describe('useWithdraw', () => {
     // Create internal balance
     const { orderId } = await result.current.place.mutateAsync({
       token: base,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       type: 'buy',
       tick: Tick.fromPrice('1.001'),
     })

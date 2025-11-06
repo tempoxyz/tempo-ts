@@ -5,9 +5,9 @@ import type * as Hex from 'ox/Hex'
  */
 export type FilterRange<type> = {
   /** Maximum value (inclusive). */
-  max?: type | undefined
+  max?: type | null | undefined
   /** Minimum value (inclusive). */
-  min?: type | undefined
+  min?: type | null | undefined
 }
 
 /**

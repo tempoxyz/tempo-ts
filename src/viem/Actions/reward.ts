@@ -225,6 +225,199 @@ export declare namespace cancelSync {
 }
 
 /**
+ * Claims accumulated rewards for a recipient.
+ *
+ * This function allows a reward recipient to claim their accumulated rewards
+ * and receive them as token transfers to their own balance.
+ *
+ * - Accrues all pending rewards up to the current block timestamp.
+ * - Updates the caller's reward accounting.
+ * - Transfers the caller's accumulated `rewardBalance` from the token contract to the caller.
+ * - If the contract's balance is insufficient, claims up to the available amount.
+ * - Returns the actual amount claimed.
+ *
+ * Notes:
+ * - Reverts with `Paused` if the token is paused.
+ * - Reverts with `PolicyForbids` if the caller is not authorized to receive tokens under TIP-403.
+ * - If opted in, the claimed amount is added back to `optedInSupply` since it goes to the recipient's balance.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const hash = await actions.reward.claim(client, {
+ *   token: '0x20c0000000000000000000000000000000000001',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function claim<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: claim.Parameters<chain, account>,
+): Promise<claim.ReturnValue> {
+  return claim.inner(writeContract, client, parameters)
+}
+
+export namespace claim {
+  export type Args = {
+    /** The TIP20 token address */
+    token: Address
+  }
+
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { token, ...rest } = parameters
+    const call = claim.call({ token })
+    return (await action(client, {
+      ...rest,
+      ...call,
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `claimRewards` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo.ts/chains'
+   * import * as actions from 'tempo.ts/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const hash = await client.sendTransaction({
+   *   calls: [actions.reward.claim.call({
+   *     token: '0x20c0000000000000000000000000000000000001',
+   *   })],
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { token } = args
+    return defineCall({
+      address: token,
+      abi: Abis.tip20,
+      args: [],
+      functionName: 'claimRewards',
+    })
+  }
+}
+
+/**
+ * Claims accumulated rewards for a recipient and waits for confirmation.
+ *
+ * This function allows a reward recipient to claim their accumulated rewards
+ * and receive them as token transfers to their own balance.
+ *
+ * Behavior:
+ * - Accrues all pending rewards up to the current block timestamp.
+ * - Updates the caller's reward accounting.
+ * - Transfers the caller's accumulated `rewardBalance` from the token contract to the caller.
+ * - If the contract's balance is insufficient, claims up to the available amount.
+ *
+ * Notes:
+ * - Reverts with `Paused` if the token is paused.
+ * - Reverts with `PolicyForbids` if the caller is not authorized to receive tokens under TIP-403.
+ * - If opted in, the claimed amount is added back to `optedInSupply` since it goes to the recipient's balance.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const { receipt } = await actions.reward.claimSync(client, {
+ *   token: '0x20c0000000000000000000000000000000000001',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The amount claimed and transaction receipt.
+ */
+export async function claimSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: claimSync.Parameters<chain, account>,
+): Promise<claimSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await claim.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  return {
+    receipt,
+  } as never
+}
+
+export namespace claimSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & claim.Args
+
+  export type ReturnValue = {
+    /** The transaction receipt */
+    receipt: Awaited<ReturnType<typeof writeContractSync>>
+  }
+
+  export type ErrorType = claim.ErrorType
+}
+
+/**
  * Gets a reward stream by its ID.
  *
  * Returns the stream details including:
@@ -760,7 +953,7 @@ export namespace start {
     return defineCall({
       address: token,
       abi: Abis.tip20,
-      args: [amount, BigInt(seconds)],
+      args: [amount, seconds],
       functionName: 'startReward',
     })
   }

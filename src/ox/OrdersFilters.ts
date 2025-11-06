@@ -60,10 +60,14 @@ export function fromRpc(filters: Rpc): OrdersFilters {
 
   if (filters.remaining !== undefined) {
     const remaining: Pagination.FilterRange<bigint> = {}
-    if (filters.remaining.min !== undefined)
-      remaining.min = Hex.toBigInt(filters.remaining.min)
-    if (filters.remaining.max !== undefined)
-      remaining.max = Hex.toBigInt(filters.remaining.max)
+    remaining.min =
+      typeof filters.remaining.min === 'string'
+        ? Hex.toBigInt(filters.remaining.min)
+        : null
+    remaining.max =
+      typeof filters.remaining.max === 'string'
+        ? Hex.toBigInt(filters.remaining.max)
+        : null
     result.remaining = remaining
   }
 
@@ -104,10 +108,14 @@ export function toRpc(filters: OrdersFilters): Rpc {
 
   if (filters.remaining !== undefined) {
     const remaining: Pagination.FilterRange<Hex.Hex> = {}
-    if (filters.remaining.min !== undefined)
-      remaining.min = Hex.fromNumber(filters.remaining.min)
-    if (filters.remaining.max !== undefined)
-      remaining.max = Hex.fromNumber(filters.remaining.max)
+    remaining.min =
+      typeof filters.remaining.min === 'bigint'
+        ? Hex.fromNumber(filters.remaining.min)
+        : null
+    remaining.max =
+      typeof filters.remaining.max === 'bigint'
+        ? Hex.fromNumber(filters.remaining.max)
+        : null
     result.remaining = remaining
   }
 

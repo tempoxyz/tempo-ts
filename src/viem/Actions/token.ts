@@ -1,5 +1,4 @@
 import * as Hex from 'ox/Hex'
-import * as Signature from 'ox/Signature'
 import {
   type Account,
   type Address,
@@ -1098,202 +1097,6 @@ export namespace createSync {
       { IndexedOnly: false; Required: true }
     > & {
       /** Transaction receipt. */
-      receipt: TransactionReceipt
-    }
-  >
-
-  // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
-}
-
-/**
- * Finalizes the quote token update for a TIP20 token.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
- * import { privateKeyToAccount } from 'viem/accounts'
- *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
- *   transport: http(),
- * })
- *
- * const result = await actions.token.finalizeUpdateQuoteToken(client, {
- *   token: '0x...',
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The transaction hash.
- */
-export async function finalizeUpdateQuoteToken<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: finalizeUpdateQuoteToken.Parameters<chain, account>,
-): Promise<finalizeUpdateQuoteToken.ReturnValue> {
-  return finalizeUpdateQuoteToken.inner(writeContract, client, parameters)
-}
-
-export namespace finalizeUpdateQuoteToken {
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
-
-  export type Args = {
-    /** Address or ID of the TIP20 token. */
-    token: TokenId.TokenIdOrAddress
-  }
-
-  export type ReturnValue = WriteContractReturnType
-
-  // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
-
-  /** @internal */
-  export async function inner<
-    action extends typeof writeContract | typeof writeContractSync,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    action: action,
-    client: Client<Transport, chain, account>,
-    parameters: finalizeUpdateQuoteToken.Parameters<chain, account>,
-  ): Promise<ReturnType<action>> {
-    const { token, ...rest } = parameters
-    const call = finalizeUpdateQuoteToken.call({ token })
-    return (await action(client, {
-      ...rest,
-      ...call,
-    } as never)) as never
-  }
-
-  /**
-   * Defines a call to the `finalizeQuoteTokenUpdate` function.
-   *
-   * Can be passed as a parameter to:
-   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
-   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
-   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
-   *
-   * @example
-   * ```ts
-   * import { createClient, http, walletActions } from 'viem'
-   * import { tempo } from 'tempo.ts/chains'
-   * import * as actions from 'tempo.ts/viem/actions'
-   *
-   * const client = createClient({
-   *   chain: tempo,
-   *   transport: http(),
-   * }).extend(walletActions)
-   *
-   * const { result } = await client.sendCalls({
-   *   calls: [
-   *     actions.token.finalizeUpdateQuoteToken.call({
-   *       token: '0x20c0...babe',
-   *     }),
-   *   ]
-   * })
-   * ```
-   *
-   * @param args - Arguments.
-   * @returns The call.
-   */
-  export function call(args: Args) {
-    const { token } = args
-    return defineCall({
-      address: TokenId.toAddress(token),
-      abi: Abis.tip20,
-      functionName: 'finalizeQuoteTokenUpdate',
-      args: [],
-    })
-  }
-
-  /**
-   * Extracts the event from the logs.
-   *
-   * @param logs - Logs.
-   * @returns The event.
-   */
-  export function extractEvent(logs: Log[]) {
-    const [log] = parseEventLogs({
-      abi: Abis.tip20,
-      logs,
-      eventName: 'QuoteTokenUpdateFinalized',
-    })
-    if (!log) throw new Error('`QuoteTokenUpdateFinalized` event not found.')
-    return log
-  }
-}
-
-/**
- * Finalizes the quote token update for a TIP20 token.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
- * import { privateKeyToAccount } from 'viem/accounts'
- *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
- *   transport: http(),
- * })
- *
- * const result = await actions.token.finalizeUpdateQuoteTokenSync(client, {
- *   token: '0x...',
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The transaction receipt and event data.
- */
-export async function finalizeUpdateQuoteTokenSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: finalizeUpdateQuoteTokenSync.Parameters<chain, account>,
-): Promise<finalizeUpdateQuoteTokenSync.ReturnValue> {
-  const receipt = await finalizeUpdateQuoteToken.inner(
-    writeContractSync,
-    client,
-    parameters,
-  )
-  const { args } = finalizeUpdateQuoteToken.extractEvent(receipt.logs)
-  return {
-    ...args,
-    receipt,
-  } as never
-}
-
-export namespace finalizeUpdateQuoteTokenSync {
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = finalizeUpdateQuoteToken.Parameters<chain, account>
-
-  export type Args = finalizeUpdateQuoteToken.Args
-
-  export type ReturnValue = Compute<
-    GetEventArgs<
-      typeof Abis.tip20,
-      'QuoteTokenUpdateFinalized',
-      {
-        IndexedOnly: false
-        Required: true
-      }
-    > & {
       receipt: TransactionReceipt
     }
   >
@@ -2417,245 +2220,6 @@ export namespace pauseSync {
   export type ReturnValue = GetEventArgs<
     typeof Abis.tip20,
     'PauseStateUpdate',
-    { IndexedOnly: false; Required: true }
-  > & {
-    receipt: TransactionReceipt
-  }
-
-  // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
-}
-
-/**
- * Approves a spender using a signed permit.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
- * import { privateKeyToAccount } from 'viem/accounts'
- *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
- *   transport: http(),
- * })
- *
- * const result = await actions.token.permit(client, {
- *   owner: '0x...',
- *   spender: '0x...',
- *   value: 100n,
- *   deadline: 1234567890n,
- *   signature: { r: 0n, s: 0n, yParity: 0 },
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The transaction hash.
- */
-export async function permit<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: permit.Parameters<chain, account>,
-): Promise<permit.ReturnValue> {
-  return permit.inner(writeContract, client, parameters)
-}
-
-export namespace permit {
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
-
-  export type Args = {
-    /** Deadline for the permit. */
-    deadline: bigint
-    /** Address of the owner. */
-    owner: Address
-    /** Signature. */
-    signature: Signature.Signature
-    /** Address of the spender. */
-    spender: Address
-    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
-    token?: TokenId.TokenIdOrAddress | undefined
-    /** Amount to approve. */
-    value: bigint
-  }
-
-  export type ReturnValue = WriteContractReturnType
-
-  // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
-
-  /** @internal */
-  export async function inner<
-    action extends typeof writeContract | typeof writeContractSync,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    action: action,
-    client: Client<Transport, chain, account>,
-    parameters: permit.Parameters<chain, account>,
-  ): Promise<ReturnType<action>> {
-    const { owner, spender, value, deadline, signature, token, ...rest } =
-      parameters
-    const call = permit.call({
-      owner,
-      spender,
-      value,
-      deadline,
-      signature,
-      token,
-    })
-    return (await action(client, {
-      ...rest,
-      ...call,
-    } as never)) as never
-  }
-
-  /**
-   * Defines a call to the `permit` function.
-   *
-   * Can be passed as a parameter to:
-   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
-   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
-   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
-   *
-   * @example
-   * ```ts
-   * import { createClient, http, walletActions } from 'viem'
-   * import { tempo } from 'tempo.ts/chains'
-   * import * as actions from 'tempo.ts/viem/actions'
-   *
-   * const client = createClient({
-   *   chain: tempo,
-   *   transport: http(),
-   * }).extend(walletActions)
-   *
-   * const { result } = await client.sendCalls({
-   *   calls: [
-   *     actions.token.permit.call({
-   *       owner: '0x20c0...beef',
-   *       spender: '0x20c0...babe',
-   *       value: 100n,
-   *       deadline: 1234567890n,
-   *       signature: { r: 0n, s: 0n, yParity: 0 },
-   *       token: '0x20c0...cafe',
-   *     }),
-   *   ]
-   * })
-   * ```
-   *
-   * @param args - Arguments.
-   * @returns The call.
-   */
-  export function call(args: Args) {
-    const {
-      owner,
-      spender,
-      value,
-      deadline,
-      signature,
-      token = Addresses.defaultFeeToken,
-    } = args
-    const { r, s, yParity } = Signature.from(signature)
-    const v = Signature.yParityToV(yParity)
-    return defineCall({
-      address: TokenId.toAddress(token),
-      abi: Abis.tip20,
-      functionName: 'permit',
-      args: [
-        owner,
-        spender,
-        value,
-        deadline,
-        v,
-        Hex.trimLeft(Hex.fromNumber(r!)),
-        Hex.trimLeft(Hex.fromNumber(s!)),
-      ],
-    })
-  }
-
-  /**
-   * Extracts the event from the logs.
-   *
-   * @param logs - Logs.
-   * @returns The event.
-   */
-  export function extractEvent(logs: Log[]) {
-    const [log] = parseEventLogs({
-      abi: Abis.tip20,
-      logs,
-      eventName: 'Approval',
-    })
-    if (!log) throw new Error('`Approval` event not found.')
-    return log
-  }
-}
-
-/**
- * Approves a spender using a signed permit.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
- * import { privateKeyToAccount } from 'viem/accounts'
- *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
- *   transport: http(),
- * })
- *
- * const result = await actions.token.permitSync(client, {
- *   owner: '0x...',
- *   spender: '0x...',
- *   value: 100n,
- *   deadline: 1234567890n,
- *   signature: { r: 0n, s: 0n, yParity: 0 },
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The transaction receipt and event data.
- */
-export async function permitSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: permitSync.Parameters<chain, account>,
-): Promise<permitSync.ReturnValue> {
-  const { throwOnReceiptRevert = true, ...rest } = parameters
-  const receipt = await permit.inner(writeContractSync, client, {
-    ...rest,
-    throwOnReceiptRevert,
-  } as never)
-  const { args } = permit.extractEvent(receipt.logs)
-  return {
-    ...args,
-    receipt,
-  } as never
-}
-
-export namespace permitSync {
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = permit.Parameters<chain, account>
-
-  export type Args = permit.Args
-
-  export type ReturnValue = GetEventArgs<
-    typeof Abis.tip20,
-    'Approval',
     { IndexedOnly: false; Required: true }
   > & {
     receipt: TransactionReceipt
@@ -3915,7 +3479,7 @@ export namespace unpauseSync {
  *   transport: http(),
  * })
  *
- * const result = await actions.token.updateQuoteToken(client, {
+ * const result = await actions.token.prepareUpdateQuoteToken(client, {
  *   token: '0x...',
  *   quoteToken: '0x...',
  * })
@@ -3925,17 +3489,17 @@ export namespace unpauseSync {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function updateQuoteToken<
+export async function prepareUpdateQuoteToken<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: updateQuoteToken.Parameters<chain, account>,
-): Promise<updateQuoteToken.ReturnValue> {
-  return updateQuoteToken.inner(writeContract, client, parameters)
+  parameters: prepareUpdateQuoteToken.Parameters<chain, account>,
+): Promise<prepareUpdateQuoteToken.ReturnValue> {
+  return prepareUpdateQuoteToken.inner(writeContract, client, parameters)
 }
 
-export namespace updateQuoteToken {
+export namespace prepareUpdateQuoteToken {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -3961,10 +3525,208 @@ export namespace updateQuoteToken {
   >(
     action: action,
     client: Client<Transport, chain, account>,
-    parameters: updateQuoteToken.Parameters<chain, account>,
+    parameters: prepareUpdateQuoteToken.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { quoteToken, token, ...rest } = parameters
-    const call = updateQuoteToken.call({ quoteToken, token })
+    const call = prepareUpdateQuoteToken.call({ quoteToken, token })
+    return (await action(client, {
+      ...rest,
+      ...call,
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `prepareUpdateQuoteToken` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo.ts/chains'
+   * import * as actions from 'tempo.ts/viem/actions'
+   *
+   * const client = createClient({
+   *   chain: tempo,
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.prepareUpdateQuoteToken.call({
+   *       token: '0x20c0...babe',
+   *       quoteToken: '0x20c0...cafe',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { token, quoteToken } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: Abis.tip20,
+      functionName: 'setNextQuoteToken',
+      args: [TokenId.toAddress(quoteToken)],
+    })
+  }
+
+  /**
+   * Extracts the event from the logs.
+   *
+   * @param logs - Logs.
+   * @returns The event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: Abis.tip20,
+      logs,
+      eventName: 'NextQuoteTokenSet',
+    })
+    if (!log) throw new Error('`NextQuoteTokenSet` event not found.')
+    return log
+  }
+}
+
+/**
+ * Updates the quote token for a TIP20 token.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const result = await actions.token.prepareUpdateQuoteTokenSync(client, {
+ *   token: '0x...',
+ *   quoteToken: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt and event data.
+ */
+export async function prepareUpdateQuoteTokenSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: prepareUpdateQuoteTokenSync.Parameters<chain, account>,
+): Promise<prepareUpdateQuoteTokenSync.ReturnValue> {
+  const receipt = await prepareUpdateQuoteToken.inner(
+    writeContractSync,
+    client,
+    parameters,
+  )
+  const { args } = prepareUpdateQuoteToken.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
+}
+
+export namespace prepareUpdateQuoteTokenSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = prepareUpdateQuoteToken.Parameters<chain, account>
+
+  export type Args = prepareUpdateQuoteToken.Args
+
+  export type ReturnValue = Compute<
+    GetEventArgs<
+      typeof Abis.tip20,
+      'NextQuoteTokenSet',
+      {
+        IndexedOnly: false
+        Required: true
+      }
+    > & {
+      receipt: TransactionReceipt
+    }
+  >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+}
+
+/**
+ * Updates the quote token for a TIP20 token.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import * as actions from 'tempo.ts/viem/actions'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const result = await actions.token.updateQuoteToken(client, {
+ *   token: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function updateQuoteToken<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: updateQuoteToken.Parameters<chain, account>,
+): Promise<updateQuoteToken.ReturnValue> {
+  return updateQuoteToken.inner(writeContract, client, parameters)
+}
+
+export namespace updateQuoteToken {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type Args = {
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
+  }
+
+  export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: updateQuoteToken.Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { token, ...rest } = parameters
+    const call = updateQuoteToken.call({ token })
     return (await action(client, {
       ...rest,
       ...call,
@@ -3994,7 +3756,6 @@ export namespace updateQuoteToken {
    *   calls: [
    *     actions.token.updateQuoteToken.call({
    *       token: '0x20c0...babe',
-   *       quoteToken: '0x20c0...cafe',
    *     }),
    *   ]
    * })
@@ -4004,12 +3765,12 @@ export namespace updateQuoteToken {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { token, quoteToken } = args
+    const { token } = args
     return defineCall({
       address: TokenId.toAddress(token),
       abi: Abis.tip20,
-      functionName: 'updateQuoteToken',
-      args: [TokenId.toAddress(quoteToken)],
+      functionName: 'completeQuoteTokenUpdate',
+      args: [],
     })
   }
 
@@ -4023,9 +3784,9 @@ export namespace updateQuoteToken {
     const [log] = parseEventLogs({
       abi: Abis.tip20,
       logs,
-      eventName: 'UpdateQuoteToken',
+      eventName: 'QuoteTokenUpdate',
     })
-    if (!log) throw new Error('`UpdateQuoteToken` event not found.')
+    if (!log) throw new Error('`QuoteTokenUpdateCompleted` event not found.')
     return log
   }
 }
@@ -4048,7 +3809,6 @@ export namespace updateQuoteToken {
  *
  * const result = await actions.token.updateQuoteTokenSync(client, {
  *   token: '0x...',
- *   quoteToken: '0x...',
  * })
  * ```
  *
@@ -4086,7 +3846,7 @@ export namespace updateQuoteTokenSync {
   export type ReturnValue = Compute<
     GetEventArgs<
       typeof Abis.tip20,
-      'UpdateQuoteToken',
+      'QuoteTokenUpdate',
       {
         IndexedOnly: false
         Required: true
@@ -4627,8 +4387,8 @@ export declare namespace watchTransfer {
  *
  * const unwatch = actions.token.watchUpdateQuoteToken(client, {
  *   onUpdateQuoteToken: (args, log) => {
- *     if (args.finalized)
- *       console.log('quote token update finalized:', args.newQuoteToken)
+ *     if (args.completed)
+ *       console.log('quote token update completed:', args.newQuoteToken)
  *     else
  *       console.log('quote token update proposed:', args.newQuoteToken)
  *   },
@@ -4664,22 +4424,22 @@ export function watchUpdateQuoteToken<
         false,
         ExtractAbiItem<
           typeof Abis.tip20,
-          'UpdateQuoteToken' | 'QuoteTokenUpdateFinalized'
+          'NextQuoteTokenSet' | 'QuoteTokenUpdate'
         >,
         true
       >[],
     ) => {
       for (const log of logs) {
         if (
-          log.eventName !== 'UpdateQuoteToken' &&
-          log.eventName !== 'QuoteTokenUpdateFinalized'
+          log.eventName !== 'NextQuoteTokenSet' &&
+          log.eventName !== 'QuoteTokenUpdate'
         )
           continue
 
         onUpdateQuoteToken(
           {
             ...log.args,
-            finalized: log.eventName === 'QuoteTokenUpdateFinalized',
+            completed: log.eventName === 'QuoteTokenUpdate',
           },
           log,
         )
@@ -4693,17 +4453,17 @@ export declare namespace watchUpdateQuoteToken {
   export type Args = OneOf<
     | GetEventArgs<
         typeof Abis.tip20,
-        'UpdateQuoteToken',
+        'NextQuoteTokenSet',
         { IndexedOnly: false; Required: true }
       >
     | GetEventArgs<
         typeof Abis.tip20,
-        'QuoteTokenUpdateFinalized',
+        'QuoteTokenUpdate',
         { IndexedOnly: false; Required: true }
       >
   > & {
-    /** Whether the update has been finalized. */
-    finalized: boolean
+    /** Whether the update has been completed. */
+    completed: boolean
   }
 
   export type Log = viem_Log
@@ -4712,7 +4472,7 @@ export declare namespace watchUpdateQuoteToken {
     WatchContractEventParameters<typeof Abis.tip20, any, true>,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
-    /** Callback to invoke when a quote token update is proposed or finalized. */
+    /** Callback to invoke when a quote token update is proposed or completed. */
     onUpdateQuoteToken: (args: Args, log: Log) => void
     /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
     token?: TokenId.TokenIdOrAddress | undefined

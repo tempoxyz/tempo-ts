@@ -2020,62 +2020,6 @@ export type Decorator<
       parameters: tokenActions.pauseSync.Parameters<chain, account>,
     ) => Promise<tokenActions.pauseSync.ReturnValue>
     /**
-     * Approves a spender using a signed permit.
-     *
-     * @example
-     * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
-     *
-     * const hash = await client.token.permit({
-     *   owner: '0x...',
-     *   spender: '0x...',
-     *   value: 100n,
-     *   deadline: 1234567890n,
-     *   signature: { r: 0n, s: 0n, yParity: 0 },
-     * })
-     * ```
-     *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
-     */
-    permit: (
-      parameters: tokenActions.permit.Parameters<chain, account>,
-    ) => Promise<tokenActions.permit.ReturnValue>
-    /**
-     * Approves a spender using a signed permit.
-     *
-     * @example
-     * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
-     *
-     * const result = await client.token.permitSync({
-     *   owner: '0x...',
-     *   spender: '0x...',
-     *   value: 100n,
-     *   deadline: 1234567890n,
-     *   signature: { r: 0n, s: 0n, yParity: 0 },
-     * })
-     * ```
-     *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns The transaction receipt and event data.
-     */
-    permitSync: (
-      parameters: tokenActions.permitSync.Parameters<chain, account>,
-    ) => Promise<tokenActions.permitSync.ReturnValue>
-    /**
      * Renounces a role for a TIP20 token.
      *
      * @example
@@ -2687,8 +2631,6 @@ export function decorator() {
         mintSync: (parameters) => tokenActions.mintSync(client, parameters),
         pause: (parameters) => tokenActions.pause(client, parameters),
         pauseSync: (parameters) => tokenActions.pauseSync(client, parameters),
-        permit: (parameters) => tokenActions.permit(client, parameters),
-        permitSync: (parameters) => tokenActions.permitSync(client, parameters),
         renounceRoles: (parameters) =>
           tokenActions.renounceRoles(client, parameters),
         renounceRolesSync: (parameters) =>

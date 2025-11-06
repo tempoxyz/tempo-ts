@@ -700,21 +700,21 @@ export declare namespace useCreateSync {
 }
 
 /**
- * Hook for finalizing the quote token update for a TIP20 token.
+ * Hook for updating the quote token for a TIP20 token.
  *
  * @example
  * ```tsx
  * import { Hooks } from 'tempo.ts/wagmi'
  *
  * function App() {
- *   const { mutate, isPending } = Hooks.token.useFinalizeUpdateQuoteToken()
+ *   const { mutate, isPending } = Hooks.token.useUpdateQuoteToken()
  *
  *   return (
  *     <button
  *       onClick={() => mutate({ token: '0x...' })}
  *       disabled={isPending}
  *     >
- *       Finalize Update
+ *       Update Quote Token
  *     </button>
  *   )
  * }
@@ -723,33 +723,33 @@ export declare namespace useCreateSync {
  * @param parameters - Parameters.
  * @returns Mutation result.
  */
-export function useFinalizeUpdateQuoteToken<
+export function useUpdateQuoteToken<
   config extends Config = ResolvedRegister['config'],
   context = unknown,
 >(
-  parameters: useFinalizeUpdateQuoteToken.Parameters<config, context> = {},
-): useFinalizeUpdateQuoteToken.ReturnType<config, context> {
+  parameters: useUpdateQuoteToken.Parameters<config, context> = {},
+): useUpdateQuoteToken.ReturnType<config, context> {
   const { mutation } = parameters
   const config = useConfig(parameters)
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.finalizeUpdateQuoteToken(config, variables)
+      return Actions.updateQuoteToken(config, variables)
     },
-    mutationKey: ['finalizeUpdateQuoteToken'],
+    mutationKey: ['updateQuoteToken'],
   })
 }
 
-export declare namespace useFinalizeUpdateQuoteToken {
+export declare namespace useUpdateQuoteToken {
   type Parameters<
     config extends Config = Config,
     context = unknown,
   > = ConfigParameter<config> & {
     mutation?:
       | UseMutationParameters<
-          Actions.finalizeUpdateQuoteToken.ReturnValue,
-          Actions.finalizeUpdateQuoteToken.ErrorType,
-          Actions.finalizeUpdateQuoteToken.Parameters<config>,
+          Actions.updateQuoteToken.ReturnValue,
+          Actions.updateQuoteToken.ErrorType,
+          Actions.updateQuoteToken.Parameters<config>,
           context
         >
       | undefined
@@ -759,15 +759,15 @@ export declare namespace useFinalizeUpdateQuoteToken {
     config extends Config = Config,
     context = unknown,
   > = UseMutationResult<
-    Actions.finalizeUpdateQuoteToken.ReturnValue,
-    Actions.finalizeUpdateQuoteToken.ErrorType,
-    Actions.finalizeUpdateQuoteToken.Parameters<config>,
+    Actions.updateQuoteToken.ReturnValue,
+    Actions.updateQuoteToken.ErrorType,
+    Actions.updateQuoteToken.Parameters<config>,
     context
   >
 }
 
 /**
- * Hook for finalizing the quote token update for a TIP20 token.
+ * Hook for updating the quote token for a TIP20 token.
  *
  * Note: This is a synchronous hook that waits for the transaction
  * to be included on a block before returning a response.
@@ -777,14 +777,14 @@ export declare namespace useFinalizeUpdateQuoteToken {
  * import { Hooks } from 'tempo.ts/wagmi'
  *
  * function App() {
- *   const { mutate, isPending } = Hooks.token.useFinalizeUpdateQuoteTokenSync()
+ *   const { mutate, isPending } = Hooks.token.useUpdateQuoteTokenSync()
  *
  *   return (
  *     <button
  *       onClick={() => mutate({ token: '0x...' })}
  *       disabled={isPending}
  *     >
- *       Finalize Update
+ *       Update Quote Token
  *     </button>
  *   )
  * }
@@ -793,33 +793,33 @@ export declare namespace useFinalizeUpdateQuoteToken {
  * @param parameters - Parameters.
  * @returns Mutation result.
  */
-export function useFinalizeUpdateQuoteTokenSync<
+export function useUpdateQuoteTokenSync<
   config extends Config = ResolvedRegister['config'],
   context = unknown,
 >(
-  parameters: useFinalizeUpdateQuoteTokenSync.Parameters<config, context> = {},
-): useFinalizeUpdateQuoteTokenSync.ReturnType<config, context> {
+  parameters: useUpdateQuoteTokenSync.Parameters<config, context> = {},
+): useUpdateQuoteTokenSync.ReturnType<config, context> {
   const { mutation } = parameters
   const config = useConfig(parameters)
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.finalizeUpdateQuoteTokenSync(config, variables)
+      return Actions.updateQuoteTokenSync(config, variables)
     },
-    mutationKey: ['finalizeUpdateQuoteTokenSync'],
+    mutationKey: ['updateQuoteTokenSync'],
   })
 }
 
-export declare namespace useFinalizeUpdateQuoteTokenSync {
+export declare namespace useUpdateQuoteTokenSync {
   type Parameters<
     config extends Config = Config,
     context = unknown,
   > = ConfigParameter<config> & {
     mutation?:
       | UseMutationParameters<
-          Actions.finalizeUpdateQuoteTokenSync.ReturnValue,
-          Actions.finalizeUpdateQuoteTokenSync.ErrorType,
-          Actions.finalizeUpdateQuoteTokenSync.Parameters<config>,
+          Actions.updateQuoteTokenSync.ReturnValue,
+          Actions.updateQuoteTokenSync.ErrorType,
+          Actions.updateQuoteTokenSync.Parameters<config>,
           context
         >
       | undefined
@@ -829,9 +829,9 @@ export declare namespace useFinalizeUpdateQuoteTokenSync {
     config extends Config = Config,
     context = unknown,
   > = UseMutationResult<
-    Actions.finalizeUpdateQuoteTokenSync.ReturnValue,
-    Actions.finalizeUpdateQuoteTokenSync.ErrorType,
-    Actions.finalizeUpdateQuoteTokenSync.Parameters<config>,
+    Actions.updateQuoteTokenSync.ReturnValue,
+    Actions.updateQuoteTokenSync.ErrorType,
+    Actions.updateQuoteTokenSync.Parameters<config>,
     context
   >
 }
@@ -1547,155 +1547,6 @@ export declare namespace usePauseSync {
     Actions.pauseSync.ReturnValue,
     Actions.pauseSync.ErrorType,
     Actions.pauseSync.Parameters<config>,
-    context
-  >
-}
-
-/**
- * Hook for approving a spender using a signed permit.
- *
- * @example
- * ```tsx
- * import { Hooks } from 'tempo.ts/wagmi'
- *
- * function App() {
- *   const { mutate, isPending } = Hooks.token.usePermit()
- *
- *   return (
- *     <button
- *       onClick={() => mutate({
- *         owner: '0x...',
- *         spender: '0x...',
- *         value: 100n,
- *         deadline: 1234567890n,
- *         signature: { r: 0n, s: 0n, yParity: 0 }
- *       })}
- *       disabled={isPending}
- *     >
- *       Permit
- *     </button>
- *   )
- * }
- * ```
- *
- * @param parameters - Parameters.
- * @returns Mutation result.
- */
-export function usePermit<
-  config extends Config = ResolvedRegister['config'],
-  context = unknown,
->(
-  parameters: usePermit.Parameters<config, context> = {},
-): usePermit.ReturnType<config, context> {
-  const { mutation } = parameters
-  const config = useConfig(parameters)
-  return useMutation({
-    ...mutation,
-    async mutationFn(variables) {
-      return Actions.permit(config, variables)
-    },
-    mutationKey: ['permit'],
-  })
-}
-
-export declare namespace usePermit {
-  type Parameters<
-    config extends Config = Config,
-    context = unknown,
-  > = ConfigParameter<config> & {
-    mutation?:
-      | UseMutationParameters<
-          Actions.permit.ReturnValue,
-          Actions.permit.ErrorType,
-          Actions.permit.Parameters<config>,
-          context
-        >
-      | undefined
-  }
-
-  type ReturnType<
-    config extends Config = Config,
-    context = unknown,
-  > = UseMutationResult<
-    Actions.permit.ReturnValue,
-    Actions.permit.ErrorType,
-    Actions.permit.Parameters<config>,
-    context
-  >
-}
-
-/**
- * Hook for approving a spender using a signed permit.
- *
- * Note: This is a synchronous hook that waits for the transaction
- * to be included on a block before returning a response.
- *
- * @example
- * ```tsx
- * import { Hooks } from 'tempo.ts/wagmi'
- *
- * function App() {
- *   const { mutate, isPending } = Hooks.token.usePermitSync()
- *
- *   return (
- *     <button
- *       onClick={() => mutate({
- *         owner: '0x...',
- *         spender: '0x...',
- *         value: 100n,
- *         deadline: 1234567890n,
- *         signature: { r: 0n, s: 0n, yParity: 0 }
- *       })}
- *       disabled={isPending}
- *     >
- *       Permit
- *     </button>
- *   )
- * }
- * ```
- *
- * @param parameters - Parameters.
- * @returns Mutation result.
- */
-export function usePermitSync<
-  config extends Config = ResolvedRegister['config'],
-  context = unknown,
->(
-  parameters: usePermitSync.Parameters<config, context> = {},
-): usePermitSync.ReturnType<config, context> {
-  const { mutation } = parameters
-  const config = useConfig(parameters)
-  return useMutation({
-    ...mutation,
-    async mutationFn(variables) {
-      return Actions.permitSync(config, variables)
-    },
-    mutationKey: ['permitSync'],
-  })
-}
-
-export declare namespace usePermitSync {
-  type Parameters<
-    config extends Config = Config,
-    context = unknown,
-  > = ConfigParameter<config> & {
-    mutation?:
-      | UseMutationParameters<
-          Actions.permitSync.ReturnValue,
-          Actions.permitSync.ErrorType,
-          Actions.permitSync.Parameters<config>,
-          context
-        >
-      | undefined
-  }
-
-  type ReturnType<
-    config extends Config = Config,
-    context = unknown,
-  > = UseMutationResult<
-    Actions.permitSync.ReturnValue,
-    Actions.permitSync.ErrorType,
-    Actions.permitSync.Parameters<config>,
     context
   >
 }
@@ -2523,21 +2374,21 @@ export declare namespace useUnpauseSync {
 }
 
 /**
- * Hook for updating the quote token for a TIP20 token.
+ * Hook for preparing the quote token update for a TIP20 token.
  *
  * @example
  * ```tsx
  * import { Hooks } from 'tempo.ts/wagmi'
  *
  * function App() {
- *   const { mutate, isPending } = Hooks.token.useUpdateQuoteToken()
+ *   const { mutate, isPending } = Hooks.token.usePrepareUpdateQuoteToken()
  *
  *   return (
  *     <button
  *       onClick={() => mutate({ token: '0x...', quoteToken: '0x...' })}
  *       disabled={isPending}
  *     >
- *       Update Quote Token
+ *       Prepare Update Quote Token
  *     </button>
  *   )
  * }
@@ -2546,33 +2397,33 @@ export declare namespace useUnpauseSync {
  * @param parameters - Parameters.
  * @returns Mutation result.
  */
-export function useUpdateQuoteToken<
+export function usePrepareUpdateQuoteToken<
   config extends Config = ResolvedRegister['config'],
   context = unknown,
 >(
-  parameters: useUpdateQuoteToken.Parameters<config, context> = {},
-): useUpdateQuoteToken.ReturnType<config, context> {
+  parameters: usePrepareUpdateQuoteToken.Parameters<config, context> = {},
+): usePrepareUpdateQuoteToken.ReturnType<config, context> {
   const { mutation } = parameters
   const config = useConfig(parameters)
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.updateQuoteToken(config, variables)
+      return Actions.prepareUpdateQuoteToken(config, variables)
     },
-    mutationKey: ['updateQuoteToken'],
+    mutationKey: ['prepareUpdateQuoteToken'],
   })
 }
 
-export declare namespace useUpdateQuoteToken {
+export declare namespace usePrepareUpdateQuoteToken {
   type Parameters<
     config extends Config = Config,
     context = unknown,
   > = ConfigParameter<config> & {
     mutation?:
       | UseMutationParameters<
-          Actions.updateQuoteToken.ReturnValue,
-          Actions.updateQuoteToken.ErrorType,
-          Actions.updateQuoteToken.Parameters<config>,
+          Actions.prepareUpdateQuoteToken.ReturnValue,
+          Actions.prepareUpdateQuoteToken.ErrorType,
+          Actions.prepareUpdateQuoteToken.Parameters<config>,
           context
         >
       | undefined
@@ -2582,15 +2433,15 @@ export declare namespace useUpdateQuoteToken {
     config extends Config = Config,
     context = unknown,
   > = UseMutationResult<
-    Actions.updateQuoteToken.ReturnValue,
-    Actions.updateQuoteToken.ErrorType,
-    Actions.updateQuoteToken.Parameters<config>,
+    Actions.prepareUpdateQuoteToken.ReturnValue,
+    Actions.prepareUpdateQuoteToken.ErrorType,
+    Actions.prepareUpdateQuoteToken.Parameters<config>,
     context
   >
 }
 
 /**
- * Hook for updating the quote token for a TIP20 token.
+ * Hook for preparing the quote token update for a TIP20 token.
  *
  * Note: This is a synchronous hook that waits for the transaction
  * to be included on a block before returning a response.
@@ -2600,14 +2451,14 @@ export declare namespace useUpdateQuoteToken {
  * import { Hooks } from 'tempo.ts/wagmi'
  *
  * function App() {
- *   const { mutate, isPending } = Hooks.token.useUpdateQuoteTokenSync()
+ *   const { mutate, isPending } = Hooks.token.usePrepareUpdateQuoteTokenSync()
  *
  *   return (
  *     <button
  *       onClick={() => mutate({ token: '0x...', quoteToken: '0x...' })}
  *       disabled={isPending}
  *     >
- *       Update Quote Token
+ *       Prepare Update Quote Token
  *     </button>
  *   )
  * }
@@ -2616,33 +2467,33 @@ export declare namespace useUpdateQuoteToken {
  * @param parameters - Parameters.
  * @returns Mutation result.
  */
-export function useUpdateQuoteTokenSync<
+export function usePrepareUpdateQuoteTokenSync<
   config extends Config = ResolvedRegister['config'],
   context = unknown,
 >(
-  parameters: useUpdateQuoteTokenSync.Parameters<config, context> = {},
-): useUpdateQuoteTokenSync.ReturnType<config, context> {
+  parameters: usePrepareUpdateQuoteTokenSync.Parameters<config, context> = {},
+): usePrepareUpdateQuoteTokenSync.ReturnType<config, context> {
   const { mutation } = parameters
   const config = useConfig(parameters)
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.updateQuoteTokenSync(config, variables)
+      return Actions.prepareUpdateQuoteTokenSync(config, variables)
     },
-    mutationKey: ['updateQuoteTokenSync'],
+    mutationKey: ['prepareUpdateQuoteTokenSync'],
   })
 }
 
-export declare namespace useUpdateQuoteTokenSync {
+export declare namespace usePrepareUpdateQuoteTokenSync {
   type Parameters<
     config extends Config = Config,
     context = unknown,
   > = ConfigParameter<config> & {
     mutation?:
       | UseMutationParameters<
-          Actions.updateQuoteTokenSync.ReturnValue,
-          Actions.updateQuoteTokenSync.ErrorType,
-          Actions.updateQuoteTokenSync.Parameters<config>,
+          Actions.prepareUpdateQuoteTokenSync.ReturnValue,
+          Actions.prepareUpdateQuoteTokenSync.ErrorType,
+          Actions.prepareUpdateQuoteTokenSync.Parameters<config>,
           context
         >
       | undefined
@@ -2652,9 +2503,9 @@ export declare namespace useUpdateQuoteTokenSync {
     config extends Config = Config,
     context = unknown,
   > = UseMutationResult<
-    Actions.updateQuoteTokenSync.ReturnValue,
-    Actions.updateQuoteTokenSync.ErrorType,
-    Actions.updateQuoteTokenSync.Parameters<config>,
+    Actions.prepareUpdateQuoteTokenSync.ReturnValue,
+    Actions.prepareUpdateQuoteTokenSync.ErrorType,
+    Actions.prepareUpdateQuoteTokenSync.Parameters<config>,
     context
   >
 }
@@ -2998,8 +2849,8 @@ export declare namespace useWatchTransfer {
  * function App() {
  *   Hooks.token.useWatchUpdateQuoteToken({
  *     onUpdateQuoteToken(args) {
- *       if (args.finalized)
- *         console.log('quote token update finalized:', args.newQuoteToken)
+ *       if (args.completed)
+ *         console.log('quote token update completed:', args.newQuoteToken)
  *       else
  *         console.log('quote token update proposed:', args.newQuoteToken)
  *     },

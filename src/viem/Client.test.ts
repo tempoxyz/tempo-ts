@@ -45,7 +45,7 @@ test('createTempoClient', () => {
           },
         },
         "id": 42427,
-        "name": "Tempo Andante",
+        "name": "Tempo Andantino",
         "nativeCurrency": {
           "decimals": 6,
           "name": "USD",
@@ -54,7 +54,7 @@ test('createTempoClient', () => {
         "rpcUrls": {
           "default": {
             "http": [
-              "https://rpc-andante.tempoxyz.dev",
+              "https://rpc.testnet.tempo.xyz",
             ],
           },
         },
@@ -147,8 +147,6 @@ test('createTempoClient', () => {
         "mintSync": [Function],
         "pause": [Function],
         "pauseSync": [Function],
-        "permit": [Function],
-        "permitSync": [Function],
         "renounceRoles": [Function],
         "renounceRolesSync": [Function],
         "revokeRoles": [Function],
@@ -179,7 +177,7 @@ test('createTempoClient', () => {
         "retryDelay": 150,
         "timeout": 10000,
         "type": "http",
-        "url": "https://rpc-andante.tempoxyz.dev",
+        "url": "https://rpc.testnet.tempo.xyz",
       },
       "type": "base",
       "uid": null,

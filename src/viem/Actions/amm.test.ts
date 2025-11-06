@@ -1,6 +1,6 @@
 import { setTimeout } from 'node:timers/promises'
 import { Abis, Actions, Addresses } from 'tempo.ts/viem'
-import { parseEther } from 'viem'
+import { parseUnits } from 'viem'
 import { writeContractSync } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import {
@@ -58,7 +58,7 @@ describe('mint', () => {
     // Mint some tokens to account
     await Actions.token.mintSync(client, {
       to: account.address,
-      amount: parseEther('1000'),
+      amount: parseUnits('1000', 6),
       token,
     })
 
@@ -68,11 +68,11 @@ describe('mint', () => {
       {
         userToken: {
           address: token,
-          amount: parseEther('100'),
+          amount: parseUnits('100', 6),
         },
         validatorToken: {
           address: Addresses.defaultFeeToken,
-          amount: parseEther('100'),
+          amount: parseUnits('100', 6),
         },
         to: account.address,
       },
@@ -80,9 +80,9 @@ describe('mint', () => {
     expect(mintReceipt).toBeDefined()
     expect(mintResult).toMatchInlineSnapshot(`
       {
-        "amountUserToken": 100000000000000000000n,
-        "amountValidatorToken": 100000000000000000000n,
-        "liquidity": 4999999999999999999999999999999999999000n,
+        "amountUserToken": 100000000n,
+        "amountValidatorToken": 100000000n,
+        "liquidity": 4999999999999000n,
         "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "userToken": "0x20C0000000000000000000000000000000000004",
         "validatorToken": "0x20C0000000000000000000000000000000000001",
@@ -96,9 +96,9 @@ describe('mint', () => {
     })
     expect(pool).toMatchInlineSnapshot(`
       {
-        "reserveUserToken": 100000000000000000000n,
-        "reserveValidatorToken": 100000000000000000000n,
-        "totalSupply": 5000000000000000000000000000000000000000n,
+        "reserveUserToken": 100000000n,
+        "reserveValidatorToken": 100000000n,
+        "totalSupply": 5000000000000000n,
       }
     `)
 
@@ -138,9 +138,9 @@ describe('burn', () => {
     expect(userToken).toBe(tokenAddress)
     expect(burnResult).toMatchInlineSnapshot(`
       {
-        "amountUserToken": 49999999999999999999n,
-        "amountValidatorToken": 49999999999999999999n,
-        "liquidity": 2499999999999999999999999999999999999500n,
+        "amountUserToken": 49999999n,
+        "amountValidatorToken": 49999999n,
+        "liquidity": 2499999999999500n,
         "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "validatorToken": "0x20C0000000000000000000000000000000000001",
@@ -163,9 +163,9 @@ describe('burn', () => {
     })
     expect(pool).toMatchInlineSnapshot(`
       {
-        "reserveUserToken": 50000000000000000001n,
-        "reserveValidatorToken": 50000000000000000001n,
-        "totalSupply": 2500000000000000000000000000000000000500n,
+        "reserveUserToken": 50000001n,
+        "reserveValidatorToken": 50000001n,
+        "totalSupply": 2500000000000500n,
       }
     `)
   })
@@ -189,7 +189,7 @@ describe('rebalanceSwap', () => {
     } = await Actions.amm.rebalanceSwapSync(client, {
       userToken: tokenAddress,
       validatorToken: Addresses.defaultFeeToken,
-      amountOut: parseEther('10'),
+      amountOut: parseUnits('10', 6),
       to: account2.address,
       account: account,
     })
@@ -197,8 +197,8 @@ describe('rebalanceSwap', () => {
     expect(userToken).toBe(tokenAddress)
     expect(swapResult).toMatchInlineSnapshot(`
       {
-        "amountIn": 9985000000000000001n,
-        "amountOut": 10000000000000000000n,
+        "amountIn": 9985001n,
+        "amountOut": 10000000n,
         "swapper": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "validatorToken": "0x20C0000000000000000000000000000000000001",
       }
@@ -209,7 +209,7 @@ describe('rebalanceSwap', () => {
       token: tokenAddress,
       account: account2.address,
     })
-    expect(balanceAfter).toBe(balanceBefore + parseEther('10'))
+    expect(balanceAfter).toBe(balanceBefore + parseUnits('10', 6))
   })
 })
 
@@ -228,7 +228,7 @@ describe('watchRebalanceSwap', () => {
     await Actions.amm.rebalanceSwapSync(client, {
       userToken: tokenAddress,
       validatorToken: Addresses.defaultFeeToken,
-      amountOut: parseEther('10'),
+      amountOut: parseUnits('10', 6),
       to: account2.address,
       account: account,
     })
@@ -240,7 +240,7 @@ describe('watchRebalanceSwap', () => {
     expect(eventArgs.validatorToken.toLowerCase()).toBe(
       Addresses.defaultFeeToken.toLowerCase(),
     )
-    expect(eventArgs.amountOut).toBe(parseEther('10'))
+    expect(eventArgs.amountOut).toBe(parseUnits('10', 6))
 
     unwatch()
   })
@@ -265,7 +265,7 @@ describe('watchMint', () => {
     // Mint some tokens to account
     await Actions.token.mintSync(client, {
       to: account.address,
-      amount: parseEther('1000'),
+      amount: parseUnits('1000', 6),
       token,
     })
 
@@ -274,7 +274,7 @@ describe('watchMint', () => {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'transfer',
-      args: [account.address, parseEther('1000')],
+      args: [account.address, parseUnits('1000', 6)],
     })
 
     let eventArgs: any = null
@@ -288,11 +288,11 @@ describe('watchMint', () => {
     await Actions.amm.mintSync(client, {
       userToken: {
         address: token,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
       },
       validatorToken: {
         address: Addresses.defaultFeeToken,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
       },
       to: account.address,
     })
@@ -304,8 +304,8 @@ describe('watchMint', () => {
     expect(eventArgs.validatorToken.address.toLowerCase()).toBe(
       Addresses.defaultFeeToken.toLowerCase(),
     )
-    expect(eventArgs.userToken.amount).toBe(parseEther('100'))
-    expect(eventArgs.validatorToken.amount).toBe(parseEther('100'))
+    expect(eventArgs.userToken.amount).toBe(parseUnits('100', 6))
+    expect(eventArgs.validatorToken.amount).toBe(parseUnits('100', 6))
 
     unwatch()
   })

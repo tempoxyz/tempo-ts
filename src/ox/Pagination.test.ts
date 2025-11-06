@@ -30,6 +30,7 @@ describe('toRpcParameters', () => {
           "baseToken": "0x20c0000000000000000000000000000000000001",
           "remaining": {
             "max": "0x3e8",
+            "min": null,
           },
         },
         "limit": 50,

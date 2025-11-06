@@ -1,17 +1,17 @@
 import { defineChain } from 'viem'
 import * as Chain from './viem/Chain.js'
 
-export const tempoAndante = /*#__PURE__*/ defineChain({
+export const tempoAndantino = /*#__PURE__*/ defineChain({
   ...Chain.config,
   id: 42427,
-  name: 'Tempo Andante',
+  name: 'Tempo Andantino',
   nativeCurrency: {
     name: 'USD',
     symbol: 'USD',
     decimals: 6,
   },
   rpcUrls: {
-    default: { http: ['https://rpc-andante.tempoxyz.dev'] },
+    default: { http: ['https://rpc.testnet.tempo.xyz'] },
   },
 })
 
@@ -43,4 +43,4 @@ export const tempoLocal = /*#__PURE__*/ defineChain({
   },
 })
 
-export const tempo = /*#__PURE__*/ defineChain(tempoAndante)
+export const tempo = /*#__PURE__*/ defineChain(tempoAndantino)

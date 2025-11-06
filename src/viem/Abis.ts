@@ -303,6 +303,11 @@ export const stablecoinExchange = [
   { name: 'InsufficientLiquidity', type: 'error', inputs: [] },
   { name: 'InsufficientOutput', type: 'error', inputs: [] },
   { name: 'MaxInputExceeded', type: 'error', inputs: [] },
+  {
+    name: 'BelowMinimumOrderSize',
+    type: 'error',
+    inputs: [{ type: 'uint128', name: 'amount' }],
+  },
 ] as const
 
 export const tip20 = [
@@ -524,36 +529,42 @@ export const tip20 = [
     outputs: [],
   },
   {
-    name: 'updateQuoteToken',
+    name: 'setNextQuoteToken',
     type: 'function',
     stateMutability: 'nonpayable',
     inputs: [{ type: 'address', name: 'newQuoteToken' }],
     outputs: [],
   },
   {
-    name: 'finalizeQuoteTokenUpdate',
+    name: 'completeQuoteTokenUpdate',
     type: 'function',
     stateMutability: 'nonpayable',
     inputs: [],
     outputs: [],
   },
   {
-    name: 'permit',
+    name: 'PAUSE_ROLE',
     type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'owner' },
-      { type: 'address', name: 'spender' },
-      { type: 'uint256', name: 'value' },
-      { type: 'uint256', name: 'deadline' },
-      { type: 'uint8', name: 'v' },
-      { type: 'bytes32', name: 'r' },
-      { type: 'bytes32', name: 's' },
-    ],
-    outputs: [],
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bytes32' }],
   },
   {
-    name: 'DOMAIN_SEPARATOR',
+    name: 'UNPAUSE_ROLE',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
+    name: 'ISSUER_ROLE',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
+    name: 'BURN_BLOCKED_ROLE',
     type: 'function',
     stateMutability: 'view',
     inputs: [],
@@ -565,7 +576,7 @@ export const tip20 = [
     stateMutability: 'nonpayable',
     inputs: [
       { type: 'uint256', name: 'amount' },
-      { type: 'uint128', name: 'seconds' },
+      { type: 'uint32', name: 'secs' },
     ],
     outputs: [{ type: 'uint64' }],
   },
@@ -584,10 +595,17 @@ export const tip20 = [
     outputs: [{ type: 'uint256' }],
   },
   {
-    name: 'finalizeStreams',
+    name: 'claimRewards',
     type: 'function',
     stateMutability: 'nonpayable',
     inputs: [],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'finalizeStreams',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'uint64', name: 'timestamp' }],
     outputs: [],
   },
   {
@@ -614,6 +632,36 @@ export const tip20 = [
     stateMutability: 'view',
     inputs: [],
     outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'optedInSupply',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint128' }],
+  },
+  {
+    name: 'nextStreamId',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'userRewardInfo',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'account' }],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'address', name: 'delegatedRecipient' },
+          { type: 'uint256', name: 'rewardPerToken' },
+          { type: 'uint256', name: 'rewardBalance' },
+        ],
+      },
+    ],
   },
   {
     name: 'Transfer',
@@ -664,7 +712,7 @@ export const tip20 = [
       { type: 'address', name: 'from', indexed: true },
       { type: 'address', name: 'to', indexed: true },
       { type: 'uint256', name: 'amount' },
-      { type: 'bytes32', name: 'memo' },
+      { type: 'bytes32', name: 'memo', indexed: true },
     ],
   },
   {
@@ -692,15 +740,15 @@ export const tip20 = [
     ],
   },
   {
-    name: 'UpdateQuoteToken',
+    name: 'NextQuoteTokenSet',
     type: 'event',
     inputs: [
       { type: 'address', name: 'updater', indexed: true },
-      { type: 'address', name: 'newQuoteToken', indexed: true },
+      { type: 'address', name: 'nextQuoteToken', indexed: true },
     ],
   },
   {
-    name: 'QuoteTokenUpdateFinalized',
+    name: 'QuoteTokenUpdate',
     type: 'event',
     inputs: [
       { type: 'address', name: 'updater', indexed: true },
@@ -734,9 +782,18 @@ export const tip20 = [
       { type: 'address', name: 'recipient', indexed: true },
     ],
   },
-  { name: 'InsufficientBalance', type: 'error', inputs: [] },
+  {
+    name: 'InsufficientBalance',
+    type: 'error',
+    inputs: [
+      { type: 'uint256', name: 'available' },
+      { type: 'uint256', name: 'required' },
+      { type: 'address', name: 'token' },
+    ],
+  },
   { name: 'InsufficientAllowance', type: 'error', inputs: [] },
   { name: 'SupplyCapExceeded', type: 'error', inputs: [] },
+  { name: 'InvalidSupplyCap', type: 'error', inputs: [] },
   { name: 'InvalidPayload', type: 'error', inputs: [] },
   { name: 'StringTooLong', type: 'error', inputs: [] },
   { name: 'PolicyForbids', type: 'error', inputs: [] },
@@ -838,7 +895,7 @@ export const tip20Factory = [
       { type: 'address', name: 'quoteToken' },
       { type: 'address', name: 'admin' },
     ],
-    outputs: [{ type: 'uint256' }],
+    outputs: [{ type: 'address' }],
   },
   {
     name: 'tokenIdCounter',
@@ -846,6 +903,13 @@ export const tip20Factory = [
     stateMutability: 'view',
     inputs: [],
     outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'isTIP20',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'token' }],
+    outputs: [{ type: 'bool' }],
   },
   {
     name: 'TokenCreated',
@@ -856,6 +920,7 @@ export const tip20Factory = [
       { type: 'string', name: 'name' },
       { type: 'string', name: 'symbol' },
       { type: 'string', name: 'currency' },
+      { type: 'address', name: 'quoteToken' },
       { type: 'address', name: 'admin' },
     ],
   },
@@ -997,16 +1062,6 @@ export const tip403Registry = [
   { name: 'SelfOwnedPolicyMustBeWhitelist', type: 'error', inputs: [] },
 ] as const
 
-export const tip4217Registry = [
-  {
-    name: 'getCurrencyDecimals',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'string', name: 'currency' }],
-    outputs: [{ type: 'uint8' }],
-  },
-] as const
-
 export const tipAccountRegistrar = [
   {
     name: 'delegateToDefault',
@@ -1031,20 +1086,6 @@ export const tipAccountRegistrar = [
 ] as const
 
 export const feeManager = [
-  {
-    name: 'BASIS_POINTS',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [],
-    outputs: [{ type: 'uint256' }],
-  },
-  {
-    name: 'FEE_BPS',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [],
-    outputs: [{ type: 'uint256' }],
-  },
   {
     name: 'userTokens',
     type: 'function',
@@ -1175,6 +1216,18 @@ export const feeAmm = [
     outputs: [{ type: 'uint256', name: 'liquidity' }],
   },
   {
+    name: 'mintWithValidatorToken',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'userToken' },
+      { type: 'address', name: 'validatorToken' },
+      { type: 'uint256', name: 'amountValidatorToken' },
+      { type: 'address', name: 'to' },
+    ],
+    outputs: [{ type: 'uint256', name: 'liquidity' }],
+  },
+  {
     name: 'burn',
     type: 'function',
     stateMutability: 'nonpayable',
@@ -1295,4 +1348,97 @@ export const feeAmm = [
   { name: 'InsufficientLiquidityForPending', type: 'error', inputs: [] },
   { name: 'TokenTransferFailed', type: 'error', inputs: [] },
   { name: 'InternalError', type: 'error', inputs: [] },
+] as const
+
+export const validatorConfig = [
+  {
+    name: 'getValidators',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      {
+        type: 'tuple[]',
+        name: 'validators',
+        components: [
+          { type: 'bytes32', name: 'publicKey' },
+          { type: 'bool', name: 'active' },
+          { type: 'uint64', name: 'index' },
+          { type: 'address', name: 'validatorAddress' },
+          { type: 'string', name: 'inboundAddress' },
+          { type: 'string', name: 'outboundAddress' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'addValidator',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'newValidatorAddress' },
+      { type: 'bytes32', name: 'publicKey' },
+      { type: 'bool', name: 'active' },
+      { type: 'string', name: 'inboundAddress' },
+      { type: 'string', name: 'outboundAddress' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'updateValidator',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'newValidatorAddress' },
+      { type: 'bytes32', name: 'publicKey' },
+      { type: 'string', name: 'inboundAddress' },
+      { type: 'string', name: 'outboundAddress' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'changeValidatorStatus',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'validator' },
+      { type: 'bool', name: 'active' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'owner',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'changeOwner',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'address', name: 'newOwner' }],
+    outputs: [],
+  },
+  { name: 'Unauthorized', type: 'error', inputs: [] },
+  { name: 'ValidatorAlreadyExists', type: 'error', inputs: [] },
+  { name: 'ValidatorNotFound', type: 'error', inputs: [] },
+  {
+    name: 'NotHostPort',
+    type: 'error',
+    inputs: [
+      { type: 'string', name: 'field' },
+      { type: 'string', name: 'input' },
+      { type: 'string', name: 'backtrace' },
+    ],
+  },
+  {
+    name: 'NotIpPort',
+    type: 'error',
+    inputs: [
+      { type: 'string', name: 'field' },
+      { type: 'string', name: 'input' },
+      { type: 'string', name: 'backtrace' },
+    ],
+  },
 ] as const
