@@ -529,14 +529,14 @@ export const tip20 = [
     outputs: [],
   },
   {
-    name: 'updateQuoteToken',
+    name: 'setNextQuoteToken',
     type: 'function',
     stateMutability: 'nonpayable',
     inputs: [{ type: 'address', name: 'newQuoteToken' }],
     outputs: [],
   },
   {
-    name: 'finalizeQuoteTokenUpdate',
+    name: 'completeQuoteTokenUpdate',
     type: 'function',
     stateMutability: 'nonpayable',
     inputs: [],
@@ -605,7 +605,7 @@ export const tip20 = [
     name: 'finalizeStreams',
     type: 'function',
     stateMutability: 'nonpayable',
-    inputs: [],
+    inputs: [{ type: 'uint64', name: 'timestamp' }],
     outputs: [],
   },
   {
@@ -632,6 +632,36 @@ export const tip20 = [
     stateMutability: 'view',
     inputs: [],
     outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'optedInSupply',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint128' }],
+  },
+  {
+    name: 'nextStreamId',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'userRewardInfo',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'account' }],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'address', name: 'delegatedRecipient' },
+          { type: 'uint256', name: 'rewardPerToken' },
+          { type: 'uint256', name: 'rewardBalance' },
+        ],
+      },
+    ],
   },
   {
     name: 'Transfer',
@@ -710,15 +740,15 @@ export const tip20 = [
     ],
   },
   {
-    name: 'UpdateQuoteToken',
+    name: 'NextQuoteTokenSet',
     type: 'event',
     inputs: [
       { type: 'address', name: 'updater', indexed: true },
-      { type: 'address', name: 'newQuoteToken', indexed: true },
+      { type: 'address', name: 'nextQuoteToken', indexed: true },
     ],
   },
   {
-    name: 'QuoteTokenUpdateFinalized',
+    name: 'QuoteTokenUpdate',
     type: 'event',
     inputs: [
       { type: 'address', name: 'updater', indexed: true },
@@ -1180,6 +1210,18 @@ export const feeAmm = [
       { type: 'address', name: 'userToken' },
       { type: 'address', name: 'validatorToken' },
       { type: 'uint256', name: 'amountUserToken' },
+      { type: 'uint256', name: 'amountValidatorToken' },
+      { type: 'address', name: 'to' },
+    ],
+    outputs: [{ type: 'uint256', name: 'liquidity' }],
+  },
+  {
+    name: 'mintWithValidatorToken',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'userToken' },
+      { type: 'address', name: 'validatorToken' },
       { type: 'uint256', name: 'amountValidatorToken' },
       { type: 'address', name: 'to' },
     ],

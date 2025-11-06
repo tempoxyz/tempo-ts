@@ -1,5 +1,5 @@
 import { getAccount } from '@wagmi/core'
-import { parseEther } from 'viem'
+import { parseUnits } from 'viem'
 import { describe, expect, test } from 'vitest'
 import { config, queryClient, setupToken } from '../../../test/wagmi/config.js'
 import * as actions from './reward.js'
@@ -10,7 +10,7 @@ describe('cancelSync', () => {
     const { token } = await setupToken()
 
     // Start a reward stream
-    const rewardAmount = parseEther('100')
+    const rewardAmount = parseUnits('100', 6)
     const { id: streamId } = await actions.startSync(config, {
       amount: rewardAmount,
       seconds: 3600,
@@ -49,7 +49,7 @@ describe.skip('claimSync', () => {
     })
 
     // Mint reward tokens
-    const rewardAmount = parseEther('100')
+    const rewardAmount = parseUnits('100', 6)
     await tokenActions.mintSync(config, {
       amount: rewardAmount,
       to: account.address!,
@@ -84,7 +84,7 @@ describe.skip('claimSync', () => {
 
     // Balance should have increased due to claimed rewards
     expect(balanceAfter).toBeGreaterThan(
-      balanceBefore + rewardAmount - parseEther('1'),
+      balanceBefore + rewardAmount - parseUnits('1', 6),
     )
   })
 })
@@ -94,7 +94,7 @@ describe('getStream', () => {
     const { token } = await setupToken()
 
     // Start a reward stream
-    const rewardAmount = parseEther('100')
+    const rewardAmount = parseUnits('100', 6)
     const { id: streamId } = await actions.startSync(config, {
       amount: rewardAmount,
       seconds: 10,
@@ -118,7 +118,7 @@ describe('getStream', () => {
       const { token } = await setupToken()
 
       // Start a reward stream
-      const rewardAmount = parseEther('100')
+      const rewardAmount = parseUnits('100', 6)
       const { id: streamId } = await actions.startSync(config, {
         amount: rewardAmount,
         seconds: 10,
@@ -192,7 +192,7 @@ describe('startSync', () => {
     const account = getAccount(config)
 
     // Start a reward stream
-    const rewardAmount = parseEther('100')
+    const rewardAmount = parseUnits('100', 6)
     const duration = 10
     const { amount, durationSeconds, funder, id, receipt } =
       await actions.startSync(config, {

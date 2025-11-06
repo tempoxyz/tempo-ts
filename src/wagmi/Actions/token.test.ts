@@ -1,5 +1,5 @@
 import { connect } from '@wagmi/core'
-import { parseEther } from 'viem'
+import { parseUnits } from 'viem'
 import { describe, expect, test } from 'vitest'
 import { accounts } from '../../../test/viem/config.js'
 import { config, queryClient } from '../../../test/wagmi/config.js'
@@ -65,9 +65,9 @@ describe('getMetadata', () => {
         "name": "AlphaUSD",
         "paused": false,
         "quoteToken": "0x20C0000000000000000000000000000000000000",
-        "supplyCap": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
+        "supplyCap": 340282366920938463463374607431768211455n,
         "symbol": "AlphaUSD",
-        "totalSupply": 340282366920938463481821351505477763070n,
+        "totalSupply": 36893488147419103230n,
         "transferPolicyId": 1n,
       }
     `)
@@ -85,9 +85,9 @@ describe('getMetadata', () => {
           "name": "AlphaUSD",
           "paused": false,
           "quoteToken": "0x20C0000000000000000000000000000000000000",
-          "supplyCap": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
+          "supplyCap": 340282366920938463463374607431768211455n,
           "symbol": "AlphaUSD",
-          "totalSupply": 340282366920938463481821351505477763070n,
+          "totalSupply": 36893488147419103230n,
           "transferPolicyId": 1n,
         }
       `)
@@ -202,7 +202,7 @@ describe('approve', () => {
     })
     const hash = await token.approve(config, {
       spender: account2.address,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     })
     expect(hash).toBeDefined()
     expect(typeof hash).toBe('string')
@@ -216,12 +216,12 @@ describe('approveSync', () => {
     })
     const { receipt, ...result } = await token.approveSync(config, {
       spender: account2.address,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     })
     expect(receipt).toBeDefined()
     expect(result).toMatchInlineSnapshot(`
       {
-        "amount": 100000000000000000000n,
+        "amount": 100000000n,
         "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "spender": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
       }
@@ -236,7 +236,7 @@ describe('transfer', () => {
     })
     const hash = await token.transfer(config, {
       to: account2.address,
-      amount: parseEther('1'),
+      amount: parseUnits('1', 6),
     })
     expect(hash).toBeDefined()
     expect(typeof hash).toBe('string')
@@ -250,12 +250,12 @@ describe('transferSync', () => {
     })
     const { receipt, ...result } = await token.transferSync(config, {
       to: account2.address,
-      amount: parseEther('1'),
+      amount: parseUnits('1', 6),
     })
     expect(receipt).toBeDefined()
     expect(result).toMatchInlineSnapshot(`
       {
-        "amount": 1000000000000000000n,
+        "amount": 1000000n,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "to": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
       }
@@ -286,7 +286,7 @@ describe('mint', () => {
     const hash = await token.mint(config, {
       token: tokenAddr,
       to: account.address,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     })
     expect(hash).toBeDefined()
     expect(typeof hash).toBe('string')
@@ -316,12 +316,12 @@ describe('mintSync', () => {
     const { receipt, ...result } = await token.mintSync(config, {
       token: tokenAddr,
       to: account.address,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     })
     expect(receipt).toBeDefined()
     expect(result).toMatchInlineSnapshot(`
       {
-        "amount": 100000000000000000000n,
+        "amount": 100000000n,
         "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       }
     `)
@@ -352,12 +352,12 @@ describe('burn', () => {
     await token.mintSync(config, {
       token: tokenAddr,
       to: account.address,
-      amount: parseEther('1000'),
+      amount: parseUnits('1000', 6),
     })
 
     const hash = await token.burn(config, {
       token: tokenAddr,
-      amount: parseEther('1'),
+      amount: parseUnits('1', 6),
     })
     expect(hash).toBeDefined()
     expect(typeof hash).toBe('string')
@@ -388,17 +388,17 @@ describe('burnSync', () => {
     await token.mintSync(config, {
       token: tokenAddr,
       to: account.address,
-      amount: parseEther('1000'),
+      amount: parseUnits('1000', 6),
     })
 
     const { receipt, ...result } = await token.burnSync(config, {
       token: tokenAddr,
-      amount: parseEther('1'),
+      amount: parseUnits('1', 6),
     })
     expect(receipt).toBeDefined()
     expect(result).toMatchInlineSnapshot(`
       {
-        "amount": 1000000000000000000n,
+        "amount": 1000000n,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       }
     `)
@@ -864,7 +864,7 @@ describe('setSupplyCap', () => {
 
     const hash = await token.setSupplyCap(config, {
       token: tokenAddr,
-      supplyCap: parseEther('1000000'),
+      supplyCap: parseUnits('1000000', 6),
     })
     expect(hash).toBeDefined()
     expect(typeof hash).toBe('string')
@@ -886,15 +886,15 @@ describe('setSupplyCapSync', () => {
 
     const { receipt, ...result } = await token.setSupplyCapSync(config, {
       token: tokenAddr,
-      supplyCap: parseEther('1000000'),
+      supplyCap: parseUnits('1000000', 6),
     })
     expect(receipt).toBeDefined()
-    expect(result.newSupplyCap).toBe(parseEther('1000000'))
+    expect(result.newSupplyCap).toBe(parseUnits('1000000', 6))
     expect(result.updater).toBe(account.address)
   })
 })
 
-describe('updateQuoteToken', () => {
+describe('prepareUpdateQuoteToken', () => {
   test('default', async () => {
     await connect(config, {
       connector: config.connectors[0]!,
@@ -914,7 +914,7 @@ describe('updateQuoteToken', () => {
       symbol: 'MAIN',
     })
 
-    const hash = await token.updateQuoteToken(config, {
+    const hash = await token.prepareUpdateQuoteToken(config, {
       token: tokenAddr,
       quoteToken,
     })
@@ -923,7 +923,7 @@ describe('updateQuoteToken', () => {
   })
 })
 
-describe('updateQuoteTokenSync', () => {
+describe('prepareUpdateQuoteTokenSync', () => {
   test('default', async () => {
     await connect(config, {
       connector: config.connectors[0]!,
@@ -943,17 +943,20 @@ describe('updateQuoteTokenSync', () => {
       symbol: 'MAINSYNC',
     })
 
-    const { receipt, ...result } = await token.updateQuoteTokenSync(config, {
-      token: tokenAddr,
-      quoteToken,
-    })
+    const { receipt, ...result } = await token.prepareUpdateQuoteTokenSync(
+      config,
+      {
+        token: tokenAddr,
+        quoteToken,
+      },
+    )
     expect(receipt).toBeDefined()
-    expect(result.newQuoteToken).toBe(quoteToken)
+    expect(result.nextQuoteToken).toBe(quoteToken)
     expect(result.updater).toBe(account.address)
   })
 })
 
-describe('finalizeUpdateQuoteToken', () => {
+describe('updateQuoteToken', () => {
   test('default', async () => {
     await connect(config, {
       connector: config.connectors[0]!,
@@ -973,13 +976,13 @@ describe('finalizeUpdateQuoteToken', () => {
       symbol: 'MAINFINAL',
     })
 
-    // Update quote token first
-    await token.updateQuoteTokenSync(config, {
+    // Prepare quote token update first
+    await token.prepareUpdateQuoteTokenSync(config, {
       token: tokenAddr,
       quoteToken,
     })
 
-    const hash = await token.finalizeUpdateQuoteToken(config, {
+    const hash = await token.updateQuoteToken(config, {
       token: tokenAddr,
     })
     expect(hash).toBeDefined()
@@ -987,7 +990,7 @@ describe('finalizeUpdateQuoteToken', () => {
   })
 })
 
-describe('finalizeUpdateQuoteTokenSync', () => {
+describe('updateQuoteTokenSync', () => {
   test('default', async () => {
     await connect(config, {
       connector: config.connectors[0]!,
@@ -1007,18 +1010,15 @@ describe('finalizeUpdateQuoteTokenSync', () => {
       symbol: 'MAINFINALSYNC',
     })
 
-    // Update quote token first
-    await token.updateQuoteTokenSync(config, {
+    // Prepare quote token update first
+    await token.prepareUpdateQuoteTokenSync(config, {
       token: tokenAddr,
       quoteToken,
     })
 
-    const { receipt, ...result } = await token.finalizeUpdateQuoteTokenSync(
-      config,
-      {
-        token: tokenAddr,
-      },
-    )
+    const { receipt, ...result } = await token.updateQuoteTokenSync(config, {
+      token: tokenAddr,
+    })
     expect(receipt).toBeDefined()
     expect(result.newQuoteToken).toBe(quoteToken)
     expect(result.updater).toBe(account.address)
@@ -1082,7 +1082,7 @@ describe('watchApprove', () => {
     // Trigger approval event
     await token.approveSync(config, {
       spender: account2.address,
-      amount: parseEther('50'),
+      amount: parseUnits('50', 6),
     })
 
     // Wait a bit for the event to be processed
@@ -1091,7 +1091,7 @@ describe('watchApprove', () => {
     expect(events.length).toBeGreaterThan(0)
     expect(events[0]?.owner).toBe(account.address)
     expect(events[0]?.spender).toBe(account2.address)
-    expect(events[0]?.amount).toBe(parseEther('50'))
+    expect(events[0]?.amount).toBe(parseUnits('50', 6))
     unwatch()
   })
 })
@@ -1118,7 +1118,7 @@ describe('watchBurn', () => {
     await token.mintSync(config, {
       token: tokenAddr,
       to: account.address,
-      amount: parseEther('1000'),
+      amount: parseUnits('1000', 6),
     })
 
     const events: any[] = []
@@ -1132,7 +1132,7 @@ describe('watchBurn', () => {
     // Trigger burn event
     await token.burnSync(config, {
       token: tokenAddr,
-      amount: parseEther('10'),
+      amount: parseUnits('10', 6),
     })
 
     // Wait a bit for the event to be processed
@@ -1140,7 +1140,7 @@ describe('watchBurn', () => {
 
     expect(events.length).toBeGreaterThan(0)
     expect(events[0]?.from).toBe(account.address)
-    expect(events[0]?.amount).toBe(parseEther('10'))
+    expect(events[0]?.amount).toBe(parseUnits('10', 6))
     unwatch()
   })
 })
@@ -1209,7 +1209,7 @@ describe('watchMint', () => {
     await token.mintSync(config, {
       token: tokenAddr,
       to: account.address,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     })
 
     // Wait a bit for the event to be processed
@@ -1217,7 +1217,7 @@ describe('watchMint', () => {
 
     expect(events.length).toBeGreaterThan(0)
     expect(events[0]?.to).toBe(account.address)
-    expect(events[0]?.amount).toBe(parseEther('100'))
+    expect(events[0]?.amount).toBe(parseUnits('100', 6))
     unwatch()
   })
 })
@@ -1277,7 +1277,7 @@ describe('watchTransfer', () => {
     // Trigger transfer event
     await token.transferSync(config, {
       to: account2.address,
-      amount: parseEther('5'),
+      amount: parseUnits('5', 6),
     })
 
     // Wait a bit for the event to be processed
@@ -1286,7 +1286,7 @@ describe('watchTransfer', () => {
     expect(events.length).toBeGreaterThan(0)
     expect(events[0]?.from).toBe(account.address)
     expect(events[0]?.to).toBe(account2.address)
-    expect(events[0]?.amount).toBe(parseEther('5'))
+    expect(events[0]?.amount).toBe(parseUnits('5', 6))
     unwatch()
   })
 })

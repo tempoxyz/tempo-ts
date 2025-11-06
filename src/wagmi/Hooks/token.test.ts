@@ -1,4 +1,4 @@
-import { type Address, parseEther } from 'viem'
+import { type Address, parseUnits } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
 import { accounts } from '../../../test/viem/config.js'
@@ -239,7 +239,7 @@ describe('useApprove', () => {
 
     const hash = await result.current.approve.mutateAsync({
       spender: account2.address,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     })
     expect(hash).toBeDefined()
 
@@ -262,7 +262,7 @@ describe('useApproveSync', () => {
 
     const data = await result.current.approve.mutateAsync({
       spender: account2.address,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     })
     expect(data).toBeDefined()
     expect(data.receipt).toBeDefined()
@@ -305,12 +305,12 @@ describe('useBurn', () => {
     await result.current.mintSync.mutateAsync({
       token: tokenAddr,
       to: account.address,
-      amount: parseEther('1000'),
+      amount: parseUnits('1000', 6),
     })
 
     const hash = await result.current.burn.mutateAsync({
       token: tokenAddr,
-      amount: parseEther('1'),
+      amount: parseUnits('1', 6),
     })
     expect(hash).toBeDefined()
 
@@ -350,12 +350,12 @@ describe('useBurnSync', () => {
     await result.current.mintSync.mutateAsync({
       token: tokenAddr,
       to: account.address,
-      amount: parseEther('1000'),
+      amount: parseUnits('1000', 6),
     })
 
     const data = await result.current.burn.mutateAsync({
       token: tokenAddr,
-      amount: parseEther('1'),
+      amount: parseUnits('1', 6),
     })
     expect(data).toBeDefined()
     expect(data.receipt).toBeDefined()
@@ -474,13 +474,13 @@ describe('useCreateSync', () => {
   })
 })
 
-describe('useFinalizeUpdateQuoteToken', () => {
+describe('useUpdateQuoteToken', () => {
   test('default', async () => {
     const { result } = await renderHook(() => ({
       connect: useConnect(),
       createSync: hooks.useCreateSync(),
-      updateQuoteTokenSync: hooks.useUpdateQuoteTokenSync(),
-      finalizeUpdateQuoteToken: hooks.useFinalizeUpdateQuoteToken(),
+      prepareUpdateQuoteTokenSync: hooks.usePrepareUpdateQuoteTokenSync(),
+      updateQuoteToken: hooks.useUpdateQuoteToken(),
     }))
 
     await result.current.connect.connectAsync({
@@ -501,30 +501,30 @@ describe('useFinalizeUpdateQuoteToken', () => {
       symbol: 'FMHOOK',
     })
 
-    // Update quote token first
-    await result.current.updateQuoteTokenSync.mutateAsync({
+    // Prepare quote token update first
+    await result.current.prepareUpdateQuoteTokenSync.mutateAsync({
       token: tokenAddr,
       quoteToken,
     })
 
-    const hash = await result.current.finalizeUpdateQuoteToken.mutateAsync({
+    const hash = await result.current.updateQuoteToken.mutateAsync({
       token: tokenAddr,
     })
     expect(hash).toBeDefined()
 
     await vi.waitFor(() =>
-      expect(result.current.finalizeUpdateQuoteToken.isSuccess).toBeTruthy(),
+      expect(result.current.updateQuoteToken.isSuccess).toBeTruthy(),
     )
   })
 })
 
-describe('useFinalizeUpdateQuoteTokenSync', () => {
+describe('useUpdateQuoteTokenSync', () => {
   test('default', async () => {
     const { result } = await renderHook(() => ({
       connect: useConnect(),
       createSync: hooks.useCreateSync(),
-      updateQuoteTokenSync: hooks.useUpdateQuoteTokenSync(),
-      finalizeUpdateQuoteToken: hooks.useFinalizeUpdateQuoteTokenSync(),
+      prepareUpdateQuoteTokenSync: hooks.usePrepareUpdateQuoteTokenSync(),
+      updateQuoteToken: hooks.useUpdateQuoteTokenSync(),
     }))
 
     await result.current.connect.connectAsync({
@@ -545,20 +545,20 @@ describe('useFinalizeUpdateQuoteTokenSync', () => {
       symbol: 'FMHOOKSYNC',
     })
 
-    // Update quote token first
-    await result.current.updateQuoteTokenSync.mutateAsync({
+    // Prepare quote token update first
+    await result.current.prepareUpdateQuoteTokenSync.mutateAsync({
       token: tokenAddr,
       quoteToken,
     })
 
-    const data = await result.current.finalizeUpdateQuoteToken.mutateAsync({
+    const data = await result.current.updateQuoteToken.mutateAsync({
       token: tokenAddr,
     })
     expect(data).toBeDefined()
     expect(data.receipt).toBeDefined()
 
     await vi.waitFor(() =>
-      expect(result.current.finalizeUpdateQuoteToken.isSuccess).toBeTruthy(),
+      expect(result.current.updateQuoteToken.isSuccess).toBeTruthy(),
     )
   })
 })
@@ -659,7 +659,7 @@ describe('useMint', () => {
     const hash = await result.current.mint.mutateAsync({
       token: tokenAddr,
       to: account.address,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     })
     expect(hash).toBeDefined()
 
@@ -697,7 +697,7 @@ describe('useMintSync', () => {
     const data = await result.current.mint.mutateAsync({
       token: tokenAddr,
       to: account.address,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     })
     expect(data).toBeDefined()
     expect(data.receipt).toBeDefined()
@@ -1027,7 +1027,7 @@ describe('useSetSupplyCap', () => {
 
     const hash = await result.current.setSupplyCap.mutateAsync({
       token: tokenAddr,
-      supplyCap: parseEther('1000000'),
+      supplyCap: parseUnits('1000000', 6),
     })
     expect(hash).toBeDefined()
 
@@ -1058,7 +1058,7 @@ describe('useSetSupplyCapSync', () => {
 
     const data = await result.current.setSupplyCap.mutateAsync({
       token: tokenAddr,
-      supplyCap: parseEther('1000000'),
+      supplyCap: parseUnits('1000000', 6),
     })
     expect(data).toBeDefined()
     expect(data.receipt).toBeDefined()
@@ -1082,7 +1082,7 @@ describe('useTransfer', () => {
 
     const hash = await result.current.transfer.mutateAsync({
       to: account2.address,
-      amount: parseEther('1'),
+      amount: parseUnits('1', 6),
     })
     expect(hash).toBeDefined()
 
@@ -1105,7 +1105,7 @@ describe('useTransferSync', () => {
 
     const data = await result.current.transfer.mutateAsync({
       to: account2.address,
-      amount: parseEther('1'),
+      amount: parseUnits('1', 6),
     })
     expect(data).toBeDefined()
     expect(data.receipt).toBeDefined()
@@ -1205,12 +1205,12 @@ describe('useUnpauseSync', () => {
   })
 })
 
-describe('useUpdateQuoteToken', () => {
+describe('usePrepareUpdateQuoteToken', () => {
   test('default', async () => {
     const { result } = await renderHook(() => ({
       connect: useConnect(),
       createSync: hooks.useCreateSync(),
-      updateQuoteToken: hooks.useUpdateQuoteToken(),
+      prepareUpdateQuoteToken: hooks.usePrepareUpdateQuoteToken(),
     }))
 
     await result.current.connect.connectAsync({
@@ -1231,24 +1231,24 @@ describe('useUpdateQuoteToken', () => {
       symbol: 'UMHOOK',
     })
 
-    const hash = await result.current.updateQuoteToken.mutateAsync({
+    const hash = await result.current.prepareUpdateQuoteToken.mutateAsync({
       token: tokenAddr,
       quoteToken,
     })
     expect(hash).toBeDefined()
 
     await vi.waitFor(() =>
-      expect(result.current.updateQuoteToken.isSuccess).toBeTruthy(),
+      expect(result.current.prepareUpdateQuoteToken.isSuccess).toBeTruthy(),
     )
   })
 })
 
-describe('useUpdateQuoteTokenSync', () => {
+describe('usePrepareUpdateQuoteTokenSync', () => {
   test('default', async () => {
     const { result } = await renderHook(() => ({
       connect: useConnect(),
       createSync: hooks.useCreateSync(),
-      updateQuoteToken: hooks.useUpdateQuoteTokenSync(),
+      prepareUpdateQuoteToken: hooks.usePrepareUpdateQuoteTokenSync(),
     }))
 
     await result.current.connect.connectAsync({
@@ -1269,7 +1269,7 @@ describe('useUpdateQuoteTokenSync', () => {
       symbol: 'UMHOOKSYNC',
     })
 
-    const data = await result.current.updateQuoteToken.mutateAsync({
+    const data = await result.current.prepareUpdateQuoteToken.mutateAsync({
       token: tokenAddr,
       quoteToken,
     })
@@ -1277,7 +1277,7 @@ describe('useUpdateQuoteTokenSync', () => {
     expect(data.receipt).toBeDefined()
 
     await vi.waitFor(() =>
-      expect(result.current.updateQuoteToken.isSuccess).toBeTruthy(),
+      expect(result.current.prepareUpdateQuoteToken.isSuccess).toBeTruthy(),
     )
   })
 })
@@ -1349,7 +1349,7 @@ describe('useWatchApprove', () => {
     // Trigger approval event
     await connectResult.current.approveSync.mutateAsync({
       spender: account2.address,
-      amount: parseEther('50'),
+      amount: parseUnits('50', 6),
     })
 
     await vi.waitUntil(() => events.length >= 1)
@@ -1357,7 +1357,7 @@ describe('useWatchApprove', () => {
     expect(events.length).toBeGreaterThanOrEqual(1)
     expect(events[0]?.owner).toBe(account.address)
     expect(events[0]?.spender).toBe(account2.address)
-    expect(events[0]?.amount).toBe(parseEther('50'))
+    expect(events[0]?.amount).toBe(parseUnits('50', 6))
   })
 })
 
@@ -1392,7 +1392,7 @@ describe('useWatchBurn', () => {
     await connectResult.current.mintSync.mutateAsync({
       token: tokenAddr,
       to: account.address,
-      amount: parseEther('1000'),
+      amount: parseUnits('1000', 6),
     })
 
     const events: any[] = []
@@ -1408,14 +1408,14 @@ describe('useWatchBurn', () => {
     // Trigger burn event
     await connectResult.current.burnSync.mutateAsync({
       token: tokenAddr,
-      amount: parseEther('10'),
+      amount: parseUnits('10', 6),
     })
 
     await vi.waitUntil(() => events.length >= 1)
 
     expect(events.length).toBeGreaterThanOrEqual(1)
     expect(events[0]?.from).toBe(account.address)
-    expect(events[0]?.amount).toBe(parseEther('10'))
+    expect(events[0]?.amount).toBe(parseUnits('10', 6))
   })
 })
 
@@ -1498,14 +1498,14 @@ describe('useWatchMint', () => {
     await connectResult.current.mintSync.mutateAsync({
       token: tokenAddr,
       to: account.address,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     })
 
     await vi.waitUntil(() => events.length >= 1)
 
     expect(events.length).toBeGreaterThanOrEqual(1)
     expect(events[0]?.to).toBe(account.address)
-    expect(events[0]?.amount).toBe(parseEther('100'))
+    expect(events[0]?.amount).toBe(parseUnits('100', 6))
   })
 })
 
@@ -1578,7 +1578,7 @@ describe('useWatchTransfer', () => {
     // Trigger transfer event
     await connectResult.current.transferSync.mutateAsync({
       to: account2.address,
-      amount: parseEther('5'),
+      amount: parseUnits('5', 6),
     })
 
     await vi.waitUntil(() => events.length >= 1)
@@ -1586,7 +1586,7 @@ describe('useWatchTransfer', () => {
     expect(events.length).toBeGreaterThanOrEqual(1)
     expect(events[0]?.from).toBe(account.address)
     expect(events[0]?.to).toBe(account2.address)
-    expect(events[0]?.amount).toBe(parseEther('5'))
+    expect(events[0]?.amount).toBe(parseUnits('5', 6))
   })
 })
 
@@ -1595,7 +1595,7 @@ describe('useWatchUpdateQuoteToken', () => {
     const { result: connectResult } = await renderHook(() => ({
       connect: useConnect(),
       createSync: hooks.useCreateSync(),
-      updateQuoteTokenSync: hooks.useUpdateQuoteTokenSync(),
+      prepareUpdateQuoteTokenSync: hooks.usePrepareUpdateQuoteTokenSync(),
     }))
 
     await connectResult.current.connect.connectAsync({
@@ -1628,8 +1628,8 @@ describe('useWatchUpdateQuoteToken', () => {
       }),
     )
 
-    // Trigger update quote token event
-    await connectResult.current.updateQuoteTokenSync.mutateAsync({
+    // Trigger prepare update quote token event
+    await connectResult.current.prepareUpdateQuoteTokenSync.mutateAsync({
       token: tokenAddr,
       quoteToken,
     })
@@ -1637,9 +1637,9 @@ describe('useWatchUpdateQuoteToken', () => {
     await vi.waitUntil(() => events.length >= 1)
 
     expect(events.length).toBeGreaterThanOrEqual(1)
-    expect(events[0]?.newQuoteToken).toBe(quoteToken)
+    expect(events[0]?.nextQuoteToken).toBe(quoteToken)
     expect(events[0]?.updater).toBe(account.address)
-    expect(events[0]?.finalized).toBe(false)
+    expect(events[0]?.completed).toBe(false)
   })
 })
 

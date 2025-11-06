@@ -1,5 +1,6 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import { setTimeout } from 'node:timers/promises'
 import { toArgs } from 'prool'
 import { defineInstance } from 'prool/instances'
 import { execa } from 'prool/processes'
@@ -28,8 +29,8 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
   const { deadline = 3, gaslimit = 3000000000, maxTasks = 8 } = builder ?? {}
   const { blockTime = '1sec' } = dev ?? {}
   const {
-    address = '0x20c0000000000000000000000000000000000002',
-    amount = '100000000000000000000',
+    address = '0x20c0000000000000000000000000000000000001',
+    amount = '1000000000000',
     privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
   } = faucet ?? {}
 
@@ -59,42 +60,53 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
 
       return await process_.start(
         ($) =>
-          $(
-            Object.keys(env).length > 0 ? { env } : {},
-          )`${binary} node --http --dev --engine.disable-precompile-cache --faucet.enabled ${toArgs(
-            {
-              ...args,
-              builder: {
-                deadline,
-                gaslimit,
-                maxTasks,
-              },
-              chain,
-              datadir: `${tmp}/data`,
-              dev: {
-                blockTime,
-              },
-              faucet: {
-                address,
-                amount,
-                privateKey,
-              },
-              follow: true,
-              port: port! + 10,
-              http: {
-                api: 'all',
-                addr: '0.0.0.0',
-                corsdomain: '*',
-                port: port!,
-              },
-              ws: {
-                port: port! + 20,
-              },
-              authrpc: {
-                port: port! + 30,
-              },
-            },
-          )}`,
+          $(Object.keys(env).length > 0 ? { env } : {})`${binary} node \
+              --dev \
+              --engine.disable-precompile-cache \
+              --engine.legacy-state-root \
+              --faucet.enabled \
+              --http \
+              ${toArgs({
+                ...args,
+                builder: {
+                  deadline,
+                  gaslimit,
+                  maxTasks,
+                },
+                chain,
+                datadir: `${tmp}/data`,
+                dev: {
+                  blockTime,
+                },
+                faucet: {
+                  address,
+                  amount,
+                  privateKey,
+                },
+                http: {
+                  api: 'all',
+                  addr: '0.0.0.0',
+                  corsdomain: '*',
+                  port: port!,
+                },
+
+                port: port! + 10,
+                txpool: {
+                  pendingMaxCount: '10000000000000',
+                  basefeeMaxCount: '10000000000000',
+                  queuedMaxCount: '10000000000000',
+                  pendingMaxSize: '10000',
+                  basefeeMaxSize: '10000',
+                  queuedMaxSize: '10000',
+                  maxAccountSlots: '500000',
+                },
+                ws: {
+                  port: port! + 20,
+                },
+                authrpc: {
+                  port: port! + 30,
+                },
+              })}`,
         {
           ...options,
           resolver({ process, reject, resolve }) {
@@ -102,7 +114,8 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
               const message = data.toString()
               if (log) console.log(message)
               if (message.includes('shutting down')) reject(message)
-              if (message.includes('RPC HTTP server started')) resolve()
+              if (message.includes('RPC HTTP server started'))
+                setTimeout(2000).then(resolve)
             })
             process.stderr.on('data', (data) => {
               const message = data.toString()

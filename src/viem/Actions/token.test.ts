@@ -2,7 +2,7 @@ import { setTimeout } from 'node:timers/promises'
 import { Hex } from 'ox'
 import { TokenRole } from 'tempo.ts/ox'
 import { Abis, Addresses, TokenIds } from 'tempo.ts/viem'
-import { parseEther } from 'viem'
+import { parseUnits } from 'viem'
 import { getCode, writeContractSync } from 'viem/actions'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { accounts, client, rpcUrl } from '../../../test/viem/config.js'
@@ -18,12 +18,12 @@ describe('approve', () => {
       // approve
       const { receipt, ...result } = await actions.token.approveSync(client, {
         spender: account2.address,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
       })
       expect(receipt).toBeDefined()
       expect(result).toMatchInlineSnapshot(`
         {
-          "amount": 100000000000000000000n,
+          "amount": 100000000n,
           "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "spender": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         }
@@ -35,7 +35,7 @@ describe('approve', () => {
       const allowance = await actions.token.getAllowance(client, {
         spender: account2.address,
       })
-      expect(allowance).toBe(parseEther('100'))
+      expect(allowance).toBe(parseUnits('100', 6))
     }
 
     // transfer tokens for gas
@@ -43,12 +43,12 @@ describe('approve', () => {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'transfer',
-      args: [account2.address, parseEther('1')],
+      args: [account2.address, parseUnits('1', 6)],
     })
 
     // transfer tokens from approved account
     await actions.token.transferSync(client, {
-      amount: parseEther('50'),
+      amount: parseUnits('50', 6),
       account: account2,
       from: account.address,
       to: '0x0000000000000000000000000000000000000001',
@@ -59,14 +59,14 @@ describe('approve', () => {
       const allowance = await actions.token.getAllowance(client, {
         spender: account2.address,
       })
-      expect(allowance).toBe(parseEther('50'))
+      expect(allowance).toBe(parseUnits('50', 6))
     }
 
     // verify balance
     const balance = await actions.token.getBalance(client, {
       account: '0x0000000000000000000000000000000000000001',
     })
-    expect(balance).toBe(parseEther('50'))
+    expect(balance).toBe(parseUnits('50', 6))
   })
 
   test('behavior: token address', async () => {
@@ -78,14 +78,14 @@ describe('approve', () => {
     {
       // approve
       const { receipt, ...result } = await actions.token.approveSync(client, {
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
         token: Addresses.defaultFeeToken,
         spender: account2.address,
       })
       expect(receipt).toBeDefined()
       expect(result).toMatchInlineSnapshot(`
         {
-          "amount": 100000000000000000000n,
+          "amount": 100000000n,
           "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "spender": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         }
@@ -98,7 +98,7 @@ describe('approve', () => {
         token: Addresses.defaultFeeToken,
         spender: account2.address,
       })
-      expect(allowance).toBe(parseEther('100'))
+      expect(allowance).toBe(parseUnits('100', 6))
     }
 
     // transfer tokens for gas
@@ -106,12 +106,12 @@ describe('approve', () => {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'transfer',
-      args: [account2.address, parseEther('1')],
+      args: [account2.address, parseUnits('1', 6)],
     })
 
     // transfer tokens from approved account
     await actions.token.transferSync(client, {
-      amount: parseEther('50'),
+      amount: parseUnits('50', 6),
       account: account2,
       from: account.address,
       to: '0x0000000000000000000000000000000000000001',
@@ -124,7 +124,7 @@ describe('approve', () => {
         spender: account2.address,
         token: Addresses.defaultFeeToken,
       })
-      expect(allowance).toBe(parseEther('50'))
+      expect(allowance).toBe(parseUnits('50', 6))
     }
 
     // verify balance
@@ -132,7 +132,7 @@ describe('approve', () => {
       account: '0x0000000000000000000000000000000000000001',
       token: Addresses.defaultFeeToken,
     })
-    expect(balance).toBe(balanceBefore + parseEther('50'))
+    expect(balance).toBe(balanceBefore + parseUnits('50', 6))
   })
 
   test('behavior: token address', async () => {
@@ -144,14 +144,14 @@ describe('approve', () => {
     {
       // approve
       const { receipt, ...result } = await actions.token.approveSync(client, {
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
         token: TokenIds.defaultFeeToken,
         spender: account2.address,
       })
       expect(receipt).toBeDefined()
       expect(result).toMatchInlineSnapshot(`
         {
-          "amount": 100000000000000000000n,
+          "amount": 100000000n,
           "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "spender": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         }
@@ -164,7 +164,7 @@ describe('approve', () => {
         token: TokenIds.defaultFeeToken,
         spender: account2.address,
       })
-      expect(allowance).toBe(parseEther('100'))
+      expect(allowance).toBe(parseUnits('100', 6))
     }
 
     // transfer tokens for gas
@@ -172,12 +172,12 @@ describe('approve', () => {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'transfer',
-      args: [account2.address, parseEther('1')],
+      args: [account2.address, parseUnits('1', 6)],
     })
 
     // transfer tokens from approved account
     await actions.token.transferSync(client, {
-      amount: parseEther('50'),
+      amount: parseUnits('50', 6),
       account: account2,
       from: account.address,
       to: '0x0000000000000000000000000000000000000001',
@@ -190,7 +190,7 @@ describe('approve', () => {
         spender: account2.address,
         token: TokenIds.defaultFeeToken,
       })
-      expect(allowance).toBe(parseEther('50'))
+      expect(allowance).toBe(parseUnits('50', 6))
     }
 
     // verify balance
@@ -198,7 +198,7 @@ describe('approve', () => {
       account: '0x0000000000000000000000000000000000000001',
       token: TokenIds.defaultFeeToken,
     })
-    expect(balance).toBe(balanceBefore + parseEther('50'))
+    expect(balance).toBe(balanceBefore + parseUnits('50', 6))
   })
 })
 
@@ -216,6 +216,7 @@ describe('create', () => {
         "admin": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "currency": "USD",
         "name": "Test USD",
+        "quoteToken": "0x20C0000000000000000000000000000000000000",
         "symbol": "TUSD",
       }
     `)
@@ -237,7 +238,7 @@ describe('getAllowance', () => {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'approve',
-      args: [account2.address, parseEther('50')],
+      args: [account2.address, parseUnits('50', 6)],
     })
 
     {
@@ -245,7 +246,7 @@ describe('getAllowance', () => {
       const allowance = await actions.token.getAllowance(client, {
         spender: account2.address,
       })
-      expect(allowance).toBe(parseEther('50'))
+      expect(allowance).toBe(parseUnits('50', 6))
     }
 
     {
@@ -255,7 +256,7 @@ describe('getAllowance', () => {
         spender: account2.address,
       })
 
-      expect(allowance).toBe(parseEther('50'))
+      expect(allowance).toBe(parseUnits('50', 6))
     }
 
     {
@@ -265,7 +266,7 @@ describe('getAllowance', () => {
         spender: account2.address,
       })
 
-      expect(allowance).toBe(parseEther('50'))
+      expect(allowance).toBe(parseUnits('50', 6))
     }
   })
 })
@@ -310,9 +311,9 @@ describe('getMetadata', () => {
         "name": "AlphaUSD",
         "paused": false,
         "quoteToken": "0x20C0000000000000000000000000000000000000",
-        "supplyCap": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
+        "supplyCap": 340282366920938463463374607431768211455n,
         "symbol": "AlphaUSD",
-        "totalSupply": 340282366920938463481821351505477763070n,
+        "totalSupply": 36893488147419103230n,
         "transferPolicyId": 1n,
       }
     `)
@@ -351,14 +352,14 @@ describe('getMetadata', () => {
       })
 
       expect(metadata).toMatchInlineSnapshot(`
-      {
-        "currency": "USD",
-        "decimals": 6,
-        "name": "linkingUSD",
-        "symbol": "linkingUSD",
-        "totalSupply": 0n,
-      }
-    `)
+        {
+          "currency": "USD",
+          "decimals": 6,
+          "name": "linkingUSD",
+          "symbol": "linkingUSD",
+          "totalSupply": 18446744073709551615n,
+        }
+      `)
     }
 
     {
@@ -367,14 +368,14 @@ describe('getMetadata', () => {
       })
 
       expect(metadata).toMatchInlineSnapshot(`
-      {
-        "currency": "USD",
-        "decimals": 6,
-        "name": "linkingUSD",
-        "symbol": "linkingUSD",
-        "totalSupply": 0n,
-      }
-    `)
+        {
+          "currency": "USD",
+          "decimals": 6,
+          "name": "linkingUSD",
+          "symbol": "linkingUSD",
+          "totalSupply": 18446744073709551615n,
+        }
+      `)
     }
   })
 
@@ -433,12 +434,12 @@ describe('mint', () => {
       await actions.token.mintSync(client, {
         token,
         to: account2.address,
-        amount: parseEther('1000'),
+        amount: parseUnits('1000', 6),
       })
     expect(mintReceipt).toBeDefined()
     expect(mintResult).toMatchInlineSnapshot(`
       {
-        "amount": 1000000000000000000000n,
+        "amount": 1000000000n,
         "to": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
       }
     `)
@@ -448,13 +449,13 @@ describe('mint', () => {
       token,
       account: account2.address,
     })
-    expect(balanceAfter).toBe(parseEther('1000'))
+    expect(balanceAfter).toBe(parseUnits('1000', 6))
 
     // Check total supply
     const metadata = await actions.token.getMetadata(client, {
       token,
     })
-    expect(metadata.totalSupply).toBe(parseEther('1000'))
+    expect(metadata.totalSupply).toBe(parseUnits('1000', 6))
   })
 
   // TODO: fix
@@ -479,7 +480,7 @@ describe('mint', () => {
       await actions.token.mintSync(client, {
         token,
         to: account2.address,
-        amount: parseEther('500'),
+        amount: parseUnits('500', 6),
         memo: Hex.fromString('test'),
       })
     expect(mintMemoReceipt.status).toBe('success')
@@ -495,7 +496,7 @@ describe('mint', () => {
       token,
       account: account2.address,
     })
-    expect(balance).toBe(parseEther('500'))
+    expect(balance).toBe(parseUnits('500', 6))
   })
 })
 
@@ -513,12 +514,12 @@ describe('transfer', () => {
     const { receipt: transferReceipt, ...transferResult } =
       await actions.token.transferSync(client, {
         to: account2.address,
-        amount: parseEther('10'),
+        amount: parseUnits('10', 6),
       })
     expect(transferReceipt).toBeDefined()
     expect(transferResult).toMatchInlineSnapshot(`
       {
-        "amount": 10000000000000000000n,
+        "amount": 10000000n,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "to": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
       }
@@ -533,9 +534,11 @@ describe('transfer', () => {
     })
 
     expect(senderBalanceAfter - senderBalanceBefore).toBeLessThan(
-      parseEther('10'),
+      parseUnits('10', 6),
     )
-    expect(receiverBalanceAfter - receiverBalanceBefore).toBe(parseEther('10'))
+    expect(receiverBalanceAfter - receiverBalanceBefore).toBe(
+      parseUnits('10', 6),
+    )
   })
 
   test('behavior: with custom token', async () => {
@@ -556,14 +559,14 @@ describe('transfer', () => {
     await actions.token.mintSync(client, {
       token,
       to: client.account.address,
-      amount: parseEther('1000'),
+      amount: parseUnits('1000', 6),
     })
 
     // Transfer custom tokens
     await actions.token.transferSync(client, {
       token,
       to: account2.address,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     })
 
     // Verify balance
@@ -571,7 +574,7 @@ describe('transfer', () => {
       token,
       account: account2.address,
     })
-    expect(balance).toBe(parseEther('100'))
+    expect(balance).toBe(parseUnits('100', 6))
   })
 
   test('behavior: with memo', async () => {
@@ -580,14 +583,14 @@ describe('transfer', () => {
     const { receipt: transferMemoReceipt, ...transferMemoResult } =
       await actions.token.transferSync(client, {
         to: account2.address,
-        amount: parseEther('5'),
+        amount: parseUnits('5', 6),
         memo,
       })
 
     expect(transferMemoReceipt.status).toBe('success')
     expect(transferMemoResult).toMatchInlineSnapshot(`
       {
-        "amount": 5000000000000000000n,
+        "amount": 5000000n,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "to": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
       }
@@ -598,7 +601,7 @@ describe('transfer', () => {
     // First approve account2 to spend tokens
     await actions.token.approveSync(client, {
       spender: account2.address,
-      amount: parseEther('50'),
+      amount: parseUnits('50', 6),
     })
 
     // Transfer tokens for gas
@@ -606,7 +609,7 @@ describe('transfer', () => {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'transfer',
-      args: [account2.address, parseEther('1')],
+      args: [account2.address, parseUnits('1', 6)],
     })
 
     // Get initial balance
@@ -619,20 +622,20 @@ describe('transfer', () => {
       account: account2,
       from: account.address,
       to: account3.address,
-      amount: parseEther('25'),
+      amount: parseUnits('25', 6),
     })
 
     // Verify balance
     const balanceAfter = await actions.token.getBalance(client, {
       account: account3.address,
     })
-    expect(balanceAfter - balanceBefore).toBe(parseEther('25'))
+    expect(balanceAfter - balanceBefore).toBe(parseUnits('25', 6))
 
     // Verify allowance was reduced
     const allowance = await actions.token.getAllowance(client, {
       spender: account2.address,
     })
-    expect(allowance).toBe(parseEther('25'))
+    expect(allowance).toBe(parseUnits('25', 6))
   })
 })
 
@@ -656,30 +659,30 @@ describe('burn', () => {
     await actions.token.mintSync(client, {
       token,
       to: client.account.address,
-      amount: parseEther('1000'),
+      amount: parseUnits('1000', 6),
     })
 
     // Check balance before burn
     const balanceBefore = await actions.token.getBalance(client, {
       token,
     })
-    expect(balanceBefore).toBe(parseEther('1000'))
+    expect(balanceBefore).toBe(parseUnits('1000', 6))
 
     // Check total supply before
     const metadataBefore = await actions.token.getMetadata(client, {
       token,
     })
-    expect(metadataBefore.totalSupply).toBe(parseEther('1000'))
+    expect(metadataBefore.totalSupply).toBe(parseUnits('1000', 6))
 
     // Burn tokens
     const { receipt, ...result } = await actions.token.burnSync(client, {
       token,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     })
     expect(receipt).toBeDefined()
     expect(result).toMatchInlineSnapshot(`
       {
-        "amount": 100000000000000000000n,
+        "amount": 100000000n,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       }
     `)
@@ -688,13 +691,13 @@ describe('burn', () => {
     const balanceAfter = await actions.token.getBalance(client, {
       token,
     })
-    expect(balanceAfter).toBe(parseEther('900'))
+    expect(balanceAfter).toBe(parseUnits('900', 6))
 
     // Check total supply after
     const metadataAfter = await actions.token.getMetadata(client, {
       token,
     })
-    expect(metadataAfter.totalSupply).toBe(parseEther('900'))
+    expect(metadataAfter.totalSupply).toBe(parseUnits('900', 6))
   })
 
   test('behavior: requires issuer role', async () => {
@@ -717,21 +720,22 @@ describe('burn', () => {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'transfer',
-      args: [account2.address, parseEther('1')],
+      args: [account2.address, parseUnits('1', 6)],
     })
 
     await actions.token.mintSync(client, {
       account: account2,
+      feeToken: Addresses.defaultFeeToken,
       token,
       to: client.account.address,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     })
 
     // Try to burn without issuer role - should fail
     await expect(
       actions.token.burnSync(client, {
         token,
-        amount: parseEther('10'),
+        amount: parseUnits('10', 6),
       }),
     ).rejects.toThrow()
   })
@@ -767,7 +771,7 @@ describe('pause', () => {
     await actions.token.mintSync(client, {
       token,
       to: account2.address,
-      amount: parseEther('1000'),
+      amount: parseUnits('1000', 6),
     })
 
     // Verify token is not paused
@@ -781,14 +785,14 @@ describe('pause', () => {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'transfer',
-      args: [account2.address, parseEther('1')],
+      args: [account2.address, parseUnits('1', 6)],
     })
 
     await actions.token.transferSync(client, {
       account: account2,
       token,
       to: account3.address,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     })
 
     // Pause the token
@@ -816,7 +820,7 @@ describe('pause', () => {
         account: account2,
         token,
         to: account3.address,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
       }),
     ).rejects.toThrow()
   })
@@ -848,11 +852,12 @@ describe('pause', () => {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'transfer',
-      args: [account2.address, parseEther('1')],
+      args: [account2.address, parseUnits('1', 6)],
     })
 
     await actions.token.pauseSync(client, {
       account: account2,
+      feeToken: Addresses.defaultFeeToken,
       token,
     })
 
@@ -930,7 +935,7 @@ describe('unpause', () => {
     await actions.token.mintSync(client, {
       token: address,
       to: account2.address,
-      amount: parseEther('1000'),
+      amount: parseUnits('1000', 6),
     })
 
     // First pause the token
@@ -949,7 +954,7 @@ describe('unpause', () => {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'transfer',
-      args: [account2.address, parseEther('1')],
+      args: [account2.address, parseUnits('1', 6)],
     })
 
     // Verify transfers fail when paused
@@ -958,7 +963,7 @@ describe('unpause', () => {
         account: account2,
         token: address,
         to: account3.address,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
       }),
     ).rejects.toThrow()
 
@@ -986,14 +991,14 @@ describe('unpause', () => {
       account: account2,
       token: address,
       to: account3.address,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     })
 
     const balance = await actions.token.getBalance(client, {
       token: address,
       account: account3.address,
     })
-    expect(balance).toBe(parseEther('100'))
+    expect(balance).toBe(parseUnits('100', 6))
   })
 
   test('behavior: requires unpause role', async () => {
@@ -1034,12 +1039,13 @@ describe('unpause', () => {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'transfer',
-      args: [account2.address, parseEther('1')],
+      args: [account2.address, parseUnits('1', 6)],
     })
 
     // Now account2 should be able to unpause
     await actions.token.unpauseSync(client, {
       account: account2,
+      feeToken: Addresses.defaultFeeToken,
       token: address,
     })
 
@@ -1077,19 +1083,20 @@ describe('unpause', () => {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'transfer',
-      args: [account2.address, parseEther('1')],
+      args: [account2.address, parseUnits('1', 6)],
     })
 
     await writeContractSync(client, {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'transfer',
-      args: [account3.address, parseEther('1')],
+      args: [account3.address, parseUnits('1', 6)],
     })
 
     // Account2 can pause
     await actions.token.pauseSync(client, {
       account: account2,
+      feeToken: Addresses.defaultFeeToken,
       token: address,
     })
 
@@ -1104,6 +1111,7 @@ describe('unpause', () => {
     // Account3 can unpause
     await actions.token.unpauseSync(client, {
       account: account3,
+      feeToken: Addresses.defaultFeeToken,
       token: address,
     })
 
@@ -1115,7 +1123,7 @@ describe('unpause', () => {
   })
 })
 
-describe('updateQuoteToken', () => {
+describe('prepareUpdateQuoteToken', () => {
   test('default', async () => {
     // Create two tokens - one to be the new quote token
     const { token: quoteTokenAddress } = await actions.token.createSync(
@@ -1136,9 +1144,9 @@ describe('updateQuoteToken', () => {
     // Update quote token
     const {
       receipt: updateReceipt,
-      newQuoteToken,
+      nextQuoteToken,
       ...updateResult
-    } = await actions.token.updateQuoteTokenSync(client, {
+    } = await actions.token.prepareUpdateQuoteTokenSync(client, {
       token: address,
       quoteToken: quoteTokenAddress,
     })
@@ -1151,7 +1159,7 @@ describe('updateQuoteToken', () => {
     `)
 
     // Verify the event was emitted with correct quote token
-    expect(newQuoteToken).toBe(quoteTokenAddress)
+    expect(nextQuoteToken).toBe(quoteTokenAddress)
   })
 
   test('behavior: requires admin role', async () => {
@@ -1177,12 +1185,12 @@ describe('updateQuoteToken', () => {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'transfer',
-      args: [account2.address, parseEther('1')],
+      args: [account2.address, parseUnits('1', 6)],
     })
 
     // Try to update quote token from account2 (not admin) - should fail
     await expect(
-      actions.token.updateQuoteTokenSync(client, {
+      actions.token.prepareUpdateQuoteTokenSync(client, {
         account: account2,
         token: address,
         quoteToken: quoteTokenAddress,
@@ -1211,9 +1219,9 @@ describe('updateQuoteToken', () => {
     // Update quote token using token ID for main token, address for quote token
     const {
       receipt: updateReceipt,
-      newQuoteToken,
+      nextQuoteToken,
       ...updateResult
-    } = await actions.token.updateQuoteTokenSync(client, {
+    } = await actions.token.prepareUpdateQuoteTokenSync(client, {
       token: mainTokenId,
       quoteToken: quoteTokenAddress,
     })
@@ -1223,7 +1231,7 @@ describe('updateQuoteToken', () => {
         "updater": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       }
     `)
-    expect(newQuoteToken).toBe(quoteTokenAddress)
+    expect(nextQuoteToken).toBe(quoteTokenAddress)
     expect(updateReceipt.status).toBe('success')
   })
 })
@@ -1247,8 +1255,8 @@ describe('finalizeUpdateQuoteToken', () => {
       symbol: 'MAIN',
     })
 
-    // Update quote token (step 1)
-    await actions.token.updateQuoteTokenSync(client, {
+    // Prepare update quote token (step 1)
+    await actions.token.prepareUpdateQuoteTokenSync(client, {
       token: address,
       quoteToken: quoteTokenAddress,
     })
@@ -1258,7 +1266,7 @@ describe('finalizeUpdateQuoteToken', () => {
       receipt: finalizeReceipt,
       newQuoteToken,
       ...finalizeResult
-    } = await actions.token.finalizeUpdateQuoteTokenSync(client, {
+    } = await actions.token.updateQuoteTokenSync(client, {
       token: address,
     })
 
@@ -1298,7 +1306,7 @@ describe('finalizeUpdateQuoteToken', () => {
     })
 
     // Update quote token as admin
-    await actions.token.updateQuoteTokenSync(client, {
+    await actions.token.prepareUpdateQuoteTokenSync(client, {
       token: address,
       quoteToken: quoteTokenAddress,
     })
@@ -1308,12 +1316,12 @@ describe('finalizeUpdateQuoteToken', () => {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'transfer',
-      args: [account2.address, parseEther('1')],
+      args: [account2.address, parseUnits('1', 6)],
     })
 
     // Try to finalize as non-admin - should fail
     await expect(
-      actions.token.finalizeUpdateQuoteTokenSync(client, {
+      actions.token.updateQuoteTokenSync(client, {
         account: account2,
         token: address,
       }),
@@ -1337,14 +1345,14 @@ describe('finalizeUpdateQuoteToken', () => {
     })
 
     // Try to make token B link to token A (would create A -> B -> A loop)
-    await actions.token.updateQuoteTokenSync(client, {
+    await actions.token.prepareUpdateQuoteTokenSync(client, {
       token: tokenBAddress,
       quoteToken: tokenAAddress,
     })
 
     // Finalize should fail due to circular reference detection
     await expect(
-      actions.token.finalizeUpdateQuoteTokenSync(client, {
+      actions.token.updateQuoteTokenSync(client, {
         token: tokenBAddress,
       }),
     ).rejects.toThrow()
@@ -1805,6 +1813,7 @@ describe('watchCreate', () => {
           "admin": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "currency": "USD",
           "name": "Watch Test Token 1",
+          "quoteToken": "0x20C0000000000000000000000000000000000000",
           "symbol": "WATCH1",
         }
       `)
@@ -1821,6 +1830,7 @@ describe('watchCreate', () => {
           "admin": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "currency": "USD",
           "name": "Watch Test Token 2",
+          "quoteToken": "0x20C0000000000000000000000000000000000000",
           "symbol": "WATCH2",
         }
       `)
@@ -1894,6 +1904,7 @@ describe('watchCreate', () => {
           "admin": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "currency": "USD",
           "name": "Filtered Watch Token 2",
+          "quoteToken": "0x20C0000000000000000000000000000000000000",
           "symbol": "FWATCH2",
         }
       `)
@@ -1939,14 +1950,14 @@ describe('watchMint', () => {
       await actions.token.mintSync(client, {
         token: address,
         to: account2.address,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
       })
 
       // Mint second batch
       await actions.token.mintSync(client, {
         token: address,
         to: account3.address,
-        amount: parseEther('50'),
+        amount: parseUnits('50', 6),
       })
 
       await setTimeout(100)
@@ -1955,13 +1966,13 @@ describe('watchMint', () => {
 
       expect(receivedMints.at(0)!.args).toMatchInlineSnapshot(`
         {
-          "amount": 100000000000000000000n,
+          "amount": 100000000n,
           "to": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         }
       `)
       expect(receivedMints.at(1)!.args).toMatchInlineSnapshot(`
         {
-          "amount": 50000000000000000000n,
+          "amount": 50000000n,
           "to": "0x98e503f35D0a019cB0a251aD243a4cCFCF371F46",
         }
       `)
@@ -2006,21 +2017,21 @@ describe('watchMint', () => {
       await actions.token.mintSync(client, {
         token: address,
         to: account2.address,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
       })
 
       // Mint to account3 (should NOT be captured)
       await actions.token.mintSync(client, {
         token: address,
         to: account3.address,
-        amount: parseEther('50'),
+        amount: parseUnits('50', 6),
       })
 
       // Mint to account2 again (should be captured)
       await actions.token.mintSync(client, {
         token: address,
         to: account2.address,
-        amount: parseEther('75'),
+        amount: parseUnits('75', 6),
       })
 
       await setTimeout(100)
@@ -2030,13 +2041,13 @@ describe('watchMint', () => {
 
       expect(receivedMints.at(0)!.args).toMatchInlineSnapshot(`
         {
-          "amount": 100000000000000000000n,
+          "amount": 100000000n,
           "to": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         }
       `)
       expect(receivedMints.at(1)!.args).toMatchInlineSnapshot(`
         {
-          "amount": 75000000000000000000n,
+          "amount": 75000000n,
           "to": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         }
       `)
@@ -2078,14 +2089,14 @@ describe('watchApprove', () => {
       await actions.token.approveSync(client, {
         token: address,
         spender: account2.address,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
       })
 
       // Approve account3
       await actions.token.approveSync(client, {
         token: address,
         spender: account3.address,
-        amount: parseEther('50'),
+        amount: parseUnits('50', 6),
       })
 
       await setTimeout(100)
@@ -2094,14 +2105,14 @@ describe('watchApprove', () => {
 
       expect(receivedApprovals.at(0)!.args).toMatchInlineSnapshot(`
         {
-          "amount": 100000000000000000000n,
+          "amount": 100000000n,
           "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "spender": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         }
       `)
       expect(receivedApprovals.at(1)!.args).toMatchInlineSnapshot(`
         {
-          "amount": 50000000000000000000n,
+          "amount": 50000000n,
           "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "spender": "0x98e503f35D0a019cB0a251aD243a4cCFCF371F46",
         }
@@ -2140,21 +2151,21 @@ describe('watchApprove', () => {
       await actions.token.approveSync(client, {
         token: address,
         spender: account2.address,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
       })
 
       // Approve account3 (should NOT be captured)
       await actions.token.approveSync(client, {
         token: address,
         spender: account3.address,
-        amount: parseEther('50'),
+        amount: parseUnits('50', 6),
       })
 
       // Approve account2 again (should be captured)
       await actions.token.approveSync(client, {
         token: address,
         spender: account2.address,
-        amount: parseEther('75'),
+        amount: parseUnits('75', 6),
       })
 
       await setTimeout(100)
@@ -2164,14 +2175,14 @@ describe('watchApprove', () => {
 
       expect(receivedApprovals.at(0)!.args).toMatchInlineSnapshot(`
         {
-          "amount": 100000000000000000000n,
+          "amount": 100000000n,
           "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "spender": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         }
       `)
       expect(receivedApprovals.at(1)!.args).toMatchInlineSnapshot(`
         {
-          "amount": 75000000000000000000n,
+          "amount": 75000000n,
           "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "spender": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         }
@@ -2214,13 +2225,13 @@ describe('watchBurn', () => {
     await actions.token.mintSync(client, {
       token: address,
       to: client.account.address,
-      amount: parseEther('200'),
+      amount: parseUnits('200', 6),
     })
 
     await actions.token.mintSync(client, {
       token: address,
       to: account2.address,
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
     })
 
     const receivedBurns: Array<{
@@ -2240,7 +2251,7 @@ describe('watchBurn', () => {
       // Burn first batch
       await actions.token.burnSync(client, {
         token: address,
-        amount: parseEther('50'),
+        amount: parseUnits('50', 6),
       })
 
       // Transfer gas to account2
@@ -2248,14 +2259,14 @@ describe('watchBurn', () => {
         abi: Abis.tip20,
         address: Addresses.defaultFeeToken,
         functionName: 'transfer',
-        args: [account2.address, parseEther('1')],
+        args: [account2.address, parseUnits('1', 6)],
       })
 
       // Burn second batch from account2
       await actions.token.burnSync(client, {
         account: account2,
         token: address,
-        amount: parseEther('25'),
+        amount: parseUnits('25', 6),
       })
 
       await setTimeout(100)
@@ -2264,13 +2275,13 @@ describe('watchBurn', () => {
 
       expect(receivedBurns.at(0)!.args).toMatchInlineSnapshot(`
         {
-          "amount": 50000000000000000000n,
+          "amount": 50000000n,
           "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         }
       `)
       expect(receivedBurns.at(1)!.args).toMatchInlineSnapshot(`
         {
-          "amount": 25000000000000000000n,
+          "amount": 25000000n,
           "from": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         }
       `)
@@ -2305,13 +2316,13 @@ describe('watchBurn', () => {
     await actions.token.mintSync(client, {
       token: address,
       to: client.account.address,
-      amount: parseEther('200'),
+      amount: parseUnits('200', 6),
     })
 
     await actions.token.mintSync(client, {
       token: address,
       to: account2.address,
-      amount: parseEther('200'),
+      amount: parseUnits('200', 6),
     })
 
     const receivedBurns: Array<{
@@ -2334,7 +2345,7 @@ describe('watchBurn', () => {
       // Burn from client.account (should be captured)
       await actions.token.burnSync(client, {
         token: address,
-        amount: parseEther('50'),
+        amount: parseUnits('50', 6),
       })
 
       // Transfer gas to account2
@@ -2342,20 +2353,20 @@ describe('watchBurn', () => {
         abi: Abis.tip20,
         address: Addresses.defaultFeeToken,
         functionName: 'transfer',
-        args: [account2.address, parseEther('1')],
+        args: [account2.address, parseUnits('1', 6)],
       })
 
       // Burn from account2 (should NOT be captured)
       await actions.token.burnSync(client, {
         account: account2,
         token: address,
-        amount: parseEther('25'),
+        amount: parseUnits('25', 6),
       })
 
       // Burn from client.account again (should be captured)
       await actions.token.burnSync(client, {
         token: address,
-        amount: parseEther('75'),
+        amount: parseUnits('75', 6),
       })
 
       await setTimeout(100)
@@ -2365,13 +2376,13 @@ describe('watchBurn', () => {
 
       expect(receivedBurns.at(0)!.args).toMatchInlineSnapshot(`
         {
-          "amount": 50000000000000000000n,
+          "amount": 50000000n,
           "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         }
       `)
       expect(receivedBurns.at(1)!.args).toMatchInlineSnapshot(`
         {
-          "amount": 75000000000000000000n,
+          "amount": 75000000n,
           "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         }
       `)
@@ -2614,7 +2625,7 @@ describe('watchTransfer', () => {
     await actions.token.mintSync(client, {
       token: address,
       to: client.account.address,
-      amount: parseEther('500'),
+      amount: parseUnits('500', 6),
     })
 
     const receivedTransfers: Array<{
@@ -2635,14 +2646,14 @@ describe('watchTransfer', () => {
       await actions.token.transferSync(client, {
         token: address,
         to: account2.address,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
       })
 
       // Transfer to account3
       await actions.token.transferSync(client, {
         token: address,
         to: account3.address,
-        amount: parseEther('50'),
+        amount: parseUnits('50', 6),
       })
 
       await setTimeout(200)
@@ -2651,14 +2662,14 @@ describe('watchTransfer', () => {
 
       expect(receivedTransfers.at(0)!.args).toMatchInlineSnapshot(`
         {
-          "amount": 100000000000000000000n,
+          "amount": 100000000n,
           "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "to": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         }
       `)
       expect(receivedTransfers.at(1)!.args).toMatchInlineSnapshot(`
         {
-          "amount": 50000000000000000000n,
+          "amount": 50000000n,
           "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "to": "0x98e503f35D0a019cB0a251aD243a4cCFCF371F46",
         }
@@ -2687,7 +2698,7 @@ describe('watchTransfer', () => {
     await actions.token.mintSync(client, {
       token: address,
       to: client.account.address,
-      amount: parseEther('500'),
+      amount: parseUnits('500', 6),
     })
 
     const receivedTransfers: Array<{
@@ -2711,21 +2722,21 @@ describe('watchTransfer', () => {
       await actions.token.transferSync(client, {
         token: address,
         to: account2.address,
-        amount: parseEther('100'),
+        amount: parseUnits('100', 6),
       })
 
       // Transfer to account3 (should NOT be captured)
       await actions.token.transferSync(client, {
         token: address,
         to: account3.address,
-        amount: parseEther('50'),
+        amount: parseUnits('50', 6),
       })
 
       // Transfer to account2 again (should be captured)
       await actions.token.transferSync(client, {
         token: address,
         to: account2.address,
-        amount: parseEther('75'),
+        amount: parseUnits('75', 6),
       })
 
       await setTimeout(100)
@@ -2735,14 +2746,14 @@ describe('watchTransfer', () => {
 
       expect(receivedTransfers.at(0)!.args).toMatchInlineSnapshot(`
         {
-          "amount": 100000000000000000000n,
+          "amount": 100000000n,
           "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "to": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         }
       `)
       expect(receivedTransfers.at(1)!.args).toMatchInlineSnapshot(`
         {
-          "amount": 75000000000000000000n,
+          "amount": 75000000n,
           "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "to": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         }
@@ -2791,14 +2802,14 @@ describe('watchUpdateQuoteToken', () => {
     })
 
     try {
-      // Step 1: Update quote token (should emit UpdateQuoteToken)
-      await actions.token.updateQuoteTokenSync(client, {
+      // Step 1: Prepare update quote token (should emit NextQuoteTokenSet)
+      await actions.token.prepareUpdateQuoteTokenSync(client, {
         token: address,
         quoteToken: quoteTokenAddress,
       })
 
       // Step 2: Finalize the update (should emit QuoteTokenUpdateFinalized)
-      await actions.token.finalizeUpdateQuoteTokenSync(client, {
+      await actions.token.updateQuoteTokenSync(client, {
         token: address,
       })
 
@@ -2808,12 +2819,12 @@ describe('watchUpdateQuoteToken', () => {
       expect(receivedUpdates).toHaveLength(2)
 
       // First event: update proposed (not finalized)
-      expect(receivedUpdates.at(0)!.args.finalized).toBe(false)
-      expect(receivedUpdates.at(0)!.args.newQuoteToken).toBe(quoteTokenAddress)
+      expect(receivedUpdates.at(0)!.args.completed).toBe(false)
+      expect(receivedUpdates.at(0)!.args.nextQuoteToken).toBe(quoteTokenAddress)
       expect(receivedUpdates.at(0)!.args.updater).toBe(client.account.address)
 
       // Second event: update finalized
-      expect(receivedUpdates.at(1)!.args.finalized).toBe(true)
+      expect(receivedUpdates.at(1)!.args.completed).toBe(true)
       expect(receivedUpdates.at(1)!.args.newQuoteToken).toBe(quoteTokenAddress)
       expect(receivedUpdates.at(1)!.args.updater).toBe(client.account.address)
     } finally {
@@ -2854,7 +2865,7 @@ describe('watchUpdateQuoteToken', () => {
 
     try {
       // Only update (don't finalize)
-      await actions.token.updateQuoteTokenSync(client, {
+      await actions.token.prepareUpdateQuoteTokenSync(client, {
         token: address,
         quoteToken: quoteTokenAddress,
       })
@@ -2863,8 +2874,8 @@ describe('watchUpdateQuoteToken', () => {
 
       // Should only receive 1 event (not finalized)
       expect(receivedUpdates).toHaveLength(1)
-      expect(receivedUpdates.at(0)!.args.finalized).toBe(false)
-      expect(receivedUpdates.at(0)!.args.newQuoteToken).toBe(quoteTokenAddress)
+      expect(receivedUpdates.at(0)!.args.completed).toBe(false)
+      expect(receivedUpdates.at(0)!.args.nextQuoteToken).toBe(quoteTokenAddress)
     } finally {
       if (unwatch) unwatch()
     }

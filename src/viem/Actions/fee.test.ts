@@ -1,6 +1,6 @@
 import { setTimeout } from 'node:timers/promises'
 import { Abis, Addresses } from 'tempo.ts/viem'
-import { parseEther } from 'viem'
+import { parseUnits } from 'viem'
 import { writeContractSync } from 'viem/actions'
 import { afterEach, describe, expect, test } from 'vitest'
 import { accounts, client, rpcUrl } from '../../../test/viem/config.js'
@@ -21,13 +21,13 @@ describe('getUserToken', () => {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'transfer',
-      args: [account2.address, parseEther('100')],
+      args: [account2.address, parseUnits('100', 6)],
     })
     await writeContractSync(client, {
       abi: Abis.tip20,
       address: Addresses.defaultFeeToken,
       functionName: 'transfer',
-      args: [account3.address, parseEther('100')],
+      args: [account3.address, parseUnits('100', 6)],
     })
 
     // Set token (address)
@@ -146,7 +146,7 @@ describe('watchSetUserToken', async () => {
         abi: Abis.tip20,
         address: Addresses.defaultFeeToken,
         functionName: 'transfer',
-        args: [account2.address, parseEther('1')],
+        args: [account2.address, parseUnits('1', 6)],
       })
 
       await actions.fee.setUserTokenSync(client, {
@@ -159,7 +159,7 @@ describe('watchSetUserToken', async () => {
         abi: Abis.tip20,
         address: Addresses.defaultFeeToken,
         functionName: 'transfer',
-        args: [account3.address, parseEther('1')],
+        args: [account3.address, parseUnits('1', 6)],
       })
 
       await actions.fee.setUserTokenSync(client, {
@@ -210,14 +210,14 @@ describe('watchSetUserToken', async () => {
         abi: Abis.tip20,
         address: Addresses.defaultFeeToken,
         functionName: 'transfer',
-        args: [account2.address, parseEther('1')],
+        args: [account2.address, parseUnits('1', 6)],
       })
 
       await writeContractSync(client, {
         abi: Abis.tip20,
         address: Addresses.defaultFeeToken,
         functionName: 'transfer',
-        args: [account3.address, parseEther('1')],
+        args: [account3.address, parseUnits('1', 6)],
       })
 
       // Set token for account2 (should be captured)

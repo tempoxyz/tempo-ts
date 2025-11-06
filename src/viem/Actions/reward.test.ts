@@ -1,4 +1,4 @@
-import { parseEther } from 'viem'
+import { parseEther, parseUnits } from 'viem'
 import { describe, expect, test } from 'vitest'
 import { client, setupToken } from '../../../test/viem/config.js'
 import * as actions from './index.js'
@@ -10,7 +10,7 @@ describe('cancelSync', () => {
     const { token } = await setupToken(client)
 
     // Start a reward stream with longer duration
-    const rewardAmount = parseEther('100')
+    const rewardAmount = parseUnits('100', 6)
     const { id: streamId } = await actions.reward.startSync(client, {
       amount: rewardAmount,
       seconds: 3600, // 1 hour to avoid stream ending during test
@@ -53,7 +53,7 @@ describe.skip('claimSync', () => {
     })
 
     // Mint reward tokens
-    const rewardAmount = parseEther('100')
+    const rewardAmount = parseUnits('100', 6)
     await actions.token.mintSync(client, {
       amount: rewardAmount,
       to: account.address,
@@ -84,7 +84,7 @@ describe.skip('claimSync', () => {
     })
 
     expect(balanceAfter).toBeGreaterThan(
-      balanceBefore + rewardAmount - parseEther('1'),
+      balanceBefore + rewardAmount - parseUnits('1', 6),
     )
   })
 
@@ -96,7 +96,7 @@ describe.skip('claimSync', () => {
     })
 
     // Mint tokens to have balance
-    const mintAmount = parseEther('1000')
+    const mintAmount = parseUnits('1000', 6)
     await actions.token.mintSync(client, {
       amount: mintAmount,
       to: account.address,
@@ -110,7 +110,7 @@ describe.skip('claimSync', () => {
     })
 
     // Mint reward tokens
-    const rewardAmount = parseEther('100')
+    const rewardAmount = parseUnits('100', 6)
     await actions.token.mintSync(client, {
       amount: rewardAmount,
       to: account.address,
@@ -151,7 +151,7 @@ describe('getStream', () => {
     const { token } = await setupToken(client)
 
     // Start a reward stream
-    const rewardAmount = parseEther('100')
+    const rewardAmount = parseUnits('100', 6)
     const duration = 10
     const { id: streamId } = await actions.reward.startSync(client, {
       amount: rewardAmount,
@@ -172,9 +172,9 @@ describe('getStream', () => {
     expect(endTime).toBeGreaterThan(startTime)
     expect(stream).toMatchInlineSnapshot(`
       {
-        "amountTotal": 100000000000000000000n,
+        "amountTotal": 100000000n,
         "funder": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "ratePerSecondScaled": 10000000000000000000000000000000000000n,
+        "ratePerSecondScaled": 10000000000000000000000000n,
       }
     `)
   })
@@ -183,7 +183,7 @@ describe('getStream', () => {
     const { token } = await setupToken(client)
 
     // Start and cancel a reward stream
-    const rewardAmount = parseEther('100')
+    const rewardAmount = parseUnits('100', 6)
     const { id: streamId } = await actions.reward.startSync(client, {
       amount: rewardAmount,
       seconds: 3600, // 1 hour to avoid stream ending during test
@@ -228,7 +228,7 @@ describe('getTotalPerSecond', () => {
     const { token } = await setupToken(client)
 
     // Start a reward stream
-    const rewardAmount = parseEther('100')
+    const rewardAmount = parseUnits('100', 6)
     const duration = 100
     await actions.reward.startSync(client, {
       amount: rewardAmount,
@@ -293,7 +293,7 @@ describe('startSync', () => {
 
     // Start a reward stream
     const duration = 10
-    const rewardAmount = parseEther('100')
+    const rewardAmount = parseUnits('100', 6)
     const { id, receipt, ...result } = await actions.reward.startSync(client, {
       amount: rewardAmount,
       seconds: duration,
@@ -303,7 +303,7 @@ describe('startSync', () => {
     expect(receipt).toBeDefined()
     expect(result).toMatchInlineSnapshot(`
       {
-        "amount": 100000000000000000000n,
+        "amount": 100000000n,
         "durationSeconds": 10,
         "funder": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       }
@@ -322,9 +322,9 @@ describe('startSync', () => {
     expect(endTime).toBeGreaterThan(startTime)
     expect(stream).toMatchInlineSnapshot(`
       {
-        "amountTotal": 100000000000000000000n,
+        "amountTotal": 100000000n,
         "funder": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "ratePerSecondScaled": 10000000000000000000000000000000000000n,
+        "ratePerSecondScaled": 10000000000000000000000000n,
       }
     `)
 
@@ -341,7 +341,7 @@ describe('startSync', () => {
 
     // Start a streaming reward
     const duration = 3600
-    const rewardAmount = parseEther('100')
+    const rewardAmount = parseUnits('100', 6)
     const { id } = await actions.reward.startSync(client, {
       amount: rewardAmount,
       seconds: duration,
@@ -374,7 +374,7 @@ describe('startSync', () => {
     })
 
     // Mint reward tokens
-    const rewardAmount = parseEther('100')
+    const rewardAmount = parseUnits('100', 6)
     await actions.token.mintSync(client, {
       amount: rewardAmount,
       to: account.address,
@@ -428,7 +428,7 @@ describe('startSync', () => {
     })
 
     // Mint reward tokens
-    const rewardAmount = parseEther('100')
+    const rewardAmount = parseUnits('100', 6)
     await actions.token.mintSync(client, {
       amount: rewardAmount,
       to: account.address,

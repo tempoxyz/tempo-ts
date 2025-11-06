@@ -1,6 +1,6 @@
 import { connect, getConnectorClient } from '@wagmi/core'
 import { Addresses } from 'tempo.ts/viem'
-import { parseEther } from 'viem'
+import { parseUnits } from 'viem'
 import { describe, expect, test } from 'vitest'
 import { accounts, setupPoolWithLiquidity } from '../../../test/viem/config.js'
 import { config, queryClient } from '../../../test/wagmi/config.js'
@@ -88,7 +88,7 @@ describe('mintSync', () => {
     // Mint some tokens to account
     await tokenActions.mintSync(config, {
       to: account.address,
-      amount: parseEther('1000'),
+      amount: parseUnits('1000', 6),
       token,
     })
 
@@ -98,11 +98,11 @@ describe('mintSync', () => {
       {
         userToken: {
           address: token,
-          amount: parseEther('100'),
+          amount: parseUnits('100', 6),
         },
         validatorToken: {
           address: Addresses.defaultFeeToken,
-          amount: parseEther('100'),
+          amount: parseUnits('100', 6),
         },
         to: account.address,
       },
@@ -110,9 +110,9 @@ describe('mintSync', () => {
     expect(mintReceipt).toBeDefined()
     expect(mintResult).toMatchInlineSnapshot(`
       {
-        "amountUserToken": 100000000000000000000n,
-        "amountValidatorToken": 100000000000000000000n,
-        "liquidity": 4999999999999999999999999999999999999000n,
+        "amountUserToken": 100000000n,
+        "amountValidatorToken": 100000000n,
+        "liquidity": 4999999999999000n,
         "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "userToken": "0x20C0000000000000000000000000000000000004",
         "validatorToken": "0x20C0000000000000000000000000000000000001",
@@ -150,9 +150,9 @@ describe('burnSync', () => {
     expect(burnReceipt).toBeDefined()
     expect(burnResult).toMatchInlineSnapshot(`
       {
-        "amountUserToken": 49999999999999999999n,
-        "amountValidatorToken": 49999999999999999999n,
-        "liquidity": 2499999999999999999999999999999999999500n,
+        "amountUserToken": 49999999n,
+        "amountValidatorToken": 49999999n,
+        "liquidity": 2499999999999500n,
         "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "userToken": "0x20c0000000000000000000000000000000000005",
@@ -178,14 +178,14 @@ describe('rebalanceSwapSync', () => {
       await ammActions.rebalanceSwapSync(config, {
         userToken: tokenAddress,
         validatorToken: Addresses.defaultFeeToken,
-        amountOut: parseEther('10'),
+        amountOut: parseUnits('10', 6),
         to: account2.address,
       })
     expect(swapReceipt).toBeDefined()
     expect(swapResult).toMatchInlineSnapshot(`
       {
-        "amountIn": 9985000000000000001n,
-        "amountOut": 10000000000000000000n,
+        "amountIn": 9985001n,
+        "amountOut": 10000000n,
         "swapper": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "userToken": "0x20C0000000000000000000000000000000000006",
         "validatorToken": "0x20C0000000000000000000000000000000000001",

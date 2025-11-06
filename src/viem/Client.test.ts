@@ -147,8 +147,6 @@ test('createTempoClient', () => {
         "mintSync": [Function],
         "pause": [Function],
         "pauseSync": [Function],
-        "permit": [Function],
-        "permitSync": [Function],
         "renounceRoles": [Function],
         "renounceRolesSync": [Function],
         "revokeRoles": [Function],

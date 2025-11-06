@@ -578,7 +578,7 @@ export declare namespace createSync {
 }
 
 /**
- * Finalizes the quote token update for a TIP20 token.
+ * Updates the quote token for a TIP20 token.
  *
  * @example
  * ```ts
@@ -593,7 +593,7 @@ export declare namespace createSync {
  *   },
  * })
  *
- * const hash = await Actions.token.finalizeUpdateQuoteToken(config, {
+ * const hash = await Actions.token.updateQuoteToken(config, {
  *   token: '0x...',
  * })
  * ```
@@ -602,10 +602,10 @@ export declare namespace createSync {
  * @param parameters - Parameters.
  * @returns Transaction hash.
  */
-export async function finalizeUpdateQuoteToken<config extends Config>(
+export async function updateQuoteToken<config extends Config>(
   config: config,
-  parameters: finalizeUpdateQuoteToken.Parameters<config>,
-): Promise<viem_Actions.finalizeUpdateQuoteToken.ReturnValue> {
+  parameters: updateQuoteToken.Parameters<config>,
+): Promise<viem_Actions.updateQuoteToken.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -615,27 +615,24 @@ export async function finalizeUpdateQuoteToken<config extends Config>(
     connector,
   })
 
-  return viem_Actions.finalizeUpdateQuoteToken(
+  return viem_Actions.updateQuoteToken(
     client,
-    parameters as viem_Actions.finalizeUpdateQuoteToken.Parameters,
+    parameters as viem_Actions.updateQuoteToken.Parameters,
   )
 }
 
-export declare namespace finalizeUpdateQuoteToken {
+export declare namespace updateQuoteToken {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<
-      viem_Actions.finalizeUpdateQuoteToken.Parameters<undefined, Account>,
-      'chain'
-    >
+    Omit<viem_Actions.updateQuoteToken.Parameters<undefined, Account>, 'chain'>
 
-  export type ReturnValue = viem_Actions.finalizeUpdateQuoteToken.ReturnValue
+  export type ReturnValue = viem_Actions.updateQuoteToken.ReturnValue
 
-  export type ErrorType = viem_Actions.finalizeUpdateQuoteToken.ErrorType
+  export type ErrorType = viem_Actions.updateQuoteToken.ErrorType
 }
 
 /**
- * Finalizes the quote token update for a TIP20 token.
+ * Updates the quote token for a TIP20 token.
  *
  * Note: This is a synchronous action that waits for the transaction to
  * be included on a block before returning a response.
@@ -653,7 +650,7 @@ export declare namespace finalizeUpdateQuoteToken {
  *   },
  * })
  *
- * const result = await Actions.token.finalizeUpdateQuoteTokenSync(config, {
+ * const result = await Actions.token.updateQuoteTokenSync(config, {
  *   token: '0x...',
  * })
  * ```
@@ -662,10 +659,10 @@ export declare namespace finalizeUpdateQuoteToken {
  * @param parameters - Parameters.
  * @returns The transaction receipt and event data.
  */
-export async function finalizeUpdateQuoteTokenSync<config extends Config>(
+export async function updateQuoteTokenSync<config extends Config>(
   config: config,
-  parameters: finalizeUpdateQuoteTokenSync.Parameters<config>,
-): Promise<viem_Actions.finalizeUpdateQuoteTokenSync.ReturnValue> {
+  parameters: updateQuoteTokenSync.Parameters<config>,
+): Promise<viem_Actions.updateQuoteTokenSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -675,24 +672,23 @@ export async function finalizeUpdateQuoteTokenSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.finalizeUpdateQuoteTokenSync(
+  return viem_Actions.updateQuoteTokenSync(
     client,
-    parameters as viem_Actions.finalizeUpdateQuoteTokenSync.Parameters,
+    parameters as viem_Actions.updateQuoteTokenSync.Parameters,
   )
 }
 
-export declare namespace finalizeUpdateQuoteTokenSync {
+export declare namespace updateQuoteTokenSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     Omit<
-      viem_Actions.finalizeUpdateQuoteTokenSync.Parameters<undefined, Account>,
+      viem_Actions.updateQuoteTokenSync.Parameters<undefined, Account>,
       'chain'
     >
 
-  export type ReturnValue =
-    viem_Actions.finalizeUpdateQuoteTokenSync.ReturnValue
+  export type ReturnValue = viem_Actions.updateQuoteTokenSync.ReturnValue
 
-  export type ErrorType = viem_Actions.finalizeUpdateQuoteTokenSync.ErrorType
+  export type ErrorType = viem_Actions.updateQuoteTokenSync.ErrorType
 }
 
 /**
@@ -2165,7 +2161,7 @@ export declare namespace unpauseSync {
 }
 
 /**
- * Updates the quote token for a TIP20 token.
+ * Prepares the quote token update for a TIP20 token.
  *
  * @example
  * ```ts
@@ -2180,7 +2176,7 @@ export declare namespace unpauseSync {
  *   },
  * })
  *
- * const hash = await Actions.token.updateQuoteToken(config, {
+ * const hash = await Actions.token.prepareUpdateQuoteToken(config, {
  *   token: '0x...',
  *   quoteToken: '0x...',
  * })
@@ -2190,10 +2186,10 @@ export declare namespace unpauseSync {
  * @param parameters - Parameters.
  * @returns Transaction hash.
  */
-export async function updateQuoteToken<config extends Config>(
+export async function prepareUpdateQuoteToken<config extends Config>(
   config: config,
-  parameters: updateQuoteToken.Parameters<config>,
-): Promise<viem_Actions.updateQuoteToken.ReturnValue> {
+  parameters: prepareUpdateQuoteToken.Parameters<config>,
+): Promise<viem_Actions.prepareUpdateQuoteToken.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -2203,24 +2199,27 @@ export async function updateQuoteToken<config extends Config>(
     connector,
   })
 
-  return viem_Actions.updateQuoteToken(
+  return viem_Actions.prepareUpdateQuoteToken(
     client,
-    parameters as viem_Actions.updateQuoteToken.Parameters,
+    parameters as viem_Actions.prepareUpdateQuoteToken.Parameters,
   )
 }
 
-export declare namespace updateQuoteToken {
+export declare namespace prepareUpdateQuoteToken {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.updateQuoteToken.Parameters<undefined, Account>, 'chain'>
+    Omit<
+      viem_Actions.prepareUpdateQuoteToken.Parameters<undefined, Account>,
+      'chain'
+    >
 
-  export type ReturnValue = viem_Actions.updateQuoteToken.ReturnValue
+  export type ReturnValue = viem_Actions.prepareUpdateQuoteToken.ReturnValue
 
-  export type ErrorType = viem_Actions.updateQuoteToken.ErrorType
+  export type ErrorType = viem_Actions.prepareUpdateQuoteToken.ErrorType
 }
 
 /**
- * Updates the quote token for a TIP20 token.
+ * Prepares the quote token update for a TIP20 token.
  *
  * Note: This is a synchronous action that waits for the transaction to
  * be included on a block before returning a response.
@@ -2238,7 +2237,7 @@ export declare namespace updateQuoteToken {
  *   },
  * })
  *
- * const result = await Actions.token.updateQuoteTokenSync(config, {
+ * const result = await Actions.token.prepareUpdateQuoteTokenSync(config, {
  *   token: '0x...',
  *   quoteToken: '0x...',
  * })
@@ -2248,10 +2247,10 @@ export declare namespace updateQuoteToken {
  * @param parameters - Parameters.
  * @returns The transaction receipt and event data.
  */
-export async function updateQuoteTokenSync<config extends Config>(
+export async function prepareUpdateQuoteTokenSync<config extends Config>(
   config: config,
-  parameters: updateQuoteTokenSync.Parameters<config>,
-): Promise<viem_Actions.updateQuoteTokenSync.ReturnValue> {
+  parameters: prepareUpdateQuoteTokenSync.Parameters<config>,
+): Promise<viem_Actions.prepareUpdateQuoteTokenSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -2261,23 +2260,23 @@ export async function updateQuoteTokenSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.updateQuoteTokenSync(
+  return viem_Actions.prepareUpdateQuoteTokenSync(
     client,
-    parameters as viem_Actions.updateQuoteTokenSync.Parameters,
+    parameters as viem_Actions.prepareUpdateQuoteTokenSync.Parameters,
   )
 }
 
-export declare namespace updateQuoteTokenSync {
+export declare namespace prepareUpdateQuoteTokenSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     Omit<
-      viem_Actions.updateQuoteTokenSync.Parameters<undefined, Account>,
+      viem_Actions.prepareUpdateQuoteTokenSync.Parameters<undefined, Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.updateQuoteTokenSync.ReturnValue
+  export type ReturnValue = viem_Actions.prepareUpdateQuoteTokenSync.ReturnValue
 
-  export type ErrorType = viem_Actions.updateQuoteTokenSync.ErrorType
+  export type ErrorType = viem_Actions.prepareUpdateQuoteTokenSync.ErrorType
 }
 
 /**
@@ -2587,8 +2586,8 @@ export declare namespace watchTransfer {
  *
  * const unwatch = Actions.token.watchUpdateQuoteToken(config, {
  *   onUpdateQuoteToken: (args, log) => {
- *     if (args.finalized)
- *       console.log('quote token update finalized:', args.newQuoteToken)
+ *     if (args.completed)
+ *       console.log('quote token update completed:', args.newQuoteToken)
  *     else
  *       console.log('quote token update proposed:', args.newQuoteToken)
  *   },

@@ -1,4 +1,4 @@
-import { type Address, parseEther } from 'viem'
+import { type Address, parseUnits } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
 import { config, renderHook, setupToken } from '../../../test/wagmi/config.js'
@@ -20,7 +20,7 @@ describe('useCancelSync', () => {
 
     // Start a reward stream
     const { id: streamId } = await result.current.start.mutateAsync({
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       seconds: 3600,
       token,
     })
@@ -50,7 +50,7 @@ describe('useGetStream', () => {
     const { token } = await setupToken()
 
     const { id: streamId } = await result.current.startSync.mutateAsync({
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       seconds: 10,
       token,
     })
@@ -66,7 +66,7 @@ describe('useGetStream', () => {
     await vi.waitFor(() => expect(streamResult.current.isSuccess).toBeTruthy())
 
     expect(streamResult.current.data?.funder).toBeDefined()
-    expect(streamResult.current.data?.amountTotal).toBe(parseEther('100'))
+    expect(streamResult.current.data?.amountTotal).toBe(parseUnits('100', 6))
   })
 
   test('reactivity: id and token parameters', async () => {
@@ -82,7 +82,7 @@ describe('useGetStream', () => {
     const { token } = await setupToken()
 
     const { id } = await setupResult.current.startSync.mutateAsync({
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       seconds: 10,
       token,
     })
@@ -116,7 +116,7 @@ describe('useGetStream', () => {
     // Should now be enabled and have data
     expect(result.current.isEnabled).toBe(true)
     expect(result.current.data).toBeDefined()
-    expect(result.current.data?.amountTotal).toBe(parseEther('100'))
+    expect(result.current.data?.amountTotal).toBe(parseUnits('100', 6))
   })
 })
 
@@ -207,7 +207,7 @@ describe('useStartSync', () => {
     const { token } = await setupToken()
 
     const { id } = await result.current.start.mutateAsync({
-      amount: parseEther('100'),
+      amount: parseUnits('100', 6),
       seconds: 10,
       token,
     })
