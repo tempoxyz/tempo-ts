@@ -3,7 +3,7 @@ import * as Chain from './viem/Chain.js'
 
 export const tempoAndantino = /*#__PURE__*/ defineChain({
   ...Chain.config,
-  id: 42427,
+  id: 42429,
   name: 'Tempo Andantino',
   nativeCurrency: {
     name: 'USD',
