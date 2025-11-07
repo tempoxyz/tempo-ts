@@ -1,5 +1,135 @@
 # tempo.ts
 
+## 0.2.0
+
+### Minor Changes
+
+- [`a90d48c`](https://github.com/tempoxyz/tempo-ts/commit/a90d48c049c48601ae4aca78334b13b3ebb2ea85) Thanks [@jxom](https://github.com/jxom)! - Added `reward` Actions on `tempo.ts/viem`.
+
+- [`a90d48c`](https://github.com/tempoxyz/tempo-ts/commit/a90d48c049c48601ae4aca78334b13b3ebb2ea85) Thanks [@jxom](https://github.com/jxom)! - Added `dex.getOrderbook` action.
+
+- [`a90d48c`](https://github.com/tempoxyz/tempo-ts/commit/a90d48c049c48601ae4aca78334b13b3ebb2ea85) Thanks [@jxom](https://github.com/jxom)! - Added support for Native "Account Abstraction" accounts.
+
+  New account types supported:
+
+  ### WebAuthn (P256)
+
+  ```ts
+  import { Account, WebAuthnP256 } from "tempo.ts/viem";
+
+  const credential = await WebAuthnP256.createCredential({
+    name: "Example",
+  });
+  const account = Account.fromWebAuthnP256(credential);
+  ```
+
+  ### WebCrypto (P256)
+
+  ```ts
+  import { Account, WebCryptoP256 } from "tempo.ts/viem";
+
+  const keyPair = await WebCryptoP256.createKeyPair();
+  const account = Account.fromWebCryptoP256(keyPair);
+  ```
+
+  ### P256
+
+  ```ts
+  import { Account, P256 } from "tempo.ts/viem";
+
+  const privateKey = P256.randomPrivateKey();
+  const account = Account.fromP256(privateKey);
+  ```
+
+- [`a90d48c`](https://github.com/tempoxyz/tempo-ts/commit/a90d48c049c48601ae4aca78334b13b3ebb2ea85) Thanks [@jxom](https://github.com/jxom)! - Added `dangerous_secp256k1` connector.
+
+- [`a90d48c`](https://github.com/tempoxyz/tempo-ts/commit/a90d48c049c48601ae4aca78334b13b3ebb2ea85) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `amm.getPoolId`. Use `PoolId.from` from `tempo.ts/ox` instead.
+
+- [`a90d48c`](https://github.com/tempoxyz/tempo-ts/commit/a90d48c049c48601ae4aca78334b13b3ebb2ea85) Thanks [@jxom](https://github.com/jxom)! - Added Wagmi Actions & Hooks for `fee` and `token`.
+
+- [`a90d48c`](https://github.com/tempoxyz/tempo-ts/commit/a90d48c049c48601ae4aca78334b13b3ebb2ea85) Thanks [@jxom](https://github.com/jxom)! - Added `WebAuthnP256`, `P256`, `WebCryptoP256` modules.
+
+- [#43](https://github.com/tempoxyz/tempo-ts/pull/43) [`e932099`](https://github.com/tempoxyz/tempo-ts/commit/e9320992d29e26d59646251a3bccc099a002e7a2) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `Addresses.defaultFeeToken` and `Addresses.defaultQuoteToken`.
+
+- [`899c120`](https://github.com/tempoxyz/tempo-ts/commit/899c1201a563121bd08f08b012d84439e9d1b816) Thanks [@jxom](https://github.com/jxom)! - **Breaking:**
+  - Renamed `updateQuoteToken` to `prepareUpdateQuoteToken`.
+  - Renamed `finalizeUpdateQuoteToken` to `updateQuoteToken`.
+
+- [`a90d48c`](https://github.com/tempoxyz/tempo-ts/commit/a90d48c049c48601ae4aca78334b13b3ebb2ea85) Thanks [@jxom](https://github.com/jxom)! - Added support for WebAuthn & P256 accounts with the `Account` module.
+
+- [`a90d48c`](https://github.com/tempoxyz/tempo-ts/commit/a90d48c049c48601ae4aca78334b13b3ebb2ea85) Thanks [@jxom](https://github.com/jxom)! - Added `dex.getOrders`.
+
+- [`a90d48c`](https://github.com/tempoxyz/tempo-ts/commit/a90d48c049c48601ae4aca78334b13b3ebb2ea85) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `amm.getTotalSupply`. Use `amm.getPool` instead.
+
+- [#43](https://github.com/tempoxyz/tempo-ts/pull/43) [`e932099`](https://github.com/tempoxyz/tempo-ts/commit/e9320992d29e26d59646251a3bccc099a002e7a2) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `createTempoClient`. Construct your Client with `viem` primitives:
+
+  ```diff
+  -import { createTempoClient } from 'tempo.ts/viem'
+  +import { createClient, http } from 'viem'
+  +import { tempo } from 'tempo.ts/chains'
+
+  -const client = createTempoClient()
+  +const client = createClient({
+  +  chain: tempo({
+  +    feeToken: '0x20c0000000000000000000000000000000000001'
+  +  }),
+  +  transport: http(),
+  +})
+  ```
+
+- [`a90d48c`](https://github.com/tempoxyz/tempo-ts/commit/a90d48c049c48601ae4aca78334b13b3ebb2ea85) Thanks [@jxom](https://github.com/jxom)! - Added `tempoDevnet` chain.
+
+- [`a90d48c`](https://github.com/tempoxyz/tempo-ts/commit/a90d48c049c48601ae4aca78334b13b3ebb2ea85) Thanks [@jxom](https://github.com/jxom)! - Added `reward` actions + hooks to `tempo.ts/wagmi`
+
+- [`210b95c`](https://github.com/tempoxyz/tempo-ts/commit/210b95c6ca7a043a7684b7ff869cdf32c7afa0ee) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `permit` from `Actions.token`
+
+- [`a90d48c`](https://github.com/tempoxyz/tempo-ts/commit/a90d48c049c48601ae4aca78334b13b3ebb2ea85) Thanks [@jxom](https://github.com/jxom)! - Added `tempo.ts/wagmi` entrypoint and `webAuthn` connector.
+
+- [#43](https://github.com/tempoxyz/tempo-ts/pull/43) [`e932099`](https://github.com/tempoxyz/tempo-ts/commit/e9320992d29e26d59646251a3bccc099a002e7a2) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** `feeToken` is now required on all transaction actions. You must either pass `feeToken` explicitly, or hoist a
+  `feeToken` on the Client:
+
+  ### Non-hoisted Fee Token
+
+  `feeToken` will need to be set per-action.
+
+  ```ts
+  // fee token NOT set on client
+  const client2 = createClient({
+    chain: tempo,
+    transport: http(),
+  });
+
+  // ⚠️ `feeToken` needs to be set per-action
+  await sendTransaction(client2, {
+    feeToken: "0x20c...0001",
+    to: "0x0000000000000000000000000000000000000000",
+  });
+  ```
+
+  ### Hoisted Fee Token
+
+  Pass `feeToken` to the Client to apply it to all transactions.
+
+  ```ts
+  const client1 = createClient({
+    chain: tempo({ feeToken: "0x20c...001" }), // note: pass `null` to opt-in to protocol preferences.
+    transport: http(),
+  });
+
+  // ✅ no fee token needed, hoisted on client
+  await sendTransaction(client1, {
+    to: "0x0000000000000000000000000000000000000000",
+  });
+  ```
+
+### Patch Changes
+
+- [#40](https://github.com/tempoxyz/tempo-ts/pull/40) [`619b943`](https://github.com/tempoxyz/tempo-ts/commit/619b9437bc78a7ef7c7b2344fcc5f0e827a6238d) Thanks [@gorried](https://github.com/gorried)! - **Breaking:** Updated latest chain to Andantino.
+
+- [`a90d48c`](https://github.com/tempoxyz/tempo-ts/commit/a90d48c049c48601ae4aca78334b13b3ebb2ea85) Thanks [@jxom](https://github.com/jxom)! - Added `token.getRoleAdmin`
+
+- [#42](https://github.com/tempoxyz/tempo-ts/pull/42) [`74ed4a7`](https://github.com/tempoxyz/tempo-ts/commit/74ed4a74cc43febca597f681d0b595b242f8d619) Thanks [@gorried](https://github.com/gorried)! - Updated `chain.id` for Andantino.
+
 ## 0.1.5
 
 ### Patch Changes
@@ -56,7 +186,6 @@
 - [#4](https://github.com/tempoxyz/tempo-ts/pull/4) [`528aa00`](https://github.com/tempoxyz/tempo-ts/commit/528aa0019876bf166724378de877a7acfd4a3013) Thanks [@jxom](https://github.com/jxom)! - `tempo.ts/ox`: Added `TransactionEnvelopeAA` and `SignatureEnvelope`.
 
 - [#4](https://github.com/tempoxyz/tempo-ts/pull/4) [`528aa00`](https://github.com/tempoxyz/tempo-ts/commit/528aa0019876bf166724378de877a7acfd4a3013) Thanks [@jxom](https://github.com/jxom)! - Added **Stablecoin Exchange** actions:
-
   - `dex.buy`
   - `dex.buySync`
   - `dex.cancel`
@@ -84,7 +213,6 @@
 - [#4](https://github.com/tempoxyz/tempo-ts/pull/4) [`528aa00`](https://github.com/tempoxyz/tempo-ts/commit/528aa0019876bf166724378de877a7acfd4a3013) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed support for deprecated `tempoLento` chain. Update to use `tempoAndante` instead.
 
 - [#4](https://github.com/tempoxyz/tempo-ts/pull/4) [`528aa00`](https://github.com/tempoxyz/tempo-ts/commit/528aa0019876bf166724378de877a7acfd4a3013) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Refactored structure to use PascalCased namespaces to future-proof against naming conflicts, excessive imports, and future versions of Viem.
-
   - Renamed `actions` import to `Actions`.
 
   ```diff
