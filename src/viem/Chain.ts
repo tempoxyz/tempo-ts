@@ -62,5 +62,16 @@ export function define<chain extends viem_Chain>(chain: chain) {
 }
 
 export declare namespace define {
-  type Properties = { feeToken?: TokenId.TokenIdOrAddress | null | undefined }
+  type Properties = {
+    /**
+     * Fee token to set for mutable actions.
+     *
+     * Pass `null` to opt-in to protocol preferences.
+     *
+     * @example '0x20c0000000000000000000000000000000000001'
+     * @example 1n
+     * @example null
+     */
+    feeToken?: TokenId.TokenIdOrAddress | null | undefined
+  }
 }
