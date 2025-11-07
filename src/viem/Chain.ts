@@ -54,8 +54,9 @@ export function define<chain extends viem_Chain>(chain: chain) {
   }
 
   return Object.assign(
-    <properties extends define.Properties>(properties: properties) =>
-      inner({ ...chain, ...properties }),
+    <properties extends define.Properties | undefined>(
+      properties: properties = {} as properties,
+    ) => inner({ ...chain, ...properties }),
     { id: chain.id },
   )
 }
