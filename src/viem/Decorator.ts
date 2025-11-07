@@ -16,9 +16,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo({ feeToken: '0x20c...001' }),
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const pool = await client.amm.getPool({
      *   userToken: '0x...',
@@ -37,9 +42,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const poolId = await client.amm.getPoolId({
      *   userToken: '0x...',
@@ -63,12 +73,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.amm.rebalanceSwap({
      *   userToken: '0x...',
@@ -89,12 +103,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.amm.rebalanceSwapSync({
      *   userToken: '0x...',
@@ -115,12 +133,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.amm.mint({
      *   userToken: {
@@ -146,12 +168,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.amm.mintSync({
      *   userToken: {
@@ -177,12 +203,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.amm.burn({
      *   userToken: '0x...',
@@ -203,12 +233,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.amm.burnSync({
      *   userToken: '0x...',
@@ -229,9 +263,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.amm.watchRebalanceSwap({
      *   onRebalanceSwap: (args, log) => {
@@ -251,9 +290,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.amm.watchFeeSwap({
      *   onFeeSwap: (args, log) => {
@@ -271,9 +315,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.amm.watchMint({
      *   onMint: (args, log) => {
@@ -291,9 +340,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.amm.watchBurn({
      *   onBurn: (args, log) => {
@@ -313,12 +367,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.dex.buy({
      *   tokenIn: '0x20c...11',
@@ -339,12 +397,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.dex.buySync({
      *   tokenIn: '0x20c...11',
@@ -365,12 +427,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.dex.cancel({
      *   orderId: 123n,
@@ -388,12 +454,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.dex.cancelSync({
      *   orderId: 123n,
@@ -411,12 +481,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.dex.createPair({
      *   base: '0x20c...11',
@@ -434,12 +508,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.dex.createPairSync({
      *   base: '0x20c...11',
@@ -457,9 +535,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const balance = await client.dex.getBalance({
      *   account: '0x...',
@@ -478,9 +561,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const amountIn = await client.dex.getBuyQuote({
      *   tokenIn: '0x20c...11',
@@ -500,9 +588,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const order = await client.dex.getOrder({
      *   orderId: 123n,
@@ -520,9 +613,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const { orders, nextCursor } = await client.dex.getOrders({
      *   limit: 100,
@@ -544,9 +642,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient, Tick } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions, Tick } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const level = await client.dex.getPriceLevel({
      *   base: '0x20c...11',
@@ -566,9 +669,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const amountOut = await client.dex.getSellQuote({
      *   tokenIn: '0x20c...11',
@@ -588,12 +696,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient, Tick } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions, Tick } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.dex.place({
      *   token: '0x20c...11',
@@ -614,12 +726,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient, Tick } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions, Tick } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.dex.placeSync({
      *   token: '0x20c...11',
@@ -640,12 +756,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient, Tick } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions, Tick } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.dex.placeFlip({
      *   token: '0x20c...11',
@@ -667,12 +787,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient, Tick } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions, Tick } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.dex.placeFlipSync({
      *   token: '0x20c...11',
@@ -694,12 +818,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.dex.sell({
      *   tokenIn: '0x20c...11',
@@ -720,12 +848,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.dex.sellSync({
      *   tokenIn: '0x20c...11',
@@ -746,12 +878,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.dex.withdraw({
      *   token: '0x20c...11',
@@ -770,12 +906,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.dex.withdrawSync({
      *   token: '0x20c...11',
@@ -794,9 +934,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.dex.watchFlipOrderPlaced({
      *   onFlipOrderPlaced: (args, log) => {
@@ -816,9 +961,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.dex.watchOrderCancelled({
      *   onOrderCancelled: (args, log) => {
@@ -838,9 +988,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.dex.watchOrderFilled({
      *   onOrderFilled: (args, log) => {
@@ -860,9 +1015,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.dex.watchOrderPlaced({
      *   onOrderPlaced: (args, log) => {
@@ -884,12 +1044,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const { address, id } = await client.token.getUserToken()
      * ```
@@ -908,12 +1072,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.token.setUserToken({
      *   token: '0x...',
@@ -932,12 +1100,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.fee.setUserTokenSync({
      *   token: '0x...',
@@ -955,9 +1127,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.token.watchSetUserToken({
      *   onUserTokenSet: (args, log) => {
@@ -980,12 +1157,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.policy.create({
      *   admin: '0x...',
@@ -1004,12 +1185,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.policy.createSync({
      *   admin: '0x...',
@@ -1028,12 +1213,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.policy.setAdmin({
      *   policyId: 2n,
@@ -1052,12 +1241,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.policy.setAdminSync({
      *   policyId: 2n,
@@ -1076,12 +1269,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.policy.modifyWhitelist({
      *   policyId: 2n,
@@ -1101,12 +1298,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.policy.modifyWhitelistSync({
      *   policyId: 2n,
@@ -1126,12 +1327,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.policy.modifyBlacklist({
      *   policyId: 2n,
@@ -1151,12 +1356,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.policy.modifyBlacklistSync({
      *   policyId: 2n,
@@ -1176,9 +1385,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const data = await client.policy.getData({
      *   policyId: 2n,
@@ -1196,9 +1410,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const authorized = await client.policy.isAuthorized({
      *   policyId: 2n,
@@ -1217,9 +1436,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.policy.watchCreate({
      *   onPolicyCreated: (args, log) => {
@@ -1239,9 +1463,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.policy.watchAdminUpdated({
      *   onAdminUpdated: (args, log) => {
@@ -1261,9 +1490,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.policy.watchWhitelistUpdated({
      *   onWhitelistUpdated: (args, log) => {
@@ -1283,9 +1517,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.policy.watchBlacklistUpdated({
      *   onBlacklistUpdated: (args, log) => {
@@ -1307,12 +1546,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.reward.cancel({
      *   id: 1n,
@@ -1331,12 +1574,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.reward.cancelSync({
      *   id: 1n,
@@ -1355,9 +1602,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const stream = await client.reward.getStream({
      *   id: 1n,
@@ -1376,9 +1628,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const rate = await client.reward.getTotalPerSecond({
      *   token: '0x20c0000000000000000000000000000000000001',
@@ -1396,12 +1653,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.reward.setRecipient({
      *   recipient: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
@@ -1420,12 +1681,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.reward.setRecipientSync({
      *   recipient: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
@@ -1444,12 +1709,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.reward.start({
      *   amount: 100000000000000000000n,
@@ -1469,12 +1738,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.reward.startSync({
      *   amount: 100000000000000000000n,
@@ -1496,12 +1769,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.token.approve({
      *   spender: '0x...',
@@ -1521,12 +1798,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.token.approveSync({
      *   spender: '0x...',
@@ -1546,12 +1827,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.token.burnBlocked({
      *   from: '0x...',
@@ -1572,12 +1857,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.token.burnBlockedSync({
      *   from: '0x...',
@@ -1598,12 +1887,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.token.burn({
      *   amount: 100n,
@@ -1623,12 +1916,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.token.burnSync({
      *   amount: 100n,
@@ -1648,12 +1945,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.token.changeTransferPolicy({
      *   token: '0x...',
@@ -1673,12 +1974,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.token.changeTransferPolicySync({
      *   token: '0x...',
@@ -1701,12 +2006,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const { hash, id, address } = await client.token.create({
      *   name: 'My Token',
@@ -1727,12 +2036,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.token.createSync({
      *   name: 'My Token',
@@ -1753,12 +2066,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const allowance = await client.token.getAllowance({
      *   spender: '0x...',
@@ -1777,12 +2094,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const balance = await client.token.getBalance()
      * ```
@@ -1799,9 +2120,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const metadata = await client.token.getMetadata({
      *   token: '0x...',
@@ -1820,9 +2146,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const adminRole = await client.token.getRoleAdmin({
      *   role: 'minter',
@@ -1842,12 +2173,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hasRole = await client.token.hasRole({
      *   token: '0x...',
@@ -1867,12 +2202,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.token.grantRoles({
      *   token: '0x...',
@@ -1893,16 +2232,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { http } from 'viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
+     * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
      *   chain: tempo,
      *   transport: http(),
-     * })
+     * }).extend(tempoActions())
      *
      * const result = await client.token.grantRolesSync({
      *   token: '0x...',
@@ -1922,12 +2261,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.token.mint({
      *   to: '0x...',
@@ -1948,12 +2291,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.token.mintSync({
      *   to: '0x...',
@@ -1974,12 +2321,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.token.pause({
      *   token: '0x...',
@@ -1998,12 +2349,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.token.pauseSync({
      *   token: '0x...',
@@ -2022,12 +2377,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.token.renounceRoles({
      *   token: '0x...',
@@ -2047,16 +2406,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { http } from 'viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
+     * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
      *   chain: tempo,
      *   transport: http(),
-     * })
+     * }).extend(tempoActions())
      *
      * const result = await client.token.renounceRolesSync({
      *   token: '0x...',
@@ -2075,12 +2434,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.token.revokeRoles({
      *   token: '0x...',
@@ -2101,16 +2464,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { http } from 'viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
+     * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
      *   chain: tempo,
      *   transport: http(),
-     * })
+     * }).extend(tempoActions())
      *
      * const result = await client.token.revokeRolesSync({
      *   token: '0x...',
@@ -2130,12 +2493,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.token.setSupplyCap({
      *   token: '0x...',
@@ -2155,12 +2522,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.token.setSupplyCapSync({
      *   token: '0x...',
@@ -2180,12 +2551,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.token.setRoleAdmin({
      *   token: '0x...',
@@ -2206,12 +2581,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.token.setRoleAdminSync({
      *   token: '0x...',
@@ -2232,12 +2611,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.token.transfer({
      *   to: '0x...',
@@ -2257,12 +2640,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.token.transferSync({
      *   to: '0x...',
@@ -2282,12 +2669,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const hash = await client.token.unpause({
      *   token: '0x...',
@@ -2306,12 +2697,16 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient({
-     *   account: privateKeyToAccount('0x...')
-     * })
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const result = await client.token.unpauseSync({
      *   token: '0x...',
@@ -2330,9 +2725,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.token.watchApprove({
      *   onApproval: (args, log) => {
@@ -2353,9 +2753,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.token.watchBurn({
      *   onBurn: (args, log) => {
@@ -2374,9 +2779,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.token.watchCreate({
      *   onTokenCreated: (args, log) => {
@@ -2395,9 +2805,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.token.watchMint({
      *   onMint: (args, log) => {
@@ -2416,9 +2831,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.token.watchAdminRole({
      *   onRoleAdminUpdated: (args, log) => {
@@ -2439,9 +2859,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.token.watchRole({
      *   onRoleUpdated: (args, log) => {
@@ -2460,9 +2885,14 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { createTempoClient } from 'tempo.ts/viem'
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
      *
-     * const client = createTempoClient()
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
      *
      * const unwatch = client.token.watchTransfer({
      *   onTransfer: (args, log) => {
