@@ -36,7 +36,7 @@ import { createClient, http, publicActions, walletActions } from 'viem';
 import { tempo } from 'tempo.ts/chains';
 
 const client = createClient({
-  chain: tempo,
+  chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
   transport: http(),
 })
   .extend(publicActions)
@@ -47,7 +47,6 @@ const hash = await client.sendTransaction({
     { data: '0x...', to: '0x...' },
     { data: '0x...', to: '0x...' },
   ],
-  feeToken: '0x20c0000000000000000000000000000000000000',
 });
 
 const transaction = await client.getTransaction({ hash });
@@ -61,7 +60,7 @@ import { tempo } from 'tempo.ts/chains';
 import { Actions, Hooks, webauthn } from 'tempo.ts/wagmi';
 
 export const config = createConfig({
-  chains: [tempo],
+  chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
   connectors: [webAuthn()],
   transports: {
     [tempo.id]: http(),
