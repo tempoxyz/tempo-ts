@@ -17,7 +17,10 @@ const alphaUsd = '0x20c0000000000000000000000000000000000001'
 
 export function App() {
   const account = useAccount()
-  const balance = Hooks.token.useGetBalance({ account: account?.address })
+  const balance = Hooks.token.useGetBalance({
+    account: account?.address,
+    token: alphaUsd,
+  })
 
   return (
     <div>
@@ -32,10 +35,10 @@ export function App() {
           {(balance.data ?? 0n) > 0n && (
             <>
               <h2>Send USD</h2>
-              <Transfer />
+              <Transfer onSuccess={() => balance.refetch()} />
 
               <h2>Create Token</h2>
-              <CreateToken />
+              <CreateToken onSuccess={() => balance.refetch()} />
             </>
           )}
         </>
@@ -77,7 +80,7 @@ function Connect() {
   return (
     <>
       {connectors.map((connector) => (
-        <>
+        <div key={connector.id}>
           <h4>{connector.name}</h4>
           <button
             onClick={async () => {
@@ -102,7 +105,7 @@ function Connect() {
           >
             Log in
           </button>
-        </>
+        </div>
       ))}
       {connect.error && <div>Error: {connect.error.message}</div>}
     </>
@@ -113,8 +116,10 @@ function Balance() {
   const account = useAccount()
   const client = useClient()
 
-  const balance = Hooks.token.useGetBalance({ account: account?.address })
-
+  const balance = Hooks.token.useGetBalance({
+    account: account?.address,
+    token: alphaUsd,
+  })
   const fundAccount = useMutation({
     async mutationFn() {
       if (!account.address) throw new Error('account.address not found')
@@ -153,8 +158,12 @@ function Balance() {
   )
 }
 
-function Transfer() {
-  const transfer = Hooks.token.useTransferSync()
+function Transfer(props: { onSuccess: () => void }) {
+  const transfer = Hooks.token.useTransferSync({
+    mutation: {
+      onSuccess: props.onSuccess,
+    },
+  })
 
   return (
     <form
@@ -163,7 +172,11 @@ function Transfer() {
         const formData = new FormData(event.target as HTMLFormElement)
         const to = formData.get('to') as `0x${string}`
         const amount = formData.get('amount') as string
-        transfer.mutate({ amount: parseUnits(amount, 6), to, token: alphaUsd })
+        transfer.mutate({
+          amount: parseUnits(amount, 6),
+          to,
+          token: alphaUsd,
+        })
       }}
     >
       <div>
@@ -172,6 +185,8 @@ function Transfer() {
           name="to"
           placeholder="To"
           style={{ width: '320px' }}
+          required
+          data-1p-ignore
         />
       </div>
       <div>
@@ -195,8 +210,12 @@ function Transfer() {
   )
 }
 
-function CreateToken() {
-  const create = Hooks.token.useCreateSync()
+function CreateToken(props: { onSuccess: () => void }) {
+  const create = Hooks.token.useCreateSync({
+    mutation: {
+      onSuccess: props.onSuccess,
+    },
+  })
 
   return (
     <form
@@ -206,24 +225,38 @@ function CreateToken() {
         const name = formData.get('name') as string
         const symbol = formData.get('symbol') as string
         create.mutate({
+          currency: 'USD',
           name,
           symbol,
-          currency: 'USD',
         })
       }}
     >
       <div>
-        <input type="text" name="name" placeholder="Name" />
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          required
+          data-1p-ignore
+        />
       </div>
       <div>
-        <input type="text" name="symbol" placeholder="Symbol" />
+        <input
+          type="text"
+          name="symbol"
+          placeholder="Symbol"
+          required
+          data-1p-ignore
+        />
       </div>
       <div>
         <button type="submit" disabled={create.isPending}>
           {create.isPending ? 'Creating...' : 'Create'}
         </button>
       </div>
-      {create.isError && <div>Error: {create.error?.message}</div>}
+      {create.isError && (
+        <div style={{ color: 'red' }}>Error: {create.error?.message}</div>
+      )}
       {create.isSuccess && (
         <>
           <div>Token created successfully!</div>

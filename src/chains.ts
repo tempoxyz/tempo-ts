@@ -22,7 +22,9 @@ export const tempoDev = /*#__PURE__*/ Chain.define({
     decimals: 6,
   },
   rpcUrls: {
-    default: { http: ['https://tempo-devnet.ithaca.xyz'] },
+    default: {
+      http: ['https://devnet.tempoxyz.dev'],
+    },
   },
 })
 

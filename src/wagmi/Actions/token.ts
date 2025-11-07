@@ -842,7 +842,7 @@ export namespace getBalance {
       queryKey: queryKey(rest),
       async queryFn({ queryKey }) {
         const [, parameters] = queryKey
-        return await getBalance(config, parameters)
+        return (await getBalance(config, parameters)) ?? null
       },
     }
   }
