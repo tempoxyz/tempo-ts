@@ -1,18 +1,17 @@
 import type { FixedArray } from '@wagmi/core/internal'
-import { Actions, Addresses, Tick } from 'tempo.ts/viem'
+import { Actions, Addresses, Chain, Tick } from 'tempo.ts/viem'
 import {
   type Account,
-  type Chain,
   type Client,
-  defineChain,
+  createClient,
+  http,
   type LocalAccount,
   parseUnits,
   type Transport,
 } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
 import { sendTransactionSync } from 'viem/actions'
-import { tempoLocal } from '../../src/chains.js'
-import { createTempoClient } from '../../src/viem/Client.js'
+import type { TokenIdOrAddress } from '../../src/ox/TokenId.js'
 
 export const accounts = Array.from({ length: 20 }, (_, i) =>
   mnemonicToAccount(
@@ -23,6 +22,10 @@ export const accounts = Array.from({ length: 20 }, (_, i) =>
   ),
 ) as unknown as FixedArray<LocalAccount, 20>
 
+export const addresses = {
+  alphaUsd: '0x20c0000000000000000000000000000000000001',
+} as const
+
 export const id =
   (typeof process !== 'undefined' &&
     Number(process.env.VITEST_POOL_ID ?? 1) +
@@ -31,8 +34,14 @@ export const id =
 
 export const rpcUrl = `http://localhost:8545/${id}`
 
-export const tempoTest = defineChain({
-  ...tempoLocal,
+export const tempoTest = Chain.define({
+  id: 1337,
+  name: 'Tempo',
+  nativeCurrency: {
+    name: 'USD',
+    symbol: 'USD',
+    decimals: 6,
+  },
   rpcUrls: {
     default: {
       http: [rpcUrl],
@@ -40,14 +49,15 @@ export const tempoTest = defineChain({
   },
 })
 
-export const client = createTempoClient({
+export const client = createClient({
   account: accounts[0],
-  chain: tempoTest,
+  chain: tempoTest({ feeToken: 1n }),
   pollingInterval: 100,
+  transport: http(),
 })
 
 export async function setupToken(
-  client: Client<Transport, Chain, Account>,
+  client: Client<Transport, Chain.Chain<TokenIdOrAddress>, Account>,
   parameters: Partial<
     Awaited<ReturnType<typeof Actions.token.createSync>>
   > = {},
@@ -75,7 +85,7 @@ export async function setupToken(
 }
 
 export async function setupPoolWithLiquidity(
-  client: Client<Transport, Chain, Account>,
+  client: Client<Transport, Chain.Chain<TokenIdOrAddress>, Account>,
 ) {
   // Create a new token for testing
   const { token } = await Actions.token.createSync(client, {
@@ -105,7 +115,7 @@ export async function setupPoolWithLiquidity(
       amount: parseUnits('100', 6),
     },
     validatorToken: {
-      address: Addresses.defaultFeeToken,
+      address: addresses.alphaUsd,
       amount: parseUnits('100', 6),
     },
     to: client.account.address,
@@ -115,7 +125,7 @@ export async function setupPoolWithLiquidity(
 }
 
 export async function setupTokenPair(
-  client: Client<Transport, Chain, Account>,
+  client: Client<Transport, Chain.Chain<TokenIdOrAddress>, Account>,
 ) {
   // Create quote token
   const { token: quoteToken } = await Actions.token.createSync(client, {
@@ -161,6 +171,7 @@ export async function setupTokenPair(
   })
 
   // Approve DEX to spend base tokens
+  client.chain.feeToken
   await Actions.token.approveSync(client, {
     token: baseToken,
     spender: Addresses.stablecoinExchange,
@@ -180,7 +191,9 @@ export async function setupTokenPair(
   })
 }
 
-export async function setupOrders(client: Client<Transport, Chain, Account>) {
+export async function setupOrders(
+  client: Client<Transport, Chain.Chain<TokenIdOrAddress>, Account>,
+) {
   const { base: base1 } = await setupTokenPair(client)
   const { base: base2 } = await setupTokenPair(client)
 

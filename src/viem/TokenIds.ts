@@ -1,2 +1,1 @@
-export const defaultFeeToken = 1n
-export const defaultQuoteToken = 0n
+export const linkingUsd = 0n

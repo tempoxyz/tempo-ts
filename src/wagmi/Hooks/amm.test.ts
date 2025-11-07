@@ -1,9 +1,12 @@
 import { getConnectorClient } from '@wagmi/core'
-import { Addresses } from 'tempo.ts/viem'
 import { type Address, parseUnits } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
-import { accounts, setupPoolWithLiquidity } from '../../../test/viem/config.js'
+import {
+  accounts,
+  addresses,
+  setupPoolWithLiquidity,
+} from '../../../test/viem/config.js'
 import { config, renderHook } from '../../../test/wagmi/config.js'
 import * as hooks from './amm.js'
 import * as tokenHooks from './token.js'
@@ -14,7 +17,7 @@ describe('usePool', () => {
   test('default', async () => {
     const { result } = await renderHook(() =>
       hooks.usePool({
-        userToken: Addresses.defaultFeeToken,
+        userToken: addresses.alphaUsd,
         validatorToken: '0x20c0000000000000000000000000000000000001',
       }),
     )
@@ -51,7 +54,7 @@ describe('usePool', () => {
     expect(result.current.isEnabled).toBe(false)
 
     // Set tokens
-    userToken = Addresses.defaultFeeToken
+    userToken = addresses.alphaUsd
     validatorToken = '0x20c0000000000000000000000000000000000001'
     rerender()
 
@@ -68,7 +71,7 @@ describe('useLiquidityBalance', () => {
     const { result } = await renderHook(() =>
       hooks.useLiquidityBalance({
         address: account.address,
-        userToken: Addresses.defaultFeeToken,
+        userToken: addresses.alphaUsd,
         validatorToken: '0x20c0000000000000000000000000000000000001',
       }),
     )
@@ -101,7 +104,7 @@ describe('useLiquidityBalance', () => {
     expect(result.current.isEnabled).toBe(false)
 
     // Set parameters
-    userToken = Addresses.defaultFeeToken
+    userToken = addresses.alphaUsd
     validatorToken = '0x20c0000000000000000000000000000000000001'
     address = account.address
     rerender()
@@ -156,7 +159,7 @@ describe('useMintSync', () => {
         amount: parseUnits('100', 6),
       },
       validatorToken: {
-        address: Addresses.defaultFeeToken,
+        address: addresses.alphaUsd,
         amount: parseUnits('100', 6),
       },
       to: account.address,
@@ -191,7 +194,7 @@ describe('useBurnSync', () => {
     const { result: balanceResult } = await renderHook(() =>
       result.current.getLiquidityBalance({
         userToken: tokenAddress,
-        validatorToken: Addresses.defaultFeeToken,
+        validatorToken: addresses.alphaUsd,
         address: account.address,
       }),
     )
@@ -203,7 +206,7 @@ describe('useBurnSync', () => {
     // Burn half of LP tokens
     const data = await result.current.burnSync.mutateAsync({
       userToken: tokenAddress,
-      validatorToken: Addresses.defaultFeeToken,
+      validatorToken: addresses.alphaUsd,
       liquidity: lpBalanceBefore / 2n,
       to: account.address,
     })
@@ -236,7 +239,7 @@ describe('useRebalanceSwapSync', () => {
     // Perform rebalance swap
     const data = await result.current.rebalanceSwapSync.mutateAsync({
       userToken: tokenAddress,
-      validatorToken: Addresses.defaultFeeToken,
+      validatorToken: addresses.alphaUsd,
       amountOut: parseUnits('10', 6),
       to: account2.address,
     })
@@ -279,7 +282,7 @@ describe('useWatchRebalanceSwap', () => {
     // Perform rebalance swap
     await connectResult.current.rebalanceSwapSync.mutateAsync({
       userToken: tokenAddress,
-      validatorToken: Addresses.defaultFeeToken,
+      validatorToken: addresses.alphaUsd,
       amountOut: parseUnits('10', 6),
       to: account2.address,
     })
@@ -289,7 +292,7 @@ describe('useWatchRebalanceSwap', () => {
     expect(events.length).toBeGreaterThanOrEqual(1)
     expect(events[0]?.userToken.toLowerCase()).toBe(tokenAddress.toLowerCase())
     expect(events[0]?.validatorToken.toLowerCase()).toBe(
-      Addresses.defaultFeeToken.toLowerCase(),
+      addresses.alphaUsd.toLowerCase(),
     )
     expect(events[0]?.amountOut).toBe(parseUnits('10', 6))
   })
@@ -346,7 +349,7 @@ describe('useWatchMint', () => {
         amount: parseUnits('100', 6),
       },
       validatorToken: {
-        address: Addresses.defaultFeeToken,
+        address: addresses.alphaUsd,
         amount: parseUnits('100', 6),
       },
       to: account.address,
@@ -357,7 +360,7 @@ describe('useWatchMint', () => {
     expect(events.length).toBeGreaterThanOrEqual(1)
     expect(events[0]?.userToken.address.toLowerCase()).toBe(token.toLowerCase())
     expect(events[0]?.validatorToken.address.toLowerCase()).toBe(
-      Addresses.defaultFeeToken.toLowerCase(),
+      addresses.alphaUsd.toLowerCase(),
     )
     expect(events[0]?.userToken.amount).toBe(parseUnits('100', 6))
     expect(events[0]?.validatorToken.amount).toBe(parseUnits('100', 6))
@@ -383,7 +386,7 @@ describe('useWatchBurn', () => {
     const { result: balanceResult } = await renderHook(() =>
       connectResult.current.getLiquidityBalance({
         userToken: tokenAddress,
-        validatorToken: Addresses.defaultFeeToken,
+        validatorToken: addresses.alphaUsd,
         address: account.address,
       }),
     )
@@ -404,7 +407,7 @@ describe('useWatchBurn', () => {
     // Burn LP tokens
     await connectResult.current.burnSync.mutateAsync({
       userToken: tokenAddress,
-      validatorToken: Addresses.defaultFeeToken,
+      validatorToken: addresses.alphaUsd,
       liquidity: lpBalance / 2n,
       to: account.address,
     })
@@ -414,7 +417,7 @@ describe('useWatchBurn', () => {
     expect(events.length).toBeGreaterThanOrEqual(1)
     expect(events[0]?.userToken.toLowerCase()).toBe(tokenAddress.toLowerCase())
     expect(events[0]?.validatorToken.toLowerCase()).toBe(
-      Addresses.defaultFeeToken.toLowerCase(),
+      addresses.alphaUsd.toLowerCase(),
     )
     expect(events[0]?.liquidity).toBe(lpBalance / 2n)
   })

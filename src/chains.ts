@@ -1,9 +1,7 @@
-import { defineChain } from 'viem'
 import * as Chain from './viem/Chain.js'
 
-export const tempoAndantino = /*#__PURE__*/ defineChain({
-  ...Chain.config,
-  id: 42427,
+export const tempoAndantino = /*#__PURE__*/ Chain.define({
+  id: 42429,
   name: 'Tempo Andantino',
   nativeCurrency: {
     name: 'USD',
@@ -15,9 +13,8 @@ export const tempoAndantino = /*#__PURE__*/ defineChain({
   },
 })
 
-export const tempoDev = /*#__PURE__*/ defineChain({
-  ...Chain.config,
-  id: 42427,
+export const tempoDev = /*#__PURE__*/ Chain.define({
+  id: 42429,
   name: 'Tempo Devnet',
   nativeCurrency: {
     name: 'USD',
@@ -29,8 +26,7 @@ export const tempoDev = /*#__PURE__*/ defineChain({
   },
 })
 
-export const tempoLocal = /*#__PURE__*/ defineChain({
-  ...Chain.config,
+export const tempoLocal = /*#__PURE__*/ Chain.define({
   id: 1337,
   name: 'Tempo',
   nativeCurrency: {
@@ -43,4 +39,4 @@ export const tempoLocal = /*#__PURE__*/ defineChain({
   },
 })
 
-export const tempo = /*#__PURE__*/ defineChain(tempoAndantino)
+export const tempo = /*#__PURE__*/ tempoAndantino

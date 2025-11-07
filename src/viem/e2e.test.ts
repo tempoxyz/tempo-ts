@@ -11,13 +11,18 @@ import {
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest'
-import { accounts, rpcUrl, tempoTest } from '../../test/viem/config.js'
+import {
+  accounts,
+  addresses,
+  rpcUrl,
+  tempoTest,
+} from '../../test/viem/config.js'
 import * as actions from './Actions/index.js'
 import { tempoActions } from './index.js'
 import { withFeePayer } from './Transport.js'
 
 const client = createClient({
-  chain: tempoTest,
+  chain: tempoTest({ feeToken: 1n }),
   transport: http(),
 })
   .extend(publicActions)
@@ -238,6 +243,7 @@ describe('sendTransaction', () => {
       // fund account
       await client.token.transferSync({
         account: accounts[0],
+        token: addresses.alphaUsd,
         to: account.address,
         amount: parseUnits('10000', 6),
       })
@@ -316,6 +322,7 @@ describe('sendTransaction', () => {
       // fund account
       await client.token.transferSync({
         account: accounts[0],
+        token: addresses.alphaUsd,
         to: account.address,
         amount: parseUnits('10000', 6),
       })
@@ -480,6 +487,7 @@ describe('sendTransaction', () => {
       // fund account
       await client.token.transferSync({
         account: accounts[0],
+        token: addresses.alphaUsd,
         to: account.address,
         amount: parseUnits('10000', 6),
       })
@@ -548,6 +556,7 @@ describe('sendTransaction', () => {
       // fund account
       await client.token.transferSync({
         account: accounts[0],
+        token: addresses.alphaUsd,
         to: account.address,
         amount: parseUnits('10000', 6),
       })
@@ -602,6 +611,7 @@ describe('sendTransaction', () => {
       // fund account
       await client.token.transferSync({
         account: accounts[0],
+        token: addresses.alphaUsd,
         to: account.address,
         amount: parseUnits('10000', 6),
       })
@@ -687,6 +697,7 @@ describe('sendTransaction', () => {
       // fund account
       await client.token.transferSync({
         account: accounts[0],
+        token: addresses.alphaUsd,
         to: account.address,
         amount: parseUnits('10000', 6),
       })
@@ -942,7 +953,7 @@ describe('signTransaction', () => {
 
 describe('relay', () => {
   const client = createClient({
-    chain: tempoTest,
+    chain: tempoTest({ feeToken: 1n }),
     transport: withFeePayer(http(), http('http://localhost:3000')),
   })
     .extend(tempoActions())
@@ -959,7 +970,7 @@ describe('relay', () => {
       createRequestListener(async (r) => {
         const client = createClient({
           account: accounts[0],
-          chain: tempoTest,
+          chain: tempoTest({ feeToken: 1n }),
           transport: http(),
         }).extend(walletActions)
 

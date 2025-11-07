@@ -1,8 +1,11 @@
 import { connect, getConnectorClient } from '@wagmi/core'
-import { Addresses } from 'tempo.ts/viem'
 import { parseUnits } from 'viem'
 import { describe, expect, test } from 'vitest'
-import { accounts, setupPoolWithLiquidity } from '../../../test/viem/config.js'
+import {
+  accounts,
+  addresses,
+  setupPoolWithLiquidity,
+} from '../../../test/viem/config.js'
 import { config, queryClient } from '../../../test/wagmi/config.js'
 import * as ammActions from './amm.js'
 import * as tokenActions from './token.js'
@@ -12,7 +15,7 @@ const account = accounts[0]
 describe('getPool', () => {
   test('default', async () => {
     const pool = await ammActions.getPool(config, {
-      userToken: Addresses.defaultFeeToken,
+      userToken: addresses.alphaUsd,
       validatorToken: '0x20c0000000000000000000000000000000000001',
     })
     expect(pool).toMatchInlineSnapshot(`
@@ -27,7 +30,7 @@ describe('getPool', () => {
   describe('queryOptions', () => {
     test('default', async () => {
       const options = ammActions.getPool.queryOptions(config, {
-        userToken: Addresses.defaultFeeToken,
+        userToken: addresses.alphaUsd,
         validatorToken: '0x20c0000000000000000000000000000000000001',
       })
       const pool = await queryClient.fetchQuery(options)
@@ -45,7 +48,7 @@ describe('getPool', () => {
 describe('getLiquidityBalance', () => {
   test('default', async () => {
     const balance = await ammActions.getLiquidityBalance(config, {
-      userToken: Addresses.defaultFeeToken,
+      userToken: addresses.alphaUsd,
       validatorToken: '0x20c0000000000000000000000000000000000001',
       address: account.address,
     })
@@ -55,7 +58,7 @@ describe('getLiquidityBalance', () => {
   describe('queryOptions', () => {
     test('default', async () => {
       const options = ammActions.getLiquidityBalance.queryOptions(config, {
-        userToken: Addresses.defaultFeeToken,
+        userToken: addresses.alphaUsd,
         validatorToken: '0x20c0000000000000000000000000000000000001',
         address: account.address,
       })
@@ -101,7 +104,7 @@ describe('mintSync', () => {
           amount: parseUnits('100', 6),
         },
         validatorToken: {
-          address: Addresses.defaultFeeToken,
+          address: addresses.alphaUsd,
           amount: parseUnits('100', 6),
         },
         to: account.address,
@@ -133,7 +136,7 @@ describe('burnSync', () => {
     // Get LP balance before burn
     const lpBalanceBefore = await ammActions.getLiquidityBalance(config, {
       userToken: tokenAddress,
-      validatorToken: Addresses.defaultFeeToken,
+      validatorToken: addresses.alphaUsd,
       address: account.address,
     })
 
@@ -142,7 +145,7 @@ describe('burnSync', () => {
       config,
       {
         userToken: tokenAddress,
-        validatorToken: Addresses.defaultFeeToken,
+        validatorToken: addresses.alphaUsd,
         liquidity: lpBalanceBefore / 2n,
         to: account.address,
       },
@@ -177,7 +180,7 @@ describe('rebalanceSwapSync', () => {
     const { receipt: swapReceipt, ...swapResult } =
       await ammActions.rebalanceSwapSync(config, {
         userToken: tokenAddress,
-        validatorToken: Addresses.defaultFeeToken,
+        validatorToken: addresses.alphaUsd,
         amountOut: parseUnits('10', 6),
         to: account2.address,
       })

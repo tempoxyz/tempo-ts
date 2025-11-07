@@ -74,7 +74,7 @@ export async function approve<
   client: Client<Transport, chain, account>,
   parameters: approve.Parameters<chain, account>,
 ): Promise<approve.ReturnValue> {
-  const { token = Addresses.defaultFeeToken, ...rest } = parameters
+  const { token, ...rest } = parameters
   return approve.inner(writeContract, client, parameters, { ...rest, token })
 }
 
@@ -89,8 +89,8 @@ export namespace approve {
     amount: bigint
     /** Address of the spender. */
     spender: Address
-    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
-    token?: TokenId.TokenIdOrAddress | undefined
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -150,7 +150,7 @@ export namespace approve {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { spender, amount, token = Addresses.defaultFeeToken } = args
+    const { spender, amount, token } = args
     return defineCall({
       address: TokenId.toAddress(token),
       abi: Abis.tip20,
@@ -203,19 +203,12 @@ export async function approveSync<
   client: Client<Transport, chain, account>,
   parameters: approveSync.Parameters<chain, account>,
 ): Promise<approveSync.ReturnValue> {
-  const {
-    throwOnReceiptRevert = true,
-    token = Addresses.defaultFeeToken,
-    ...rest
-  } = parameters
+  const { throwOnReceiptRevert = true, ...rest } = parameters
   const receipt = await approve.inner(
     writeContractSync,
     client,
     { ...parameters, throwOnReceiptRevert } as never,
-    {
-      ...rest,
-      token,
-    },
+    rest,
   )
   const { args } = approve.extractEvent(receipt.logs)
   return {
@@ -1005,7 +998,7 @@ export namespace create {
       name,
       symbol,
       currency,
-      quoteToken = Addresses.defaultQuoteToken,
+      quoteToken = Addresses.linkingUsd,
       admin,
     } = args
     return defineCall({
@@ -1156,8 +1149,8 @@ export namespace getAllowance {
     account: Address
     /** Address of the spender. */
     spender: Address
-    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
-    token?: TokenId.TokenIdOrAddress | undefined
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
   }
 
   export type ReturnValue = ReadContractReturnType<
@@ -1173,7 +1166,7 @@ export namespace getAllowance {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { account, spender, token = Addresses.defaultFeeToken } = args
+    const { account, spender, token } = args
     return defineCall({
       address: TokenId.toAddress(token),
       abi: Abis.tip20,
@@ -1213,11 +1206,9 @@ export async function getBalance<
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  ...parameters: account extends Account
-    ? [getBalance.Parameters<account>] | []
-    : [getBalance.Parameters<account>]
+  parameters: getBalance.Parameters<account>,
 ): Promise<getBalance.ReturnValue> {
-  const { account = client.account, ...rest } = parameters[0] ?? {}
+  const { account = client.account, ...rest } = parameters
   const address = account ? parseAccount(account).address : undefined
   if (!address) throw new Error('account is required.')
   return readContract(client, {
@@ -1234,8 +1225,8 @@ export namespace getBalance {
   export type Args = {
     /** Account address. */
     account: Address
-    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
-    token?: TokenId.TokenIdOrAddress | undefined
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
   }
 
   export type ReturnValue = ReadContractReturnType<
@@ -1251,7 +1242,7 @@ export namespace getBalance {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { account, token = Addresses.defaultFeeToken } = args
+    const { account, token } = args
     return defineCall({
       address: TokenId.toAddress(token),
       abi: Abis.tip20,
@@ -1288,13 +1279,13 @@ export namespace getBalance {
  */
 export async function getMetadata<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  parameters: getMetadata.Parameters = {},
+  parameters: getMetadata.Parameters,
 ): Promise<getMetadata.ReturnValue> {
-  const { token = Addresses.defaultFeeToken, ...rest } = parameters
+  const { token, ...rest } = parameters
   const address = TokenId.toAddress(token)
   const abi = Abis.tip20
 
-  if (TokenId.from(token) === TokenId.fromAddress(Addresses.defaultQuoteToken))
+  if (TokenId.from(token) === TokenId.fromAddress(Addresses.linkingUsd))
     return multicall(client, {
       ...rest,
       contracts: [
@@ -1412,8 +1403,8 @@ export async function getMetadata<chain extends Chain | undefined>(
 
 export declare namespace getMetadata {
   export type Parameters = {
-    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
-    token?: TokenId.TokenIdOrAddress | undefined
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
   }
 
   export type ReturnValue = Compute<{
@@ -3098,8 +3089,8 @@ export namespace transfer {
     from?: Address | undefined
     /** Memo to include in the transfer. */
     memo?: Hex.Hex | undefined
-    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
-    token?: TokenId.TokenIdOrAddress | undefined
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
     /** Address to transfer tokens to. */
     to: Address
   }
@@ -3161,7 +3152,7 @@ export namespace transfer {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { amount, from, memo, token = Addresses.defaultFeeToken, to } = args
+    const { amount, from, memo, token, to } = args
     const callArgs = (() => {
       if (memo && from)
         return {
@@ -3892,7 +3883,7 @@ export function watchApprove<
   client: Client<Transport, chain, account>,
   parameters: watchApprove.Parameters,
 ) {
-  const { onApproval, token = Addresses.defaultFeeToken, ...rest } = parameters
+  const { onApproval, token, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
     address: TokenId.toAddress(token),
@@ -3926,8 +3917,8 @@ export declare namespace watchApprove {
   > & {
     /** Callback to invoke when tokens are approved. */
     onApproval: (args: Args, log: Log) => void
-    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
-    token?: TokenId.TokenIdOrAddress | undefined
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
   }
 }
 
@@ -3960,7 +3951,7 @@ export function watchBurn<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(client: Client<Transport, chain, account>, parameters: watchBurn.Parameters) {
-  const { onBurn, token = Addresses.defaultFeeToken, ...rest } = parameters
+  const { onBurn, token, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
     address: TokenId.toAddress(token),
@@ -3994,8 +3985,8 @@ export declare namespace watchBurn {
   > & {
     /** Callback to invoke when tokens are burned. */
     onBurn: (args: Args, log: Log) => void
-    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
-    token?: TokenId.TokenIdOrAddress | undefined
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
   }
 }
 
@@ -4101,7 +4092,7 @@ export function watchMint<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(client: Client<Transport, chain, account>, parameters: watchMint.Parameters) {
-  const { onMint, token = Addresses.defaultFeeToken, ...rest } = parameters
+  const { onMint, token, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
     address: TokenId.toAddress(token),
@@ -4135,8 +4126,8 @@ export declare namespace watchMint {
   > & {
     /** Callback to invoke when tokens are minted. */
     onMint: (args: Args, log: Log) => void
-    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
-    token?: TokenId.TokenIdOrAddress | undefined
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
   }
 
   export type ReturnValue = WatchContractEventReturnType
@@ -4174,11 +4165,7 @@ export function watchAdminRole<
   client: Client<Transport, chain, account>,
   parameters: watchAdminRole.Parameters,
 ) {
-  const {
-    onRoleAdminUpdated,
-    token = Addresses.defaultFeeToken,
-    ...rest
-  } = parameters
+  const { onRoleAdminUpdated, token, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
     address: TokenId.toAddress(token),
@@ -4212,8 +4199,8 @@ export declare namespace watchAdminRole {
   > & {
     /** Callback to invoke when a role admin is updated. */
     onRoleAdminUpdated: (args: Args, log: Log) => void
-    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
-    token?: TokenId.TokenIdOrAddress | undefined
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
   }
 }
 
@@ -4246,11 +4233,7 @@ export function watchRole<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(client: Client<Transport, chain, account>, parameters: watchRole.Parameters) {
-  const {
-    onRoleUpdated,
-    token = Addresses.defaultFeeToken,
-    ...rest
-  } = parameters
+  const { onRoleUpdated, token, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
     address: TokenId.toAddress(token),
@@ -4294,8 +4277,8 @@ export declare namespace watchRole {
   > & {
     /** Callback to invoke when a role membership is updated. */
     onRoleUpdated: (args: Args, log: Log) => void
-    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
-    token?: TokenId.TokenIdOrAddress | undefined
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
   }
 }
 
@@ -4332,7 +4315,7 @@ export function watchTransfer<
   client: Client<Transport, chain, account>,
   parameters: watchTransfer.Parameters,
 ) {
-  const { onTransfer, token = Addresses.defaultFeeToken, ...rest } = parameters
+  const { onTransfer, token, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
     address: TokenId.toAddress(token),
@@ -4366,8 +4349,8 @@ export declare namespace watchTransfer {
   > & {
     /** Callback to invoke when tokens are transferred. */
     onTransfer: (args: Args, log: Log) => void
-    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
-    token?: TokenId.TokenIdOrAddress | undefined
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
   }
 }
 
@@ -4406,11 +4389,7 @@ export function watchUpdateQuoteToken<
   client: Client<Transport, chain, account>,
   parameters: watchUpdateQuoteToken.Parameters,
 ) {
-  const {
-    onUpdateQuoteToken,
-    token = Addresses.defaultFeeToken,
-    ...rest
-  } = parameters
+  const { onUpdateQuoteToken, token, ...rest } = parameters
   const address = TokenId.toAddress(token)
 
   return watchContractEvent(client, {
@@ -4474,7 +4453,7 @@ export declare namespace watchUpdateQuoteToken {
   > & {
     /** Callback to invoke when a quote token update is proposed or completed. */
     onUpdateQuoteToken: (args: Args, log: Log) => void
-    /** Address or ID of the TIP20 token. @default `Addresses.defaultFeeToken` */
-    token?: TokenId.TokenIdOrAddress | undefined
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
   }
 }

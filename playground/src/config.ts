@@ -7,7 +7,11 @@ export const config = createConfig({
   batch: {
     multicall: false,
   },
-  chains: [import.meta.env.VITE_LOCAL !== 'true' ? tempoDev : tempoLocal],
+  chains: [
+    import.meta.env.VITE_LOCAL !== 'true'
+      ? tempoDev({ feeToken: 1n })
+      : tempoLocal({ feeToken: 1n }),
+  ],
   connectors: [webAuthn(), dangerous_secp256k1()],
   multiInjectedProviderDiscovery: false,
   transports: {

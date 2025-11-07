@@ -899,7 +899,7 @@ export namespace getBalance {
  */
 export function getMetadata<config extends Config>(
   config: config,
-  parameters: getMetadata.Parameters<config> = {},
+  parameters: getMetadata.Parameters<config>,
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })

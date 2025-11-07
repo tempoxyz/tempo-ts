@@ -1160,12 +1160,13 @@ describe('e2e', () => {
       account: privateKeyToAccount(
         '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
       ),
-      chain: tempoLocal,
+      chain: tempoLocal({ feeToken: 1n }),
       transport: http('http://localhost:3000'),
     })
 
     await Actions.token.transferSync(client, {
       amount: parseUnits('10', 6),
+      token: 1n,
       to: address,
     })
 
@@ -1283,12 +1284,13 @@ describe('e2e', () => {
       account: privateKeyToAccount(
         '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
       ),
-      chain: tempoLocal,
+      chain: tempoLocal({ feeToken: 1n }),
       transport: http('http://localhost:3000'),
     })
 
     await Actions.token.transferSync(client, {
       amount: parseUnits('10', 6),
+      token: 1n,
       to: address,
     })
 
@@ -1410,12 +1412,13 @@ describe('e2e', () => {
       account: privateKeyToAccount(
         '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
       ),
-      chain: tempoLocal,
+      chain: tempoLocal({ feeToken: 1n }),
       transport: http('http://localhost:3000'),
     })
 
     await Actions.token.transferSync(client, {
       amount: parseUnits('10', 6),
+      token: 1n,
       to: address,
     })
 

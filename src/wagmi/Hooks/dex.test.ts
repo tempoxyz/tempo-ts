@@ -1,9 +1,9 @@
-import { Addresses, Tick } from 'tempo.ts/viem'
+import { Tick } from 'tempo.ts/viem'
 import { Actions, Hooks } from 'tempo.ts/wagmi'
 import { type Address, isAddress, parseUnits } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
-import { accounts } from '../../../test/viem/config.js'
+import { accounts, addresses } from '../../../test/viem/config.js'
 import {
   config,
   renderHook,
@@ -150,7 +150,7 @@ describe('useCancel', () => {
     await Actions.token.transferSync(config, {
       to: account2.address,
       amount: parseUnits('1', 6),
-      token: Addresses.defaultFeeToken,
+      token: addresses.alphaUsd,
     })
 
     // Use a different account via the connector

@@ -983,7 +983,7 @@ export function useGetMetadata<
   config extends Config = ResolvedRegister['config'],
   selectData = Actions.getMetadata.ReturnValue,
 >(parameters: useGetMetadata.Parameters<config, selectData> = {}) {
-  const { query = {} } = parameters
+  const { query = {}, token } = parameters
 
   const config = useConfig(parameters)
   const chainId = useChainId({ config })
@@ -992,9 +992,11 @@ export function useGetMetadata<
     ...parameters,
     chainId: parameters.chainId ?? chainId,
     query: undefined,
+    token: token as never,
   })
+  const enabled = Boolean(token && (query.enabled ?? true))
 
-  return useQuery({ ...query, ...options })
+  return useQuery({ ...query, ...options, enabled })
 }
 
 export declare namespace useGetMetadata {
@@ -2533,7 +2535,7 @@ export declare namespace usePrepareUpdateQuoteTokenSync {
 export function useWatchAdminRole<
   config extends Config = ResolvedRegister['config'],
 >(parameters: useWatchAdminRole.Parameters<config> = {}) {
-  const { enabled = true, onRoleAdminUpdated, ...rest } = parameters
+  const { enabled = true, onRoleAdminUpdated, token, ...rest } = parameters
 
   const config = useConfig({ config: parameters.config })
   const configChainId = useChainId({ config })
@@ -2542,10 +2544,12 @@ export function useWatchAdminRole<
   useEffect(() => {
     if (!enabled) return
     if (!onRoleAdminUpdated) return
+    if (!token) return
     return Actions.watchAdminRole(config, {
       ...rest,
       chainId,
       onRoleAdminUpdated,
+      token,
     })
   }, [config, enabled, onRoleAdminUpdated, rest])
 }
@@ -2580,7 +2584,7 @@ export declare namespace useWatchAdminRole {
 export function useWatchApprove<
   config extends Config = ResolvedRegister['config'],
 >(parameters: useWatchApprove.Parameters<config> = {}) {
-  const { enabled = true, onApproval, ...rest } = parameters
+  const { enabled = true, onApproval, token, ...rest } = parameters
 
   const config = useConfig({ config: parameters.config })
   const configChainId = useChainId({ config })
@@ -2589,10 +2593,12 @@ export function useWatchApprove<
   useEffect(() => {
     if (!enabled) return
     if (!onApproval) return
+    if (!token) return
     return Actions.watchApprove(config, {
       ...rest,
       chainId,
       onApproval,
+      token,
     })
   }, [config, enabled, onApproval, rest])
 }
@@ -2627,7 +2633,7 @@ export declare namespace useWatchApprove {
 export function useWatchBurn<
   config extends Config = ResolvedRegister['config'],
 >(parameters: useWatchBurn.Parameters<config> = {}) {
-  const { enabled = true, onBurn, ...rest } = parameters
+  const { enabled = true, onBurn, token, ...rest } = parameters
 
   const config = useConfig({ config: parameters.config })
   const configChainId = useChainId({ config })
@@ -2636,12 +2642,14 @@ export function useWatchBurn<
   useEffect(() => {
     if (!enabled) return
     if (!onBurn) return
+    if (!token) return
     return Actions.watchBurn(config, {
       ...rest,
       chainId,
       onBurn,
+      token,
     })
-  }, [config, enabled, onBurn, rest])
+  }, [config, enabled, onBurn, rest, token])
 }
 
 export declare namespace useWatchBurn {
@@ -2721,7 +2729,7 @@ export declare namespace useWatchCreate {
 export function useWatchMint<
   config extends Config = ResolvedRegister['config'],
 >(parameters: useWatchMint.Parameters<config> = {}) {
-  const { enabled = true, onMint, ...rest } = parameters
+  const { enabled = true, onMint, token, ...rest } = parameters
 
   const config = useConfig({ config: parameters.config })
   const configChainId = useChainId({ config })
@@ -2730,12 +2738,14 @@ export function useWatchMint<
   useEffect(() => {
     if (!enabled) return
     if (!onMint) return
+    if (!token) return
     return Actions.watchMint(config, {
       ...rest,
       chainId,
       onMint,
+      token,
     })
-  }, [config, enabled, onMint, rest])
+  }, [config, enabled, onMint, rest, token])
 }
 
 export declare namespace useWatchMint {
@@ -2768,7 +2778,7 @@ export declare namespace useWatchMint {
 export function useWatchRole<
   config extends Config = ResolvedRegister['config'],
 >(parameters: useWatchRole.Parameters<config> = {}) {
-  const { enabled = true, onRoleUpdated, ...rest } = parameters
+  const { enabled = true, onRoleUpdated, token, ...rest } = parameters
 
   const config = useConfig({ config: parameters.config })
   const configChainId = useChainId({ config })
@@ -2777,12 +2787,14 @@ export function useWatchRole<
   useEffect(() => {
     if (!enabled) return
     if (!onRoleUpdated) return
+    if (!token) return
     return Actions.watchRole(config, {
       ...rest,
       chainId,
       onRoleUpdated,
+      token,
     })
-  }, [config, enabled, onRoleUpdated, rest])
+  }, [config, enabled, onRoleUpdated, rest, token])
 }
 
 export declare namespace useWatchRole {
@@ -2815,7 +2827,7 @@ export declare namespace useWatchRole {
 export function useWatchTransfer<
   config extends Config = ResolvedRegister['config'],
 >(parameters: useWatchTransfer.Parameters<config> = {}) {
-  const { enabled = true, onTransfer, ...rest } = parameters
+  const { enabled = true, onTransfer, token, ...rest } = parameters
 
   const config = useConfig({ config: parameters.config })
   const configChainId = useChainId({ config })
@@ -2824,10 +2836,12 @@ export function useWatchTransfer<
   useEffect(() => {
     if (!enabled) return
     if (!onTransfer) return
+    if (!token) return
     return Actions.watchTransfer(config, {
       ...rest,
       chainId,
       onTransfer,
+      token,
     })
   }, [config, enabled, onTransfer, rest])
 }
@@ -2865,7 +2879,7 @@ export declare namespace useWatchTransfer {
 export function useWatchUpdateQuoteToken<
   config extends Config = ResolvedRegister['config'],
 >(parameters: useWatchUpdateQuoteToken.Parameters<config> = {}) {
-  const { enabled = true, onUpdateQuoteToken, ...rest } = parameters
+  const { enabled = true, onUpdateQuoteToken, token, ...rest } = parameters
 
   const config = useConfig({ config: parameters.config })
   const configChainId = useChainId({ config })
@@ -2874,12 +2888,14 @@ export function useWatchUpdateQuoteToken<
   useEffect(() => {
     if (!enabled) return
     if (!onUpdateQuoteToken) return
+    if (!token) return
     return Actions.watchUpdateQuoteToken(config, {
       ...rest,
       chainId,
       onUpdateQuoteToken,
+      token,
     })
-  }, [config, enabled, onUpdateQuoteToken, rest])
+  }, [config, enabled, onUpdateQuoteToken, rest, token])
 }
 
 export declare namespace useWatchUpdateQuoteToken {

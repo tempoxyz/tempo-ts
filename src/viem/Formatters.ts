@@ -2,13 +2,16 @@
 
 import * as Hex from 'ox/Hex'
 import {
+  type Chain,
   type Account as viem_Account,
   formatTransaction as viem_formatTransaction,
   formatTransactionRequest as viem_formatTransactionRequest,
 } from 'viem'
 import { parseAccount } from 'viem/accounts'
+import type { UnionOmit } from '../internal/types.js'
 import * as ox_Transaction from '../ox/Transaction.js'
 import * as ox_TransactionRequest from '../ox/TransactionRequest.js'
+import type { GetFeeTokenParameter } from './internal/types.js'
 import {
   isTempo,
   type Transaction,
@@ -55,11 +58,16 @@ export const formatTransaction = (
   }
 }
 
-export const formatTransactionRequest = (
-  r: TransactionRequest & { account?: viem_Account | undefined },
+type Request<chain extends Chain | undefined> = UnionOmit<
+  TransactionRequest,
+  'feeToken'
+> &
+  GetFeeTokenParameter<chain> & { account?: viem_Account | undefined }
+export const formatTransactionRequest = <chain extends Chain | undefined>(
+  r: Request<chain>,
   action?: string | undefined,
 ): TransactionRequestRpc => {
-  const request = r
+  const request = r as Request<chain>
 
   // Convert EIP-1559 transactions to AA transactions.
   if (request.type === 'eip1559') (request as any).type = 'aa'

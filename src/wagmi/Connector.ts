@@ -1,6 +1,7 @@
 import * as Address from 'ox/Address'
-import { Account, createTempoClient, WebAuthnP256 } from 'tempo.ts/viem'
+import { Account, WebAuthnP256 } from 'tempo.ts/viem'
 import {
+  createClient,
   type EIP1193Provider,
   getAddress,
   type Hex,
@@ -164,7 +165,7 @@ export function dangerous_secp256k1(
       const transport = transports[chain.id]
       if (!transport) throw new ChainNotConfiguredError()
 
-      return createTempoClient({
+      return createClient({
         account,
         chain,
         transport,
@@ -338,7 +339,7 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
       const transport = transports[chain.id]
       if (!transport) throw new ChainNotConfiguredError()
 
-      return createTempoClient({
+      return createClient({
         account,
         chain,
         transport,

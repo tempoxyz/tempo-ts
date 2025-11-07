@@ -1,5 +1,5 @@
 import * as Address from 'ox/Address'
-import { Actions, Addresses, Tick } from 'tempo.ts/viem'
+import { Actions, Tick } from 'tempo.ts/viem'
 import { parseUnits } from 'viem'
 import { beforeAll, describe, expect, test } from 'vitest'
 import {
@@ -142,7 +142,7 @@ describe('cancel', () => {
     await Actions.token.transferSync(client, {
       to: account2.address,
       amount: parseUnits('1', 6),
-      token: Addresses.defaultFeeToken,
+      token: 1n,
     })
 
     // Account2 tries to cancel - should fail

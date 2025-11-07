@@ -1,5 +1,5 @@
 import { setTimeout } from 'node:timers/promises'
-import { Abis, Addresses } from 'tempo.ts/viem'
+import { Abis } from 'tempo.ts/viem'
 import { parseUnits } from 'viem'
 import { writeContractSync } from 'viem/actions'
 import { afterEach, describe, expect, test } from 'vitest'
@@ -19,13 +19,13 @@ describe('getUserToken', () => {
     // Fund accounts
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: '0x20c0000000000000000000000000000000000001',
       functionName: 'transfer',
       args: [account2.address, parseUnits('100', 6)],
     })
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: '0x20c0000000000000000000000000000000000001',
       functionName: 'transfer',
       args: [account3.address, parseUnits('100', 6)],
     })
@@ -144,7 +144,7 @@ describe('watchSetUserToken', async () => {
       // Set token for account2
       await writeContractSync(client, {
         abi: Abis.tip20,
-        address: Addresses.defaultFeeToken,
+        address: '0x20c0000000000000000000000000000000000001',
         functionName: 'transfer',
         args: [account2.address, parseUnits('1', 6)],
       })
@@ -157,7 +157,7 @@ describe('watchSetUserToken', async () => {
       // Set token for account3
       await writeContractSync(client, {
         abi: Abis.tip20,
-        address: Addresses.defaultFeeToken,
+        address: '0x20c0000000000000000000000000000000000001',
         functionName: 'transfer',
         args: [account3.address, parseUnits('1', 6)],
       })
@@ -208,14 +208,14 @@ describe('watchSetUserToken', async () => {
       // Transfer gas to accounts
       await writeContractSync(client, {
         abi: Abis.tip20,
-        address: Addresses.defaultFeeToken,
+        address: '0x20c0000000000000000000000000000000000001',
         functionName: 'transfer',
         args: [account2.address, parseUnits('1', 6)],
       })
 
       await writeContractSync(client, {
         abi: Abis.tip20,
-        address: Addresses.defaultFeeToken,
+        address: '0x20c0000000000000000000000000000000000001',
         functionName: 'transfer',
         args: [account3.address, parseUnits('1', 6)],
       })

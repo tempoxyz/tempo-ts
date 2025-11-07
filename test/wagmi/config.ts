@@ -31,7 +31,7 @@ export const id =
 export const rpcUrl = `http://localhost:4000/${id}`
 
 export const tempoTest = defineChain({
-  ...tempoLocal,
+  ...tempoLocal({ feeToken: 1n }),
   rpcUrls: {
     default: {
       http: [rpcUrl],

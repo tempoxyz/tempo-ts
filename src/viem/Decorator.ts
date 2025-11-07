@@ -1792,9 +1792,7 @@ export type Decorator<
      * @returns The token balance.
      */
     getBalance: (
-      ...parameters: account extends Account
-        ? [tokenActions.getBalance.Parameters<account>] | []
-        : [tokenActions.getBalance.Parameters<account>]
+      parameters: tokenActions.getBalance.Parameters<account>,
     ) => Promise<tokenActions.getBalance.ReturnValue>
     /**
      * Gets TIP20 token metadata including name, symbol, currency, decimals, and total supply.
@@ -2617,7 +2615,6 @@ export function decorator() {
         createSync: (parameters) => tokenActions.createSync(client, parameters),
         getAllowance: (parameters) =>
           tokenActions.getAllowance(client, parameters),
-        // @ts-expect-error
         getBalance: (parameters) => tokenActions.getBalance(client, parameters),
         getMetadata: (parameters) =>
           tokenActions.getMetadata(client, parameters),

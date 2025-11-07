@@ -3,14 +3,7 @@ import { Address } from 'ox'
 import { useState } from 'react'
 import { Actions } from 'tempo.ts/viem'
 import { Hooks } from 'tempo.ts/wagmi'
-import {
-  type Chain,
-  type Client,
-  formatUnits,
-  parseUnits,
-  stringify,
-  type Transport,
-} from 'viem'
+import { formatUnits, parseUnits, stringify } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
 import {
   useAccount,
@@ -19,6 +12,8 @@ import {
   useConnectors,
   useDisconnect,
 } from 'wagmi'
+
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
 
 export function App() {
   const account = useAccount()
@@ -131,12 +126,13 @@ function Balance() {
           params: [account.address],
         })
       } else {
-        await Actions.token.transferSync(client as Client<Transport, Chain>, {
+        await Actions.token.transferSync(client, {
           account: mnemonicToAccount(
             'test test test test test test test test test test test junk',
           ),
           amount: parseUnits('10000', 6),
           to: account.address,
+          token: alphaUsd,
         })
       }
 
@@ -167,7 +163,7 @@ function Transfer() {
         const formData = new FormData(event.target as HTMLFormElement)
         const to = formData.get('to') as `0x${string}`
         const amount = formData.get('amount') as string
-        transfer.mutate({ amount: parseUnits(amount, 6), to })
+        transfer.mutate({ amount: parseUnits(amount, 6), to, token: alphaUsd })
       }}
     >
       <div>

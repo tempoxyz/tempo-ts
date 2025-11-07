@@ -5,7 +5,12 @@ import { Abis, Addresses, TokenIds } from 'tempo.ts/viem'
 import { parseUnits } from 'viem'
 import { getCode, writeContractSync } from 'viem/actions'
 import { beforeAll, describe, expect, test } from 'vitest'
-import { accounts, client, rpcUrl } from '../../../test/viem/config.js'
+import {
+  accounts,
+  addresses,
+  client,
+  rpcUrl,
+} from '../../../test/viem/config.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
@@ -19,6 +24,7 @@ describe('approve', () => {
       const { receipt, ...result } = await actions.token.approveSync(client, {
         spender: account2.address,
         amount: parseUnits('100', 6),
+        token: addresses.alphaUsd,
       })
       expect(receipt).toBeDefined()
       expect(result).toMatchInlineSnapshot(`
@@ -34,6 +40,7 @@ describe('approve', () => {
       // check allowance
       const allowance = await actions.token.getAllowance(client, {
         spender: account2.address,
+        token: addresses.alphaUsd,
       })
       expect(allowance).toBe(parseUnits('100', 6))
     }
@@ -41,7 +48,7 @@ describe('approve', () => {
     // transfer tokens for gas
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -52,12 +59,14 @@ describe('approve', () => {
       account: account2,
       from: account.address,
       to: '0x0000000000000000000000000000000000000001',
+      token: addresses.alphaUsd,
     })
 
     {
       // verify updated allowance
       const allowance = await actions.token.getAllowance(client, {
         spender: account2.address,
+        token: addresses.alphaUsd,
       })
       expect(allowance).toBe(parseUnits('50', 6))
     }
@@ -65,6 +74,7 @@ describe('approve', () => {
     // verify balance
     const balance = await actions.token.getBalance(client, {
       account: '0x0000000000000000000000000000000000000001',
+      token: addresses.alphaUsd,
     })
     expect(balance).toBe(parseUnits('50', 6))
   })
@@ -72,14 +82,14 @@ describe('approve', () => {
   test('behavior: token address', async () => {
     const balanceBefore = await actions.token.getBalance(client, {
       account: '0x0000000000000000000000000000000000000001',
-      token: Addresses.defaultFeeToken,
+      token: addresses.alphaUsd,
     })
 
     {
       // approve
       const { receipt, ...result } = await actions.token.approveSync(client, {
         amount: parseUnits('100', 6),
-        token: Addresses.defaultFeeToken,
+        token: addresses.alphaUsd,
         spender: account2.address,
       })
       expect(receipt).toBeDefined()
@@ -95,7 +105,7 @@ describe('approve', () => {
     {
       // check allowance
       const allowance = await actions.token.getAllowance(client, {
-        token: Addresses.defaultFeeToken,
+        token: addresses.alphaUsd,
         spender: account2.address,
       })
       expect(allowance).toBe(parseUnits('100', 6))
@@ -104,7 +114,7 @@ describe('approve', () => {
     // transfer tokens for gas
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -115,14 +125,14 @@ describe('approve', () => {
       account: account2,
       from: account.address,
       to: '0x0000000000000000000000000000000000000001',
-      token: Addresses.defaultFeeToken,
+      token: addresses.alphaUsd,
     })
 
     {
       // verify updated allowance
       const allowance = await actions.token.getAllowance(client, {
         spender: account2.address,
-        token: Addresses.defaultFeeToken,
+        token: addresses.alphaUsd,
       })
       expect(allowance).toBe(parseUnits('50', 6))
     }
@@ -130,7 +140,7 @@ describe('approve', () => {
     // verify balance
     const balance = await actions.token.getBalance(client, {
       account: '0x0000000000000000000000000000000000000001',
-      token: Addresses.defaultFeeToken,
+      token: addresses.alphaUsd,
     })
     expect(balance).toBe(balanceBefore + parseUnits('50', 6))
   })
@@ -138,14 +148,14 @@ describe('approve', () => {
   test('behavior: token address', async () => {
     const balanceBefore = await actions.token.getBalance(client, {
       account: '0x0000000000000000000000000000000000000001',
-      token: TokenIds.defaultFeeToken,
+      token: addresses.alphaUsd,
     })
 
     {
       // approve
       const { receipt, ...result } = await actions.token.approveSync(client, {
         amount: parseUnits('100', 6),
-        token: TokenIds.defaultFeeToken,
+        token: addresses.alphaUsd,
         spender: account2.address,
       })
       expect(receipt).toBeDefined()
@@ -161,7 +171,7 @@ describe('approve', () => {
     {
       // check allowance
       const allowance = await actions.token.getAllowance(client, {
-        token: TokenIds.defaultFeeToken,
+        token: addresses.alphaUsd,
         spender: account2.address,
       })
       expect(allowance).toBe(parseUnits('100', 6))
@@ -170,7 +180,7 @@ describe('approve', () => {
     // transfer tokens for gas
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -181,14 +191,14 @@ describe('approve', () => {
       account: account2,
       from: account.address,
       to: '0x0000000000000000000000000000000000000001',
-      token: TokenIds.defaultFeeToken,
+      token: addresses.alphaUsd,
     })
 
     {
       // verify updated allowance
       const allowance = await actions.token.getAllowance(client, {
         spender: account2.address,
-        token: TokenIds.defaultFeeToken,
+        token: addresses.alphaUsd,
       })
       expect(allowance).toBe(parseUnits('50', 6))
     }
@@ -196,7 +206,7 @@ describe('approve', () => {
     // verify balance
     const balance = await actions.token.getBalance(client, {
       account: '0x0000000000000000000000000000000000000001',
-      token: TokenIds.defaultFeeToken,
+      token: addresses.alphaUsd,
     })
     expect(balance).toBe(balanceBefore + parseUnits('50', 6))
   })
@@ -236,7 +246,7 @@ describe('getAllowance', () => {
     // First, approve some allowance
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: addresses.alphaUsd,
       functionName: 'approve',
       args: [account2.address, parseUnits('50', 6)],
     })
@@ -245,6 +255,7 @@ describe('getAllowance', () => {
       // Test with default token
       const allowance = await actions.token.getAllowance(client, {
         spender: account2.address,
+        token: addresses.alphaUsd,
       })
       expect(allowance).toBe(parseUnits('50', 6))
     }
@@ -252,7 +263,7 @@ describe('getAllowance', () => {
     {
       // Test with token address
       const allowance = await actions.token.getAllowance(client, {
-        token: Addresses.defaultFeeToken,
+        token: addresses.alphaUsd,
         spender: account2.address,
       })
 
@@ -262,7 +273,7 @@ describe('getAllowance', () => {
     {
       // Test with token ID
       const allowance = await actions.token.getAllowance(client, {
-        token: TokenIds.defaultFeeToken,
+        token: addresses.alphaUsd,
         spender: account2.address,
       })
 
@@ -274,15 +285,9 @@ describe('getAllowance', () => {
 describe('getBalance', () => {
   test('default', async () => {
     {
-      // Test with default token
-      const balance = await actions.token.getBalance(client)
-      expect(balance).toBeGreaterThan(0n)
-    }
-
-    {
       // Test with token address
       const balance = await actions.token.getBalance(client, {
-        token: Addresses.defaultFeeToken,
+        token: addresses.alphaUsd,
       })
 
       expect(balance).toBeGreaterThan(0n)
@@ -291,7 +296,7 @@ describe('getBalance', () => {
     {
       // Test with token ID & different account
       const balance = await actions.token.getBalance(client, {
-        token: TokenIds.defaultFeeToken,
+        token: addresses.alphaUsd,
         account: Hex.random(20),
       })
 
@@ -302,7 +307,9 @@ describe('getBalance', () => {
 
 describe('getMetadata', () => {
   test('default', async () => {
-    const metadata = await actions.token.getMetadata(client)
+    const metadata = await actions.token.getMetadata(client, {
+      token: addresses.alphaUsd,
+    })
 
     expect(metadata).toMatchInlineSnapshot(`
       {
@@ -348,7 +355,7 @@ describe('getMetadata', () => {
   test('behavior: quote token', async () => {
     {
       const metadata = await actions.token.getMetadata(client, {
-        token: TokenIds.defaultQuoteToken,
+        token: TokenIds.linkingUsd,
       })
 
       expect(metadata).toMatchInlineSnapshot(`
@@ -364,7 +371,7 @@ describe('getMetadata', () => {
 
     {
       const metadata = await actions.token.getMetadata(client, {
-        token: Addresses.defaultQuoteToken,
+        token: Addresses.linkingUsd,
       })
 
       expect(metadata).toMatchInlineSnapshot(`
@@ -505,9 +512,11 @@ describe('transfer', () => {
     // Get initial balances
     const senderBalanceBefore = await actions.token.getBalance(client, {
       account: account.address,
+      token: addresses.alphaUsd,
     })
     const receiverBalanceBefore = await actions.token.getBalance(client, {
       account: account2.address,
+      token: addresses.alphaUsd,
     })
 
     // Transfer tokens
@@ -515,6 +524,7 @@ describe('transfer', () => {
       await actions.token.transferSync(client, {
         to: account2.address,
         amount: parseUnits('10', 6),
+        token: addresses.alphaUsd,
       })
     expect(transferReceipt).toBeDefined()
     expect(transferResult).toMatchInlineSnapshot(`
@@ -528,9 +538,11 @@ describe('transfer', () => {
     // Verify balances
     const senderBalanceAfter = await actions.token.getBalance(client, {
       account: account.address,
+      token: addresses.alphaUsd,
     })
     const receiverBalanceAfter = await actions.token.getBalance(client, {
       account: account2.address,
+      token: addresses.alphaUsd,
     })
 
     expect(senderBalanceAfter - senderBalanceBefore).toBeLessThan(
@@ -585,6 +597,7 @@ describe('transfer', () => {
         to: account2.address,
         amount: parseUnits('5', 6),
         memo,
+        token: addresses.alphaUsd,
       })
 
     expect(transferMemoReceipt.status).toBe('success')
@@ -602,12 +615,13 @@ describe('transfer', () => {
     await actions.token.approveSync(client, {
       spender: account2.address,
       amount: parseUnits('50', 6),
+      token: addresses.alphaUsd,
     })
 
     // Transfer tokens for gas
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -615,6 +629,7 @@ describe('transfer', () => {
     // Get initial balance
     const balanceBefore = await actions.token.getBalance(client, {
       account: account3.address,
+      token: addresses.alphaUsd,
     })
 
     // Account2 transfers from account to account3
@@ -623,17 +638,20 @@ describe('transfer', () => {
       from: account.address,
       to: account3.address,
       amount: parseUnits('25', 6),
+      token: addresses.alphaUsd,
     })
 
     // Verify balance
     const balanceAfter = await actions.token.getBalance(client, {
       account: account3.address,
+      token: addresses.alphaUsd,
     })
     expect(balanceAfter - balanceBefore).toBe(parseUnits('25', 6))
 
     // Verify allowance was reduced
     const allowance = await actions.token.getAllowance(client, {
       spender: account2.address,
+      token: addresses.alphaUsd,
     })
     expect(allowance).toBe(parseUnits('25', 6))
   })
@@ -718,14 +736,14 @@ describe('burn', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
 
     await actions.token.mintSync(client, {
       account: account2,
-      feeToken: Addresses.defaultFeeToken,
+      feeToken: addresses.alphaUsd,
       token,
       to: client.account.address,
       amount: parseUnits('100', 6),
@@ -783,7 +801,7 @@ describe('pause', () => {
     // Transfer gas
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -850,14 +868,14 @@ describe('pause', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
 
     await actions.token.pauseSync(client, {
       account: account2,
-      feeToken: Addresses.defaultFeeToken,
+      feeToken: addresses.alphaUsd,
       token,
     })
 
@@ -952,7 +970,7 @@ describe('unpause', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -1037,7 +1055,7 @@ describe('unpause', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -1045,7 +1063,7 @@ describe('unpause', () => {
     // Now account2 should be able to unpause
     await actions.token.unpauseSync(client, {
       account: account2,
-      feeToken: Addresses.defaultFeeToken,
+      feeToken: addresses.alphaUsd,
       token: address,
     })
 
@@ -1081,14 +1099,14 @@ describe('unpause', () => {
     // Transfer gas to both accounts
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
 
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account3.address, parseUnits('1', 6)],
     })
@@ -1096,7 +1114,7 @@ describe('unpause', () => {
     // Account2 can pause
     await actions.token.pauseSync(client, {
       account: account2,
-      feeToken: Addresses.defaultFeeToken,
+      feeToken: addresses.alphaUsd,
       token: address,
     })
 
@@ -1111,7 +1129,7 @@ describe('unpause', () => {
     // Account3 can unpause
     await actions.token.unpauseSync(client, {
       account: account3,
-      feeToken: Addresses.defaultFeeToken,
+      feeToken: addresses.alphaUsd,
       token: address,
     })
 
@@ -1183,7 +1201,7 @@ describe('prepareUpdateQuoteToken', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -1314,7 +1332,7 @@ describe('finalizeUpdateQuoteToken', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -2257,7 +2275,7 @@ describe('watchBurn', () => {
       // Transfer gas to account2
       await writeContractSync(client, {
         abi: Abis.tip20,
-        address: Addresses.defaultFeeToken,
+        address: addresses.alphaUsd,
         functionName: 'transfer',
         args: [account2.address, parseUnits('1', 6)],
       })
@@ -2351,7 +2369,7 @@ describe('watchBurn', () => {
       // Transfer gas to account2
       await writeContractSync(client, {
         abi: Abis.tip20,
-        address: Addresses.defaultFeeToken,
+        address: addresses.alphaUsd,
         functionName: 'transfer',
         args: [account2.address, parseUnits('1', 6)],
       })

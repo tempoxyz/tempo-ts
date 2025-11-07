@@ -1,5 +1,5 @@
 import { setTimeout } from 'node:timers/promises'
-import { Abis, Actions, Addresses } from 'tempo.ts/viem'
+import { Abis, Actions } from 'tempo.ts/viem'
 import { parseUnits } from 'viem'
 import { writeContractSync } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
@@ -15,7 +15,7 @@ const account2 = accounts[1]
 describe('getPool', () => {
   test('default', async () => {
     const pool = await Actions.amm.getPool(client, {
-      userToken: Addresses.defaultFeeToken,
+      userToken: 1n,
       validatorToken: '0x20c0000000000000000000000000000000000001',
     })
     expect(pool).toMatchInlineSnapshot(`
@@ -32,7 +32,7 @@ describe('getLiquidityBalance', () => {
   test('default', async () => {
     const balance = await Actions.amm.getLiquidityBalance(client, {
       address: account.address,
-      userToken: Addresses.defaultFeeToken,
+      userToken: 1n,
       validatorToken: '0x20c0000000000000000000000000000000000001',
     })
     expect(typeof balance).toBe('bigint')
@@ -71,7 +71,7 @@ describe('mint', () => {
           amount: parseUnits('100', 6),
         },
         validatorToken: {
-          address: Addresses.defaultFeeToken,
+          address: 1n,
           amount: parseUnits('100', 6),
         },
         to: account.address,
@@ -92,7 +92,7 @@ describe('mint', () => {
     // Verify pool reserves
     const pool = await Actions.amm.getPool(client, {
       userToken: token,
-      validatorToken: Addresses.defaultFeeToken,
+      validatorToken: 1n,
     })
     expect(pool).toMatchInlineSnapshot(`
       {
@@ -106,7 +106,7 @@ describe('mint', () => {
     const lpBalance = await Actions.amm.getLiquidityBalance(client, {
       address: account.address,
       userToken: token,
-      validatorToken: Addresses.defaultFeeToken,
+      validatorToken: 1n,
     })
     expect(lpBalance).toBeGreaterThan(0n)
   })
@@ -120,7 +120,7 @@ describe('burn', () => {
     const lpBalanceBefore = await Actions.amm.getLiquidityBalance(client, {
       address: account.address,
       userToken: tokenAddress,
-      validatorToken: Addresses.defaultFeeToken,
+      validatorToken: 1n,
     })
 
     // Burn half of LP tokens
@@ -130,7 +130,7 @@ describe('burn', () => {
       ...burnResult
     } = await Actions.amm.burnSync(client, {
       userToken: tokenAddress,
-      validatorToken: Addresses.defaultFeeToken,
+      validatorToken: 1n,
       liquidity: lpBalanceBefore / 2n,
       to: account.address,
     })
@@ -151,7 +151,7 @@ describe('burn', () => {
     const lpBalanceAfter = await Actions.amm.getLiquidityBalance(client, {
       address: account.address,
       userToken: tokenAddress,
-      validatorToken: Addresses.defaultFeeToken,
+      validatorToken: 1n,
     })
     expect(lpBalanceAfter).toBeLessThan(lpBalanceBefore)
     expect(lpBalanceAfter).toBe(lpBalanceBefore / 2n)
@@ -159,7 +159,7 @@ describe('burn', () => {
     // Verify pool reserves decreased
     const pool = await Actions.amm.getPool(client, {
       userToken: tokenAddress,
-      validatorToken: Addresses.defaultFeeToken,
+      validatorToken: 1n,
     })
     expect(pool).toMatchInlineSnapshot(`
       {
@@ -188,7 +188,7 @@ describe('rebalanceSwap', () => {
       ...swapResult
     } = await Actions.amm.rebalanceSwapSync(client, {
       userToken: tokenAddress,
-      validatorToken: Addresses.defaultFeeToken,
+      validatorToken: 1n,
       amountOut: parseUnits('10', 6),
       to: account2.address,
       account: account,
@@ -227,7 +227,7 @@ describe('watchRebalanceSwap', () => {
     // Perform rebalance swap
     await Actions.amm.rebalanceSwapSync(client, {
       userToken: tokenAddress,
-      validatorToken: Addresses.defaultFeeToken,
+      validatorToken: 1n,
       amountOut: parseUnits('10', 6),
       to: account2.address,
       account: account,
@@ -238,7 +238,7 @@ describe('watchRebalanceSwap', () => {
     expect(eventArgs).toBeDefined()
     expect(eventArgs.userToken.toLowerCase()).toBe(tokenAddress.toLowerCase())
     expect(eventArgs.validatorToken.toLowerCase()).toBe(
-      Addresses.defaultFeeToken.toLowerCase(),
+      '0x20c0000000000000000000000000000000000001',
     )
     expect(eventArgs.amountOut).toBe(parseUnits('10', 6))
 
@@ -272,7 +272,7 @@ describe('watchMint', () => {
     // Mint USD to account
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: Addresses.defaultFeeToken,
+      address: '0x20c0000000000000000000000000000000000001',
       functionName: 'transfer',
       args: [account.address, parseUnits('1000', 6)],
     })
@@ -291,7 +291,7 @@ describe('watchMint', () => {
         amount: parseUnits('100', 6),
       },
       validatorToken: {
-        address: Addresses.defaultFeeToken,
+        address: 1n,
         amount: parseUnits('100', 6),
       },
       to: account.address,
@@ -302,7 +302,7 @@ describe('watchMint', () => {
     expect(eventArgs).toBeDefined()
     expect(eventArgs.userToken.address.toLowerCase()).toBe(token.toLowerCase())
     expect(eventArgs.validatorToken.address.toLowerCase()).toBe(
-      Addresses.defaultFeeToken.toLowerCase(),
+      '0x20c0000000000000000000000000000000000001',
     )
     expect(eventArgs.userToken.amount).toBe(parseUnits('100', 6))
     expect(eventArgs.validatorToken.amount).toBe(parseUnits('100', 6))
@@ -318,7 +318,7 @@ describe('watchBurn', () => {
     // Get LP balance
     const lpBalance = await Actions.amm.getLiquidityBalance(client, {
       userToken: tokenAddress,
-      validatorToken: Addresses.defaultFeeToken,
+      validatorToken: 1n,
       address: account.address,
     })
 
@@ -332,7 +332,7 @@ describe('watchBurn', () => {
     // Burn LP tokens
     await Actions.amm.burnSync(client, {
       userToken: tokenAddress,
-      validatorToken: Addresses.defaultFeeToken,
+      validatorToken: 1n,
       liquidity: lpBalance / 2n,
       to: account.address,
     })
@@ -342,7 +342,7 @@ describe('watchBurn', () => {
     expect(eventArgs).toBeDefined()
     expect(eventArgs.userToken.toLowerCase()).toBe(tokenAddress.toLowerCase())
     expect(eventArgs.validatorToken.toLowerCase()).toBe(
-      Addresses.defaultFeeToken.toLowerCase(),
+      '0x20c0000000000000000000000000000000000001',
     )
     expect(eventArgs.liquidity).toBe(lpBalance / 2n)
 
