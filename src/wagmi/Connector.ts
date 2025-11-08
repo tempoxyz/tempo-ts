@@ -1,4 +1,5 @@
 import * as Address from 'ox/Address'
+import * as Bytes from 'ox/Bytes'
 import { Account, WebAuthnP256 } from 'tempo.ts/viem'
 import {
   createClient,
@@ -240,8 +241,12 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
             typeof parameters.capabilities?.createAccount === 'boolean'
               ? {}
               : parameters.capabilities?.createAccount
+          const challenge = await options.createOptions?.getChallenge?.()
           credential = await WebAuthnP256.createCredential({
             ...(options.createOptions ?? {}),
+            challenge: challenge
+              ? new Uint8Array(Bytes.fromHex(challenge))
+              : undefined,
             label:
               createOptions.label ??
               options.createOptions?.label ??
@@ -265,11 +270,19 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
             ...(options.getOptions ?? {}),
             credentialId: lastActiveCredential?.id,
             async getPublicKey(credential) {
-              const publicKey = await config.storage?.getItem(
-                `webAuthn.${credential.id}.publicKey`,
-              )
-              if (!publicKey) throw new Error('publicKey not found')
-              return publicKey as Hex
+              {
+                const publicKey =
+                  await options.getOptions?.getPublicKey?.(credential)
+                if (publicKey) return publicKey
+              }
+
+              {
+                const publicKey = await config.storage?.getItem(
+                  `webAuthn.${credential.id}.publicKey`,
+                )
+                if (!publicKey) throw new Error('publicKey not found')
+                return publicKey as Hex
+              }
             },
           })
         }
@@ -354,14 +367,24 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
 
 export declare namespace webAuthn {
   export type Parameters = {
+    /** Options for WebAuthn registration. */
     createOptions?:
-      | Pick<
+      | (Pick<
           WebAuthnP256.createCredential.Parameters,
           'createFn' | 'label' | 'rpId' | 'userId' | 'timeout'
-        >
+        > & {
+          /** Function to fetch a challenge to sign over at registration. */
+          getChallenge?: (() => Promise<Hex>) | undefined
+        })
       | undefined
+    /** Options for WebAuthn authentication. */
     getOptions?:
-      | Pick<WebAuthnP256.getCredential.Parameters, 'getFn' | 'rpId'>
+      | (Pick<WebAuthnP256.getCredential.Parameters, 'getFn' | 'rpId'> & {
+          /** Function to fetch the public key for a credential. */
+          getPublicKey?:
+            | WebAuthnP256.getCredential.Parameters['getPublicKey']
+            | undefined
+        })
       | undefined
   }
 }
