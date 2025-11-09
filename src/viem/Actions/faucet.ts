@@ -1,4 +1,5 @@
 import type { Account, Address, Chain, Client, Hash, Transport } from 'viem'
+import { parseAccount } from 'viem/utils'
 
 /**
  * Funds an account with an initial amount of set token(s)
@@ -28,7 +29,7 @@ export async function fund<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: fund.Parameters,
 ): Promise<fund.ReturnValue> {
-  const { account } = parameters
+  const account = parseAccount(parameters.account)
   return client.request<{
     Method: 'tempo_fundAddress'
     Parameters: [address: Address]
@@ -42,7 +43,7 @@ export async function fund<chain extends Chain | undefined>(
 export declare namespace fund {
   export type Parameters = {
     /** Account to fund. */
-    account: Account
+    account: Account | Address
   }
 
   export type ReturnValue = readonly Hash[]
