@@ -110,6 +110,81 @@ describe('mint', () => {
     })
     expect(lpBalance).toBeGreaterThan(0n)
   })
+
+  test('behavior: single-sided mint (mintWithValidatorToken)', async () => {
+    // Create a new token for testing
+    const { token } = await Actions.token.createSync(client, {
+      name: 'Test Token 2',
+      symbol: 'TEST2',
+      currency: 'USD',
+    })
+
+    // Grant issuer role to mint tokens
+    await Actions.token.grantRolesSync(client, {
+      token,
+      roles: ['issuer'],
+      to: client.account.address,
+    })
+
+    // Mint some tokens to account
+    await Actions.token.mintSync(client, {
+      to: account.address,
+      amount: parseUnits('1000', 6),
+      token,
+    })
+
+    // First, establish initial liquidity with two-sided mint
+    await Actions.amm.mintSync(client, {
+      userToken: {
+        address: token,
+        amount: parseUnits('100', 6),
+      },
+      validatorToken: {
+        address: 1n,
+        amount: parseUnits('100', 6),
+      },
+      to: account.address,
+    })
+
+    // Get initial pool state
+    const poolBefore = await Actions.amm.getPool(client, {
+      userToken: token,
+      validatorToken: 1n,
+    })
+
+    // Add single-sided liquidity (only validatorToken)
+    const { receipt: mintReceipt, ...mintResult } = await Actions.amm.mintSync(
+      client,
+      {
+        userToken: {
+          address: token,
+        },
+        validatorToken: {
+          address: 1n,
+          amount: parseUnits('50', 6),
+        },
+        to: account.address,
+      },
+    )
+
+    expect(mintReceipt).toBeDefined()
+    // amountUserToken should be 0 for single-sided mint
+    expect(mintResult.amountUserToken).toBe(0n)
+    expect(mintResult.amountValidatorToken).toBe(parseUnits('50', 6))
+    expect(mintResult.liquidity).toBeGreaterThan(0n)
+
+    // Verify pool reserves - only validatorToken should increase
+    const poolAfter = await Actions.amm.getPool(client, {
+      userToken: token,
+      validatorToken: 1n,
+    })
+
+    expect(poolAfter.reserveUserToken).toBe(poolBefore.reserveUserToken)
+    expect(poolAfter.reserveValidatorToken).toBe(
+      poolBefore.reserveValidatorToken + parseUnits('50', 6),
+    )
+    expect(poolAfter.totalSupply).toBeGreaterThan(poolBefore.totalSupply)
+  })
 })
 
 describe('burn', () => {

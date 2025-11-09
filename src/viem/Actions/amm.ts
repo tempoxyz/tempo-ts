@@ -38,14 +38,14 @@ import { defineCall } from '../internal/utils.js'
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
- * const pool = await actions.amm.getPool(client, {
+ * const pool = await Actions.amm.getPool(client, {
  *   userToken: '0x...',
  *   validatorToken: '0x...',
  * })
@@ -128,19 +128,19 @@ export namespace getPool {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
- * const poolId = await actions.amm.getPoolId(client, {
+ * const poolId = await Actions.amm.getPoolId(client, {
  *   userToken: '0x...',
  *   validatorToken: '0x...',
  * })
  *
- * const balance = await actions.amm.getLiquidityBalance(client, {
+ * const balance = await Actions.amm.getLiquidityBalance(client, {
  *   poolId,
  *   address: '0x...',
  * })
@@ -226,16 +226,16 @@ export namespace getLiquidityBalance {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
- * const hash = await actions.amm.rebalanceSwap(client, {
+ * const hash = await Actions.amm.rebalanceSwap(client, {
  *   userToken: '0x...',
  *   validatorToken: '0x...',
  *   amountOut: 100n,
@@ -311,10 +311,10 @@ export namespace rebalanceSwap {
    * ```ts
    * import { createClient, http, walletActions } from 'viem'
    * import { tempo } from 'tempo.ts/chains'
-   * import * as actions from 'tempo.ts/viem/actions'
+   * import { Actions } from 'tempo.ts/viem'
    *
    * const client = createClient({
-   *   chain: tempo,
+   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -379,16 +379,16 @@ export namespace rebalanceSwap {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
- * const result = await actions.amm.rebalanceSwapSync(client, {
+ * const result = await Actions.amm.rebalanceSwapSync(client, {
  *   userToken: '0x...',
  *   validatorToken: '0x...',
  *   amountOut: 100n,
@@ -446,16 +446,16 @@ export namespace rebalanceSwapSync {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
- * const hash = await actions.amm.mint(client, {
+ * const hash = await Actions.amm.mint(client, {
  *   userToken: {
  *     address: '0x20c0...beef',
  *     amount: 100n,
@@ -496,7 +496,7 @@ export namespace mint {
       /** Address or ID of the user token. */
       address: TokenId.TokenIdOrAddress
       /** Amount of user token to add. */
-      amount: bigint
+      amount?: bigint | undefined
     }
     /** Validator token address and amount. */
     validatorToken: {
@@ -539,10 +539,10 @@ export namespace mint {
    * ```ts
    * import { createClient, http, walletActions } from 'viem'
    * import { tempo } from 'tempo.ts/chains'
-   * import * as actions from 'tempo.ts/viem/actions'
+   * import { Actions } from 'tempo.ts/viem'
    *
    * const client = createClient({
-   *   chain: tempo,
+   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -579,17 +579,32 @@ export namespace mint {
    */
   export function call(args: Args) {
     const { to, userToken, validatorToken } = args
+    const callArgs = (() => {
+      if (userToken.amount)
+        return {
+          functionName: 'mint',
+          args: [
+            TokenId.toAddress(userToken.address),
+            TokenId.toAddress(validatorToken.address),
+            userToken.amount,
+            validatorToken.amount,
+            to,
+          ],
+        } as const
+      return {
+        functionName: 'mintWithValidatorToken',
+        args: [
+          TokenId.toAddress(userToken.address),
+          TokenId.toAddress(validatorToken.address),
+          validatorToken.amount,
+          to,
+        ],
+      } as const
+    })()
     return defineCall({
       address: Addresses.feeManager,
       abi: Abis.feeAmm,
-      functionName: 'mint',
-      args: [
-        TokenId.toAddress(userToken.address),
-        TokenId.toAddress(validatorToken.address),
-        userToken.amount,
-        validatorToken.amount,
-        to,
-      ],
+      ...callArgs,
     })
   }
 
@@ -618,16 +633,16 @@ export namespace mint {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
- * const hash = await actions.amm.mint(client, {
+ * const hash = await Actions.amm.mint(client, {
  *   userToken: {
  *     address: '0x20c0...beef',
  *     amount: 100n,
@@ -690,16 +705,16 @@ export namespace mintSync {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
- * const hash = await actions.amm.burn(client, {
+ * const hash = await Actions.amm.burn(client, {
  *   userToken: '0x20c0...beef',
  *   validatorToken: '0x20c0...babe',
  *   liquidity: 50n,
@@ -770,10 +785,10 @@ export namespace burn {
    * ```ts
    * import { createClient, http, walletActions } from 'viem'
    * import { tempo } from 'tempo.ts/chains'
-   * import * as actions from 'tempo.ts/viem/actions'
+   * import { Actions } from 'tempo.ts/viem'
    *
    * const client = createClient({
-   *   chain: tempo,
+   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -838,16 +853,16 @@ export namespace burn {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
- * const result = await actions.amm.burnSync(client, {
+ * const result = await Actions.amm.burnSync(client, {
  *   userToken: '0x20c0...beef',
  *   validatorToken: '0x20c0...babe',
  *   liquidity: 50n,
@@ -905,10 +920,10 @@ export namespace burnSync {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -985,10 +1000,10 @@ export declare namespace watchRebalanceSwap {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -1065,10 +1080,10 @@ export declare namespace watchFeeSwap {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -1170,10 +1185,10 @@ export declare namespace watchMint {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
