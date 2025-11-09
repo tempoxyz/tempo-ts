@@ -1,5 +1,15 @@
 # tempo.ts
 
+## 0.2.1
+
+### Patch Changes
+
+- [`db8cfa1`](https://github.com/tempoxyz/tempo-ts/commit/db8cfa1ccf2fdfcd1ec329662bddebffa998e16d) Thanks [@jxom](https://github.com/jxom)! - Added `getOptions.getPublicKey` and `createOptions.getChallenge` to `webAuthn` connector.
+
+- [`fec93f9`](https://github.com/tempoxyz/tempo-ts/commit/fec93f903a8ecbf8d196604d91a300b51a569424) Thanks [@jxom](https://github.com/jxom)! - Added `faucet.fund` action.
+
+- [#44](https://github.com/tempoxyz/tempo-ts/pull/44) [`58a6a11`](https://github.com/tempoxyz/tempo-ts/commit/58a6a113b10412bde1ef69531153e400e0a95a94) Thanks [@jxom](https://github.com/jxom)! - Added `mintWithValidatorToken` support to `amm.mint` action.
+
 ## 0.2.0
 
 ### Minor Changes
