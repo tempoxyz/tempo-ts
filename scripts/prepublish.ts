@@ -15,9 +15,7 @@ const markerIndex = keys.indexOf('[!start-pkg]')
 
 // Remove all keys up to and including the marker
 const keysToRemove = keys.slice(0, markerIndex + 1)
-for (const key of keysToRemove) {
-  delete data[key]
-}
+for (const key of keysToRemove) delete data[key]
 
 // Write back to package.json
 fs.writeFileSync(packageJsonPath, `${JSON.stringify(data, null, 2)}\n`, 'utf-8')
