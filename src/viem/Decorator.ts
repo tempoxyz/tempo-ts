@@ -652,7 +652,7 @@ export type Decorator<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const level = await client.dex.getPriceLevel({
+     * const level = await client.dex.getTickLevel({
      *   base: '0x20c...11',
      *   tick: Tick.fromPrice('1.001'),
      *   isBid: true,
@@ -662,9 +662,9 @@ export type Decorator<
      * @param parameters - Parameters.
      * @returns The price level information.
      */
-    getPriceLevel: (
-      parameters: dexActions.getPriceLevel.Parameters,
-    ) => Promise<dexActions.getPriceLevel.ReturnValue>
+    getTickLevel: (
+      parameters: dexActions.getTickLevel.Parameters,
+    ) => Promise<dexActions.getTickLevel.ReturnValue>
     /**
      * Gets the quote for selling a specific amount of tokens.
      *
@@ -2980,8 +2980,8 @@ export function decorator() {
         getBuyQuote: (parameters) => dexActions.getBuyQuote(client, parameters),
         getOrder: (parameters) => dexActions.getOrder(client, parameters),
         getOrders: (parameters) => dexActions.getOrders(client, parameters),
-        getPriceLevel: (parameters) =>
-          dexActions.getPriceLevel(client, parameters),
+        getTickLevel: (parameters) =>
+          dexActions.getTickLevel(client, parameters),
         getSellQuote: (parameters) =>
           dexActions.getSellQuote(client, parameters),
         place: (parameters) => dexActions.place(client, parameters),

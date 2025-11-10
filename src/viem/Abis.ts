@@ -1,5 +1,22 @@
 // Generated with `pnpm gen:abis`. Do not modify manually.
 
+export const linkingUsd = [
+  {
+    name: 'TRANSFER_ROLE',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
+    name: 'RECEIVE_WITH_MEMO_ROLE',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bytes32' }],
+  },
+] as const
+
 export const nonce = [
   {
     name: 'getNonce',
@@ -178,7 +195,7 @@ export const stablecoinExchange = [
     ],
   },
   {
-    name: 'getPriceLevel',
+    name: 'getTickLevel',
     type: 'function',
     stateMutability: 'view',
     inputs: [
@@ -187,14 +204,9 @@ export const stablecoinExchange = [
       { type: 'bool', name: 'isBid' },
     ],
     outputs: [
-      {
-        type: 'tuple',
-        components: [
-          { type: 'uint128', name: 'head' },
-          { type: 'uint128', name: 'tail' },
-          { type: 'uint128', name: 'totalLiquidity' },
-        ],
-      },
+      { type: 'uint128', name: 'head' },
+      { type: 'uint128', name: 'tail' },
+      { type: 'uint128', name: 'totalLiquidity' },
     ],
   },
   {
@@ -237,6 +249,55 @@ export const stablecoinExchange = [
         ],
       },
     ],
+  },
+  {
+    name: 'MIN_TICK',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'int16' }],
+  },
+  {
+    name: 'MAX_TICK',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'int16' }],
+  },
+  {
+    name: 'PRICE_SCALE',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'uint32' }],
+  },
+  {
+    name: 'MIN_PRICE',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'uint32' }],
+  },
+  {
+    name: 'MAX_PRICE',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'uint32' }],
+  },
+  {
+    name: 'tickToPrice',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [{ type: 'int16', name: 'tick' }],
+    outputs: [{ type: 'uint32', name: 'price' }],
+  },
+  {
+    name: 'priceToTick',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [{ type: 'uint32', name: 'price' }],
+    outputs: [{ type: 'int16', name: 'tick' }],
   },
   {
     name: 'PairCreated',
@@ -656,7 +717,7 @@ export const tip20 = [
       {
         type: 'tuple',
         components: [
-          { type: 'address', name: 'delegatedRecipient' },
+          { type: 'address', name: 'rewardRecipient' },
           { type: 'uint256', name: 'rewardPerToken' },
           { type: 'uint256', name: 'rewardBalance' },
         ],
@@ -807,6 +868,7 @@ export const tip20 = [
   { name: 'StreamInactive', type: 'error', inputs: [] },
   { name: 'NoOptedInSupply', type: 'error', inputs: [] },
   { name: 'Unauthorized', type: 'error', inputs: [] },
+  { name: 'RewardsDisabled', type: 'error', inputs: [] },
   {
     name: 'hasRole',
     type: 'function',
@@ -1073,13 +1135,6 @@ export const tipAccountRegistrar = [
     ],
     outputs: [{ type: 'address', name: 'authority' }],
   },
-  {
-    name: 'getDelegationMessage',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [],
-    outputs: [{ type: 'string' }],
-  },
   { name: 'InvalidSignature', type: 'error', inputs: [] },
   { name: 'CodeNotEmpty', type: 'error', inputs: [] },
   { name: 'NonceNotZero', type: 'error', inputs: [] },
@@ -1159,6 +1214,13 @@ export const feeManager = [
 ] as const
 
 export const feeAmm = [
+  {
+    name: 'MIN_LIQUIDITY',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+  },
   {
     name: 'getPoolId',
     type: 'function',
@@ -1270,16 +1332,6 @@ export const feeAmm = [
       { type: 'address', name: 'to' },
     ],
     outputs: [{ type: 'uint256', name: 'amountIn' }],
-  },
-  {
-    name: 'calculateLiquidity',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [
-      { type: 'uint256', name: 'x' },
-      { type: 'uint256', name: 'y' },
-    ],
-    outputs: [{ type: 'uint256' }],
   },
   {
     name: 'Mint',

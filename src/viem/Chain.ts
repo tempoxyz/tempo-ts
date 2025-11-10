@@ -38,13 +38,36 @@ function config<const chain extends Chain>(chain: chain) {
       }),
       transactionRequest: defineTransactionRequest({
         format: (
-          ...args: Parameters<typeof Formatters.formatTransactionRequest<chain>>
-        ) => Formatters.formatTransactionRequest<chain>(...args),
+          ...[request, action]: Parameters<
+            typeof Formatters.formatTransactionRequest<chain>
+          >
+        ) =>
+          Formatters.formatTransactionRequest<chain>(
+            {
+              ...request,
+              ...(!request.feePayer &&
+              (action === 'estimateGas' || action === 'sendTransaction')
+                ? {
+                    feeToken: request.feeToken ?? chain.feeToken,
+                  }
+                : {}),
+            },
+            action,
+          ),
       }),
     },
     serializers: {
       // TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
-      transaction: Transaction.serialize as SerializeTransactionFn,
+      transaction: ((transaction, signature) =>
+        Transaction.serialize(
+          {
+            ...transaction,
+            ...(!(transaction as { feePayer?: unknown }).feePayer
+              ? { feeToken: chain.feeToken ?? undefined }
+              : {}),
+          } as never,
+          signature,
+        )) as SerializeTransactionFn,
     },
     ...chain,
   } as const

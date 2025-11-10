@@ -831,7 +831,7 @@ export namespace getOrderbook {
  *   },
  * })
  *
- * const level = await Actions.dex.getPriceLevel(config, {
+ * const level = await Actions.dex.getTickLevel(config, {
  *   base: '0x20c...11',
  *   tick: Tick.fromPrice('1.001'),
  *   isBid: true,
@@ -842,25 +842,25 @@ export namespace getOrderbook {
  * @param parameters - Parameters.
  * @returns The price level information.
  */
-export function getPriceLevel<config extends Config>(
+export function getTickLevel<config extends Config>(
   config: config,
-  parameters: getPriceLevel.Parameters<config>,
-): Promise<getPriceLevel.ReturnValue> {
+  parameters: getTickLevel.Parameters<config>,
+): Promise<getTickLevel.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getPriceLevel(client, rest)
+  return viem_Actions.getTickLevel(client, rest)
 }
 
-export namespace getPriceLevel {
+export namespace getTickLevel {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getPriceLevel.Parameters
+    viem_Actions.getTickLevel.Parameters
 
-  export type ReturnValue = viem_Actions.getPriceLevel.ReturnValue
+  export type ReturnValue = viem_Actions.getTickLevel.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: Parameters<config>,
   ) {
-    return ['getPriceLevel', parameters] as const
+    return ['getTickLevel', parameters] as const
   }
 
   export type QueryKey<config extends Config> = ReturnType<
@@ -877,7 +877,7 @@ export namespace getPriceLevel {
       queryKey: queryKey(rest),
       async queryFn({ queryKey }) {
         const [, parameters] = queryKey
-        return await getPriceLevel(config, parameters)
+        return await getTickLevel(config, parameters)
       },
     }
   }
@@ -885,8 +885,8 @@ export namespace getPriceLevel {
   export declare namespace queryOptions {
     export type Parameters<
       config extends Config,
-      selectData = getPriceLevel.ReturnValue,
-    > = getPriceLevel.Parameters<config> & {
+      selectData = getTickLevel.ReturnValue,
+    > = getTickLevel.Parameters<config> & {
       query?:
         | Omit<ReturnValue<config, selectData>, 'queryKey' | 'queryFn'>
         | undefined
@@ -894,13 +894,13 @@ export namespace getPriceLevel {
 
     export type ReturnValue<
       config extends Config,
-      selectData = getPriceLevel.ReturnValue,
+      selectData = getTickLevel.ReturnValue,
     > = RequiredBy<
       Query.QueryOptions<
-        getPriceLevel.ReturnValue,
+        getTickLevel.ReturnValue,
         Query.DefaultError,
         selectData,
-        getPriceLevel.QueryKey<config>
+        getTickLevel.QueryKey<config>
       >,
       'queryKey' | 'queryFn'
     >
