@@ -1,10 +1,8 @@
 {
-	"name": "tempo.ts",
-	"type": "module",
-	"version": "0.2.1",
 	"scripts": {
 		"build": "zile --project ./tsconfig.build.json",
-		"changeset:publish": "pnpm build && changeset publish",
+		"changeset:prepublish": "pnpm build && node ./scripts/prepublish.ts",
+		"changeset:publish": "pnpm changeset:prepublish && changeset publish",
 		"changeset:version": "changeset version && pnpm check",
 		"check": "biome check . --write --unsafe",
 		"check:types": "tsc -b",
@@ -16,6 +14,54 @@
 		"test": "vitest",
 		"test:install": "cd test/tempo && cargo install --path bin/tempo && cargo run --bin tempo-xtask generate-genesis --accounts 1 --output ../../src/prool/internal/chain.json"
 	},
+	"packageManager": "pnpm@10.18.3",
+	"devEngines": {
+		"runtime": {
+			"name": "node",
+			"version": "^24.5.1",
+			"onFail": "download"
+		}
+	},
+	"devDependencies": {
+		"@ark/attest": "^0.51.0",
+		"@biomejs/biome": "^2.2.4",
+		"@changesets/changelog-github": "^0.5.0",
+		"@changesets/cli": "^2.27.7",
+		"@remix-run/node-fetch-server": "^0.10.0",
+		"@tanstack/query-core": "^5.90.5",
+		"@tanstack/react-query": "catalog:default",
+		"@types/node": "latest",
+		"@types/react": "catalog:default",
+		"@types/react-dom": "catalog:default",
+		"@vitejs/plugin-react": "catalog:default",
+		"@vitest/browser": "^4.0.5",
+		"@vitest/browser-playwright": "^4.0.5",
+		"@vitest/coverage-v8": "^4.0.5",
+		"@wagmi/core": "catalog:default",
+		"playwright": "^1.56.1",
+		"prool": "catalog:default",
+		"react": "catalog:default",
+		"react-dom": "catalog:default",
+		"simple-git-hooks": "^2.13.1",
+		"typescript": "catalog:default",
+		"viem": "catalog:default",
+		"vitest": "^4.0.5",
+		"vitest-browser-react": "^2.0.0",
+		"wagmi": "catalog:default",
+		"zile": "^0.0.5"
+	},
+	"simple-git-hooks": {
+		"pre-commit": "pnpm check"
+	},
+	"pnpm": {
+		"overrides": {
+			"viem": "catalog:default"
+		}
+	},
+	"[!start-pkg]": "",
+	"name": "tempo.ts",
+	"type": "module",
+	"version": "0.2.1",
 	"dependencies": {
 		"ox": "~0.9.9"
 	},
@@ -47,44 +93,8 @@
 			"optional": true
 		}
 	},
-	"packageManager": "pnpm@10.18.3",
-	"devEngines": {
-		"runtime": {
-			"name": "node",
-			"version": "^24.5.1",
-			"onFail": "download"
-		}
-	},
 	"author": "jxom <j@wevm.dev>",
 	"license": "MIT",
-	"devDependencies": {
-		"@ark/attest": "^0.51.0",
-		"@biomejs/biome": "^2.2.4",
-		"@changesets/changelog-github": "^0.5.0",
-		"@changesets/cli": "^2.27.7",
-		"@remix-run/node-fetch-server": "^0.10.0",
-		"@tanstack/query-core": "^5.90.5",
-		"@tanstack/react-query": "catalog:default",
-		"@types/node": "latest",
-		"@types/react": "catalog:default",
-		"@types/react-dom": "catalog:default",
-		"@vitejs/plugin-react": "catalog:default",
-		"@vitest/browser": "^4.0.5",
-		"@vitest/browser-playwright": "^4.0.5",
-		"@vitest/coverage-v8": "^4.0.5",
-		"@wagmi/core": "catalog:default",
-		"playwright": "^1.56.1",
-		"prool": "catalog:default",
-		"react": "catalog:default",
-		"react-dom": "catalog:default",
-		"simple-git-hooks": "^2.13.1",
-		"typescript": "catalog:default",
-		"viem": "catalog:default",
-		"vitest": "^4.0.5",
-		"vitest-browser-react": "^2.0.0",
-		"wagmi": "catalog:default",
-		"zile": "^0.0.5"
-	},
 	"files": [
 		"dist",
 		"src"
@@ -123,14 +133,6 @@
 			"src": "./src/wagmi/index.ts",
 			"types": "./dist/wagmi/index.d.ts",
 			"default": "./dist/wagmi/index.js"
-		}
-	},
-	"simple-git-hooks": {
-		"pre-commit": "pnpm check"
-	},
-	"pnpm": {
-		"overrides": {
-			"viem": "catalog:default"
 		}
 	}
 }
