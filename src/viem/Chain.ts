@@ -23,7 +23,7 @@ export type Chain<
         feeToken: feeToken
       })
 
-export function define<chain extends viem_Chain>(chain: chain) {
+export function define<const chain extends viem_Chain>(chain: chain) {
   function inner<const chain extends Chain>(chain: chain) {
     return {
       blockTime: 1_000,
