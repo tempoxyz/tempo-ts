@@ -13,6 +13,7 @@ import {
   type Log as viem_Log,
   type WatchContractEventParameters,
   type WriteContractReturnType,
+  zeroAddress,
 } from 'viem'
 import { parseAccount } from 'viem/accounts'
 import {
@@ -71,6 +72,7 @@ export async function getUserToken<
     ...rest,
     ...getUserToken.call({ account: account.address }),
   })
+  if (address === zeroAddress) return null
   return {
     address,
     id: TokenId.fromAddress(address),
@@ -90,7 +92,7 @@ export namespace getUserToken {
   export type ReturnValue = Compute<{
     address: Address
     id: bigint
-  }>
+  } | null>
 
   /**
    * Defines a call to the `userTokens` function.
