@@ -1,5 +1,19 @@
 # tempo.ts
 
+## 0.3.0
+
+### Minor Changes
+
+- [`6230a60`](https://github.com/tempoxyz/tempo-ts/commit/6230a60f3bd55f6d98b682ea2b6bc34629c5386d) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Modified `fee.getUserToken` to return `null` when no user token is set.
+
+### Patch Changes
+
+- [#46](https://github.com/tempoxyz/tempo-ts/pull/46) [`4bcade6`](https://github.com/tempoxyz/tempo-ts/commit/4bcade6c284cbe6ec5fa245dcc0dd3d705ed7aae) Thanks [@jxom](https://github.com/jxom)! - Pruned `package.json` before publish of unneeded properties.
+
+- [`3ecd488`](https://github.com/tempoxyz/tempo-ts/commit/3ecd488c8c3dfe70f6c979d353df959f0081390e) Thanks [@jxom](https://github.com/jxom)! - Added `const` to `Chain.define`
+
+- [`5aeecc2`](https://github.com/tempoxyz/tempo-ts/commit/5aeecc2512d5dbd5c06ac5067fbe11113c1103fd) Thanks [@jxom](https://github.com/jxom)! - Fixed \`Chain.define\` type.
+
 ## 0.2.1
 
 ### Patch Changes
