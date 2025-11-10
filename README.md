@@ -1,3 +1,18 @@
+<br>
+<br>
+
+<p align="center">
+  <a href="https://tempo.xyz">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/tempoxyz/.github/refs/heads/main/assets/combomark-dark.svg">
+      <img alt="tempo combomark" src="https://raw.githubusercontent.com/tempoxyz/.github/refs/heads/main/assets/combomark-bright.svg" width="auto" height="120">
+    </picture>
+  </a>
+</p>
+
+<br>
+<br>
+
 # Tempo TS
 
 > [!NOTE]
@@ -121,3 +136,12 @@ await instance.start();
 // ...
 await instance.stop();
 ```
+
+### License
+
+Licensed under either of [Apache License](./LICENSE-APACHE), Version
+2.0 or [MIT License](./LICENSE-MIT) at your option.
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in these crates by you, as defined in the Apache-2.0 license,
+shall be dual licensed as above, without any additional terms or conditions.
