@@ -47,10 +47,10 @@ export function useCancel<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.cancel(config, variables)
+      return Actions.cancel(config, variables as never)
     },
     mutationKey: ['cancel'],
-  })
+  }) as never
 }
 
 export declare namespace useCancel {
@@ -114,10 +114,10 @@ export function useCancelSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.cancelSync(config, variables)
+      return Actions.cancelSync(config, variables as never)
     },
     mutationKey: ['cancelSync'],
-  })
+  }) as never
 }
 
 export declare namespace useCancelSync {
@@ -180,10 +180,10 @@ export function useClaim<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.claim(config, variables)
+      return Actions.claim(config, variables as never)
     },
     mutationKey: ['claim'],
-  })
+  }) as never
 }
 
 export declare namespace useClaim {
@@ -246,10 +246,10 @@ export function useClaimSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.claimSync(config, variables)
+      return Actions.claimSync(config, variables as never)
     },
     mutationKey: ['claimSync'],
-  })
+  }) as never
 }
 
 export declare namespace useClaimSync {
@@ -436,10 +436,10 @@ export function useSetRecipient<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.setRecipient(config, variables)
+      return Actions.setRecipient(config, variables as never)
     },
     mutationKey: ['setRecipient'],
-  })
+  }) as never
 }
 
 export declare namespace useSetRecipient {
@@ -503,10 +503,10 @@ export function useSetRecipientSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.setRecipientSync(config, variables)
+      return Actions.setRecipientSync(config, variables as never)
     },
     mutationKey: ['setRecipientSync'],
-  })
+  }) as never
 }
 
 export declare namespace useSetRecipientSync {
@@ -571,10 +571,10 @@ export function useStart<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.start(config, variables)
+      return Actions.start(config, variables as never)
     },
     mutationKey: ['start'],
-  })
+  }) as never
 }
 
 export declare namespace useStart {
@@ -639,10 +639,10 @@ export function useStartSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.startSync(config, variables)
+      return Actions.startSync(config, variables as never)
     },
     mutationKey: ['startSync'],
-  })
+  }) as never
 }
 
 export declare namespace useStartSync {

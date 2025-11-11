@@ -2,7 +2,7 @@ import type * as Query from '@tanstack/query-core'
 import { type Config, getConnectorClient } from '@wagmi/core'
 import type { ChainIdParameter, ConnectorParameter } from '@wagmi/core/internal'
 import type { Account } from 'viem'
-import type { RequiredBy } from '../../internal/types.js'
+import type { RequiredBy, UnionOmit } from '../../internal/types.js'
 import * as viem_Actions from '../../viem/Actions/reward.js'
 
 /**
@@ -44,17 +44,17 @@ export async function cancel<config extends Config>(
     connector,
   })
 
-  return viem_Actions.cancel(
-    client,
-    parameters as viem_Actions.cancel.Parameters,
-  )
+  return viem_Actions.cancel(client, parameters as never)
 }
 
 export declare namespace cancel {
   export type Parameters<config extends Config = Config> =
     ChainIdParameter<config> &
       ConnectorParameter &
-      Omit<viem_Actions.cancel.Parameters<undefined, Account>, 'chain'>
+      UnionOmit<
+        viem_Actions.cancel.Parameters<config['chains'][number], Account>,
+        'chain'
+      >
 
   export type ReturnValue = viem_Actions.cancel.ReturnValue
 
@@ -100,17 +100,17 @@ export async function cancelSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.cancelSync(
-    client,
-    parameters as viem_Actions.cancelSync.Parameters,
-  )
+  return viem_Actions.cancelSync(client, parameters as never)
 }
 
 export declare namespace cancelSync {
   export type Parameters<config extends Config = Config> =
     ChainIdParameter<config> &
       ConnectorParameter &
-      Omit<viem_Actions.cancelSync.Parameters<undefined, Account>, 'chain'>
+      UnionOmit<
+        viem_Actions.cancelSync.Parameters<config['chains'][number], Account>,
+        'chain'
+      >
 
   export type ReturnValue = viem_Actions.cancelSync.ReturnValue
 
@@ -155,14 +155,17 @@ export async function claim<config extends Config>(
     connector,
   })
 
-  return viem_Actions.claim(client, parameters as viem_Actions.claim.Parameters)
+  return viem_Actions.claim(client, parameters as never)
 }
 
 export declare namespace claim {
   export type Parameters<config extends Config = Config> =
     ChainIdParameter<config> &
       ConnectorParameter &
-      Omit<viem_Actions.claim.Parameters<undefined, Account>, 'chain'>
+      UnionOmit<
+        viem_Actions.claim.Parameters<config['chains'][number], Account>,
+        'chain'
+      >
 
   export type ReturnValue = viem_Actions.claim.ReturnValue
 
@@ -207,17 +210,17 @@ export async function claimSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.claimSync(
-    client,
-    parameters as viem_Actions.claimSync.Parameters,
-  )
+  return viem_Actions.claimSync(client, parameters as never)
 }
 
 export declare namespace claimSync {
   export type Parameters<config extends Config = Config> =
     ChainIdParameter<config> &
       ConnectorParameter &
-      Omit<viem_Actions.claimSync.Parameters<undefined, Account>, 'chain'>
+      UnionOmit<
+        viem_Actions.claimSync.Parameters<config['chains'][number], Account>,
+        'chain'
+      >
 
   export type ReturnValue = viem_Actions.claimSync.ReturnValue
 
@@ -444,17 +447,17 @@ export async function setRecipient<config extends Config>(
     connector,
   })
 
-  return viem_Actions.setRecipient(
-    client,
-    parameters as viem_Actions.setRecipient.Parameters,
-  )
+  return viem_Actions.setRecipient(client, parameters as never)
 }
 
 export declare namespace setRecipient {
   export type Parameters<config extends Config = Config> =
     ChainIdParameter<config> &
       ConnectorParameter &
-      Omit<viem_Actions.setRecipient.Parameters<undefined, Account>, 'chain'>
+      UnionOmit<
+        viem_Actions.setRecipient.Parameters<config['chains'][number], Account>,
+        'chain'
+      >
 
   export type ReturnValue = viem_Actions.setRecipient.ReturnValue
 
@@ -500,18 +503,18 @@ export async function setRecipientSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.setRecipientSync(
-    client,
-    parameters as viem_Actions.setRecipientSync.Parameters,
-  )
+  return viem_Actions.setRecipientSync(client, parameters as never)
 }
 
 export declare namespace setRecipientSync {
   export type Parameters<config extends Config = Config> =
     ChainIdParameter<config> &
       ConnectorParameter &
-      Omit<
-        viem_Actions.setRecipientSync.Parameters<undefined, Account>,
+      UnionOmit<
+        viem_Actions.setRecipientSync.Parameters<
+          config['chains'][number],
+          Account
+        >,
         'chain'
       >
 
@@ -560,14 +563,17 @@ export async function start<config extends Config>(
     connector,
   })
 
-  return viem_Actions.start(client, parameters as viem_Actions.start.Parameters)
+  return viem_Actions.start(client, parameters as never)
 }
 
 export declare namespace start {
   export type Parameters<config extends Config = Config> =
     ChainIdParameter<config> &
       ConnectorParameter &
-      Omit<viem_Actions.start.Parameters<undefined, Account>, 'chain'>
+      UnionOmit<
+        viem_Actions.start.Parameters<config['chains'][number], Account>,
+        'chain'
+      >
 
   export type ReturnValue = viem_Actions.start.ReturnValue
 
@@ -614,17 +620,17 @@ export async function startSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.startSync(
-    client,
-    parameters as viem_Actions.startSync.Parameters,
-  )
+  return viem_Actions.startSync(client, parameters as never)
 }
 
 export declare namespace startSync {
   export type Parameters<config extends Config = Config> =
     ChainIdParameter<config> &
       ConnectorParameter &
-      Omit<viem_Actions.startSync.Parameters<undefined, Account>, 'chain'>
+      UnionOmit<
+        viem_Actions.startSync.Parameters<config['chains'][number], Account>,
+        'chain'
+      >
 
   export type ReturnValue = viem_Actions.startSync.ReturnValue
 

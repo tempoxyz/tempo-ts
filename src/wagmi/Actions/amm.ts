@@ -2,7 +2,7 @@ import type * as Query from '@tanstack/query-core'
 import { type Config, getConnectorClient } from '@wagmi/core'
 import type { ChainIdParameter, ConnectorParameter } from '@wagmi/core/internal'
 import type { Account } from 'viem'
-import type { RequiredBy } from '../../internal/types.js'
+import type { RequiredBy, UnionOmit } from '../../internal/types.js'
 import * as viem_Actions from '../../viem/Actions/amm.js'
 
 /**
@@ -233,16 +233,16 @@ export async function rebalanceSwap<config extends Config>(
     connector,
   })
 
-  return viem_Actions.rebalanceSwap(
-    client,
-    parameters as viem_Actions.rebalanceSwap.Parameters,
-  )
+  return viem_Actions.rebalanceSwap(client, parameters as never)
 }
 
 export declare namespace rebalanceSwap {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.rebalanceSwap.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.rebalanceSwap.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.rebalanceSwap.ReturnValue
 }
@@ -288,16 +288,19 @@ export async function rebalanceSwapSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.rebalanceSwapSync(
-    client,
-    parameters as viem_Actions.rebalanceSwapSync.Parameters,
-  )
+  return viem_Actions.rebalanceSwapSync(client, parameters as never)
 }
 
 export declare namespace rebalanceSwapSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.rebalanceSwapSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.rebalanceSwapSync.Parameters<
+        config['chains'][number],
+        Account
+      >,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.rebalanceSwapSync.ReturnValue
 }
@@ -348,13 +351,16 @@ export async function mint<config extends Config>(
     connector,
   })
 
-  return viem_Actions.mint(client, parameters as viem_Actions.mint.Parameters)
+  return viem_Actions.mint(client, parameters as never)
 }
 
 export declare namespace mint {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.mint.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.mint.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.mint.ReturnValue
 }
@@ -405,16 +411,16 @@ export async function mintSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.mintSync(
-    client,
-    parameters as viem_Actions.mintSync.Parameters,
-  )
+  return viem_Actions.mintSync(client, parameters as never)
 }
 
 export declare namespace mintSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.mintSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.mintSync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.mintSync.ReturnValue
 }
@@ -460,13 +466,16 @@ export async function burn<config extends Config>(
     connector,
   })
 
-  return viem_Actions.burn(client, parameters as viem_Actions.burn.Parameters)
+  return viem_Actions.burn(client, parameters as never)
 }
 
 export declare namespace burn {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.burn.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.burn.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.burn.ReturnValue
 }
@@ -512,16 +521,16 @@ export async function burnSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.burnSync(
-    client,
-    parameters as viem_Actions.burnSync.Parameters,
-  )
+  return viem_Actions.burnSync(client, parameters as never)
 }
 
 export declare namespace burnSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.burnSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.burnSync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.burnSync.ReturnValue
 }

@@ -6,6 +6,7 @@ import type { Account } from 'viem'
 import type {
   PartialBy,
   RequiredBy,
+  UnionOmit,
   UnionRequiredBy,
 } from '../../internal/types.js'
 import * as viem_Actions from '../../viem/Actions/dex.js'
@@ -51,13 +52,16 @@ export async function buy<config extends Config>(
     connector,
   })
 
-  return viem_Actions.buy(client, parameters as viem_Actions.buy.Parameters)
+  return viem_Actions.buy(client, parameters as never)
 }
 
 export declare namespace buy {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.buy.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.buy.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.buy.ReturnValue
 
@@ -108,16 +112,16 @@ export async function buySync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.buySync(
-    client,
-    parameters as viem_Actions.buySync.Parameters,
-  )
+  return viem_Actions.buySync(client, parameters as never)
 }
 
 export declare namespace buySync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.buySync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.buySync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.buySync.ReturnValue
 
@@ -162,16 +166,16 @@ export async function cancel<config extends Config>(
     connector,
   })
 
-  return viem_Actions.cancel(
-    client,
-    parameters as viem_Actions.cancel.Parameters,
-  )
+  return viem_Actions.cancel(client, parameters as never)
 }
 
 export declare namespace cancel {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.cancel.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.cancel.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.cancel.ReturnValue
 
@@ -219,16 +223,16 @@ export async function cancelSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.cancelSync(
-    client,
-    parameters as viem_Actions.cancelSync.Parameters,
-  )
+  return viem_Actions.cancelSync(client, parameters as never)
 }
 
 export declare namespace cancelSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.cancelSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.cancelSync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.cancelSync.ReturnValue
 
@@ -273,16 +277,16 @@ export async function createPair<config extends Config>(
     connector,
   })
 
-  return viem_Actions.createPair(
-    client,
-    parameters as viem_Actions.createPair.Parameters,
-  )
+  return viem_Actions.createPair(client, parameters as never)
 }
 
 export declare namespace createPair {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.createPair.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.createPair.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.createPair.ReturnValue
 
@@ -330,16 +334,16 @@ export async function createPairSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.createPairSync(
-    client,
-    parameters as viem_Actions.createPairSync.Parameters,
-  )
+  return viem_Actions.createPairSync(client, parameters as never)
 }
 
 export declare namespace createPairSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.createPairSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.createPairSync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.createPairSync.ReturnValue
 
@@ -1040,13 +1044,16 @@ export async function place<config extends Config>(
     connector,
   })
 
-  return viem_Actions.place(client, parameters as viem_Actions.place.Parameters)
+  return viem_Actions.place(client, parameters as never)
 }
 
 export declare namespace place {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.place.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.place.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.place.ReturnValue
 
@@ -1095,16 +1102,16 @@ export async function placeFlip<config extends Config>(
     connector,
   })
 
-  return viem_Actions.placeFlip(
-    client,
-    parameters as viem_Actions.placeFlip.Parameters,
-  )
+  return viem_Actions.placeFlip(client, parameters as never)
 }
 
 export declare namespace placeFlip {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.placeFlip.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.placeFlip.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.placeFlip.ReturnValue
 
@@ -1156,16 +1163,16 @@ export async function placeFlipSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.placeFlipSync(
-    client,
-    parameters as viem_Actions.placeFlipSync.Parameters,
-  )
+  return viem_Actions.placeFlipSync(client, parameters as never)
 }
 
 export declare namespace placeFlipSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.placeFlipSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.placeFlipSync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.placeFlipSync.ReturnValue
 
@@ -1216,16 +1223,16 @@ export async function placeSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.placeSync(
-    client,
-    parameters as viem_Actions.placeSync.Parameters,
-  )
+  return viem_Actions.placeSync(client, parameters as never)
 }
 
 export declare namespace placeSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.placeSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.placeSync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.placeSync.ReturnValue
 
@@ -1273,13 +1280,16 @@ export async function sell<config extends Config>(
     connector,
   })
 
-  return viem_Actions.sell(client, parameters as viem_Actions.sell.Parameters)
+  return viem_Actions.sell(client, parameters as never)
 }
 
 export declare namespace sell {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.sell.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.sell.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.sell.ReturnValue
 
@@ -1330,16 +1340,16 @@ export async function sellSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.sellSync(
-    client,
-    parameters as viem_Actions.sellSync.Parameters,
-  )
+  return viem_Actions.sellSync(client, parameters as never)
 }
 
 export declare namespace sellSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.sellSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.sellSync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.sellSync.ReturnValue
 
@@ -1565,16 +1575,16 @@ export async function withdraw<config extends Config>(
     connector,
   })
 
-  return viem_Actions.withdraw(
-    client,
-    parameters as viem_Actions.withdraw.Parameters,
-  )
+  return viem_Actions.withdraw(client, parameters as never)
 }
 
 export declare namespace withdraw {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.withdraw.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.withdraw.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.withdraw.ReturnValue
 
@@ -1623,16 +1633,16 @@ export async function withdrawSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.withdrawSync(
-    client,
-    parameters as viem_Actions.withdrawSync.Parameters,
-  )
+  return viem_Actions.withdrawSync(client, parameters as never)
 }
 
 export declare namespace withdrawSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.withdrawSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.withdrawSync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.withdrawSync.ReturnValue
 

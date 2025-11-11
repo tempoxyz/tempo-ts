@@ -62,4 +62,5 @@ export type WriteParameters<
   | 'nonce'
   | 'throwOnReceiptRevert'
 > &
-  UnionPick<TransactionRequestAA, 'feePayer' | 'feeToken'>
+  GetFeeTokenParameter<chain> &
+  UnionPick<TransactionRequestAA, 'feePayer'>

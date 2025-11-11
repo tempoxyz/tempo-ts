@@ -103,10 +103,10 @@ export function useSetUserToken<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return setUserToken(config, variables)
+      return setUserToken(config, variables as never)
     },
     mutationKey: ['setUserTokenSync'],
-  })
+  }) as never
 }
 
 export declare namespace useSetUserToken {
@@ -173,10 +173,10 @@ export function useSetUserTokenSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return setUserTokenSync(config, variables)
+      return setUserTokenSync(config, variables as never)
     },
     mutationKey: ['setUserTokenSync'],
-  })
+  }) as never
 }
 
 export declare namespace useSetUserTokenSync {

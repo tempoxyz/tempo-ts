@@ -59,7 +59,7 @@ importers:
         version: 0.5.1
       '@changesets/cli':
         specifier: ^2.27.7
-        version: 2.29.7(@types/node@24.9.1)
+        version: 2.29.7(@types/node@24.10.0)
       '@remix-run/node-fetch-server':
         specifier: ^0.10.0
         version: 0.10.0
@@ -71,31 +71,34 @@ importers:
         version: 5.90.5(react@19.2.0)
       '@types/node':
         specifier: latest
-        version: 24.9.1
+        version: 24.10.0
       '@types/react':
         specifier: catalog:default
         version: 19.2.2
       '@types/react-dom':
         specifier: catalog:default
         version: 19.2.2(@types/react@19.2.2)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20251110.1
+        version: 7.0.0-dev.20251110.1
       '@vitejs/plugin-react':
         specifier: catalog:default
-        version: 5.0.4(vite@7.1.11(@types/node@24.9.1))
+        version: 5.0.4(vite@7.1.11(@types/node@24.10.0))
       '@vitest/browser':
         specifier: ^4.0.5
-        version: 4.0.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.9.1))(vitest@4.0.5)
+        version: 4.0.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.10.0))(vitest@4.0.5)
       '@vitest/browser-playwright':
         specifier: ^4.0.5
-        version: 4.0.5(bufferutil@4.0.9)(playwright@1.56.1)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.9.1))(vitest@4.0.5)
+        version: 4.0.5(bufferutil@4.0.9)(playwright@1.56.1)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.10.0))(vitest@4.0.5)
       '@vitest/coverage-v8':
         specifier: ^4.0.5
-        version: 4.0.5(@vitest/browser@4.0.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.9.1))(vitest@4.0.5))(vitest@4.0.5)
+        version: 4.0.5(@vitest/browser@4.0.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.10.0))(vitest@4.0.5))(vitest@4.0.5)
       '@wagmi/core':
         specifier: catalog:default
         version: 2.22.1(@tanstack/query-core@5.90.5)(@types/react@19.2.2)(react@19.2.0)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.0))(viem@2.38.4(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))
       node:
         specifier: runtime:^24.5.1
-        version: runtime:24.10.0
+        version: runtime:24.11.0
       playwright:
         specifier: ^1.56.1
         version: 1.56.1
@@ -119,7 +122,7 @@ importers:
         version: 2.38.4(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12)
       vitest:
         specifier: ^4.0.5
-        version: 4.0.5(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/browser-playwright@4.0.5)
+        version: 4.0.5(@types/debug@4.1.12)(@types/node@24.10.0)(@vitest/browser-playwright@4.0.5)
       vitest-browser-react:
         specifier: ^2.0.0
         version: 2.0.0(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vitest@4.0.5)
@@ -128,7 +131,7 @@ importers:
         version: 2.19.0(@tanstack/query-core@5.90.5)(@tanstack/react-query@5.90.5(react@19.2.0))(@types/react@19.2.2)(bufferutil@4.0.9)(react@19.2.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.38.4(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))(zod@4.1.12)
       zile:
         specifier: ^0.0.5
-        version: 0.0.5(typescript@5.9.3)
+        version: 0.0.5(@typescript/native-preview@7.0.0-dev.20251110.1)(typescript@5.9.3)
 
   playground:
     dependencies:
@@ -137,7 +140,7 @@ importers:
         version: 5.90.5(react@19.2.0)
       jotai:
         specifier: latest
-        version: 2.15.0(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@19.2.2)(react@19.2.0)
+        version: 2.15.1(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@19.2.2)(react@19.2.0)
       prool:
         specifier: catalog:default
         version: 0.0.25
@@ -1017,6 +1020,9 @@ packages:
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
 
+  '@types/node@24.10.0':
+    resolution: {integrity: sha512-qzQZRBqkFsYyaSWXuEHc2WR9c0a0CXwiE5FWUvn7ZM+vdy1uZLfCunD38UzhuB7YN/J11ndbDBcTmOdxJo9Q7A==}
+
   '@types/node@24.9.1':
     resolution: {integrity: sha512-QoiaXANRkSXK6p0Duvt56W208du4P9Uye9hWLWgGMDTEoKPhuenzNcC4vGUmrNkiOKTlIrBoyNQYNpSwfEZXSg==}
 
@@ -1033,6 +1039,45 @@ packages:
 
   '@typescript/analyze-trace@0.10.1':
     resolution: {integrity: sha512-RnlSOPh14QbopGCApgkSx5UBgGda5MX1cHqp2fsqfiDyCwGL/m1jaeB9fzu7didVS81LQqGZZuxFBcg8YU8EVw==}
+    hasBin: true
+
+  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20251110.1':
+    resolution: {integrity: sha512-x3DskzZCgk5qA7BCcCC/8XuZiycvZk5reeqkNTuDYeWyF1ZCKa8WWZRbW5LaunaOtXV6UsAPRCqRC8Wx34mMCg==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@typescript/native-preview-darwin-x64@7.0.0-dev.20251110.1':
+    resolution: {integrity: sha512-tuS4akGtsPs+RTiVXEXOT41+as23DXCOhzeOEtYYVdhWVuMBYLHksdTx5PGoQrCc4SfETp5jDwhyqUaVYLDGcA==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@typescript/native-preview-linux-arm64@7.0.0-dev.20251110.1':
+    resolution: {integrity: sha512-IvSeQ1iw4uvBZ8+XrO9z80J9KfbkbTzfXliPHUsjZqEtpOJTf/Mv7xzMbv4mN4xOEGVUyBG47p846oW2HknogA==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@typescript/native-preview-linux-arm@7.0.0-dev.20251110.1':
+    resolution: {integrity: sha512-I9zOzHXFqIQIcTcf2Sx9EF6gLOKXUCMo5gsjoQm4/R22+19+TMLeAs7Q1aTvd8CX8kFCtpI1eeyNzIf76rxELA==}
+    cpu: [arm]
+    os: [linux]
+
+  '@typescript/native-preview-linux-x64@7.0.0-dev.20251110.1':
+    resolution: {integrity: sha512-OWy32tgpP70rSRvmQZ6OgJpuv1pi4mQdng00eF3tfHheHluX3mvqqe86H0FOv5B9PuxlGwOZSUot1XHWadhAWg==}
+    cpu: [x64]
+    os: [linux]
+
+  '@typescript/native-preview-win32-arm64@7.0.0-dev.20251110.1':
+    resolution: {integrity: sha512-u/Bo0gIcQCv/4MDnV5f2FZR1dEdN2jk3MfkmJLKGG1zwbak4MY7sWNzvSRJHihwK2SxtcJEHus4tKb2ra2Rhig==}
+    cpu: [arm64]
+    os: [win32]
+
+  '@typescript/native-preview-win32-x64@7.0.0-dev.20251110.1':
+    resolution: {integrity: sha512-1CysgwFRuNjR0bBYv6RI3fbXtAwzD5OlbxqOQFhf2lUulMZRIkP1w4eCChSndLVCTfnUEt5Bnmn1JEUauIE+kQ==}
+    cpu: [x64]
+    os: [win32]
+
+  '@typescript/native-preview@7.0.0-dev.20251110.1':
+    resolution: {integrity: sha512-yzCDN6wUV1kibefOTwxw1MdeIgaJOgN5/a06cMyUlEDcXBriV4O2v+yeXY8c3yzUaVVVO8CKtHPbCMwro4j1Dw==}
     hasBin: true
 
   '@typescript/vfs@1.6.1':
@@ -1869,8 +1914,8 @@ packages:
     resolution: {integrity: sha512-HGYWWS/ehqTV3xN10i23tkPkpH46MLCIMFNCaaKNavAXTF1RkqxawEPtnjnGZ6XKSInBKkiOA5BKS+aZiY3AvA==}
     engines: {node: '>=8'}
 
-  jotai@2.15.0:
-    resolution: {integrity: sha512-nbp/6jN2Ftxgw0VwoVnOg0m5qYM1rVcfvij+MZx99Z5IK13eGve9FJoCwGv+17JvVthTjhSmNtT5e1coJnr6aw==}
+  jotai@2.15.1:
+    resolution: {integrity: sha512-yHT1HAZ3ba2Q8wgaUQ+xfBzEtcS8ie687I8XVCBinfg4bNniyqLIN+utPXWKQE93LMF5fPbQSVRZqgpcN5yd6Q==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@babel/core': '>=7.0.0'
@@ -2054,94 +2099,94 @@ packages:
   node-releases@2.0.25:
     resolution: {integrity: sha512-4auku8B/vw5psvTiiN9j1dAOsXvMoGqJuKJcR+dTdqiXEK20mMTk1UEo3HS16LeGQsVG6+qKTPM9u/qQ2LqATA==}
 
-  node@runtime:24.10.0:
+  node@runtime:24.11.0:
     resolution:
       type: variations
       variants:
         - resolution:
             archive: tarball
             bin: bin/node
-            integrity: sha256-2qbqn2rdB5IgEyFbrGcSorHimxLgDZv07UXoXuv16OI=
+            integrity: sha256-AVGoDHkzXAEx+qQIOkGjWIQ1rqFNz2aDBq0+q/3nG2U=
             type: binary
-            url: https://nodejs.org/download/release/v24.10.0/node-v24.10.0-aix-ppc64.tar.gz
+            url: https://nodejs.org/download/release/v24.11.0/node-v24.11.0-aix-ppc64.tar.gz
           targets:
             - cpu: ppc64
               os: aix
         - resolution:
             archive: tarball
             bin: bin/node
-            integrity: sha256-+8PW4eHZYkUNBY6RghQ3OHLMTEbghnPzHDWTKvrEqMU=
+            integrity: sha256-C+KrKBak+gLRrP8BSkNPKfVtjZVvWvapi3DO1sX00gE=
             type: binary
-            url: https://nodejs.org/download/release/v24.10.0/node-v24.10.0-darwin-arm64.tar.gz
+            url: https://nodejs.org/download/release/v24.11.0/node-v24.11.0-darwin-arm64.tar.gz
           targets:
             - cpu: arm64
               os: darwin
         - resolution:
             archive: tarball
             bin: bin/node
-            integrity: sha256-YnuIT2bbDdNfS0b7nplHdM5WCn+2B5i6GrgehnpzaH0=
+            integrity: sha256-OIRnHof0b3c4MtmKCmyrzF7E9jcITw81FbaeZuon8vE=
             type: binary
-            url: https://nodejs.org/download/release/v24.10.0/node-v24.10.0-darwin-x64.tar.gz
+            url: https://nodejs.org/download/release/v24.11.0/node-v24.11.0-darwin-x64.tar.gz
           targets:
             - cpu: x64
               os: darwin
         - resolution:
             archive: tarball
             bin: bin/node
-            integrity: sha256-Qndt/HIpkbGsnzAvPXtc+YnPespRm0ecUOWfBmOAO3M=
+            integrity: sha256-R4bQDE0lnT/wsjKDB/dk7zztZfLW6VAtQz5o1mI4UJ0=
             type: binary
-            url: https://nodejs.org/download/release/v24.10.0/node-v24.10.0-linux-arm64.tar.gz
+            url: https://nodejs.org/download/release/v24.11.0/node-v24.11.0-linux-arm64.tar.gz
           targets:
             - cpu: arm64
               os: linux
         - resolution:
             archive: tarball
             bin: bin/node
-            integrity: sha256-Lihey7t6ebm1mpN3lsxjRYooOmZCJkZ7q7dDDStpsm4=
+            integrity: sha256-fnukMm/oWI8R52PFUhe89F9eC3vL8eJru7siJamuRyE=
             type: binary
-            url: https://nodejs.org/download/release/v24.10.0/node-v24.10.0-linux-ppc64le.tar.gz
+            url: https://nodejs.org/download/release/v24.11.0/node-v24.11.0-linux-ppc64le.tar.gz
           targets:
             - cpu: ppc64le
               os: linux
         - resolution:
             archive: tarball
             bin: bin/node
-            integrity: sha256-IRerbspj1cr5D7mchwxGZBnw4CBM5Yj6ZiK3e246JOc=
+            integrity: sha256-evDZLnSweiuOkQie5PzMe1Qz/YtjJZvO06NGaJmMvfc=
             type: binary
-            url: https://nodejs.org/download/release/v24.10.0/node-v24.10.0-linux-s390x.tar.gz
+            url: https://nodejs.org/download/release/v24.11.0/node-v24.11.0-linux-s390x.tar.gz
           targets:
             - cpu: s390x
               os: linux
         - resolution:
             archive: tarball
             bin: bin/node
-            integrity: sha256-KwPFQXzgsQdngN8A4B2jc76tO0uA0ceMGtEO57kY2Qw=
+            integrity: sha256-s8BxzfR6q4Z8OyqihyV98S7F18liv5IrMv0zImxClf0=
             type: binary
-            url: https://nodejs.org/download/release/v24.10.0/node-v24.10.0-linux-x64.tar.gz
+            url: https://nodejs.org/download/release/v24.11.0/node-v24.11.0-linux-x64.tar.gz
           targets:
             - cpu: x64
               os: linux
         - resolution:
             archive: zip
             bin: node.exe
-            integrity: sha256-/50sFR3tun+BTYpxA4sP8gY+g4eZyRb3gslsUlkqLNc=
-            prefix: node-v24.10.0-win-arm64
+            integrity: sha256-EtOxqpaWt0EeEVpPoq71f5VWC17ha7Ys1phD5TXscr4=
+            prefix: node-v24.11.0-win-arm64
             type: binary
-            url: https://nodejs.org/download/release/v24.10.0/node-v24.10.0-win-arm64.zip
+            url: https://nodejs.org/download/release/v24.11.0/node-v24.11.0-win-arm64.zip
           targets:
             - cpu: arm64
               os: win32
         - resolution:
             archive: zip
             bin: node.exe
-            integrity: sha256-rcGi1cp5yS6U86WMPsDvp2vbSIdpuk1LUJkOTISJYGA=
-            prefix: node-v24.10.0-win-x64
+            integrity: sha256-EFRUC84itU7H5Q68B47F0JBwCndldgelj2pk3yH0n90=
+            prefix: node-v24.11.0-win-x64
             type: binary
-            url: https://nodejs.org/download/release/v24.10.0/node-v24.10.0-win-x64.zip
+            url: https://nodejs.org/download/release/v24.11.0/node-v24.11.0-win-x64.zip
           targets:
             - cpu: x64
               os: win32
-    version: 24.10.0
+    version: 24.11.0
     hasBin: true
 
   normalize-path@3.0.0:
@@ -3346,7 +3391,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@changesets/cli@2.29.7(@types/node@24.9.1)':
+  '@changesets/cli@2.29.7(@types/node@24.10.0)':
     dependencies:
       '@changesets/apply-release-plan': 7.0.13
       '@changesets/assemble-release-plan': 6.0.9
@@ -3362,7 +3407,7 @@ snapshots:
       '@changesets/should-skip-package': 0.1.2
       '@changesets/types': 6.1.0
       '@changesets/write': 0.4.0
-      '@inquirer/external-editor': 1.0.2(@types/node@24.9.1)
+      '@inquirer/external-editor': 1.0.2(@types/node@24.10.0)
       '@manypkg/get-packages': 1.1.3
       ansi-colors: 4.1.3
       ci-info: 3.9.0
@@ -3612,12 +3657,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@inquirer/external-editor@1.0.2(@types/node@24.9.1)':
+  '@inquirer/external-editor@1.0.2(@types/node@24.10.0)':
     dependencies:
       chardet: 2.1.0
       iconv-lite: 0.7.0
     optionalDependencies:
-      '@types/node': 24.9.1
+      '@types/node': 24.10.0
 
   '@isaacs/fs-minipass@4.0.1':
     dependencies:
@@ -4335,6 +4380,10 @@ snapshots:
 
   '@types/node@12.20.55': {}
 
+  '@types/node@24.10.0':
+    dependencies:
+      undici-types: 7.16.0
+
   '@types/node@24.9.1':
     dependencies:
       undici-types: 7.16.0
@@ -4360,10 +4409,53 @@ snapshots:
       treeify: 1.1.0
       yargs: 16.2.0
 
+  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20251110.1':
+    optional: true
+
+  '@typescript/native-preview-darwin-x64@7.0.0-dev.20251110.1':
+    optional: true
+
+  '@typescript/native-preview-linux-arm64@7.0.0-dev.20251110.1':
+    optional: true
+
+  '@typescript/native-preview-linux-arm@7.0.0-dev.20251110.1':
+    optional: true
+
+  '@typescript/native-preview-linux-x64@7.0.0-dev.20251110.1':
+    optional: true
+
+  '@typescript/native-preview-win32-arm64@7.0.0-dev.20251110.1':
+    optional: true
+
+  '@typescript/native-preview-win32-x64@7.0.0-dev.20251110.1':
+    optional: true
+
+  '@typescript/native-preview@7.0.0-dev.20251110.1':
+    optionalDependencies:
+      '@typescript/native-preview-darwin-arm64': 7.0.0-dev.20251110.1
+      '@typescript/native-preview-darwin-x64': 7.0.0-dev.20251110.1
+      '@typescript/native-preview-linux-arm': 7.0.0-dev.20251110.1
+      '@typescript/native-preview-linux-arm64': 7.0.0-dev.20251110.1
+      '@typescript/native-preview-linux-x64': 7.0.0-dev.20251110.1
+      '@typescript/native-preview-win32-arm64': 7.0.0-dev.20251110.1
+      '@typescript/native-preview-win32-x64': 7.0.0-dev.20251110.1
+
   '@typescript/vfs@1.6.1(typescript@5.9.3)':
     dependencies:
       debug: 4.4.3
       typescript: 5.9.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@vitejs/plugin-react@5.0.4(vite@7.1.11(@types/node@24.10.0))':
+    dependencies:
+      '@babel/core': 7.28.4
+      '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.4)
+      '@babel/plugin-transform-react-jsx-source': 7.27.1(@babel/core@7.28.4)
+      '@rolldown/pluginutils': 1.0.0-beta.38
+      '@types/babel__core': 7.20.5
+      react-refresh: 0.17.0
+      vite: 7.1.11(@types/node@24.10.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -4379,29 +4471,29 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/browser-playwright@4.0.5(bufferutil@4.0.9)(playwright@1.56.1)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.9.1))(vitest@4.0.5)':
+  '@vitest/browser-playwright@4.0.5(bufferutil@4.0.9)(playwright@1.56.1)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.10.0))(vitest@4.0.5)':
     dependencies:
-      '@vitest/browser': 4.0.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.9.1))(vitest@4.0.5)
-      '@vitest/mocker': 4.0.5(vite@7.1.11(@types/node@24.9.1))
+      '@vitest/browser': 4.0.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.10.0))(vitest@4.0.5)
+      '@vitest/mocker': 4.0.5(vite@7.1.11(@types/node@24.10.0))
       playwright: 1.56.1
       tinyrainbow: 3.0.3
-      vitest: 4.0.5(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/browser-playwright@4.0.5)
+      vitest: 4.0.5(@types/debug@4.1.12)(@types/node@24.10.0)(@vitest/browser-playwright@4.0.5)
     transitivePeerDependencies:
       - bufferutil
       - msw
       - utf-8-validate
       - vite
 
-  '@vitest/browser@4.0.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.9.1))(vitest@4.0.5)':
+  '@vitest/browser@4.0.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.10.0))(vitest@4.0.5)':
     dependencies:
-      '@vitest/mocker': 4.0.5(vite@7.1.11(@types/node@24.9.1))
+      '@vitest/mocker': 4.0.5(vite@7.1.11(@types/node@24.10.0))
       '@vitest/utils': 4.0.5
       magic-string: 0.30.19
       pixelmatch: 7.1.0
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.0.3
-      vitest: 4.0.5(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/browser-playwright@4.0.5)
+      vitest: 4.0.5(@types/debug@4.1.12)(@types/node@24.10.0)(@vitest/browser-playwright@4.0.5)
       ws: 8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
@@ -4409,7 +4501,7 @@ snapshots:
       - utf-8-validate
       - vite
 
-  '@vitest/coverage-v8@4.0.5(@vitest/browser@4.0.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.9.1))(vitest@4.0.5))(vitest@4.0.5)':
+  '@vitest/coverage-v8@4.0.5(@vitest/browser@4.0.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.10.0))(vitest@4.0.5))(vitest@4.0.5)':
     dependencies:
       '@bcoe/v8-coverage': 1.0.2
       '@vitest/utils': 4.0.5
@@ -4422,9 +4514,9 @@ snapshots:
       magicast: 0.3.5
       std-env: 3.10.0
       tinyrainbow: 3.0.3
-      vitest: 4.0.5(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/browser-playwright@4.0.5)
+      vitest: 4.0.5(@types/debug@4.1.12)(@types/node@24.10.0)(@vitest/browser-playwright@4.0.5)
     optionalDependencies:
-      '@vitest/browser': 4.0.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.9.1))(vitest@4.0.5)
+      '@vitest/browser': 4.0.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.10.0))(vitest@4.0.5)
     transitivePeerDependencies:
       - supports-color
 
@@ -4437,13 +4529,13 @@ snapshots:
       chai: 6.2.0
       tinyrainbow: 3.0.3
 
-  '@vitest/mocker@4.0.5(vite@7.1.11(@types/node@24.9.1))':
+  '@vitest/mocker@4.0.5(vite@7.1.11(@types/node@24.10.0))':
     dependencies:
       '@vitest/spy': 4.0.5
       estree-walker: 3.0.3
       magic-string: 0.30.19
     optionalDependencies:
-      vite: 7.1.11(@types/node@24.9.1)
+      vite: 7.1.11(@types/node@24.10.0)
 
   '@vitest/pretty-format@4.0.5':
     dependencies:
@@ -5732,7 +5824,7 @@ snapshots:
       html-escaper: 2.0.2
       istanbul-lib-report: 3.0.1
 
-  jotai@2.15.0(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@19.2.2)(react@19.2.0):
+  jotai@2.15.1(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@19.2.2)(react@19.2.0):
     optionalDependencies:
       '@babel/core': 7.28.4
       '@babel/template': 7.27.2
@@ -5873,7 +5965,7 @@ snapshots:
 
   node-releases@2.0.25: {}
 
-  node@runtime:24.10.0: {}
+  node@runtime:24.11.0: {}
 
   normalize-path@3.0.0: {}
 
@@ -6512,6 +6604,18 @@ snapshots:
       - utf-8-validate
       - zod
 
+  vite@7.1.11(@types/node@24.10.0):
+    dependencies:
+      esbuild: 0.25.11
+      fdir: 6.5.0(picomatch@4.0.3)
+      picomatch: 4.0.3
+      postcss: 8.5.6
+      rollup: 4.52.5
+      tinyglobby: 0.2.15
+    optionalDependencies:
+      '@types/node': 24.10.0
+      fsevents: 2.3.3
+
   vite@7.1.11(@types/node@24.9.1):
     dependencies:
       esbuild: 0.25.11
@@ -6528,15 +6632,15 @@ snapshots:
     dependencies:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
-      vitest: 4.0.5(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/browser-playwright@4.0.5)
+      vitest: 4.0.5(@types/debug@4.1.12)(@types/node@24.10.0)(@vitest/browser-playwright@4.0.5)
     optionalDependencies:
       '@types/react': 19.2.2
       '@types/react-dom': 19.2.2(@types/react@19.2.2)
 
-  vitest@4.0.5(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/browser-playwright@4.0.5):
+  vitest@4.0.5(@types/debug@4.1.12)(@types/node@24.10.0)(@vitest/browser-playwright@4.0.5):
     dependencies:
       '@vitest/expect': 4.0.5
-      '@vitest/mocker': 4.0.5(vite@7.1.11(@types/node@24.9.1))
+      '@vitest/mocker': 4.0.5(vite@7.1.11(@types/node@24.10.0))
       '@vitest/pretty-format': 4.0.5
       '@vitest/runner': 4.0.5
       '@vitest/snapshot': 4.0.5
@@ -6553,12 +6657,12 @@ snapshots:
       tinyexec: 0.3.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vite: 7.1.11(@types/node@24.9.1)
+      vite: 7.1.11(@types/node@24.10.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/debug': 4.1.12
-      '@types/node': 24.9.1
-      '@vitest/browser-playwright': 4.0.5(bufferutil@4.0.9)(playwright@1.56.1)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.9.1))(vitest@4.0.5)
+      '@types/node': 24.10.0
+      '@vitest/browser-playwright': 4.0.5(bufferutil@4.0.9)(playwright@1.56.1)(utf-8-validate@5.0.10)(vite@7.1.11(@types/node@24.10.0))(vitest@4.0.5)
     transitivePeerDependencies:
       - jiti
       - less
@@ -6722,11 +6826,12 @@ snapshots:
 
   yoctocolors@2.1.2: {}
 
-  zile@0.0.5(typescript@5.9.3):
+  zile@0.0.5(@typescript/native-preview@7.0.0-dev.20251110.1)(typescript@5.9.3):
     dependencies:
       cac: 6.7.14
       tsconfck: 3.1.6(typescript@5.9.3)
     optionalDependencies:
+      '@typescript/native-preview': 7.0.0-dev.20251110.1
       typescript: 5.9.3
 
   zod@3.22.4: {}

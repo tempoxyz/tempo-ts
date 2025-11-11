@@ -138,6 +138,7 @@ function Balance() {
           params: [account.address],
         })
       } else {
+        // @ts-expect-error - TODO: fix this
         await Actions.token.transferSync(client as Client<Transport, Chain>, {
           account: mnemonicToAccount(
             'test test test test test test test test test test test junk',
