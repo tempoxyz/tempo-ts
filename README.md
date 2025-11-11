@@ -137,7 +137,11 @@ await instance.start();
 await instance.stop();
 ```
 
-### License
+## Security
+
+See [`SECURITY.md`](https://github.com/tempoxyz/tempo-ts?tab=security-ov-file).
+
+## License
 
 Licensed under either of [Apache License](./LICENSE-APACHE), Version
 2.0 or [MIT License](./LICENSE-MIT) at your option.
