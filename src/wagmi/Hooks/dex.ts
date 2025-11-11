@@ -26,8 +26,8 @@ import {
   getOrder,
   getOrderbook,
   getOrders,
-  getPriceLevel,
   getSellQuote,
+  getTickLevel,
   place,
   placeFlip,
   placeFlipSync,
@@ -808,14 +808,14 @@ export declare namespace useOrderbook {
  */
 export function usePriceLevel<
   config extends Config = ResolvedRegister['config'],
-  selectData = getPriceLevel.ReturnValue,
+  selectData = getTickLevel.ReturnValue,
 >(parameters: usePriceLevel.Parameters<config, selectData>) {
   const { query = {} } = parameters
 
   const config = useConfig(parameters)
   const chainId = useChainId({ config })
 
-  const options = getPriceLevel.queryOptions(config, {
+  const options = getTickLevel.queryOptions(config, {
     ...parameters,
     chainId: parameters.chainId ?? chainId,
     query: undefined,
@@ -833,17 +833,17 @@ export function usePriceLevel<
 export declare namespace usePriceLevel {
   export type Parameters<
     config extends Config = ResolvedRegister['config'],
-    selectData = getPriceLevel.ReturnValue,
+    selectData = getTickLevel.ReturnValue,
   > = ConfigParameter<config> &
     QueryParameter<
-      getPriceLevel.ReturnValue,
+      getTickLevel.ReturnValue,
       DefaultError,
       selectData,
-      getPriceLevel.QueryKey<config>
+      getTickLevel.QueryKey<config>
     > &
-    Omit<getPriceLevel.queryOptions.Parameters<config, selectData>, 'query'>
+    Omit<getTickLevel.queryOptions.Parameters<config, selectData>, 'query'>
 
-  export type ReturnValue<selectData = getPriceLevel.ReturnValue> =
+  export type ReturnValue<selectData = getTickLevel.ReturnValue> =
     UseQueryReturnType<selectData, Error>
 }
 
