@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.4.2
+
+### Patch Changes
+
+- [`e6af89f`](https://github.com/tempoxyz/tempo-ts/commit/e6af89f725633da4320d618e58d13952e758f66e) Thanks [@jxom](https://github.com/jxom)! - Tweaked Wagmi types for `feeToken`.
+
 ## 0.4.1
 
 ### Patch Changes
