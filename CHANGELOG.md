@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.4.1
+
+### Patch Changes
+
+- [`b3aa00d`](https://github.com/tempoxyz/tempo-ts/commit/b3aa00dfa60ecf60b888104616002239d2b54323) Thanks [@jxom](https://github.com/jxom)! - Added `rpId` parameter to `webAuthn` connector.
+
 ## 0.4.0
 
 ### Minor Changes
