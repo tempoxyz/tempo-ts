@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.4.0
+
+### Minor Changes
+
+- [#49](https://github.com/tempoxyz/tempo-ts/pull/49) [`28f1853`](https://github.com/tempoxyz/tempo-ts/commit/28f18537eda6c0e93badf0175154cc452cbd96ab) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `dex.getPriceLevel` to `dex.getTickLevel`.
+
 ## 0.3.0
 
 ### Minor Changes
