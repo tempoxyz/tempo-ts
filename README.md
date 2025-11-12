@@ -137,6 +137,10 @@ await instance.start();
 await instance.stop();
 ```
 
+## Contributing
+
+Our contributor guidelines can be found in [`CONTRIBUTING.md`](https://github.com/tempoxyz/tempo-ts?tab=contributing-ov-file).
+
 ## Security
 
 See [`SECURITY.md`](https://github.com/tempoxyz/tempo-ts?tab=security-ov-file).
