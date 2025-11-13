@@ -1,5 +1,13 @@
 # tempo.ts
 
+## 0.4.3
+
+### Patch Changes
+
+- [`9b2ad01`](https://github.com/tempoxyz/tempo-ts/commit/9b2ad016687b06dbadd6bad2e90dfa1b2722c913) Thanks [@jxom](https://github.com/jxom)! - Fixed `feeToken` hoisting.
+
+- [`626134c`](https://github.com/tempoxyz/tempo-ts/commit/626134c7a144af051daadc175c80f3727c4d445c) Thanks [@jxom](https://github.com/jxom)! - Enhanced wallet compatibility.
+
 ## 0.4.2
 
 ### Patch Changes
