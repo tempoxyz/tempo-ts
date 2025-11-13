@@ -12,6 +12,17 @@ import { alphaUsd, betaUsd } from './wagmi.config'
 
 export function App() {
   const account = useAccount()
+
+  // Fetch balances here to avoid redundant calls
+  const alphaUsdBalance = Hooks.token.useGetBalance({
+    account: account?.address,
+    token: alphaUsd,
+  })
+  const betaUsdBalance = Hooks.token.useGetBalance({
+    account: account?.address,
+    token: betaUsd,
+  })
+
   return (
     <div>
       <h1>Tempo Example</h1>
@@ -23,7 +34,16 @@ export function App() {
           <h2>Fund Account</h2>
           <FundAccount />
           <h2>Balance</h2>
-          <Balance />
+          <Balance
+            alphaUsdBalance={alphaUsdBalance}
+            betaUsdBalance={betaUsdBalance}
+          />
+          {alphaUsdBalance.data && alphaUsdBalance.data > 0n && (
+            <>
+              <h2>Send 100 Alpha USD with Fee Token</h2>
+              <SendPaymentWithFeeToken />
+            </>
+          )}
         </>
       ) : (
         <>
@@ -73,28 +93,52 @@ export function Account() {
   )
 }
 
-export function Balance() {
-  const account = useAccount()
-  const balance = Hooks.token.useGetBalance({
-    account: account?.address,
+export function Balance({
+  alphaUsdBalance,
+  betaUsdBalance,
+}: {
+  alphaUsdBalance: ReturnType<typeof Hooks.token.useGetBalance>
+  betaUsdBalance: ReturnType<typeof Hooks.token.useGetBalance>
+}) {
+  // Fetch metadata
+  const alphaUsdMetadata = Hooks.token.useGetMetadata({
     token: alphaUsd,
   })
-  const metadata = Hooks.token.useGetMetadata({
-    token: alphaUsd,
+  const betaUsdMetadata = Hooks.token.useGetMetadata({
+    token: betaUsd,
   })
 
   useWatchBlockNumber({
     onBlockNumber() {
-      balance.refetch()
+      alphaUsdBalance.refetch()
+      betaUsdBalance.refetch()
     },
   })
 
-  if (!metadata.data) return null
+  // Only show section if either alphaUsd or betaUsd metadata are loaded
+  if (!alphaUsdMetadata.data && !betaUsdMetadata.data) return null
   return (
     <div>
-      <strong>{metadata.data?.name} Balance: </strong>
-      {formatUnits(balance.data ?? 0n, metadata.data?.decimals ?? 6)}{' '}
-      {metadata.data?.symbol}
+      {alphaUsdMetadata.data && (
+        <div>
+          <strong>{alphaUsdMetadata.data?.name} Balance: </strong>
+          {formatUnits(
+            alphaUsdBalance.data ?? 0n,
+            alphaUsdMetadata.data?.decimals ?? 6,
+          )}{' '}
+          {alphaUsdMetadata.data?.symbol}
+        </div>
+      )}
+      {betaUsdMetadata.data && (
+        <div>
+          <strong>{betaUsdMetadata.data?.name} Balance: </strong>
+          {formatUnits(
+            betaUsdBalance.data as bigint,
+            betaUsdMetadata.data?.decimals ?? 6,
+          )}{' '}
+          {betaUsdMetadata.data?.symbol}
+        </div>
+      )}
     </div>
   )
 }
@@ -189,6 +233,9 @@ export function SendPayment() {
 export function SendPaymentWithFeeToken() {
   const [recipient, setRecipient] = React.useState<string>('')
   const [memo, setMemo] = React.useState<string>('')
+  const [feeToken, setFeeToken] = React.useState<
+    typeof alphaUsd | typeof betaUsd
+  >(alphaUsd)
   const sendPayment = Hooks.token.useTransferSync()
   const metadata = Hooks.token.useGetMetadata({
     token: alphaUsd,
@@ -216,6 +263,19 @@ export function SendPaymentWithFeeToken() {
           placeholder="INV-12345"
         />
       </div>
+      <div className="flex flex-col flex-1">
+        <label htmlFor="feeToken">Fee Token</label>
+        <select
+          name="feeToken"
+          value={feeToken}
+          onChange={(e) =>
+            setFeeToken(e.target.value as typeof alphaUsd | typeof betaUsd)
+          }
+        >
+          <option value={alphaUsd}>Alpha USD</option>
+          <option value={betaUsd}>Beta USD</option>
+        </select>
+      </div>
       <button
         disabled={sendPayment.isPending}
         type="button"
@@ -225,7 +285,7 @@ export function SendPaymentWithFeeToken() {
             to: recipient,
             token: alphaUsd,
             memo: memo ? pad(stringToHex(memo), { size: 32 }) : undefined,
-            feeToken: betaUsd,
+            feeToken: feeToken,
           })
         }
       >
