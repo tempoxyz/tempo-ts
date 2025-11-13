@@ -106,10 +106,29 @@ export const formatTransactionRequest = <chain extends Chain | undefined>(
     rpc.maxPriorityFeePerGas = undefined
   }
 
+  // JSON-RPC accounts (wallets) don't support Tempo transactions yet,
+  // we will omit the type to attempt to make them compatible
+  // with the base transaction structure.
+  // TODO: `calls` will not be supported by a lot of JSON-RPC accounts (wallet),
+  // use `wallet_sendCalls` or sequential `eth_sendTransaction` to mimic the
+  // behavior of `calls`.
+  if (request.account?.type === 'json-rpc') {
+    if (rpc.calls?.length && rpc.calls.length > 1)
+      throw new Error(
+        'Batch calls are not supported with JSON-RPC accounts yet.',
+      )
+    rpc.type = undefined
+  }
+
   // We rely on `calls` for AA transactions.
-  rpc.to = undefined
-  rpc.data = undefined
-  rpc.value = undefined
+  // However, `calls` may not be supported by JSON-RPC accounts (wallets) yet,
+  // so we will not remove the `data`, `to`, and `value` fields to make it
+  // compatible with the base transaction structure.
+  if (request.account?.type !== 'json-rpc') {
+    rpc.to = undefined
+    rpc.data = undefined
+    rpc.value = undefined
+  }
 
   const [keyType, keyData] = (() => {
     if (!r.account?.source) return [undefined, undefined]
