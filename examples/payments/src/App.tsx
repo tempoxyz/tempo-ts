@@ -1,5 +1,6 @@
+import * as React from 'react'
 import { Hooks } from 'tempo.ts/wagmi'
-import { formatUnits } from 'viem'
+import { formatUnits, pad, parseUnits, stringToHex } from 'viem'
 import {
   useAccount,
   useConnect,
@@ -7,7 +8,7 @@ import {
   useDisconnect,
   useWatchBlockNumber,
 } from 'wagmi'
-import { alphaUsd } from './wagmi.config'
+import { alphaUsd, betaUsd } from './wagmi.config'
 
 export function App() {
   const account = useAccount()
@@ -116,6 +117,127 @@ export function FundAccount() {
         <div>
           Receipts:{' '}
           {fund.data.map((hash) => (
+            <div key={hash}>
+              <a href={`https://explore.tempo.xyz/${hash}`} target="_blank">
+                {hash}
+              </a>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function SendPayment() {
+  const [recipient, setRecipient] = React.useState<string>('')
+  const [memo, setMemo] = React.useState<string>('')
+  const sendPayment = Hooks.token.useTransferSync()
+  const metadata = Hooks.token.useGetMetadata({
+    token: alphaUsd,
+  })
+
+  return (
+    <div>
+      <div className="flex flex-col flex-2">
+        <label htmlFor="recipient">Recipient address</label>
+        <input
+          type="text"
+          name="recipient"
+          value={recipient}
+          onChange={(e) => setRecipient(e.target.value)}
+          placeholder="0x..."
+        />
+      </div>
+      <div className="flex flex-col flex-1">
+        <label htmlFor="memo">Memo (optional)</label>
+        <input
+          type="text"
+          name="memo"
+          value={memo}
+          onChange={(e) => setMemo(e.target.value)}
+          placeholder="INV-12345"
+        />
+      </div>
+      <button
+        disabled={sendPayment.isPending}
+        type="button"
+        onClick={() =>
+          sendPayment.mutate({
+            amount: parseUnits('100', metadata.data?.decimals ?? 6),
+            to: recipient,
+            token: alphaUsd,
+            memo: memo ? pad(stringToHex(memo), { size: 32 }) : undefined,
+          })
+        }
+      >
+        Send
+      </button>
+      {sendPayment.data && (
+        <div>
+          Receipts:{' '}
+          {sendPayment.data.map((hash) => (
+            <div key={hash}>
+              <a href={`https://explore.tempo.xyz/${hash}`} target="_blank">
+                {hash}
+              </a>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function SendPaymentWithFeeToken() {
+  const [recipient, setRecipient] = React.useState<string>('')
+  const [memo, setMemo] = React.useState<string>('')
+  const sendPayment = Hooks.token.useTransferSync()
+  const metadata = Hooks.token.useGetMetadata({
+    token: alphaUsd,
+  })
+
+  return (
+    <div>
+      <div className="flex flex-col flex-2">
+        <label htmlFor="recipient">Recipient address</label>
+        <input
+          type="text"
+          name="recipient"
+          value={recipient}
+          onChange={(e) => setRecipient(e.target.value)}
+          placeholder="0x..."
+        />
+      </div>
+      <div className="flex flex-col flex-1">
+        <label htmlFor="memo">Memo (optional)</label>
+        <input
+          type="text"
+          name="memo"
+          value={memo}
+          onChange={(e) => setMemo(e.target.value)}
+          placeholder="INV-12345"
+        />
+      </div>
+      <button
+        disabled={sendPayment.isPending}
+        type="button"
+        onClick={() =>
+          sendPayment.mutate({
+            amount: parseUnits('100', metadata.data?.decimals ?? 6),
+            to: recipient,
+            token: alphaUsd,
+            memo: memo ? pad(stringToHex(memo), { size: 32 }) : undefined,
+            feeToken: betaUsd,
+          })
+        }
+      >
+        Send
+      </button>
+      {sendPayment.data && (
+        <div>
+          Receipts:{' '}
+          {sendPayment.data.map((hash) => (
             <div key={hash}>
               <a href={`https://explore.tempo.xyz/${hash}`} target="_blank">
                 {hash}
