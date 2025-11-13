@@ -8,7 +8,7 @@ import {
   useDisconnect,
   useWatchBlockNumber,
 } from 'wagmi'
-import { alphaUsd } from './wagmi.config'
+import { alphaUsd, linkingUsd } from './wagmi.config'
 
 export function App() {
   const account = useAccount()
@@ -254,6 +254,56 @@ export function MintToken() {
           >
             View receipt
           </a>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function MintFeeAmmLiquidity() {
+  const { address } = useAccount()
+  const tokenAddress = '0x20c0000000000000000000000000000000000004'
+
+  const mintFeeLiquidity = Hooks.amm.useMintSync()
+
+  return (
+    <div>
+      {mintFeeLiquidity.data && (
+        <div className="flex mx-6 flex-col gap-3 pb-4">
+          <div className="ps-5 border-gray4 border-s-2">
+            <button
+              onClick={() => {
+                if (!address || !tokenAddress) return
+                mintFeeLiquidity.mutate({
+                  userToken: {
+                    amount: 0n,
+                    address: tokenAddress,
+                  },
+                  validatorToken: {
+                    amount: parseUnits('100', 6),
+                    address: linkingUsd,
+                  },
+                  to: address,
+                  feeToken: alphaUsd,
+                })
+              }}
+              type="button"
+              className="text-[14px] -tracking-[2%] font-normal"
+            >
+              Add Liquidity
+            </button>
+            {mintFeeLiquidity.data && (
+              <div>
+                <a
+                  href={`https://explore.tempo.xyz/tx/${mintFeeLiquidity.data.receipt.transactionHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View receipt
+                </a>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
