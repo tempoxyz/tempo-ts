@@ -1,5 +1,6 @@
+import * as React from 'react'
 import { Hooks } from 'tempo.ts/wagmi'
-import { formatUnits } from 'viem'
+import { formatUnits, pad, parseUnits, stringToHex } from 'viem'
 import {
   useAccount,
   useConnect,
@@ -7,6 +8,7 @@ import {
   useDisconnect,
   useWatchBlockNumber,
 } from 'wagmi'
+import { alphaUsd } from './wagmi.config'
 
 export function App() {
   const account = useAccount()
@@ -149,6 +151,104 @@ export function CreateStablecoin() {
           {create.data.name} created successfully!{' '}
           <a
             href={`https://explore.tempo.xyz/tx/${create.data.receipt.transactionHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View receipt
+          </a>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function GrantTokenRoles() {
+  const { address } = useAccount()
+  const tokenAddress = '0x20c0000000000000000000000000000000000004'
+
+  const grant = Hooks.token.useGrantRolesSync()
+
+  return (
+    <div>
+      <button
+        disabled={!address}
+        onClick={() =>
+          grant.mutate({
+            token: tokenAddress,
+            roles: ['issuer'],
+            to: address,
+            feeToken: alphaUsd,
+          })
+        }
+        type="button"
+      >
+        Grant
+      </button>
+      {grant.data && (
+        <div>
+          <a
+            href={`https://explore.tempo.xyz/tx/${grant.data.receipt.transactionHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View receipt
+          </a>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function MintToken() {
+  const { address } = useAccount()
+  const tokenAddress = '0x20c0000000000000000000000000000000000004'
+
+  const [recipient, setRecipient] = React.useState<string>('')
+  const [memo, setMemo] = React.useState<string>('')
+
+  const metadata = Hooks.token.useGetMetadata({
+    token: tokenAddress,
+  })
+  const mint = Hooks.token.useMintSync()
+
+  return (
+    <div>
+      <label htmlFor="recipient">Recipient address</label>
+      <input
+        type="text"
+        name="recipient"
+        value={recipient}
+        onChange={(e) => setRecipient(e.target.value)}
+        placeholder="0x..."
+      />
+      <label htmlFor="memo">Memo (optional)</label>
+      <input
+        type="text"
+        name="memo"
+        value={memo}
+        onChange={(e) => setMemo(e.target.value)}
+        placeholder="INV-12345"
+      />
+      <button
+        disabled={!address}
+        onClick={() =>
+          mint.mutate({
+            amount: parseUnits('100', metadata.decimals),
+            to: recipient,
+            token: tokenAddress,
+            memo: memo ? pad(stringToHex(memo), { size: 32 }) : undefined,
+            feeToken: alphaUsd,
+          })
+        }
+        type="button"
+        className="text-[14px] -tracking-[2%] font-normal"
+      >
+        Mint
+      </button>
+      {mint.data && (
+        <div>
+          <a
+            href={`https://explore.tempo.xyz/tx/${mint.data.receipt.transactionHash}`}
             target="_blank"
             rel="noopener noreferrer"
           >

@@ -174,16 +174,13 @@ export function SendPayment() {
         Send
       </button>
       {sendPayment.data && (
-        <div>
-          Receipts:{' '}
-          {sendPayment.data.map((hash) => (
-            <div key={hash}>
-              <a href={`https://explore.tempo.xyz/${hash}`} target="_blank">
-                {hash}
-              </a>
-            </div>
-          ))}
-        </div>
+        <a
+          href={`https://explore.tempo.xyz/tx/${sendPayment.data.receipt.transactionHash}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View receipt
+        </a>
       )}
     </div>
   )
@@ -235,16 +232,13 @@ export function SendPaymentWithFeeToken() {
         Send
       </button>
       {sendPayment.data && (
-        <div>
-          Receipts:{' '}
-          {sendPayment.data.map((hash) => (
-            <div key={hash}>
-              <a href={`https://explore.tempo.xyz/${hash}`} target="_blank">
-                {hash}
-              </a>
-            </div>
-          ))}
-        </div>
+        <a
+          href={`https://explore.tempo.xyz/tx/${sendPayment.data.receipt.transactionHash}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View receipt
+        </a>
       )}
     </div>
   )
