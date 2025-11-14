@@ -1,5 +1,13 @@
 # tempo.ts
 
+## 0.4.4
+
+### Patch Changes
+
+- [`fd95d62`](https://github.com/tempoxyz/tempo-ts/commit/fd95d62381006f9e7bdaaee3f362977563852868) Thanks [@tmm](https://github.com/tmm)! - Fixed TSDoc using incorrect role
+
+- [`cd5e46b`](https://github.com/tempoxyz/tempo-ts/commit/cd5e46b47d44110c7e32357b94b934f8b390cf70) Thanks [@jxom](https://github.com/jxom)! - Added ERC-5792 compatibility to Wagmi connectors.
+
 ## 0.4.3
 
 ### Patch Changes
