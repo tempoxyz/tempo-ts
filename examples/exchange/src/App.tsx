@@ -6,7 +6,7 @@ import {
   useConnect,
   useConnectors,
   useDisconnect,
-  useSendTransactionSync,
+  useSendCallsSync,
   useWatchBlockNumber,
 } from 'wagmi'
 import { alphaUsd, linkingUsd } from './wagmi.config'
@@ -25,6 +25,8 @@ export function App() {
           <FundAccount />
           <h2>Balance</h2>
           <Balance />
+          <h2>Place Order</h2>
+          <PlaceOrder />
         </>
       ) : (
         <>
@@ -134,42 +136,38 @@ export function PlaceOrder() {
   const { data: metadata } = Hooks.token.useGetMetadata({
     token: alphaUsd,
   })
+  const sendCalls = useSendCallsSync()
 
-  const sendTransaction = useSendTransactionSync()
-
-  const amount = parseUnits('100', metadata?.decimals || 6)
-
-  const calls = [
-    Actions.token.approve.call({
-      spender: Addresses.stablecoinExchange,
-      amount,
-      token: linkingUsd,
-    }),
-    Actions.dex.place.call({
-      amount,
-      tick: 0,
-      token: alphaUsd,
-      type: 'buy',
-    }),
-  ]
-
+  if (!metadata) return null
   return (
     <div>
       <button
-        onClick={async () => {
-          await sendTransaction.sendTransactionSyncAsync({
-            calls,
-            feeToken: alphaUsd,
+        onClick={() => {
+          const amount = parseUnits('100', metadata?.decimals ?? 6)
+          sendCalls.sendCallsSync({
+            calls: [
+              Actions.token.approve.call({
+                spender: Addresses.stablecoinExchange,
+                amount,
+                token: linkingUsd,
+              }),
+              Actions.dex.place.call({
+                amount,
+                tick: 0,
+                token: alphaUsd,
+                type: 'buy',
+              }),
+            ],
           })
         }}
         type="button"
       >
         Place Order
       </button>
-      {sendTransaction.data && (
+      {sendCalls.data && (
         <div>
           <a
-            href={`https://explore.tempo.xyz/tx/${sendTransaction.data.transactionHash}`}
+            href={`https://explore.tempo.xyz/tx/${sendCalls.data.receipts?.at(0)?.transactionHash}`}
             target="_blank"
             rel="noopener noreferrer"
           >

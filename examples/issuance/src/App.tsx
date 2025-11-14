@@ -160,6 +160,9 @@ export function CreateStablecoin() {
       )}
 
       {create.data?.token && <GrantTokenRoles token={create.data.token} />}
+      {create.data?.token && (
+        <MintFeeAmmLiquidity tokenAddress={create.data.token} />
+      )}
     </div>
   )
 }
@@ -262,50 +265,49 @@ export function MintToken(props: { token: Address }) {
   )
 }
 
-export function MintFeeAmmLiquidity() {
+export function MintFeeAmmLiquidity({
+  tokenAddress,
+}: {
+  tokenAddress: Address
+}) {
   const { address } = useAccount()
-  const tokenAddress = '0x20c0000000000000000000000000000000000004'
 
   const mintFeeLiquidity = Hooks.amm.useMintSync()
 
   return (
     <div>
+      <h2>Mint Fee Amm Liquidity</h2>
+
+      <button
+        onClick={() => {
+          if (!address || !tokenAddress) return
+          mintFeeLiquidity.mutate({
+            userToken: {
+              amount: 0n,
+              address: tokenAddress,
+            },
+            validatorToken: {
+              amount: parseUnits('100', 6),
+              address: linkingUsd,
+            },
+            to: address,
+            feeToken: alphaUsd,
+          })
+        }}
+        type="button"
+      >
+        Add Liquidity
+      </button>
+
       {mintFeeLiquidity.data && (
-        <div className="flex mx-6 flex-col gap-3 pb-4">
-          <div className="ps-5 border-gray4 border-s-2">
-            <button
-              onClick={() => {
-                if (!address || !tokenAddress) return
-                mintFeeLiquidity.mutate({
-                  userToken: {
-                    amount: 0n,
-                    address: tokenAddress,
-                  },
-                  validatorToken: {
-                    amount: parseUnits('100', 6),
-                    address: linkingUsd,
-                  },
-                  to: address,
-                  feeToken: alphaUsd,
-                })
-              }}
-              type="button"
-              className="text-[14px] -tracking-[2%] font-normal"
-            >
-              Add Liquidity
-            </button>
-            {mintFeeLiquidity.data && (
-              <div>
-                <a
-                  href={`https://explore.tempo.xyz/tx/${mintFeeLiquidity.data.receipt.transactionHash}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  View receipt
-                </a>
-              </div>
-            )}
-          </div>
+        <div>
+          <a
+            href={`https://explore.tempo.xyz/tx/${mintFeeLiquidity.data.receipt.transactionHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View receipt
+          </a>
         </div>
       )}
     </div>

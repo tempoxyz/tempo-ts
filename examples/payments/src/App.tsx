@@ -12,14 +12,9 @@ import { alphaUsd, betaUsd } from './wagmi.config'
 export function App() {
   const account = useAccount()
 
-  // Fetch balances here to avoid redundant calls
   const alphaUsdBalance = Hooks.token.useGetBalance({
     account: account?.address,
     token: alphaUsd,
-  })
-  const betaUsdBalance = Hooks.token.useGetBalance({
-    account: account?.address,
-    token: betaUsd,
   })
 
   return (
@@ -33,10 +28,7 @@ export function App() {
           <h2>Fund Account</h2>
           <FundAccount />
           <h2>Balance</h2>
-          <Balance
-            alphaUsdBalance={alphaUsdBalance}
-            betaUsdBalance={betaUsdBalance}
-          />
+          <Balance />
           {alphaUsdBalance.data && alphaUsdBalance.data > 0n && (
             <>
               <h2>Send 100 Alpha USD with Fee Token</h2>
@@ -92,14 +84,18 @@ export function Account() {
   )
 }
 
-export function Balance({
-  alphaUsdBalance,
-  betaUsdBalance,
-}: {
-  alphaUsdBalance: Hooks.token.useGetBalance.ReturnValue
-  betaUsdBalance: Hooks.token.useGetBalance.ReturnValue
-}) {
-  // Fetch metadata
+export function Balance() {
+  const account = useAccount()
+
+  const alphaUsdBalance = Hooks.token.useGetBalance({
+    account: account?.address,
+    token: alphaUsd,
+  })
+  const betaUsdBalance = Hooks.token.useGetBalance({
+    account: account?.address,
+    token: betaUsd,
+  })
+
   const alphaUsdMetadata = Hooks.token.useGetMetadata({
     token: alphaUsd,
   })
@@ -156,6 +152,7 @@ export function FundAccount() {
       >
         Fund Account
       </button>
+
       {fund.data && (
         <div>
           Receipts:{' '}
@@ -202,13 +199,16 @@ export function SendPayment() {
         <label htmlFor="recipient">Recipient address</label>
         <input type="text" name="recipient" placeholder="0x..." />
       </div>
+
       <div>
         <label htmlFor="memo">Memo (optional)</label>
         <input type="text" name="memo" placeholder="INV-12345" />
       </div>
+
       <button disabled={sendPayment.isPending} type="submit">
         Send
       </button>
+
       {sendPayment.data && (
         <a
           href={`https://explore.tempo.xyz/tx/${sendPayment.data.receipt.transactionHash}`}
@@ -235,9 +235,7 @@ export function SendPaymentWithFeeToken() {
         const formData = new FormData(event.target as HTMLFormElement)
         const recipient = formData.get('recipient') as `0x${string}`
         const memo = formData.get('memo') as string
-        const feeToken = formData.get('feeToken') as
-          | typeof alphaUsd
-          | typeof betaUsd
+        const feeToken = formData.get('feeToken') as `0x${string}`
 
         if (!recipient) throw new Error('Recipient is required')
         if (!metadata.data?.decimals)
@@ -245,10 +243,10 @@ export function SendPaymentWithFeeToken() {
 
         sendPayment.mutate({
           amount: parseUnits('100', metadata.data.decimals),
+          feeToken,
+          memo: memo ? pad(stringToHex(memo), { size: 32 }) : undefined,
           to: recipient,
           token: alphaUsd,
-          memo: memo ? pad(stringToHex(memo), { size: 32 }) : undefined,
-          feeToken,
         })
       }}
     >
@@ -256,20 +254,24 @@ export function SendPaymentWithFeeToken() {
         <label htmlFor="recipient">Recipient address</label>
         <input type="text" name="recipient" placeholder="0x..." />
       </div>
+
       <div>
         <label htmlFor="memo">Memo (optional)</label>
         <input type="text" name="memo" placeholder="INV-12345" />
       </div>
-      <div className="flex flex-col flex-1">
+
+      <div>
         <label htmlFor="feeToken">Fee Token</label>
         <select name="feeToken">
           <option value={alphaUsd}>Alpha USD</option>
           <option value={betaUsd}>Beta USD</option>
         </select>
       </div>
+
       <button disabled={sendPayment.isPending} type="submit">
         Send
       </button>
+
       {sendPayment.data && (
         <a
           href={`https://explore.tempo.xyz/tx/${sendPayment.data.receipt.transactionHash}`}
