@@ -1,13 +1,15 @@
+import { Actions, Addresses } from 'tempo.ts/viem'
 import { Hooks } from 'tempo.ts/wagmi'
-import { formatUnits } from 'viem'
+import { formatUnits, parseUnits } from 'viem'
 import {
   useAccount,
   useConnect,
   useConnectors,
   useDisconnect,
+  useSendTransactionSync,
   useWatchBlockNumber,
 } from 'wagmi'
-import { alphaUsd } from './wagmi.config'
+import { alphaUsd, linkingUsd } from './wagmi.config'
 
 export function App() {
   const account = useAccount()
@@ -122,6 +124,57 @@ export function FundAccount() {
               </a>
             </div>
           ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function PlaceOrder() {
+  const { data: metadata } = Hooks.token.useGetMetadata({
+    token: alphaUsd,
+  })
+
+  const sendTransaction = useSendTransactionSync()
+
+  const amount = parseUnits('100', metadata?.decimals || 6)
+
+  const calls = [
+    Actions.token.approve.call({
+      spender: Addresses.stablecoinExchange,
+      amount,
+      token: linkingUsd,
+    }),
+    Actions.dex.place.call({
+      amount,
+      tick: 0,
+      token: alphaUsd,
+      type: 'buy',
+    }),
+  ]
+
+  return (
+    <div>
+      <button
+        onClick={async () => {
+          await sendTransaction.sendTransactionSyncAsync({
+            calls,
+            feeToken: alphaUsd,
+          })
+        }}
+        type="button"
+      >
+        Place Order
+      </button>
+      {sendTransaction.data && (
+        <div>
+          <a
+            href={`https://explore.tempo.xyz/tx/${sendTransaction.data.transactionHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View receipt
+          </a>
         </div>
       )}
     </div>
