@@ -297,22 +297,14 @@ export function SendSponsoredPayment() {
     account: sponsorAccount.address,
     token: alphaUsd,
   })
-  const sponsorBetaUsdBalance = Hooks.token.useGetBalance({
-    account: sponsorAccount.address,
-    token: betaUsd,
-  })
 
   const alphaUsdMetadata = Hooks.token.useGetMetadata({
     token: alphaUsd,
-  })
-  const betaUsdMetadata = Hooks.token.useGetMetadata({
-    token: betaUsd,
   })
 
   useWatchBlockNumber({
     onBlockNumber() {
       sponsorAlphaUsdBalance.refetch()
-      sponsorBetaUsdBalance.refetch()
     },
   })
 
@@ -325,9 +317,6 @@ export function SendSponsoredPayment() {
           Sponsor Balance:{' '}
           {alphaUsdMetadata.data &&
             `${formatUnits(sponsorAlphaUsdBalance.data ?? 0n, alphaUsdMetadata.data?.decimals ?? 6)} ${alphaUsdMetadata.data?.symbol}`}
-          {alphaUsdMetadata.data && betaUsdMetadata.data && ' | '}
-          {betaUsdMetadata.data &&
-            `${formatUnits(sponsorBetaUsdBalance.data ?? 0n, betaUsdMetadata.data?.decimals ?? 6)} ${betaUsdMetadata.data?.symbol}`}
         </div>
       </div>
 
