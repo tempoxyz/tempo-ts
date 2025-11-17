@@ -27,6 +27,7 @@ jobs:
   test-local:
     name: 'Test Runtime (tag: ${{ matrix.tag }})'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       matrix:
         tag: 
@@ -73,6 +74,7 @@ jobs:
   test-deployed:
     name: Test Runtime (e2e) (${{ matrix.rpc-env }})
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       matrix:
         rpc-env: 
