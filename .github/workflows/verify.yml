@@ -33,7 +33,6 @@ jobs:
         tag: 
           - latest
           - https://rpc.testnet.tempo.xyz
-          - https://devnet.tempoxyz.dev
 
     steps:
       - name: Clone repository
