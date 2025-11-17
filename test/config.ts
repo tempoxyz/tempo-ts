@@ -10,7 +10,7 @@ export const id =
       Math.floor(Math.random() * 10_000)) ||
   1 + Math.floor(Math.random() * 10_000)
 
-export const rpcEnv = import.meta.env.VITE_RPC_ENV
+export const rpcEnv = import.meta.env.VITE_RPC_ENV || 'local'
 export const chainId = (() => {
   if (rpcEnv === 'testnet') return tempoAndantino.id
   if (rpcEnv === 'devnet') return tempoDev.id
