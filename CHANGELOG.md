@@ -1,5 +1,17 @@
 # tempo.ts
 
+## 0.5.0
+
+### Minor Changes
+
+- [`8bb03a5`](https://github.com/tempoxyz/tempo-ts/commit/8bb03a594238897c6aa68d87ff93442069a017cc) Thanks [@jxom](https://github.com/jxom)! - **Breaking(`tempo.ts/prool`):** Migrated to support Tempo Docker container from using a standalone Tempo binary.
+
+### Patch Changes
+
+- [`8bb03a5`](https://github.com/tempoxyz/tempo-ts/commit/8bb03a594238897c6aa68d87ff93442069a017cc) Thanks [@jxom](https://github.com/jxom)! - Added `tempoTestnet` chain.
+
+- [`8bb03a5`](https://github.com/tempoxyz/tempo-ts/commit/8bb03a594238897c6aa68d87ff93442069a017cc) Thanks [@jxom](https://github.com/jxom)! - Updated `tempoDev` chain ID.
+
 ## 0.4.4
 
 ### Patch Changes
