@@ -33,7 +33,7 @@ export function App() {
             <>
               <h2>Send 100 Alpha USD with Fee Token</h2>
               <SendPaymentWithFeeToken />
-              <h2>Send 100 Alpha USD (Gasless - Sponsored)</h2>
+              <h2>Send 100 Alpha USD with Fee Sponsorship</h2>
               <SendSponsoredPayment />
             </>
           )}
@@ -310,16 +310,6 @@ export function SendSponsoredPayment() {
 
   return (
     <div>
-      <div>
-        <strong>✨ Gasless Transaction - Fees Sponsored</strong>
-        <div>Sponsor: {sponsorAccount.address}</div>
-        <div>
-          Sponsor Balance:{' '}
-          {alphaUsdMetadata.data &&
-            `${formatUnits(sponsorAlphaUsdBalance.data ?? 0n, alphaUsdMetadata.data?.decimals ?? 6)} ${alphaUsdMetadata.data?.symbol}`}
-        </div>
-      </div>
-
       <form
         onSubmit={(event) => {
           event.preventDefault()
@@ -363,6 +353,18 @@ export function SendSponsoredPayment() {
             View receipt
           </a>
         )}
+
+        <div>
+          <h3>Fee sponsor account</h3>
+          <div>
+            <strong>Sponsor address:</strong> {sponsorAccount.address}
+          </div>
+          <div>
+            <strong>Sponsor balance:</strong>
+            {alphaUsdMetadata.data &&
+              `${formatUnits(sponsorAlphaUsdBalance.data ?? 0n, alphaUsdMetadata.data?.decimals ?? 6)} ${alphaUsdMetadata.data?.symbol}`}
+          </div>
+        </div>
       </form>
     </div>
   )
