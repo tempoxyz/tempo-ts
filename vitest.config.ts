@@ -20,7 +20,6 @@ export default defineConfig({
           env: {
             RPC_PORT: '3000',
           },
-          environment: 'node',
           include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)', '**/*.test-d.ts'],
           globalSetup: [join(import.meta.dirname, './test/ox/setup.global.ts')],
           name: 'ox',
@@ -37,14 +36,12 @@ export default defineConfig({
         test: {
           name: 'prool',
           root: './src/prool',
-          environment: 'node',
           sequence: { groupOrder: 1 },
         },
       },
       {
         extends: true,
         test: {
-          environment: 'node',
           env: {
             RPC_PORT: '8545',
           },

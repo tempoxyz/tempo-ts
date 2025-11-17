@@ -10,21 +10,21 @@ export const id =
       Math.floor(Math.random() * 10_000)) ||
   1 + Math.floor(Math.random() * 10_000)
 
-export const rpcEnv = import.meta.env.VITE_RPC_ENV || 'local'
+export const nodeEnv = import.meta.env.VITE_NODE_ENV || 'local'
 export const chainId = (() => {
-  if (rpcEnv === 'testnet') return tempoAndantino.id
-  if (rpcEnv === 'devnet') return tempoDev.id
+  if (nodeEnv === 'testnet') return tempoAndantino.id
+  if (nodeEnv === 'devnet') return tempoDev.id
   return tempoLocal.id
 })()
 
 export const fetchOptions = {
   headers: {
-    Authorization: `Basic ${btoa('eng:zealous-mayer')}`,
+    Authorization: `Basic ${btoa(import.meta.env.VITE_RPC_CREDENTIALS)}`,
   },
 } as const
 
 export const rpcUrl = (() => {
-  const env = import.meta.env.VITE_RPC_ENV
+  const env = import.meta.env.VITE_NODE_ENV
   if (env === 'testnet') return tempoAndantino({}).rpcUrls.default.http[0]
   if (env === 'devnet') return tempoDev({}).rpcUrls.default.http[0]
   return `http://localhost:${import.meta.env.RPC_PORT ?? '8545'}/${id}`

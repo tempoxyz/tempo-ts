@@ -17,10 +17,10 @@ import { sendTransactionSync } from 'viem/actions'
 import { tempoAndantino, tempoDev } from '../../src/chains.js'
 import type { TokenIdOrAddress } from '../../src/ox/TokenId.js'
 import { transferSync } from '../../src/viem/Actions/token.js'
-import { addresses, fetchOptions, rpcEnv, rpcUrl } from '../config.js'
+import { addresses, fetchOptions, nodeEnv, rpcUrl } from '../config.js'
 
 const accountsMnemonic = (() => {
-  if (rpcEnv === 'local')
+  if (nodeEnv === 'local')
     return 'test test test test test test test test test test test junk'
   return generateMnemonic(english)
 })()
@@ -47,7 +47,7 @@ export const tempoTest = Chain.define({
 })
 
 export const chainFn = (() => {
-  const env = import.meta.env.VITE_RPC_ENV
+  const env = import.meta.env.VITE_NODE_ENV
   if (env === 'testnet') return tempoAndantino
   if (env === 'devnet') return tempoDev
   return tempoTest
@@ -70,7 +70,7 @@ export function getClient<
     transport: http(undefined, {
       fetchOptions,
       ...debugOptions({
-        enabled: import.meta.env.VITE_RPC_LOGS === 'true',
+        enabled: import.meta.env.VITE_HTTP_LOG === 'true',
         rpcUrl,
       }),
     }),

@@ -26,11 +26,10 @@ pnpm i tempo.ts
 ```
 
 If you wish to use `tempo.ts/prool` for programmatic Tempo node instances, you will need
-to have the `tempo` binary installed:
+to ensure you have access to [`tempoxyz/tempo`](https://github.com/tempoxyz/tempo) and are logged into the GitHub Container Registry:
 
 ```sh
-gh repo clone tempoxyz/tempo && cd tempo
-cargo install --path bin/tempo
+docker login ghcr.io
 ```
 
 ## Entrypoints
