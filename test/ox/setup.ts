@@ -1,6 +1,6 @@
-import { beforeAll } from 'vitest'
+import { afterAll, beforeAll } from 'vitest'
 import { Actions } from '../../src/viem/index.js'
-import { nodeEnv } from '../config.js'
+import { nodeEnv, rpcUrl } from '../config.js'
 import { accounts, client } from '../viem/config.js'
 
 beforeAll(async () => {
@@ -8,4 +8,9 @@ beforeAll(async () => {
   await Actions.faucet.fundSync(client, {
     account: accounts[0].address,
   })
+})
+
+afterAll(async () => {
+  if (nodeEnv !== 'local') return
+  await fetch(`${rpcUrl}/stop`)
 })

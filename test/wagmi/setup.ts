@@ -1,7 +1,7 @@
 import { disconnect } from '@wagmi/core'
-import { beforeAll, beforeEach, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, vi } from 'vitest'
 import { Actions } from '../../src/viem/index.js'
-import { nodeEnv } from '../config.js'
+import { nodeEnv, rpcUrl } from '../config.js'
 import { accounts, client } from '../viem/config.js'
 import { config } from '../wagmi/config.js'
 
@@ -19,6 +19,11 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await disconnect(config).catch(() => {})
+})
+
+afterAll(async () => {
+  if (nodeEnv !== 'local') return
+  await fetch(`${rpcUrl}/stop`)
 })
 
 // Make dates stable across runs
