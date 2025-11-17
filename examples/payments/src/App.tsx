@@ -7,7 +7,7 @@ import {
   useDisconnect,
   useWatchBlockNumber,
 } from 'wagmi'
-import { alphaUsd, betaUsd } from './wagmi.config'
+import { alphaUsd, betaUsd, sponsorAccount } from './wagmi.config'
 
 export function App() {
   const account = useAccount()
@@ -33,6 +33,8 @@ export function App() {
             <>
               <h2>Send 100 Alpha USD with Fee Token</h2>
               <SendPaymentWithFeeToken />
+              <h2>Send 100 Alpha USD (Gasless - Sponsored)</h2>
+              <SendSponsoredPayment />
             </>
           )}
         </>
@@ -282,5 +284,97 @@ export function SendPaymentWithFeeToken() {
         </a>
       )}
     </form>
+  )
+}
+
+export function SendSponsoredPayment() {
+  const sendPayment = Hooks.token.useTransferSync()
+  const metadata = Hooks.token.useGetMetadata({
+    token: alphaUsd,
+  })
+
+  const sponsorAlphaUsdBalance = Hooks.token.useGetBalance({
+    account: sponsorAccount.address,
+    token: alphaUsd,
+  })
+  const sponsorBetaUsdBalance = Hooks.token.useGetBalance({
+    account: sponsorAccount.address,
+    token: betaUsd,
+  })
+
+  const alphaUsdMetadata = Hooks.token.useGetMetadata({
+    token: alphaUsd,
+  })
+  const betaUsdMetadata = Hooks.token.useGetMetadata({
+    token: betaUsd,
+  })
+
+  useWatchBlockNumber({
+    onBlockNumber() {
+      sponsorAlphaUsdBalance.refetch()
+      sponsorBetaUsdBalance.refetch()
+    },
+  })
+
+  return (
+    <div>
+      <div>
+        <strong>✨ Gasless Transaction - Fees Sponsored</strong>
+        <div>Sponsor: {sponsorAccount.address}</div>
+        <div>
+          Sponsor Balance:{' '}
+          {alphaUsdMetadata.data &&
+            `${formatUnits(sponsorAlphaUsdBalance.data ?? 0n, alphaUsdMetadata.data?.decimals ?? 6)} ${alphaUsdMetadata.data?.symbol}`}
+          {alphaUsdMetadata.data && betaUsdMetadata.data && ' | '}
+          {betaUsdMetadata.data &&
+            `${formatUnits(sponsorBetaUsdBalance.data ?? 0n, betaUsdMetadata.data?.decimals ?? 6)} ${betaUsdMetadata.data?.symbol}`}
+        </div>
+      </div>
+
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          const formData = new FormData(event.target as HTMLFormElement)
+          const recipient = formData.get('recipient') as `0x${string}`
+          const memo = formData.get('memo') as string
+
+          if (!recipient) throw new Error('Recipient is required')
+          if (!metadata.data?.decimals)
+            throw new Error('metadata.decimals not found')
+
+          sendPayment.mutate({
+            amount: parseUnits('100', metadata.data.decimals),
+            feePayer: sponsorAccount,
+            memo: memo ? pad(stringToHex(memo), { size: 32 }) : undefined,
+            to: recipient,
+            token: alphaUsd,
+          })
+        }}
+      >
+        <div>
+          <label htmlFor="recipient">Recipient address</label>
+          <input type="text" name="recipient" placeholder="0x..." />
+        </div>
+
+        <div>
+          <label htmlFor="memo">Memo (optional)</label>
+          <input type="text" name="memo" placeholder="INV-12345" />
+        </div>
+
+        <button disabled={sendPayment.isPending} type="submit">
+          Send (Gasless)
+        </button>
+
+        {sendPayment.data && (
+          <a
+            href={`https://explore.tempo.xyz/tx/${sendPayment.data.receipt.transactionHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View receipt
+          </a>
+        )}
+      </form>
+    </div>
   )
 }
