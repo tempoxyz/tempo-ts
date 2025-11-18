@@ -195,7 +195,7 @@ export function App() {
           {alphaUsdBalance.data && alphaUsdBalance.data > 0n && (
             <>
               <h2>Send 100 Alpha USD</h2>
-              <div style={{ marginBottom: '12px' }}>
+              <div>
                 <div>
                   <strong>Sponsor Account: </strong>
                   {sponsorAccount.address}
@@ -435,7 +435,7 @@ export function SendPayment() {
         </select>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+      <div>
         <button
           disabled={isAnyPending}
           type="button"
