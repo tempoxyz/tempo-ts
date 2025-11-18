@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.5.1
+
+### Patch Changes
+
+- [`640df1c`](https://github.com/tempoxyz/tempo-ts/commit/640df1cd37820bf6605724d98adb520d2b8e5a33) Thanks [@jxom](https://github.com/jxom)! - Added support for \`eth_fillTransaction\`
+
 ## 0.5.0
 
 ### Minor Changes
