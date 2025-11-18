@@ -220,7 +220,7 @@ export function MintToken(props: { token: Address }) {
 
   return (
     <div>
-      <h2>Issue Stablecoin</h2>
+      <h2>Mint Token</h2>
 
       <form
         onSubmit={(event) => {
@@ -250,6 +250,57 @@ export function MintToken(props: { token: Address }) {
           Mint
         </button>
         {mint.data && (
+          <div>
+            <a
+              href={`https://explore.tempo.xyz/tx/${mint.data.receipt.transactionHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View receipt
+            </a>
+          </div>
+        )}
+      </form>
+    </div>
+  )
+}
+
+export function BurnToken(props: { token: Address }) {
+  const { token } = props
+  const { address } = useAccount()
+
+  const metadata = Hooks.token.useGetMetadata({
+    token,
+  })
+  const burn = Hooks.token.useBurnSync()
+
+  return (
+    <div>
+      <h2>Burn Token</h2>
+
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          const formData = new FormData(event.target as HTMLFormElement)
+          const memo = formData.get('memo') as string
+
+          if (!metadata.data?.decimals)
+            throw new Error('metadata.decimals not found')
+
+          burn.mutate({
+            amount: parseUnits('100', metadata.data?.decimals),
+            token,
+            memo: memo ? pad(stringToHex(memo), { size: 32 }) : undefined,
+            feeToken: alphaUsd,
+          })
+        }}
+      >
+        <label htmlFor="memo">Memo (optional)</label>
+        <input type="text" name="memo" placeholder="INV-12345" />
+        <button disabled={!address} type="submit">
+          Burn
+        </button>
+        {burn.data && (
           <div>
             <a
               href={`https://explore.tempo.xyz/tx/${mint.data.receipt.transactionHash}`}
