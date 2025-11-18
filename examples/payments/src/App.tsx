@@ -1,3 +1,5 @@
+import type { UseMutationResult } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Hooks } from 'tempo.ts/wagmi'
 import { formatUnits, pad, parseUnits, stringToHex } from 'viem'
 import {
@@ -9,12 +11,98 @@ import {
 } from 'wagmi'
 import { alphaUsd, betaUsd, sponsorAccount } from './wagmi.config'
 
+function DebugPanel({
+  mutation,
+}: {
+  mutation: UseMutationResult<any, any, any, any>
+}) {
+  const [isCollapsed, setIsCollapsed] = useState(false)
+
+  // Only show if mutation has been triggered
+  if (mutation.status === 'idle') return null
+
+  return (
+    <div style={{ backgroundColor: '#eaeaea' }}>
+      <div>
+        <strong>Debug Info</strong>
+        <button type="button" onClick={() => setIsCollapsed(!isCollapsed)}>
+          {isCollapsed ? 'Expand' : 'Collapse'}
+        </button>
+      </div>
+
+      {!isCollapsed && (
+        <div>
+          <div>
+            <strong>Status:</strong> {mutation.status ?? 'idle'}
+          </div>
+          <div>
+            <strong>isPending:</strong> {String(mutation.isPending)}
+          </div>
+          <div>
+            <strong>isSuccess:</strong> {String(mutation.isSuccess)}
+          </div>
+          <div>
+            <strong>isError:</strong> {String(mutation.isError)}
+          </div>
+          {mutation.error && (
+            <div>
+              <strong>Error:</strong>
+              <div>{String(mutation.error)}</div>
+            </div>
+          )}
+          {mutation.variables && (
+            <div>
+              <strong>Variables:</strong>
+              <pre>
+                {JSON.stringify(
+                  mutation.variables,
+                  (_key, value) =>
+                    typeof value === 'bigint' ? value.toString() : value,
+                  2,
+                )}
+              </pre>
+            </div>
+          )}
+          {mutation.data && (
+            <div>
+              <strong>Response Data:</strong>
+              <pre>
+                {JSON.stringify(
+                  mutation.data,
+                  (_key, value) =>
+                    typeof value === 'bigint' ? value.toString() : value,
+                  2,
+                )}
+              </pre>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function App() {
   const account = useAccount()
 
   const alphaUsdBalance = Hooks.token.useGetBalance({
     account: account?.address,
     token: alphaUsd,
+  })
+
+  const sponsorAlphaUsdBalance = Hooks.token.useGetBalance({
+    account: sponsorAccount.address,
+    token: alphaUsd,
+  })
+
+  const alphaUsdMetadata = Hooks.token.useGetMetadata({
+    token: alphaUsd,
+  })
+
+  useWatchBlockNumber({
+    onBlockNumber() {
+      sponsorAlphaUsdBalance.refetch()
+    },
   })
 
   return (
@@ -31,10 +119,19 @@ export function App() {
           <Balance />
           {alphaUsdBalance.data && alphaUsdBalance.data > 0n && (
             <>
-              <h2>Send 100 Alpha USD with Fee Token</h2>
-              <SendPaymentWithFeeToken />
-              <h2>Send 100 Alpha USD with Fee Sponsorship</h2>
-              <SendSponsoredPayment />
+              <h2>Send 100 Alpha USD</h2>
+              <div>
+                <div>
+                  <strong>Sponsor Account: </strong>
+                  {sponsorAccount.address}
+                </div>
+                <div>
+                  <strong>Sponsor Balance: </strong>
+                  {alphaUsdMetadata.data &&
+                    `${formatUnits(sponsorAlphaUsdBalance.data ?? 0n, alphaUsdMetadata.data?.decimals ?? 6)} ${alphaUsdMetadata.data?.symbol}`}
+                </div>
+              </div>
+              <SendPayment />
             </>
           )}
         </>
@@ -172,200 +269,132 @@ export function FundAccount() {
 }
 
 export function SendPayment() {
-  const sendPayment = Hooks.token.useTransferSync()
+  const [recipient, setRecipient] = useState<`0x${string}` | ''>('')
+  const [memo, setMemo] = useState('')
+  const [feeToken, setFeeToken] = useState<`0x${string}`>(alphaUsd)
+
+  const sendWithFeeToken = Hooks.token.useTransferSync()
+  const sendSponsored = Hooks.token.useTransferSync()
+  const sendRelayed = Hooks.token.useTransferSync()
+
   const metadata = Hooks.token.useGetMetadata({
     token: alphaUsd,
   })
 
+  const handleSend = (mode: 'feeToken' | 'sponsored' | 'relayed') => {
+    if (!recipient) throw new Error('Recipient is required')
+    if (!metadata.data?.decimals) throw new Error('metadata.decimals not found')
+
+    const baseParams = {
+      amount: parseUnits('100', metadata.data.decimals),
+      to: recipient,
+      token: alphaUsd as `0x${string}`,
+      memo: memo ? pad(stringToHex(memo), { size: 32 }) : undefined,
+    }
+
+    if (mode === 'feeToken') {
+      sendWithFeeToken.mutate({
+        ...baseParams,
+        feeToken,
+      })
+    } else if (mode === 'sponsored') {
+      sendSponsored.mutate({
+        ...baseParams,
+        feePayer: sponsorAccount,
+      })
+    } else if (mode === 'relayed') {
+      sendRelayed.mutate({
+        ...baseParams,
+        feePayer: true,
+      })
+    }
+  }
+
+  const activeMutation =
+    sendWithFeeToken.status !== 'idle'
+      ? sendWithFeeToken
+      : sendSponsored.status !== 'idle'
+        ? sendSponsored
+        : sendRelayed.status !== 'idle'
+          ? sendRelayed
+          : null
+
+  const isAnyPending =
+    sendWithFeeToken.isPending ||
+    sendSponsored.isPending ||
+    sendRelayed.isPending
+
   return (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault()
-        const formData = new FormData(event.target as HTMLFormElement)
-        const recipient = formData.get('recipient') as `0x${string}`
-        const memo = formData.get('memo') as string
-
-        if (!recipient) throw new Error('Recipient is required')
-        if (!metadata.data?.decimals)
-          throw new Error('metadata.decimals not found')
-
-        sendPayment.mutate({
-          amount: parseUnits('100', metadata.data.decimals),
-          to: recipient,
-          token: alphaUsd,
-          memo: memo ? pad(stringToHex(memo), { size: 32 }) : undefined,
-        })
-      }}
-    >
+    <div>
       <div>
         <label htmlFor="recipient">Recipient address</label>
-        <input type="text" name="recipient" placeholder="0x..." />
+        <input
+          type="text"
+          name="recipient"
+          placeholder="0x..."
+          value={recipient}
+          onChange={(e) => setRecipient(e.target.value as `0x${string}`)}
+        />
       </div>
 
       <div>
         <label htmlFor="memo">Memo (optional)</label>
-        <input type="text" name="memo" placeholder="INV-12345" />
+        <input
+          type="text"
+          name="memo"
+          placeholder="INV-12345"
+          value={memo}
+          onChange={(e) => setMemo(e.target.value)}
+        />
       </div>
 
-      <button disabled={sendPayment.isPending} type="submit">
-        Send
-      </button>
-
-      {sendPayment.data && (
-        <a
-          href={`https://explore.tempo.xyz/tx/${sendPayment.data.receipt.transactionHash}`}
-          target="_blank"
-          rel="noopener noreferrer"
+      <div>
+        <label htmlFor="feeToken">Fee Token (for fee token mode)</label>
+        <select
+          name="feeToken"
+          value={feeToken}
+          onChange={(e) => setFeeToken(e.target.value as `0x${string}`)}
         >
-          View receipt
-        </a>
-      )}
-    </form>
-  )
-}
-
-export function SendPaymentWithFeeToken() {
-  const sendPayment = Hooks.token.useTransferSync()
-  const metadata = Hooks.token.useGetMetadata({
-    token: alphaUsd,
-  })
-
-  return (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault()
-        const formData = new FormData(event.target as HTMLFormElement)
-        const recipient = formData.get('recipient') as `0x${string}`
-        const memo = formData.get('memo') as string
-        const feeToken = formData.get('feeToken') as `0x${string}`
-
-        if (!recipient) throw new Error('Recipient is required')
-        if (!metadata.data?.decimals)
-          throw new Error('metadata.decimals not found')
-
-        sendPayment.mutate({
-          amount: parseUnits('100', metadata.data.decimals),
-          feeToken,
-          memo: memo ? pad(stringToHex(memo), { size: 32 }) : undefined,
-          to: recipient,
-          token: alphaUsd,
-        })
-      }}
-    >
-      <div>
-        <label htmlFor="recipient">Recipient address</label>
-        <input type="text" name="recipient" placeholder="0x..." />
-      </div>
-
-      <div>
-        <label htmlFor="memo">Memo (optional)</label>
-        <input type="text" name="memo" placeholder="INV-12345" />
-      </div>
-
-      <div>
-        <label htmlFor="feeToken">Fee Token</label>
-        <select name="feeToken">
           <option value={alphaUsd}>Alpha USD</option>
           <option value={betaUsd}>Beta USD</option>
         </select>
       </div>
 
-      <button disabled={sendPayment.isPending} type="submit">
-        Send
-      </button>
+      <div>
+        <button
+          disabled={isAnyPending}
+          type="button"
+          onClick={() => handleSend('feeToken')}
+        >
+          Send with Fee Token
+        </button>
+        <button
+          disabled={isAnyPending}
+          type="button"
+          onClick={() => handleSend('sponsored')}
+        >
+          Send Gasless (Direct Sponsor)
+        </button>
+        <button
+          disabled={isAnyPending}
+          type="button"
+          onClick={() => handleSend('relayed')}
+        >
+          Send Gasless (Relayed)
+        </button>
+      </div>
 
-      {sendPayment.data && (
+      {activeMutation?.data && (
         <a
-          href={`https://explore.tempo.xyz/tx/${sendPayment.data.receipt.transactionHash}`}
+          href={`https://explore.tempo.xyz/tx/${activeMutation.data.receipt.transactionHash}`}
           target="_blank"
           rel="noopener noreferrer"
         >
           View receipt
         </a>
       )}
-    </form>
-  )
-}
 
-export function SendSponsoredPayment() {
-  const sendPayment = Hooks.token.useTransferSync()
-  const metadata = Hooks.token.useGetMetadata({
-    token: alphaUsd,
-  })
-
-  const sponsorAlphaUsdBalance = Hooks.token.useGetBalance({
-    account: sponsorAccount.address,
-    token: alphaUsd,
-  })
-
-  const alphaUsdMetadata = Hooks.token.useGetMetadata({
-    token: alphaUsd,
-  })
-
-  useWatchBlockNumber({
-    onBlockNumber() {
-      sponsorAlphaUsdBalance.refetch()
-    },
-  })
-
-  return (
-    <div>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault()
-          const formData = new FormData(event.target as HTMLFormElement)
-          const recipient = formData.get('recipient') as `0x${string}`
-          const memo = formData.get('memo') as string
-
-          if (!recipient) throw new Error('Recipient is required')
-          if (!metadata.data?.decimals)
-            throw new Error('metadata.decimals not found')
-
-          sendPayment.mutate({
-            amount: parseUnits('100', metadata.data.decimals),
-            feePayer: sponsorAccount,
-            memo: memo ? pad(stringToHex(memo), { size: 32 }) : undefined,
-            to: recipient,
-            token: alphaUsd,
-          })
-        }}
-      >
-        <div>
-          <label htmlFor="recipient">Recipient address</label>
-          <input type="text" name="recipient" placeholder="0x..." />
-        </div>
-
-        <div>
-          <label htmlFor="memo">Memo (optional)</label>
-          <input type="text" name="memo" placeholder="INV-12345" />
-        </div>
-
-        <button disabled={sendPayment.isPending} type="submit">
-          Send (Gasless)
-        </button>
-
-        {sendPayment.data && (
-          <a
-            href={`https://explore.tempo.xyz/tx/${sendPayment.data.receipt.transactionHash}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View receipt
-          </a>
-        )}
-
-        <div>
-          <h3>Fee sponsor account</h3>
-          <div>
-            <strong>Sponsor address:</strong> {sponsorAccount.address}
-          </div>
-          <div>
-            <strong>Sponsor balance:</strong>
-            {alphaUsdMetadata.data &&
-              `${formatUnits(sponsorAlphaUsdBalance.data ?? 0n, alphaUsdMetadata.data?.decimals ?? 6)} ${alphaUsdMetadata.data?.symbol}`}
-          </div>
-        </div>
-      </form>
+      {activeMutation && <DebugPanel mutation={activeMutation} />}
     </div>
   )
 }
