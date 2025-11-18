@@ -159,7 +159,7 @@ export function CreateStablecoin() {
         </div>
       )}
 
-      {create.data?.token && <GrantTokenRoles token={create.data.token} roles={['issuer']} />}
+      {create.data?.token && <GrantTokenRoles token={create.data.token} roles={['issuer', 'pause', 'unpause', 'burnBlocked']} />}
       {create.data?.token && (
         <MintFeeAmmLiquidity tokenAddress={create.data.token} />
       )}
@@ -169,7 +169,7 @@ export function CreateStablecoin() {
 
 export function GrantTokenRoles(props: {
   token: Address
-  roles: Array<'issuer' | 'pause' | 'unpause' | 'burnBlocked' | 'defaultAdmin'>
+  roles: Array<'issuer' | 'pause' | 'unpause' | 'burnBlocked'>
 }) {
   const { token, roles } = props
   const { address } = useAccount()
@@ -219,6 +219,17 @@ export function GrantTokenRoles(props: {
           </div>
         )}
       </form>
+
+      {grant.isSuccess && (
+        <>
+          <SetSupplyCap token={token} />
+          <MintToken token={token} />
+          <BurnToken token={token} />
+          <CreateTokenPolicy token={token} />
+          <PauseUnpauseTransfers token={token} />
+          <RevokeTokenRoles token={token} roles={roles} /> 
+        </>
+      )}
     </div>
   )
 }
@@ -381,7 +392,7 @@ export function MintFeeAmmLiquidity({
 
 export function RevokeTokenRoles(props: {
   token: Address
-  roles: Array<'issuer' | 'pause' | 'unpause' | 'burnBlocked' | 'defaultAdmin'>
+  roles: Array<'issuer' | 'pause' | 'unpause' | 'burnBlocked'>
 }) {
   const { token, roles } = props
   const { address } = useAccount()
@@ -494,7 +505,8 @@ export function SetSupplyCap(props: { token: Address }) {
   )
 }
 
-export function CreateTokenPolicy() {
+export function CreateTokenPolicy(props: { token: Address }) {
+  const { token } = props
   const { address } = useAccount()
 
   const createPolicy = Hooks.policy.useCreateSync()
@@ -549,6 +561,10 @@ export function CreateTokenPolicy() {
           </div>
         )}
       </form>
+
+      {createPolicy.isSuccess && createPolicy.data && (
+        <LinkTokenPolicy token={token} policyId={createPolicy.data.policyId} />
+      )}
     </div>
   )
 }
@@ -606,6 +622,10 @@ export function LinkTokenPolicy(props: { token: Address; policyId: bigint }) {
             View receipt
           </a>
         </div>
+      )}
+
+      {linkPolicy.data &&  (
+        <BurnTokenBlocked token={token} />
       )}
     </div>
   )
