@@ -5,7 +5,7 @@
 	"scripts": {
 		"check:types": "tsc -b",
 		"dev": "vite",
-		"relay": "bun relay-server.ts",
+		"relay": "bun --watch relay-server.ts",
 		"build": "tsc -b && vite build",
 		"preview": "vite preview"
 	},
