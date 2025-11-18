@@ -57,6 +57,8 @@ export declare namespace create {
     >
 
   export type ReturnValue = viem_Actions.create.ReturnValue
+
+  export type ErrorType = viem_Actions.create.ErrorType
 }
 
 /**
@@ -112,6 +114,8 @@ export declare namespace createSync {
     >
 
   export type ReturnValue = viem_Actions.createSync.ReturnValue
+
+  export type ErrorType = viem_Actions.createSync.ErrorType
 }
 
 /**
@@ -165,6 +169,8 @@ export declare namespace setAdmin {
     >
 
   export type ReturnValue = viem_Actions.setAdmin.ReturnValue
+
+  export type ErrorType = viem_Actions.setAdmin.ErrorType
 }
 
 /**
@@ -221,6 +227,8 @@ export declare namespace setAdminSync {
     >
 
   export type ReturnValue = viem_Actions.setAdminSync.ReturnValue
+
+  export type ErrorType = viem_Actions.setAdminSync.ErrorType
 }
 
 /**
@@ -278,6 +286,8 @@ export declare namespace modifyWhitelist {
     >
 
   export type ReturnValue = viem_Actions.modifyWhitelist.ReturnValue
+
+  export type ErrorType = viem_Actions.modifyWhitelist.ErrorType
 }
 
 /**
@@ -338,6 +348,8 @@ export declare namespace modifyWhitelistSync {
     >
 
   export type ReturnValue = viem_Actions.modifyWhitelistSync.ReturnValue
+
+  export type ErrorType = viem_Actions.modifyWhitelistSync.ErrorType
 }
 
 /**
@@ -395,6 +407,8 @@ export declare namespace modifyBlacklist {
     >
 
   export type ReturnValue = viem_Actions.modifyBlacklist.ReturnValue
+
+  export type ErrorType = viem_Actions.modifyBlacklist.ErrorType
 }
 
 /**
@@ -455,6 +469,8 @@ export declare namespace modifyBlacklistSync {
     >
 
   export type ReturnValue = viem_Actions.modifyBlacklistSync.ReturnValue
+
+  export type ErrorType = viem_Actions.modifyBlacklistSync.ErrorType
 }
 
 /**

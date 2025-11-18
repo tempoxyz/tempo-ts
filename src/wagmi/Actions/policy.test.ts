@@ -65,21 +65,23 @@ describe('setAdmin', () => {
     })
 
     // set new admin
-    const result = await policy.setAdminSync(config, {
-      policyId,
-      admin: account2.address,
-    })
+    const { receipt: setAdminReceipt, ...setAdminResult } =
+      await policy.setAdminSync(config, {
+        policyId,
+        admin: account2.address,
+      })
+    expect(setAdminReceipt).toBeDefined()
+    expect(setAdminResult.policyId).toBe(policyId)
+    expect(setAdminResult.admin).toBe(account2.address)
+    expect(setAdminResult.updater).toBe(account.address)
 
-    expect(result.receipt).toBeDefined()
-    expect(result.policyId).toBe(policyId)
-    expect(result.admin).toBe(account2.address)
-    expect(result.updater).toBe(account.address)
-
-    // verify new admin
-    const data = await policy.getData(config, {
-      policyId,
-    })
-    expect(data.admin).toBe(account2.address)
+    {
+      // verify new admin
+      const data = await policy.getData(config, {
+        policyId,
+      })
+      expect(data.admin).toBe(account2.address)
+    }
   })
 })
 
@@ -226,12 +228,14 @@ describe('getData', () => {
       type: 'whitelist',
     })
 
-    // get policy data
-    const data = await policy.getData(config, {
-      policyId,
-    })
-    expect(data.admin).toBe(account.address)
-    expect(data.type).toBe('whitelist')
+    {
+      // get policy data
+      const data = await policy.getData(config, {
+        policyId,
+      })
+      expect(data.admin).toBe(account.address)
+      expect(data.type).toBe('whitelist')
+    }
   })
 
   test('behavior: blacklist', async () => {
@@ -244,12 +248,14 @@ describe('getData', () => {
       type: 'blacklist',
     })
 
-    // get policy data
-    const data = await policy.getData(config, {
-      policyId,
-    })
-    expect(data.admin).toBe(account.address)
-    expect(data.type).toBe('blacklist')
+    {
+      // get policy data
+      const data = await policy.getData(config, {
+        policyId,
+      })
+      expect(data.admin).toBe(account.address)
+      expect(data.type).toBe('blacklist')
+    }
   })
 
   describe('queryOptions', () => {
