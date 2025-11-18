@@ -647,7 +647,7 @@ export function PauseUnpauseTransfers(props: { token: Address }) {
       // @ts-expect-error TS2322
       onSettled(data) {
         refetchMetadata()
-        setHash(data?.receipt?.transactionHash)
+        setHash(data?.receipt?.transactionHash as string || '')
       },
     },
   })
@@ -657,7 +657,7 @@ export function PauseUnpauseTransfers(props: { token: Address }) {
       // @ts-expect-error TS2322
       onSettled(data) {
         refetchMetadata()
-        setHash(data?.receipt?.transactionHash)
+        setHash(data?.receipt?.transactionHash as string || '')
       },
     },
   })
