@@ -1,8 +1,9 @@
 import { QueryClient } from '@tanstack/react-query'
 import { tempoAndantino } from 'tempo.ts/chains'
+import { withFeePayer } from 'tempo.ts/viem'
 import { webAuthn } from 'tempo.ts/wagmi'
 import { mnemonicToAccount } from 'viem/accounts'
-import { createConfig, webSocket } from 'wagmi'
+import { createConfig, http, webSocket } from 'wagmi'
 
 export const alphaUsd = '0x20c0000000000000000000000000000000000001'
 export const betaUsd = '0x20c0000000000000000000000000000000000002'
@@ -23,8 +24,13 @@ export const config = createConfig({
   chains: [tempoAndantino({ feeToken: alphaUsd })],
   multiInjectedProviderDiscovery: false,
   transports: {
-    [tempoAndantino.id]: webSocket(
-      'wss://rpc.testnet.tempo.xyz?supersecretargument=pleasedonotusemeinprod',
+    [tempoAndantino.id]: withFeePayer(
+      // Transport for regular transactions
+      webSocket(
+        'wss://rpc.testnet.tempo.xyz?supersecretargument=pleasedonotusemeinprod',
+      ),
+      // Transport for sponsored transactions (feePayer: true)
+      http('http://localhost:3050'),
     ),
   },
 })
