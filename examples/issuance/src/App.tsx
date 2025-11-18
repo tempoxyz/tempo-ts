@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Hooks } from 'tempo.ts/wagmi'
 import { type Address, formatUnits, pad, parseUnits, stringToHex } from 'viem'
 import {
@@ -634,6 +635,7 @@ export function LinkTokenPolicy(props: { token: Address; policyId: bigint }) {
 export function PauseUnpauseTransfers(props: { token: Address }) {
   const { token } = props
   const { address } = useAccount()
+  const [hash, setHash] = useState('')
 
   const { data: metadata, refetch: refetchMetadata } =
     Hooks.token.useGetMetadata({
@@ -642,16 +644,18 @@ export function PauseUnpauseTransfers(props: { token: Address }) {
 
   const pause = Hooks.token.usePauseSync({
     mutation: {
-      onSettled() {
+      onSettled(data) {
         refetchMetadata()
+        setHash(data.receipt.transactionHash)
       },
     },
   })
 
   const unpause = Hooks.token.useUnpauseSync({
     mutation: {
-      onSettled() {
+      onSettled(data) {
         refetchMetadata()
+        setHash(data.receipt.transactionHash)
       },
     },
   })
@@ -681,10 +685,10 @@ export function PauseUnpauseTransfers(props: { token: Address }) {
         {isProcessing ? 'Processing...' : paused ? 'Unpause' : 'Pause'}
       </button>
 
-      {(pause.data || unpause.data) && (
+      {!!hash && (
         <div>
           <a
-            href={`https://explore.tempo.xyz/tx/${pause.data?.receipt.transactionHash ?? unpause.data?.receipt.transactionHash}`}
+            href={`https://explore.tempo.xyz/tx/${hash}`}
             target="_blank"
             rel="noopener noreferrer"
           >
