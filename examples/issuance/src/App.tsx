@@ -644,18 +644,18 @@ export function PauseUnpauseTransfers(props: { token: Address }) {
 
   const pause = Hooks.token.usePauseSync({
     mutation: {
-      onSettled(data) {
+      onSettled(data: { receipt: { transactionHash: string } }) {
         refetchMetadata()
-        setHash(data.receipt.transactionHash)
+        setHash(data?.receipt?.transactionHash)
       },
     },
   })
 
   const unpause = Hooks.token.useUnpauseSync({
     mutation: {
-      onSettled(data) {
+      onSettled(data: { receipt: { transactionHash: string } }) {
         refetchMetadata()
-        setHash(data.receipt.transactionHash)
+        setHash(data?.receipt?.transactionHash)
       },
     },
   })
