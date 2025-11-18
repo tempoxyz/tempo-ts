@@ -7,7 +7,7 @@
 # Issuance Example
 
 ```sh
-pnpx gitpick tempoxyz/tempo-ts/tree/main/examples/issuance-example issuance-example && cd issuance-example
+pnpx gitpick tempoxyz/tempo-ts/tree/main/examples/issuance issuance-example && cd issuance-example
 pnpm i
 pnpm dev
 ```
