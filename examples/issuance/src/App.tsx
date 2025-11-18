@@ -644,7 +644,8 @@ export function PauseUnpauseTransfers(props: { token: Address }) {
 
   const pause = Hooks.token.usePauseSync({
     mutation: {
-      onSettled(data: { receipt: { transactionHash: string } }) {
+      // @ts-expect-error TS2322
+      onSettled(data) {
         refetchMetadata()
         setHash(data?.receipt?.transactionHash)
       },
@@ -653,7 +654,8 @@ export function PauseUnpauseTransfers(props: { token: Address }) {
 
   const unpause = Hooks.token.useUnpauseSync({
     mutation: {
-      onSettled(data: { receipt: { transactionHash: string } }) {
+      // @ts-expect-error TS2322
+      onSettled(data) {
         refetchMetadata()
         setHash(data?.receipt?.transactionHash)
       },
