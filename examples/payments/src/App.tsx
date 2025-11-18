@@ -22,102 +22,38 @@ function DebugPanel({
   if (mutation.status === 'idle') return null
 
   return (
-    <div
-      style={{
-        marginTop: '12px',
-        padding: '12px',
-        borderRadius: '8px',
-        backgroundColor: '#f5f5f5',
-        fontSize: '11px',
-        fontFamily: 'monospace',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: isCollapsed ? '0' : '8px',
-        }}
-      >
-        <div
-          style={{
-            fontFamily: 'sans-serif',
-            fontWeight: 600,
-            fontSize: '12px',
-            color: '#333',
-          }}
-        >
-          Debug Info
-        </div>
-        <button
-          type="button"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '16px',
-            padding: '0 4px',
-          }}
-        >
-          {isCollapsed ? '▶' : '▼'}
+    <div style={{ backgroundColor: '#eaeaea' }}>
+      <div>
+        <strong>Debug Info</strong>
+        <button type="button" onClick={() => setIsCollapsed(!isCollapsed)}>
+          {isCollapsed ? 'Expand' : 'Collapse'}
         </button>
       </div>
 
       {!isCollapsed && (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '4px',
-            color: '#666',
-          }}
-        >
+        <div>
           <div>
-            <span style={{ color: '#999' }}>Status:</span>{' '}
-            {mutation.status ?? 'idle'}
+            <strong>Status:</strong> {mutation.status ?? 'idle'}
           </div>
           <div>
-            <span style={{ color: '#999' }}>isPending:</span>{' '}
-            {String(mutation.isPending)}
+            <strong>isPending:</strong> {String(mutation.isPending)}
           </div>
           <div>
-            <span style={{ color: '#999' }}>isSuccess:</span>{' '}
-            {String(mutation.isSuccess)}
+            <strong>isSuccess:</strong> {String(mutation.isSuccess)}
           </div>
           <div>
-            <span style={{ color: '#999' }}>isError:</span>{' '}
-            {String(mutation.isError)}
+            <strong>isError:</strong> {String(mutation.isError)}
           </div>
           {mutation.error && (
-            <div style={{ marginTop: '8px' }}>
-              <div style={{ color: '#dc2626', fontWeight: 600 }}>Error:</div>
-              <div
-                style={{
-                  color: '#ef4444',
-                  fontSize: '10px',
-                  wordBreak: 'break-all',
-                  marginTop: '4px',
-                }}
-              >
-                {String(mutation.error)}
-              </div>
+            <div>
+              <strong>Error:</strong>
+              <div>{String(mutation.error)}</div>
             </div>
           )}
           {mutation.variables && (
-            <div style={{ marginTop: '8px' }}>
-              <div style={{ color: '#999', fontWeight: 600 }}>Variables:</div>
-              <pre
-                style={{
-                  fontSize: '10px',
-                  wordBreak: 'break-all',
-                  marginTop: '4px',
-                  color: '#333',
-                  whiteSpace: 'pre-wrap',
-                  overflow: 'auto',
-                }}
-              >
+            <div>
+              <strong>Variables:</strong>
+              <pre>
                 {JSON.stringify(
                   mutation.variables,
                   (_key, value) =>
@@ -128,20 +64,9 @@ function DebugPanel({
             </div>
           )}
           {mutation.data && (
-            <div style={{ marginTop: '8px' }}>
-              <div style={{ color: '#999', fontWeight: 600 }}>
-                Response Data:
-              </div>
-              <pre
-                style={{
-                  fontSize: '10px',
-                  wordBreak: 'break-all',
-                  marginTop: '4px',
-                  color: '#333',
-                  whiteSpace: 'pre-wrap',
-                  overflow: 'auto',
-                }}
-              >
+            <div>
+              <strong>Response Data:</strong>
+              <pre>
                 {JSON.stringify(
                   mutation.data,
                   (_key, value) =>
