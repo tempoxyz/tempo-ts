@@ -1,5 +1,13 @@
 # tempo.ts
 
+## 0.5.2
+
+### Patch Changes
+
+- [`6b0e328`](https://github.com/tempoxyz/tempo-ts/commit/6b0e328e4bff2c6e4a701487c4b41e3780396c57) Thanks [@jxom](https://github.com/jxom)! - Added `walletNamespaceCompat` transport to `tempo.ts/viem` so local accounts can leverage `wallet_` RPC actions (`sendCalls`, etc).
+
+- [#64](https://github.com/tempoxyz/tempo-ts/pull/64) [`3aa7cb7`](https://github.com/tempoxyz/tempo-ts/commit/3aa7cb7d4fd8a7505d0752372c229ce818c47af8) Thanks [@tmm](https://github.com/tmm)! - Added Wagmi Policy Actions/Hooks
+
 ## 0.5.1
 
 ### Patch Changes
