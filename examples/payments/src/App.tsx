@@ -1,6 +1,6 @@
 import type { UseMutationResult } from '@tanstack/react-query'
-import { Hooks } from 'tempo.ts/wagmi'
 import { useState } from 'react'
+import { Hooks } from 'tempo.ts/wagmi'
 import { formatUnits, pad, parseUnits, stringToHex } from 'viem'
 import {
   useAccount,
@@ -11,29 +11,69 @@ import {
 } from 'wagmi'
 import { alphaUsd, betaUsd, sponsorAccount } from './wagmi.config'
 
-function DebugPanel({ mutation }: { mutation: UseMutationResult<any, any, any, any> }) {
+function DebugPanel({
+  mutation,
+}: {
+  mutation: UseMutationResult<any, any, any, any>
+}) {
   const [isCollapsed, setIsCollapsed] = useState(false)
 
   // Only show if mutation has been triggered
   if (mutation.status === 'idle') return null
 
   return (
-    <div style={{ marginTop: '12px', padding: '12px', borderRadius: '8px', backgroundColor: '#f5f5f5', fontSize: '11px', fontFamily: 'monospace' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? '0' : '8px' }}>
-        <div style={{ fontFamily: 'sans-serif', fontWeight: 600, fontSize: '12px', color: '#333' }}>
+    <div
+      style={{
+        marginTop: '12px',
+        padding: '12px',
+        borderRadius: '8px',
+        backgroundColor: '#f5f5f5',
+        fontSize: '11px',
+        fontFamily: 'monospace',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: isCollapsed ? '0' : '8px',
+        }}
+      >
+        <div
+          style={{
+            fontFamily: 'sans-serif',
+            fontWeight: 600,
+            fontSize: '12px',
+            color: '#333',
+          }}
+        >
           Debug Info
         </div>
         <button
           type="button"
           onClick={() => setIsCollapsed(!isCollapsed)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', padding: '0 4px' }}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '16px',
+            padding: '0 4px',
+          }}
         >
           {isCollapsed ? '▶' : '▼'}
         </button>
       </div>
 
       {!isCollapsed && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', color: '#666' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px',
+            color: '#666',
+          }}
+        >
           <div>
             <span style={{ color: '#999' }}>Status:</span>{' '}
             {mutation.status ?? 'idle'}
@@ -53,7 +93,14 @@ function DebugPanel({ mutation }: { mutation: UseMutationResult<any, any, any, a
           {mutation.error && (
             <div style={{ marginTop: '8px' }}>
               <div style={{ color: '#dc2626', fontWeight: 600 }}>Error:</div>
-              <div style={{ color: '#ef4444', fontSize: '10px', wordBreak: 'break-all', marginTop: '4px' }}>
+              <div
+                style={{
+                  color: '#ef4444',
+                  fontSize: '10px',
+                  wordBreak: 'break-all',
+                  marginTop: '4px',
+                }}
+              >
                 {String(mutation.error)}
               </div>
             </div>
@@ -61,7 +108,16 @@ function DebugPanel({ mutation }: { mutation: UseMutationResult<any, any, any, a
           {mutation.variables && (
             <div style={{ marginTop: '8px' }}>
               <div style={{ color: '#999', fontWeight: 600 }}>Variables:</div>
-              <pre style={{ fontSize: '10px', wordBreak: 'break-all', marginTop: '4px', color: '#333', whiteSpace: 'pre-wrap', overflow: 'auto' }}>
+              <pre
+                style={{
+                  fontSize: '10px',
+                  wordBreak: 'break-all',
+                  marginTop: '4px',
+                  color: '#333',
+                  whiteSpace: 'pre-wrap',
+                  overflow: 'auto',
+                }}
+              >
                 {JSON.stringify(
                   mutation.variables,
                   (_key, value) =>
@@ -73,8 +129,19 @@ function DebugPanel({ mutation }: { mutation: UseMutationResult<any, any, any, a
           )}
           {mutation.data && (
             <div style={{ marginTop: '8px' }}>
-              <div style={{ color: '#999', fontWeight: 600 }}>Response Data:</div>
-              <pre style={{ fontSize: '10px', wordBreak: 'break-all', marginTop: '4px', color: '#333', whiteSpace: 'pre-wrap', overflow: 'auto' }}>
+              <div style={{ color: '#999', fontWeight: 600 }}>
+                Response Data:
+              </div>
+              <pre
+                style={{
+                  fontSize: '10px',
+                  wordBreak: 'break-all',
+                  marginTop: '4px',
+                  color: '#333',
+                  whiteSpace: 'pre-wrap',
+                  overflow: 'auto',
+                }}
+              >
                 {JSON.stringify(
                   mutation.data,
                   (_key, value) =>
@@ -117,11 +184,7 @@ export function App() {
               <h2>Send 100 Alpha USD (Gasless - Direct Sponsor)</h2>
               <SendSponsoredPayment />
               <h2>Send 100 Alpha USD (Gasless - Relayed via Proxy)</h2>
-              <WagmiProvider config={relayConfig}>
-                <QueryClientProvider client={relayQueryClient}>
-                  <SendRelayedPayment />
-                </QueryClientProvider>
-              </WagmiProvider>
+              <SendRelayedPayment />
             </>
           )}
         </>
