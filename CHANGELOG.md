@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.5.4
+
+### Patch Changes
+
+- [`3961295`](https://github.com/tempoxyz/tempo-ts/commit/3961295ef1079deb6b5031114614216aa69bbd57) Thanks [@jxom](https://github.com/jxom)! - Added `timeout` property to `faucet.fundSync`.
+
 ## 0.5.3
 
 ### Patch Changes
