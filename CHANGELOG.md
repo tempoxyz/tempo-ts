@@ -1,5 +1,13 @@
 # tempo.ts
 
+## 0.5.3
+
+### Patch Changes
+
+- [`dd6275a`](https://github.com/tempoxyz/tempo-ts/commit/dd6275a11642d2c02c1616c7360fb91aff5bfc85) Thanks [@jxom](https://github.com/jxom)! - Added `fundSync` action and `useFundSync` hook in `tempo.ts/wagmi`.
+
+- [`fa39d52`](https://github.com/tempoxyz/tempo-ts/commit/fa39d52fd7f4d164ab7a89a6281c7b95db139fd3) Thanks [@jxom](https://github.com/jxom)! - Fixed fee token preferences when a `feePayer` is supplied to transactions.
+
 ## 0.5.2
 
 ### Patch Changes
