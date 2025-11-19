@@ -2,4 +2,4 @@
 "tempo.ts": patch
 ---
 
-fix formatting of `addresses` when initiating prool Instance
+Fixed formatting of `addresses` when starting prool `Instance`
