@@ -90,21 +90,6 @@ export function App() {
     token: alphaUsd,
   })
 
-  const sponsorAlphaUsdBalance = Hooks.token.useGetBalance({
-    account: sponsorAccount.address,
-    token: alphaUsd,
-  })
-
-  const alphaUsdMetadata = Hooks.token.useGetMetadata({
-    token: alphaUsd,
-  })
-
-  useWatchBlockNumber({
-    onBlockNumber() {
-      sponsorAlphaUsdBalance.refetch()
-    },
-  })
-
   return (
     <div>
       <h1>Tempo Example</h1>
@@ -115,22 +100,11 @@ export function App() {
           <Account />
           <h2>Fund Account</h2>
           <FundAccount />
-          <h2>Balance</h2>
+          <h2>Balances</h2>
           <Balance />
           {alphaUsdBalance.data && alphaUsdBalance.data > 0n && (
             <>
               <h2>Send 100 Alpha USD</h2>
-              <div>
-                <div>
-                  <strong>Sponsor Account: </strong>
-                  {sponsorAccount.address}
-                </div>
-                <div>
-                  <strong>Sponsor Balance: </strong>
-                  {alphaUsdMetadata.data &&
-                    `${formatUnits(sponsorAlphaUsdBalance.data ?? 0n, alphaUsdMetadata.data?.decimals ?? 6)} ${alphaUsdMetadata.data?.symbol}`}
-                </div>
-              </div>
               <SendPayment />
             </>
           )}
@@ -195,6 +169,11 @@ export function Balance() {
     token: betaUsd,
   })
 
+  const sponsorAlphaUsdBalance = Hooks.token.useGetBalance({
+    account: sponsorAccount.address,
+    token: alphaUsd,
+  })
+
   const alphaUsdMetadata = Hooks.token.useGetMetadata({
     token: alphaUsd,
   })
@@ -206,6 +185,7 @@ export function Balance() {
     onBlockNumber() {
       alphaUsdBalance.refetch()
       betaUsdBalance.refetch()
+      sponsorAlphaUsdBalance.refetch()
     },
   })
 
@@ -231,6 +211,18 @@ export function Balance() {
             betaUsdMetadata.data?.decimals ?? 6,
           )}{' '}
           {betaUsdMetadata.data?.symbol}
+        </div>
+      )}
+      {alphaUsdMetadata.data && (
+        <div>
+          <div>
+            <strong>Sponsor Account: </strong>
+            {sponsorAccount.address}
+          </div>
+          <div>
+            <strong>Sponsor Balance: </strong>
+            {`${formatUnits(sponsorAlphaUsdBalance.data ?? 0n, alphaUsdMetadata.data?.decimals ?? 6)} ${alphaUsdMetadata.data?.symbol}`}
+          </div>
         </div>
       )}
     </div>
@@ -273,9 +265,7 @@ export function SendPayment() {
   const [memo, setMemo] = useState('')
   const [feeToken, setFeeToken] = useState<`0x${string}`>(alphaUsd)
 
-  const sendWithFeeToken = Hooks.token.useTransferSync()
-  const sendSponsored = Hooks.token.useTransferSync()
-  const sendRelayed = Hooks.token.useTransferSync()
+  const sendPayment = Hooks.token.useTransferSync()
 
   const metadata = Hooks.token.useGetMetadata({
     token: alphaUsd,
@@ -293,36 +283,22 @@ export function SendPayment() {
     }
 
     if (mode === 'feeToken') {
-      sendWithFeeToken.mutate({
+      sendPayment.mutate({
         ...baseParams,
         feeToken,
       })
     } else if (mode === 'sponsored') {
-      sendSponsored.mutate({
+      sendPayment.mutate({
         ...baseParams,
         feePayer: sponsorAccount,
       })
     } else if (mode === 'relayed') {
-      sendRelayed.mutate({
+      sendPayment.mutate({
         ...baseParams,
         feePayer: true,
       })
     }
   }
-
-  const activeMutation =
-    sendWithFeeToken.status !== 'idle'
-      ? sendWithFeeToken
-      : sendSponsored.status !== 'idle'
-        ? sendSponsored
-        : sendRelayed.status !== 'idle'
-          ? sendRelayed
-          : null
-
-  const isAnyPending =
-    sendWithFeeToken.isPending ||
-    sendSponsored.isPending ||
-    sendRelayed.isPending
 
   return (
     <div>
@@ -362,21 +338,21 @@ export function SendPayment() {
 
       <div>
         <button
-          disabled={isAnyPending}
+          disabled={sendPayment.isPending}
           type="button"
           onClick={() => handleSend('feeToken')}
         >
           Send with Fee Token
         </button>
         <button
-          disabled={isAnyPending}
+          disabled={sendPayment.isPending}
           type="button"
           onClick={() => handleSend('sponsored')}
         >
           Send Gasless (Direct Sponsor)
         </button>
         <button
-          disabled={isAnyPending}
+          disabled={sendPayment.isPending}
           type="button"
           onClick={() => handleSend('relayed')}
         >
@@ -384,9 +360,9 @@ export function SendPayment() {
         </button>
       </div>
 
-      {activeMutation?.data && (
+      {sendPayment.data && (
         <a
-          href={`https://explore.tempo.xyz/tx/${activeMutation.data.receipt.transactionHash}`}
+          href={`https://explore.tempo.xyz/tx/${sendPayment.data.receipt.transactionHash}`}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -394,7 +370,7 @@ export function SendPayment() {
         </a>
       )}
 
-      {activeMutation && <DebugPanel mutation={activeMutation} />}
+      {sendPayment && <DebugPanel mutation={sendPayment} />}
     </div>
   )
 }
