@@ -271,33 +271,20 @@ export function SendPayment() {
     token: alphaUsd,
   })
 
-  const handleSend = (mode: 'feeToken' | 'sponsored' | 'relayed') => {
+  const handleSend = (params: {
+    feeToken?: `0x${string}`
+    feePayer?: typeof sponsorAccount | true
+  }) => {
     if (!recipient) throw new Error('Recipient is required')
     if (!metadata.data?.decimals) throw new Error('metadata.decimals not found')
 
-    const baseParams = {
+    sendPayment.mutate({
       amount: parseUnits('100', metadata.data.decimals),
       to: recipient,
       token: alphaUsd as `0x${string}`,
       memo: memo ? pad(stringToHex(memo), { size: 32 }) : undefined,
-    }
-
-    if (mode === 'feeToken') {
-      sendPayment.mutate({
-        ...baseParams,
-        feeToken,
-      })
-    } else if (mode === 'sponsored') {
-      sendPayment.mutate({
-        ...baseParams,
-        feePayer: sponsorAccount,
-      })
-    } else if (mode === 'relayed') {
-      sendPayment.mutate({
-        ...baseParams,
-        feePayer: true,
-      })
-    }
+      ...params,
+    })
   }
 
   return (
@@ -340,21 +327,21 @@ export function SendPayment() {
         <button
           disabled={sendPayment.isPending}
           type="button"
-          onClick={() => handleSend('feeToken')}
+          onClick={() => handleSend({ feeToken })}
         >
           Send with Fee Token
         </button>
         <button
           disabled={sendPayment.isPending}
           type="button"
-          onClick={() => handleSend('sponsored')}
+          onClick={() => handleSend({ feePayer: sponsorAccount })}
         >
           Send Gasless (Direct Sponsor)
         </button>
         <button
           disabled={sendPayment.isPending}
           type="button"
-          onClick={() => handleSend('relayed')}
+          onClick={() => handleSend({ feePayer: true })}
         >
           Send Gasless (Relayed)
         </button>
