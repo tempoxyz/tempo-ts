@@ -89,6 +89,7 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
               --engine.disable-precompile-cache \
               --engine.legacy-state-root \
               --faucet.enabled \
+              --faucet.address ${addresses.join(' ')} \
               --http \
               ${toArgs({
                 ...args,
@@ -103,7 +104,6 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
                   blockTime,
                 },
                 faucet: {
-                  address: addresses,
                   amount,
                   privateKey,
                 },
