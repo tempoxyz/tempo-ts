@@ -10,9 +10,9 @@ import {
   parseAccount,
 } from 'viem/utils'
 import type { RequiredBy } from '../../internal/types.js'
+import * as KeyAuthorization from '../../ox/KeyAuthorization.js'
 import * as SignatureEnvelope from '../../ox/SignatureEnvelope.js'
 import * as Transaction from '../Transaction.js'
-import * as KeyAuthorization from '../../ox/KeyAuthorization.js'
 
 export type Account = RequiredBy<LocalAccount, 'sign' | 'signAuthorization'> & {
   /** Key type. */
