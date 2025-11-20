@@ -82,7 +82,7 @@ export const formatTransactionRequest = <chain extends Chain | undefined>(
   if (action)
     request.calls = request.calls ?? [
       {
-        to: r.to || undefined,
+        to: r.to || '0x0000000000000000000000000000000000000000',
         value: r.value,
         data: r.data,
       },
@@ -129,6 +129,9 @@ export const formatTransactionRequest = <chain extends Chain | undefined>(
     rpc.data = undefined
     rpc.value = undefined
   }
+
+  if ((request.account as any)?.parentAddress)
+    rpc.from = (request.account as any).parentAddress
 
   const [keyType, keyData] = (() => {
     if (!r.account?.source) return [undefined, undefined]

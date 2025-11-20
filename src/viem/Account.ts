@@ -1,13 +1,15 @@
-import { WebCryptoP256 } from 'ox'
-import * as Address from 'ox/Address'
+import * as WebCryptoP256 from 'ox/WebCryptoP256'
 import type * as Hex from 'ox/Hex'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
+import type { LocalAccount } from 'viem'
 import * as SignatureEnvelope from '../ox/SignatureEnvelope.js'
 import * as internal from './internal/account.js'
+import type { Account } from './internal/account.js'
+import * as KeyAuthorization from '../ox/KeyAuthorization.js'
 
 export type { Account } from './internal/account.js'
 
@@ -28,13 +30,13 @@ export function fromHeadlessWebAuthn(
   privateKey: Hex.Hex,
   options: fromHeadlessWebAuthn.Options,
 ): fromP256.ReturnValue {
-  const { rpId, origin } = options
+  const { parent, rpId, origin } = options
 
   const publicKey = P256.getPublicKey({ privateKey })
-  const address = Address.fromPublicKey(publicKey)
 
   return internal.toPrivateKeyAccount({
-    address,
+    parent,
+    keyType: 'webAuthn',
     publicKey,
     async sign({ hash }) {
       const { metadata, payload } = WebAuthnP256.getSignPayload({
@@ -63,10 +65,11 @@ export declare namespace fromHeadlessWebAuthn {
   export type Options = Omit<
     WebAuthnP256.getSignPayload.Options,
     'challenge' | 'rpId' | 'origin'
-  > & {
-    rpId: string
-    origin: string
-  }
+  > &
+    Pick<internal.toPrivateKeyAccount.Parameters, 'parent'> & {
+      rpId: string
+      origin: string
+    }
 
   export type ReturnValue = internal.toPrivateKeyAccount.ReturnValue
 }
@@ -84,12 +87,16 @@ export declare namespace fromHeadlessWebAuthn {
  * @param privateKey P256 private key.
  * @returns Account.
  */
-export function fromP256(privateKey: Hex.Hex): fromP256.ReturnValue {
+export function fromP256(
+  privateKey: Hex.Hex,
+  options: fromP256.Options = {},
+): fromP256.ReturnValue {
+  const { parent } = options
   const publicKey = P256.getPublicKey({ privateKey })
-  const address = Address.fromPublicKey(publicKey)
 
   return internal.toPrivateKeyAccount({
-    address,
+    parent,
+    keyType: 'p256',
     publicKey,
     async sign({ hash }) {
       const signature = P256.sign({ payload: hash, privateKey })
@@ -104,6 +111,8 @@ export function fromP256(privateKey: Hex.Hex): fromP256.ReturnValue {
 }
 
 export declare namespace fromP256 {
+  export type Options = Pick<internal.toPrivateKeyAccount.Parameters, 'parent'>
+
   export type ReturnValue = internal.toPrivateKeyAccount.ReturnValue
 }
 
@@ -121,11 +130,16 @@ export declare namespace fromP256 {
  * @returns Account.
  */
 // TODO: this function will be redundant when Viem migrates to Ox.
-export function fromSecp256k1(privateKey: Hex.Hex): fromSecp256k1.ReturnValue {
+export function fromSecp256k1(
+  privateKey: Hex.Hex,
+  options: fromSecp256k1.Options = {},
+): fromSecp256k1.ReturnValue {
+  const { parent } = options
   const publicKey = Secp256k1.getPublicKey({ privateKey })
 
   return internal.toPrivateKeyAccount({
-    address: Address.fromPublicKey(publicKey),
+    keyType: 'secp256k1',
+    parent,
     publicKey,
     async sign(parameters) {
       const { hash } = parameters
@@ -136,6 +150,8 @@ export function fromSecp256k1(privateKey: Hex.Hex): fromSecp256k1.ReturnValue {
 }
 
 export declare namespace fromSecp256k1 {
+  export type Options = Pick<internal.toPrivateKeyAccount.Parameters, 'parent'>
+
   export type ReturnValue = internal.toPrivateKeyAccount.ReturnValue
 }
 
@@ -203,7 +219,7 @@ export function fromWebAuthnP256(
   const { id } = credential
   const publicKey = PublicKey.fromHex(credential.publicKey)
   return internal.toPrivateKeyAccount({
-    address: Address.fromPublicKey(publicKey),
+    keyType: 'webAuthn',
     publicKey,
     async sign({ hash }) {
       const { metadata, signature } = await WebAuthnP256.sign({
@@ -254,12 +270,14 @@ export declare namespace fromWebAuthnP256 {
  */
 export function fromWebCryptoP256(
   keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>,
+  options: fromWebCryptoP256.Options = {},
 ): fromWebCryptoP256.ReturnValue {
+  const { parent } = options
   const { publicKey, privateKey } = keyPair
-  const address = Address.fromPublicKey(publicKey)
 
   return internal.toPrivateKeyAccount({
-    address,
+    parent,
+    keyType: 'p256',
     publicKey,
     async sign({ hash }) {
       const signature = await WebCryptoP256.sign({ payload: hash, privateKey })
@@ -275,5 +293,37 @@ export function fromWebCryptoP256(
 }
 
 export declare namespace fromWebCryptoP256 {
+  export type Options = Pick<internal.toPrivateKeyAccount.Parameters, 'parent'>
+
   export type ReturnValue = internal.toPrivateKeyAccount.ReturnValue
+}
+
+export async function signKeyAuthorization(
+  account: LocalAccount,
+  parameters: signKeyAuthorization.Parameters,
+): Promise<signKeyAuthorization.ReturnValue> {
+  const { key, expiry, limits } = parameters
+  const { address, keyType: type } = key
+
+  const signature = await account.sign!({
+    hash: KeyAuthorization.getSignPayload({ address, expiry, limits, type }),
+  })
+  return KeyAuthorization.from({
+    address,
+    expiry,
+    limits,
+    signature: SignatureEnvelope.from(signature),
+    type,
+  })
+}
+
+export declare namespace signKeyAuthorization {
+  type Parameters = Pick<
+    KeyAuthorization.KeyAuthorization,
+    'expiry' | 'limits'
+  > & {
+    key: Pick<Account, 'address' | 'keyType'>
+  }
+
+  type ReturnValue = KeyAuthorization.Signed
 }

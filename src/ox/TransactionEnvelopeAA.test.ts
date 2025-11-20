@@ -1,6 +1,7 @@
-import { Hex, P256, Rlp, Secp256k1, Value } from 'ox'
+import { Hex, P256, Rlp, Secp256k1, Value, WebAuthnP256 } from 'ox'
 import { describe, expect, test } from 'vitest'
 import { SignatureEnvelope } from './index.js'
+import * as KeyAuthorization from './KeyAuthorization.js'
 import * as TransactionEnvelopeAA from './TransactionEnvelopeAA.js'
 
 const privateKey =
@@ -254,6 +255,37 @@ describe('deserialize', () => {
     )
   })
 
+  test('keyAuthorization', () => {
+    const keyAuthorization = KeyAuthorization.from({
+      expiry: 1234567890,
+      address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
+      type: 'secp256k1',
+      limits: [
+        {
+          token: '0x20c0000000000000000000000000000000000001',
+          limit: Value.from('10', 6),
+        },
+      ],
+      signature: SignatureEnvelope.from({
+        r: 44944627813007772897391531230081695102703289123332187696115181104739239197517n,
+        s: 36528503505192438307355164441104001310566505351980369085208178712678799181120n,
+        yParity: 0,
+      }),
+    })
+
+    const transaction_keyAuthorization = TransactionEnvelopeAA.from({
+      ...transaction,
+      keyAuthorization,
+    })
+
+    const serialized = TransactionEnvelopeAA.serialize(
+      transaction_keyAuthorization,
+    )
+    expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual(
+      transaction_keyAuthorization,
+    )
+  })
+
   describe('signature', () => {
     test('secp256k1', () => {
       const signature = Secp256k1.sign({
@@ -456,7 +488,7 @@ describe('deserialize', () => {
         [TransactionEnvelope.InvalidSerializedError: Invalid serialized transaction of type "aa" was provided.
 
         Serialized Transaction: "0x76c0"
-        Missing Attributes: chainId, maxPriorityFeePerGas, maxFeePerGas, gas, calls, accessList, nonceKey, nonce, validBefore, validAfter, feeToken, feePayerSignatureOrSender]
+        Missing Attributes: chainId, maxPriorityFeePerGas, maxFeePerGas, gas, calls, accessList, keyAuthorization, nonceKey, nonce, validBefore, validAfter, feeToken, feePayerSignatureOrSender]
       `)
     })
 
@@ -469,7 +501,7 @@ describe('deserialize', () => {
         [TransactionEnvelope.InvalidSerializedError: Invalid serialized transaction of type "aa" was provided.
 
         Serialized Transaction: "0x76c20001"
-        Missing Attributes: maxFeePerGas, gas, calls, accessList, nonceKey, nonce, validBefore, validAfter, feeToken, feePayerSignatureOrSender]
+        Missing Attributes: maxFeePerGas, gas, calls, accessList, keyAuthorization, nonceKey, nonce, validBefore, validAfter, feeToken, feePayerSignatureOrSender]
       `)
     })
 
@@ -520,6 +552,7 @@ describe('deserialize', () => {
             '0x', // feeToken
             '0x', // feePayerSignature
             [], // authorizationList
+            [], // keyAuthorization
             '0x1234', // signature
             '0x5678', // extra field
           ]).slice(2)}`,
@@ -527,7 +560,7 @@ describe('deserialize', () => {
       ).toThrowErrorMatchingInlineSnapshot(`
         [TransactionEnvelope.InvalidSerializedError: Invalid serialized transaction of type "aa" was provided.
 
-        Serialized Transaction: "0x76eb01010101d8d7940000000000000000000000000000000000000000008080000080808080c0821234825678"]
+        Serialized Transaction: "0x76ec01010101d8d7940000000000000000000000000000000000000000008080000080808080c0c0821234825678"]
       `)
     })
   })
@@ -762,6 +795,133 @@ describe('serialize', () => {
     expect(TransactionEnvelopeAA.serialize(transaction)).toMatchInlineSnapshot(
       `"0x76f84101808080f4d79470997970c51812dc3a010c7d01b50e0d17dc79c88080db943c44cdddb6a900fa2b585dd299e03d12fa4293bc8207d0821234c0808080808080c0"`,
     )
+  })
+
+  test('keyAuthorization (secp256k1)', () => {
+    const keyAuthorization = KeyAuthorization.from({
+      address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
+      expiry: 1234567890,
+      type: 'secp256k1',
+      limits: [
+        {
+          token: '0x20c0000000000000000000000000000000000001',
+          limit: Value.from('10', 6),
+        },
+      ],
+      signature: SignatureEnvelope.from({
+        r: 44944627813007772897391531230081695102703289123332187696115181104739239197517n,
+        s: 36528503505192438307355164441104001310566505351980369085208178712678799181120n,
+        yParity: 0,
+      }),
+    })
+
+    const transaction = TransactionEnvelopeAA.from({
+      chainId: 1,
+      calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+      nonce: 0n,
+      keyAuthorization,
+    })
+
+    const serialized = TransactionEnvelopeAA.serialize(transaction)
+    expect(serialized).toMatchInlineSnapshot(
+      `"0x76f8a001808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c0808080808080c0f8798084499602d2dad99420c00000000000000000000000000000000000018398968094be95c3f554e9fc85ec51be69a3d807a0d55bcf2cb841635dc2033e60185bb36709c29c75d64ea51dfbd91c32ef4be198e4ceb169fb4d50c2667ac4c771072746acfdcf1f1483336dcca8bd2df47cd83175dbe60f05401b"`,
+    )
+
+    const deserialized = TransactionEnvelopeAA.deserialize(serialized)
+    expect(deserialized.keyAuthorization).toEqual(keyAuthorization)
+  })
+
+  test('keyAuthorization (p256)', () => {
+    const keyAuthorization = KeyAuthorization.from({
+      address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
+      expiry: 1234567890,
+      type: 'p256',
+      limits: [
+        {
+          token: '0x20c0000000000000000000000000000000000001',
+          limit: Value.from('10', 6),
+        },
+      ],
+      signature: SignatureEnvelope.from({
+        signature: {
+          r: 92602584010956101470289867944347135737570451066466093224269890121909314569518n,
+          s: 54171125190222965779385658110416711469231271457324878825831748147306957269813n,
+        },
+        publicKey: {
+          prefix: 4,
+          x: 78495282704852028275327922540131762143565388050940484317945369745559774511861n,
+          y: 8109764566587999957624872393871720746996669263962991155166704261108473113504n,
+        },
+        prehash: true,
+      }),
+    })
+
+    const transaction = TransactionEnvelopeAA.from({
+      chainId: 1,
+      calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+      nonce: 0n,
+      keyAuthorization,
+    })
+
+    const serialized = TransactionEnvelopeAA.serialize(transaction)
+    expect(serialized).toMatchInlineSnapshot(
+      `"0x76f8e101808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c0808080808080c0f8ba0184499602d2dad99420c00000000000000000000000000000000000018398968094be95c3f554e9fc85ec51be69a3d807a0d55bcf2cb88201ccbb3485d4726235f13cb15ef394fb7158179fb7b1925eccec0147671090c52e77c3c53373cc1e3b05e7c23f609deb17cea8fe097300c45411237e9fe4166b35ad8ac16e167d6992c3e120d7f17d2376bc1cbcf30c46ba6dd00ce07303e742f511edf6ce1c32de66846f56afa7be1cbd729bc35750b6d0cdcf3ec9d75461aba001"`,
+    )
+
+    const deserialized = TransactionEnvelopeAA.deserialize(serialized)
+    expect(deserialized.keyAuthorization).toEqual(keyAuthorization)
+  })
+
+  test('keyAuthorization (webAuthn)', () => {
+    const metadata = {
+      authenticatorData: WebAuthnP256.getAuthenticatorData({
+        rpId: 'localhost',
+      }),
+      clientDataJSON: WebAuthnP256.getClientDataJSON({
+        challenge: '0xdeadbeef',
+        origin: 'http://localhost',
+      }),
+    }
+
+    const keyAuthorization = KeyAuthorization.from({
+      address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
+      expiry: 1234567890,
+      type: 'webAuthn',
+      limits: [
+        {
+          token: '0x20c0000000000000000000000000000000000001',
+          limit: Value.from('10', 6),
+        },
+      ],
+      signature: SignatureEnvelope.from({
+        signature: {
+          r: 92602584010956101470289867944347135737570451066466093224269890121909314569518n,
+          s: 54171125190222965779385658110416711469231271457324878825831748147306957269813n,
+        },
+        publicKey: {
+          prefix: 4,
+          x: 78495282704852028275327922540131762143565388050940484317945369745559774511861n,
+          y: 8109764566587999957624872393871720746996669263962991155166704261108473113504n,
+        },
+        metadata,
+      }),
+    })
+
+    const transaction = TransactionEnvelopeAA.from({
+      chainId: 1,
+      calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+      nonce: 0n,
+      keyAuthorization,
+    })
+
+    const serialized = TransactionEnvelopeAA.serialize(transaction)
+    expect(serialized).toMatchInlineSnapshot(
+      `"0x76f9016301808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c0808080808080c0f9013b0284499602d2dad99420c00000000000000000000000000000000000018398968094be95c3f554e9fc85ec51be69a3d807a0d55bcf2cb901020249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a223371322d3777222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657dccbb3485d4726235f13cb15ef394fb7158179fb7b1925eccec0147671090c52e77c3c53373cc1e3b05e7c23f609deb17cea8fe097300c45411237e9fe4166b35ad8ac16e167d6992c3e120d7f17d2376bc1cbcf30c46ba6dd00ce07303e742f511edf6ce1c32de66846f56afa7be1cbd729bc35750b6d0cdcf3ec9d75461aba0"`,
+    )
+
+    // Verify roundtrip
+    const deserialized = TransactionEnvelopeAA.deserialize(serialized)
+    expect(deserialized.keyAuthorization).toEqual(keyAuthorization)
   })
 
   describe('with signature', () => {

@@ -74,6 +74,7 @@ describe('sendTransaction', () => {
           "data": undefined,
           "feePayerSignature": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
+          "keyAuthorization": null,
           "maxFeePerBlobGas": undefined,
           "nonceKey": 0n,
           "to": null,
@@ -141,6 +142,7 @@ describe('sendTransaction', () => {
           "data": undefined,
           "feePayerSignature": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
+          "keyAuthorization": null,
           "maxFeePerBlobGas": undefined,
           "nonceKey": 0n,
           "to": null,
@@ -213,6 +215,7 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
+          "keyAuthorization": null,
           "maxFeePerBlobGas": undefined,
           "nonceKey": 0n,
           "to": null,
@@ -225,6 +228,34 @@ describe('sendTransaction', () => {
           "yParity": undefined,
         }
       `)
+    })
+
+    test('with access key', async () => {
+      const account = accounts[0]
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        parent: account,
+      })
+
+      const keyAuthorization = await Account.signKeyAuthorization(account, {
+        key: accessKey,
+      })
+
+      {
+        const receipt = await client.sendTransactionSync({
+          account,
+          keyAuthorization,
+        })
+        expect(receipt).toBeDefined()
+      }
+
+      // TODO: uncomment
+      // {
+      //   const receipt = await client.sendTransactionSync({
+      //     account: accessKey,
+      //     to: '0x0000000000000000000000000000000000000000',
+      //   })
+      //   expect(receipt).toBeDefined()
+      // }
     })
   })
 
@@ -288,6 +319,7 @@ describe('sendTransaction', () => {
           "data": undefined,
           "feePayerSignature": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
+          "keyAuthorization": null,
           "maxFeePerBlobGas": undefined,
           "nonceKey": 0n,
           "to": null,
@@ -364,6 +396,7 @@ describe('sendTransaction', () => {
           "data": undefined,
           "feePayerSignature": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
+          "keyAuthorization": null,
           "maxFeePerBlobGas": undefined,
           "nonceKey": 0n,
           "to": null,
@@ -438,6 +471,7 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
+          "keyAuthorization": null,
           "maxFeePerBlobGas": undefined,
           "nonceKey": 0n,
           "to": null,
@@ -450,6 +484,34 @@ describe('sendTransaction', () => {
           "yParity": undefined,
         }
       `)
+    })
+
+    test('with access key', async () => {
+      const account = accounts[0]
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        parent: account,
+      })
+
+      const keyAuthorization = await Account.signKeyAuthorization(account, {
+        key: accessKey,
+      })
+
+      {
+        const receipt = await client.sendTransactionSync({
+          account,
+          keyAuthorization,
+        })
+        expect(receipt).toBeDefined()
+      }
+
+      // TODO: uncomment
+      // {
+      //   const receipt = await client.sendTransactionSync({
+      //     account: accessKey,
+      //     to: '0x0000000000000000000000000000000000000000',
+      //   })
+      //   expect(receipt).toBeDefined()
+      // }
     })
   })
 
@@ -511,6 +573,7 @@ describe('sendTransaction', () => {
           "feePayerSignature": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "gas": 29012n,
+          "keyAuthorization": null,
           "maxFeePerBlobGas": undefined,
           "nonceKey": 0n,
           "to": null,
@@ -617,6 +680,38 @@ describe('sendTransaction', () => {
       expect(signature).toBeDefined()
       expect(transaction).toBeDefined()
     })
+
+    test('with access key', async () => {
+      const keyPair = await WebCryptoP256.createKeyPair()
+      const account = Account.fromWebCryptoP256(keyPair)
+      const accessKey = Account.fromWebCryptoP256(keyPair, {
+        parent: account,
+      })
+
+      // fund account
+      await fundAddress(client, { address: account.address })
+
+      const keyAuthorization = await Account.signKeyAuthorization(account, {
+        key: accessKey,
+      })
+
+      {
+        const receipt = await client.sendTransactionSync({
+          account,
+          keyAuthorization,
+        })
+        expect(receipt).toBeDefined()
+      }
+
+      // TODO: uncomment
+      // {
+      //   const receipt = await client.sendTransactionSync({
+      //     account: accessKey,
+      //     to: '0x0000000000000000000000000000000000000000',
+      //   })
+      //   expect(receipt).toBeDefined()
+      // }
+    })
   })
 
   describe('webAuthn', () => {
@@ -683,6 +778,7 @@ describe('sendTransaction', () => {
           "data": undefined,
           "feePayerSignature": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
+          "keyAuthorization": null,
           "maxFeePerBlobGas": undefined,
           "nonceKey": 0n,
           "to": null,
@@ -763,6 +859,7 @@ describe('sendTransaction', () => {
           "data": undefined,
           "feePayerSignature": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
+          "keyAuthorization": null,
           "maxFeePerBlobGas": undefined,
           "nonceKey": 0n,
           "to": null,
@@ -841,6 +938,7 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
+          "keyAuthorization": null,
           "maxFeePerBlobGas": undefined,
           "nonceKey": 0n,
           "to": null,
@@ -853,6 +951,43 @@ describe('sendTransaction', () => {
           "yParity": undefined,
         }
       `)
+    })
+
+    test('with access key', async () => {
+      const account = Account.fromHeadlessWebAuthn(
+        '0x6a3086fb3f2f95a3f36ef5387d18151ff51dc98a1e0eb987b159ba196beb0c99',
+        {
+          rpId: 'localhost',
+          origin: 'http://localhost',
+        },
+      )
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        parent: account,
+      })
+
+      // fund account
+      await fundAddress(client, { address: account.address })
+
+      const keyAuthorization = await Account.signKeyAuthorization(account, {
+        key: accessKey,
+      })
+
+      {
+        const receipt = await client.sendTransactionSync({
+          account,
+          keyAuthorization,
+        })
+        expect(receipt).toBeDefined()
+      }
+
+      // TODO: uncomment
+      // {
+      //   const receipt = await client.sendTransactionSync({
+      //     account: accessKey,
+      //     to: '0x0000000000000000000000000000000000000000',
+      //   })
+      //   expect(receipt).toBeDefined()
+      // }
     })
   })
 })
@@ -929,6 +1064,7 @@ describe('signTransaction', () => {
         "data": undefined,
         "feeToken": "0x20c0000000000000000000000000000000000001",
         "gas": 24002n,
+        "keyAuthorization": null,
         "maxFeePerBlobGas": undefined,
         "nonceKey": 0n,
         "to": null,
@@ -1093,6 +1229,7 @@ describe('relay', () => {
           ],
           "data": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
+          "keyAuthorization": null,
           "maxFeePerBlobGas": undefined,
           "nonceKey": 0n,
           "to": null,
@@ -1174,6 +1311,7 @@ describe('relay', () => {
           ],
           "data": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
+          "keyAuthorization": null,
           "maxFeePerBlobGas": undefined,
           "nonceKey": 0n,
           "to": null,
@@ -1286,6 +1424,7 @@ describe('relay', () => {
           ],
           "data": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
+          "keyAuthorization": null,
           "maxFeePerBlobGas": undefined,
           "nonceKey": 0n,
           "to": null,

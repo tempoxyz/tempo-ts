@@ -57,6 +57,7 @@
 	},
 	"pnpm": {
 		"overrides": {
+			"ox": "~0.9.14",
 			"tempo.ts": "workspace:*",
 			"viem": "catalog:default"
 		}
@@ -66,7 +67,7 @@
 	"type": "module",
 	"version": "0.5.4",
 	"dependencies": {
-		"ox": "~0.9.9"
+		"ox": "~0.9.14"
 	},
 	"peerDependencies": {
 		"@tanstack/query-core": ">=5.0.0",

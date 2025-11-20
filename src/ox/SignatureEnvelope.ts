@@ -1,3 +1,4 @@
+import type * as Address from 'ox/Address'
 import * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
@@ -10,11 +11,13 @@ import type {
   IsNarrowable,
   OneOf,
   PartialBy,
+  UnionPartialBy,
 } from '../internal/types.js'
 
 /** Signature type identifiers for encoding/decoding */
 const serializedP256Type = '0x01'
 const serializedWebAuthnType = '0x02'
+const serializedKeychainType = '0x03'
 
 /**
  * Statically determines the signature type of an envelope at compile time.
@@ -53,7 +56,11 @@ export type GetType<
                 signature: { r: bigint; s: bigint; yParity: number }
               }
             ? 'secp256k1'
-            : never
+            : envelope extends {
+                  userAddress: Address.Address
+                }
+              ? 'keychain'
+              : never
 
 /**
  * Represents a signature envelope that can contain different signature types.
@@ -67,12 +74,29 @@ export type SignatureEnvelope<bigintType = bigint, numberType = number> = OneOf<
   | Secp256k1<bigintType, numberType>
   | P256<bigintType, numberType>
   | WebAuthn<bigintType, numberType>
+  | Keychain<bigintType, numberType>
 >
 
 /**
  * RPC-formatted signature envelope.
  */
-export type SignatureEnvelopeRpc = OneOf<Secp256k1Rpc | P256Rpc | WebAuthnRpc>
+export type SignatureEnvelopeRpc = OneOf<
+  Secp256k1Rpc | P256Rpc | WebAuthnRpc | KeychainRpc
+>
+
+export type Keychain<bigintType = bigint, numberType = number> = {
+  /** Root account address that this transaction is being executed for */
+  userAddress: Address.Address
+  /** The actual signature from the access key (can be Secp256k1, P256, or WebAuthn) */
+  inner: SignatureEnvelope<bigintType, numberType>
+  type: 'keychain'
+}
+
+export type KeychainRpc = {
+  type: 'keychain'
+  userAddress: Address.Address
+  signature: SignatureEnvelopeRpc
+}
 
 export type P256<bigintType = bigint, numberType = number> = {
   prehash: boolean
@@ -159,7 +183,8 @@ export function assert(envelope: PartialBy<SignatureEnvelope, 'type'>): void {
   const type = getType(envelope)
 
   if (type === 'secp256k1') {
-    Signature.assert(envelope.signature)
+    const secp256k1 = envelope as Secp256k1
+    Signature.assert(secp256k1.signature)
     return
   }
 
@@ -204,6 +229,12 @@ export function assert(envelope: PartialBy<SignatureEnvelope, 'type'>): void {
       throw new MissingPropertiesError({ envelope, missing, type: 'webAuthn' })
     return
   }
+
+  if (type === 'keychain') {
+    const keychain = envelope as Keychain
+    assert(keychain.inner)
+    return
+  }
 }
 
 export declare namespace assert {
@@ -233,7 +264,7 @@ export function deserialize(serialized: Serialized): SignatureEnvelope {
   if (size === 65) {
     const signature = Signature.fromHex(serialized)
     Signature.assert(signature)
-    return { signature, type: 'secp256k1' }
+    return { signature, type: 'secp256k1' } satisfies Secp256k1
   }
 
   // For all other lengths, first byte is the type identifier
@@ -261,7 +292,7 @@ export function deserialize(serialized: Serialized): SignatureEnvelope {
         s: Hex.toBigInt(Hex.slice(data, 32, 64)),
       },
       type: 'p256',
-    } as P256
+    } satisfies P256
   }
 
   if (typeId === serializedWebAuthnType) {
@@ -325,7 +356,18 @@ export function deserialize(serialized: Serialized): SignatureEnvelope {
         ),
       },
       type: 'webAuthn',
-    } as WebAuthn
+    } satisfies WebAuthn
+  }
+
+  if (typeId === serializedKeychainType) {
+    const userAddress = Hex.slice(data, 0, 20)
+    const inner = deserialize(Hex.slice(data, 20))
+
+    return {
+      userAddress,
+      inner,
+      type: 'keychain',
+    } satisfies Keychain
   }
 
   throw new InvalidSerializedError({
@@ -361,7 +403,10 @@ export function from<const value extends from.Value>(
 }
 
 export declare namespace from {
-  type Value = PartialBy<SignatureEnvelope, 'type'> | Secp256k1Flat | Serialized
+  type Value =
+    | UnionPartialBy<SignatureEnvelope, 'type'>
+    | Secp256k1Flat
+    | Serialized
 
   type ReturnValue<value extends Value> = Compute<
     OneOf<
@@ -451,6 +496,13 @@ export function fromRpc(envelope: SignatureEnvelopeRpc): SignatureEnvelope {
     }
   }
 
+  if (envelope.type === 'keychain')
+    return {
+      type: 'keychain',
+      userAddress: envelope.userAddress,
+      inner: fromRpc(envelope.signature),
+    }
+
   throw new CoercionError({ envelope })
 }
 
@@ -513,6 +565,10 @@ export function getType<
   )
     return 'webAuthn' as never
 
+  // Detect Keychain signature
+  if ('userAddress' in envelope && 'inner' in envelope)
+    return 'keychain' as never
+
   throw new CoercionError({
     envelope,
   })
@@ -531,12 +587,15 @@ export function getType<
  * @throws {CoercionError} If the envelope cannot be serialized.
  */
 export function serialize(
-  envelope: PartialBy<SignatureEnvelope, 'prehash'>,
+  envelope: UnionPartialBy<SignatureEnvelope, 'prehash'>,
 ): Serialized {
   const type = getType(envelope)
 
   // Backward compatibility: no type identifier for secp256k1
-  if (type === 'secp256k1') return Signature.toHex(envelope.signature)
+  if (type === 'secp256k1') {
+    const secp256k1 = envelope as Secp256k1
+    return Signature.toHex(secp256k1.signature)
+  }
 
   if (type === 'p256') {
     const p256 = envelope as P256
@@ -566,6 +625,15 @@ export function serialize(
       Hex.fromNumber(webauthn.signature.s, { size: 32 }),
       Hex.fromNumber(webauthn.publicKey.x, { size: 32 }),
       Hex.fromNumber(webauthn.publicKey.y, { size: 32 }),
+    )
+  }
+
+  if (type === 'keychain') {
+    const keychain = envelope as Keychain
+    return Hex.concat(
+      serializedKeychainType,
+      keychain.userAddress,
+      serialize(keychain.inner),
     )
   }
 
@@ -615,6 +683,15 @@ export function toRpc(envelope: SignatureEnvelope): SignatureEnvelopeRpc {
       s: Hex.fromNumber(webauthn.signature.s, { size: 32 }),
       type: 'webAuthn',
       webauthnData,
+    }
+  }
+
+  if (type === 'keychain') {
+    const keychain = envelope as Keychain
+    return {
+      type: 'keychain',
+      userAddress: keychain.userAddress,
+      signature: toRpc(keychain.inner),
     }
   }
 
