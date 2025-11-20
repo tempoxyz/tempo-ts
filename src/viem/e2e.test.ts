@@ -248,14 +248,15 @@ describe('sendTransaction', () => {
         expect(receipt).toBeDefined()
       }
 
-      // TODO: uncomment
-      // {
-      //   const receipt = await client.sendTransactionSync({
-      //     account: accessKey,
-      //     to: '0x0000000000000000000000000000000000000000',
-      //   })
-      //   expect(receipt).toBeDefined()
-      // }
+      {
+        const receipt = await client.token.transferSync({
+          account: accessKey,
+          amount: 100n,
+          token: '0x20c0000000000000000000000000000000000001',
+          to: '0x0000000000000000000000000000000000000000',
+        })
+        expect(receipt).toBeDefined()
+      }
     })
   })
 
@@ -504,14 +505,13 @@ describe('sendTransaction', () => {
         expect(receipt).toBeDefined()
       }
 
-      // TODO: uncomment
-      // {
-      //   const receipt = await client.sendTransactionSync({
-      //     account: accessKey,
-      //     to: '0x0000000000000000000000000000000000000000',
-      //   })
-      //   expect(receipt).toBeDefined()
-      // }
+      {
+        const receipt = await client.sendTransactionSync({
+          account: accessKey,
+          to: '0x0000000000000000000000000000000000000000',
+        })
+        expect(receipt).toBeDefined()
+      }
     })
   })
 
@@ -703,14 +703,13 @@ describe('sendTransaction', () => {
         expect(receipt).toBeDefined()
       }
 
-      // TODO: uncomment
-      // {
-      //   const receipt = await client.sendTransactionSync({
-      //     account: accessKey,
-      //     to: '0x0000000000000000000000000000000000000000',
-      //   })
-      //   expect(receipt).toBeDefined()
-      // }
+      {
+        const receipt = await client.sendTransactionSync({
+          account: accessKey,
+          to: '0x0000000000000000000000000000000000000000',
+        })
+        expect(receipt).toBeDefined()
+      }
     })
   })
 
@@ -980,14 +979,13 @@ describe('sendTransaction', () => {
         expect(receipt).toBeDefined()
       }
 
-      // TODO: uncomment
-      // {
-      //   const receipt = await client.sendTransactionSync({
-      //     account: accessKey,
-      //     to: '0x0000000000000000000000000000000000000000',
-      //   })
-      //   expect(receipt).toBeDefined()
-      // }
+      {
+        const receipt = await client.sendTransactionSync({
+          account: accessKey,
+          to: '0x0000000000000000000000000000000000000000',
+        })
+        expect(receipt).toBeDefined()
+      }
     })
   })
 })

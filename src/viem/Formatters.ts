@@ -134,12 +134,12 @@ export const formatTransactionRequest = <chain extends Chain | undefined>(
     rpc.from = (request.account as any).parentAddress
 
   const [keyType, keyData] = (() => {
-    if (!r.account?.source) return [undefined, undefined]
-    if (r.account.source === 'webAuthn')
+    const type = (r.account as any)?.keyType || r.account?.source
+    if (!type) return [undefined, undefined]
+    if (type === 'webAuthn')
       // TODO: derive correct bytes size of key data based on webauthn create metadata.
       return ['webAuthn', `0x${'ff'.repeat(1400)}`]
-    if (['p256', 'secp256k1'].includes(r.account.source))
-      return [r.account.source, undefined]
+    if (['p256', 'secp256k1'].includes(type)) return [type, undefined]
     return [undefined, undefined]
   })()
 
