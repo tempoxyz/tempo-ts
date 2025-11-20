@@ -19,8 +19,8 @@ catalogs:
       specifier: ^5.0.4
       version: 5.0.4
     '@wagmi/core':
-      specifier: ^2.22.1
-      version: 2.22.1
+      specifier: 3.0.0
+      version: 3.0.0
     prool:
       specifier: 0.0.25
       version: 0.0.25
@@ -99,7 +99,7 @@ importers:
         version: 4.0.9(@vitest/browser@4.0.9(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vite@7.2.2(@types/node@24.10.0)(lightningcss@1.30.2))(vitest@4.0.9))(vitest@4.0.9)
       '@wagmi/core':
         specifier: catalog:default
-        version: 2.22.1(@tanstack/query-core@5.90.5)(@types/react@19.2.2)(react@19.2.0)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.0))(viem@https://pkg.pr.new/viem@main(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))
+        version: 3.0.0(@tanstack/query-core@5.90.5)(@types/react@19.2.2)(react@19.2.0)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.0))(viem@https://pkg.pr.new/viem@main(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))
       node:
         specifier: runtime:^24.5.1
         version: runtime:24.11.1
@@ -1375,19 +1375,6 @@ packages:
       '@walletconnect/ethereum-provider':
         optional: true
       porto:
-        optional: true
-      typescript:
-        optional: true
-
-  '@wagmi/core@2.22.1':
-    resolution: {integrity: sha512-cG/xwQWsBEcKgRTkQVhH29cbpbs/TdcUJVFXCyri3ZknxhMyGv0YEjTcrNpRgt2SaswL1KrvslSNYKKo+5YEAg==}
-    version: 2.22.1
-    peerDependencies:
-      '@tanstack/query-core': '>=5.0.0'
-      typescript: '>=5.0.4'
-      viem: 2.x
-    peerDependenciesMeta:
-      '@tanstack/query-core':
         optional: true
       typescript:
         optional: true
@@ -4810,21 +4797,6 @@ snapshots:
       '@safe-global/safe-apps-sdk': 9.1.0(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12)
       '@walletconnect/ethereum-provider': 2.21.1(@types/react@19.2.2)(bufferutil@4.0.9)(react@19.2.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12)
       typescript: 5.9.3
-
-  '@wagmi/core@2.22.1(@tanstack/query-core@5.90.5)(@types/react@19.2.2)(react@19.2.0)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.0))(viem@https://pkg.pr.new/viem@main(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))':
-    dependencies:
-      eventemitter3: 5.0.1
-      mipd: 0.0.7(typescript@5.9.3)
-      viem: https://pkg.pr.new/viem@main(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12)
-      zustand: 5.0.0(@types/react@19.2.2)(react@19.2.0)(use-sync-external-store@1.4.0(react@19.2.0))
-    optionalDependencies:
-      '@tanstack/query-core': 5.90.5
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - '@types/react'
-      - immer
-      - react
-      - use-sync-external-store
 
   '@wagmi/core@3.0.0(@tanstack/query-core@5.90.5)(@types/react@19.2.2)(react@19.2.0)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.0))(viem@https://pkg.pr.new/viem@main(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))':
     dependencies:
