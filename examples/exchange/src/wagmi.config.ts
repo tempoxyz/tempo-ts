@@ -5,6 +5,7 @@ import { createConfig, webSocket } from 'wagmi'
 
 export const linkingUsd = '0x20c0000000000000000000000000000000000000'
 export const alphaUsd = '0x20c0000000000000000000000000000000000001'
+export const betaUsd = '0x20c0000000000000000000000000000000000002'
 
 export const queryClient = new QueryClient()
 

@@ -9,7 +9,7 @@ import {
   useSendCallsSync,
   useWatchBlockNumber,
 } from 'wagmi'
-import { alphaUsd, linkingUsd } from './wagmi.config'
+import { alphaUsd, betaUsd, linkingUsd } from './wagmi.config'
 
 export function App() {
   const account = useAccount()
@@ -27,6 +27,8 @@ export function App() {
           <Balance />
           <h2>Place Order</h2>
           <PlaceOrder />
+          <h2>Make Swaps</h2>
+          <MakeSwaps />
         </>
       ) : (
         <>
@@ -175,6 +177,119 @@ export function PlaceOrder() {
           </a>
         </div>
       )}
+    </div>
+  )
+}
+
+export function MakeSwaps() {
+  const { data: alphaUsdMetadata } = Hooks.token.useGetMetadata({
+    token: alphaUsd,
+  })
+  const { data: betaUsdMetadata } = Hooks.token.useGetMetadata({
+    token: betaUsd,
+  })
+
+  const amount = parseUnits('10', alphaUsdMetadata?.decimals ?? 6)
+
+  const { data: buyQuote } = Hooks.dex.useBuyQuote({
+    tokenIn: betaUsd,
+    tokenOut: alphaUsd,
+    amountOut: amount,
+  })
+
+  const { data: sellQuote } = Hooks.dex.useSellQuote({
+    tokenIn: alphaUsd,
+    tokenOut: betaUsd,
+    amountIn: amount,
+  })
+
+  const buySendCalls = useSendCallsSync()
+  const sellSendCalls = useSendCallsSync()
+
+  // Calculate 0.5% slippage tolerance
+  const slippageTolerance = 0.005
+  const maxAmountIn = buyQuote
+    ? (buyQuote * BigInt(Math.floor((1 + slippageTolerance) * 1000))) / 1000n
+    : 0n
+  const minAmountOut = sellQuote
+    ? (sellQuote * BigInt(Math.floor((1 - slippageTolerance) * 1000))) / 1000n
+    : 0n
+
+  if (!alphaUsdMetadata || !betaUsdMetadata) return null
+
+  return (
+    <div>
+      <div>
+        <button
+          onClick={() => {
+            buySendCalls.sendCallsSync({
+              calls: [
+                Actions.token.approve.call({
+                  spender: Addresses.stablecoinExchange,
+                  amount: maxAmountIn,
+                  token: betaUsd,
+                }),
+                Actions.dex.buy.call({
+                  amountOut: amount,
+                  maxAmountIn,
+                  tokenIn: betaUsd,
+                  tokenOut: alphaUsd,
+                }),
+              ],
+            })
+          }}
+          type="button"
+        >
+          Buy 10 AlphaUSD with BetaUSD
+        </button>
+        {buySendCalls.data && (
+          <div>
+            <a
+              href={`https://explore.tempo.xyz/tx/${buySendCalls.data.receipts?.at(0)?.transactionHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View buy receipt
+            </a>
+          </div>
+        )}
+      </div>
+
+      <div>
+        <button
+          onClick={() => {
+            sellSendCalls.sendCallsSync({
+              calls: [
+                Actions.token.approve.call({
+                  spender: Addresses.stablecoinExchange,
+                  amount: amount,
+                  token: alphaUsd,
+                }),
+                Actions.dex.sell.call({
+                  amountIn: amount,
+                  minAmountOut,
+                  tokenIn: alphaUsd,
+                  tokenOut: betaUsd,
+                }),
+              ],
+            })
+          }}
+          type="button"
+        >
+          Sell 10 AlphaUSD for BetaUSD
+        </button>
+        {sellSendCalls.data && (
+          <div>
+            <a
+              href={`https://explore.tempo.xyz/tx/${sellSendCalls.data.receipts?.at(0)?.transactionHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View sell receipt
+            </a>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
