@@ -242,7 +242,9 @@ describe('fromWebCryptoP256', () => {
 describe('signKeyAuthorization', () => {
   test('default', async () => {
     const account = Account.fromSecp256k1(privateKey_secp256k1)
-    const key = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
 
     const authorization = await account.signKeyAuthorization(key)
 
@@ -266,7 +268,9 @@ describe('signKeyAuthorization', () => {
 
   test('secp256k1', async () => {
     const account = Account.fromSecp256k1(privateKey_secp256k1)
-    const key = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
 
     const authorization = await account.signKeyAuthorization(key, {
       expiry: 1234567890,
@@ -302,7 +306,9 @@ describe('signKeyAuthorization', () => {
 
   test('p256', async () => {
     const account = Account.fromP256(privateKey_p256)
-    const key = Account.fromSecp256k1(privateKey_p256)
+    const key = Account.fromSecp256k1(privateKey_p256, {
+      access: account,
+    })
 
     const authorization = await account.signKeyAuthorization(key, {
       expiry: 1234567890,
@@ -346,7 +352,9 @@ describe('signKeyAuthorization', () => {
       rpId: 'localhost',
       origin: 'http://localhost',
     })
-    const key = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
 
     const authorization = await account.signKeyAuthorization(key, {
       expiry: 1234567890,
@@ -390,7 +398,9 @@ describe('signKeyAuthorization', () => {
 
   test('multiple limits', async () => {
     const account = Account.fromSecp256k1(privateKey_secp256k1)
-    const key = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
 
     const authorization = await account.signKeyAuthorization(key, {
       expiry: 1234567890,

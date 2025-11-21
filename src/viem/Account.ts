@@ -37,19 +37,19 @@ export type Account_base<source extends string = string> = RequiredBy<
 export type RootAccount = Account_base<'root'> & {
   /** Authorize an access key. */
   authorizeKey: (
-    key: Pick<Account, 'address' | 'keyType'>,
+    key: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>,
     parameters?: Pick<KeyAuthorization.KeyAuthorization, 'expiry' | 'limits'>,
   ) => Promise<KeyAuthorization.Signed>
   /** Sign key authorization. */
   signKeyAuthorization: (
-    key: Pick<Account, 'address' | 'keyType'>,
+    key: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>,
     parameters?: Pick<KeyAuthorization.KeyAuthorization, 'expiry' | 'limits'>,
   ) => Promise<KeyAuthorization.Signed>
 }
 
 export type AccessKeyAccount = Account_base<'accessKey'> & {
-  /** Parent address. Indicates that this account is an access key. */
-  parentAddress: Address.Address
+  /** Access key ID. */
+  accessKeyAddress: Address.Address
 }
 
 export type Account = OneOf<RootAccount | AccessKeyAccount>
@@ -355,13 +355,18 @@ export async function signKeyAuthorization(
   parameters: signKeyAuthorization.Parameters,
 ): Promise<signKeyAuthorization.ReturnValue> {
   const { key, expiry, limits } = parameters
-  const { address, keyType: type } = key
+  const { accessKeyAddress, keyType: type } = key
 
   const signature = await account.sign!({
-    hash: KeyAuthorization.getSignPayload({ address, expiry, limits, type }),
+    hash: KeyAuthorization.getSignPayload({
+      address: accessKeyAddress,
+      expiry,
+      limits,
+      type,
+    }),
   })
   return KeyAuthorization.from({
-    address,
+    address: accessKeyAddress,
     expiry,
     limits,
     signature: SignatureEnvelope.from(signature),
@@ -374,7 +379,7 @@ export declare namespace signKeyAuthorization {
     KeyAuthorization.KeyAuthorization,
     'expiry' | 'limits'
   > & {
-    key: Pick<Account, 'address' | 'keyType'>
+    key: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>
   }
 
   type ReturnValue = KeyAuthorization.Signed
@@ -389,14 +394,14 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
     source = 'privateKey',
   } = parameters
 
-  const address = Address.fromPublicKey(parameters.publicKey)
+  const address = parentAddress ?? Address.fromPublicKey(parameters.publicKey)
   const publicKey = PublicKey.toHex(parameters.publicKey, {
     includePrefix: false,
   })
 
   const storage = Storage.from<StorageSchema>(
     parameters.storage ?? Storage.memory(),
-    { key: `tempo.ts:${(parentAddress ?? address).toLowerCase()}` },
+    { key: `tempo.ts:${address.toLowerCase()}` },
   )
 
   async function sign({ hash }: { hash: Hex.Hex }) {
@@ -523,18 +528,18 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
     },
     async signKeyAuthorization(key, parameters = {}) {
       const { expiry, limits } = parameters
-      const { address, keyType: type } = key
+      const { accessKeyAddress, keyType: type } = key
 
       const signature = await account.sign({
         hash: KeyAuthorization.getSignPayload({
-          address,
+          address: accessKeyAddress,
           expiry,
           limits,
           type,
         }),
       })
       const keyAuthorization = KeyAuthorization.from({
-        address,
+        address: accessKeyAddress,
         expiry,
         limits,
         signature: SignatureEnvelope.from(signature),
@@ -558,7 +563,7 @@ function fromAccessKey(parameters: fromAccessKey.Parameters): AccessKeyAccount {
   const account = fromBase({ ...parameters, parentAddress })
   return {
     ...account,
-    parentAddress,
+    accessKeyAddress: Address.fromPublicKey(parameters.publicKey),
     source: 'accessKey',
   }
 }

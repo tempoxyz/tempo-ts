@@ -132,8 +132,6 @@ export const formatTransactionRequest = <chain extends Chain | undefined>(
     rpc.value = undefined
   }
 
-  if (account?.parentAddress) rpc.from = account.parentAddress
-
   const [keyType, keyData] = (() => {
     const type = account?.keyType || account?.source
     if (!type) return [undefined, undefined]
