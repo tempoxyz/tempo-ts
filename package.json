@@ -67,6 +67,7 @@
 	"type": "module",
 	"version": "0.5.4",
 	"dependencies": {
+		"idb-keyval": "^6.2.2",
 		"ox": "~0.9.14"
 	},
 	"peerDependencies": {

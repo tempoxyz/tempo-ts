@@ -11,6 +11,7 @@ import { parseAccount } from 'viem/accounts'
 import type { UnionOmit } from '../internal/types.js'
 import * as ox_Transaction from '../ox/Transaction.js'
 import * as ox_TransactionRequest from '../ox/TransactionRequest.js'
+import type { Account } from './Account.js'
 import type { GetFeeTokenParameter } from './internal/types.js'
 import {
   isTempo,
@@ -68,6 +69,7 @@ export const formatTransactionRequest = <chain extends Chain | undefined>(
   action?: string | undefined,
 ): TransactionRequestRpc => {
   const request = r as Request<chain>
+  const account = request.account as Account | undefined
 
   // Convert EIP-1559 transactions to AA transactions.
   if (request.type === 'eip1559') (request as any).type = 'aa'
@@ -130,11 +132,10 @@ export const formatTransactionRequest = <chain extends Chain | undefined>(
     rpc.value = undefined
   }
 
-  if ((request.account as any)?.parentAddress)
-    rpc.from = (request.account as any).parentAddress
+  if (account?.parentAddress) rpc.from = account.parentAddress
 
   const [keyType, keyData] = (() => {
-    const type = (r.account as any)?.keyType || r.account?.source
+    const type = account?.keyType || account?.source
     if (!type) return [undefined, undefined]
     if (type === 'webAuthn')
       // TODO: derive correct bytes size of key data based on webauthn create metadata.

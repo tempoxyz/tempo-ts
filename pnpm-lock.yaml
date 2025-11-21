@@ -46,6 +46,9 @@ importers:
 
   .:
     dependencies:
+      idb-keyval:
+        specifier: ^6.2.2
+        version: 6.2.2
       ox:
         specifier: ~0.9.14
         version: 0.9.14(typescript@5.9.3)(zod@4.1.12)

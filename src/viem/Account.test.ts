@@ -13,9 +13,9 @@ describe('fromSecp256k1', () => {
     const account = Account.fromSecp256k1(privateKey_secp256k1)
     expect(account).toMatchInlineSnapshot(`
       {
-        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "authorizeKey": [Function],
         "keyType": "secp256k1",
-        "parentAddress": undefined,
         "publicKey": "0x8318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
         "signAuthorization": [Function],
@@ -23,7 +23,12 @@ describe('fromSecp256k1', () => {
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
-        "source": "privateKey",
+        "source": "root",
+        "storage": {
+          "getItem": [Function],
+          "removeItem": [Function],
+          "setItem": [Function],
+        },
         "type": "local",
       }
     `)
@@ -51,7 +56,7 @@ describe('fromSecp256k1', () => {
     const access = Account.fromSecp256k1(
       '0x06a952d58c24d287245276dd8b4272d82a921d27d90874a6c27a3bc19ff4bfde',
       {
-        parent: account,
+        access: account,
       },
     )
 
@@ -59,7 +64,7 @@ describe('fromSecp256k1', () => {
       hash: '0xdeadbeef',
     })
     expect(signature).toMatchInlineSnapshot(
-      `"0x03f39fd6e51aad88f6f4ce6ab8827279cfffb9226627c4025daa5c473942fd6282cfb7c07edb48a1764fb3c228fc094a715300e0e56fcf8a7849bb8bcc2938d8a041fdbce56d2b6c70aadbae6a0b70b4a1e98256161b"`,
+      `"0x03f39Fd6e51aad88F6F4ce6aB8827279cffFb9226627c4025daa5c473942fd6282cfb7c07edb48a1764fb3c228fc094a715300e0e56fcf8a7849bb8bcc2938d8a041fdbce56d2b6c70aadbae6a0b70b4a1e98256161b"`,
     )
     expect(SignatureEnvelope.deserialize(signature)).toMatchInlineSnapshot(`
       {
@@ -72,7 +77,7 @@ describe('fromSecp256k1', () => {
           "type": "secp256k1",
         },
         "type": "keychain",
-        "userAddress": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "userAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       }
     `)
   })
@@ -83,9 +88,9 @@ describe('fromP256', () => {
     const account = Account.fromP256(privateKey_p256)
     expect(account).toMatchInlineSnapshot(`
       {
-        "address": "0xc3cf8b814b729a1ad648b49fbbded3767bcd35fd",
+        "address": "0xc3Cf8B814B729A1ad648b49fbBdED3767BCd35fd",
+        "authorizeKey": [Function],
         "keyType": "p256",
-        "parentAddress": undefined,
         "publicKey": "0x20fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240",
         "sign": [Function],
         "signAuthorization": [Function],
@@ -93,7 +98,12 @@ describe('fromP256', () => {
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
-        "source": "p256",
+        "source": "root",
+        "storage": {
+          "getItem": [Function],
+          "removeItem": [Function],
+          "setItem": [Function],
+        },
         "type": "local",
       }
     `)
@@ -111,7 +121,7 @@ describe('fromP256', () => {
     const access = Account.fromP256(
       '0x5c878151adef73f88b1c360d33e9bf9dd1b6e2e0e07bc555fc33cb8cf6bc9b28',
       {
-        parent: account,
+        access: account,
       },
     )
 
@@ -119,7 +129,7 @@ describe('fromP256', () => {
       hash: '0xdeadbeef',
     })
     expect(signature).toMatchInlineSnapshot(
-      `"0x03c3cf8b814b729a1ad648b49fbbded3767bcd35fd01daab749a3dea3f76c52ff0cfc86f0d433ecaf4d20f2ea327042bf5c15bccf847098dc3591fc68bf94d8db6d16cf326808dbf0f44d8e8373e8a7fcaf39b38281020fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c81224000"`,
+      `"0x03c3Cf8B814B729A1ad648b49fbBdED3767BCd35fd01daab749a3dea3f76c52ff0cfc86f0d433ecaf4d20f2ea327042bf5c15bccf847098dc3591fc68bf94d8db6d16cf326808dbf0f44d8e8373e8a7fcaf39b38281020fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c81224000"`,
     )
     expect(SignatureEnvelope.deserialize(signature)).toMatchInlineSnapshot(`
       {
@@ -137,7 +147,7 @@ describe('fromP256', () => {
           "type": "p256",
         },
         "type": "keychain",
-        "userAddress": "0xc3cf8b814b729a1ad648b49fbbded3767bcd35fd",
+        "userAddress": "0xc3Cf8B814B729A1ad648b49fbBdED3767BCd35fd",
       }
     `)
   })
@@ -151,9 +161,9 @@ describe('fromHeadlessWebAuthn', () => {
     })
     expect(account).toMatchInlineSnapshot(`
       {
-        "address": "0xc3cf8b814b729a1ad648b49fbbded3767bcd35fd",
+        "address": "0xc3Cf8B814B729A1ad648b49fbBdED3767BCd35fd",
+        "authorizeKey": [Function],
         "keyType": "webAuthn",
-        "parentAddress": undefined,
         "publicKey": "0x20fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240",
         "sign": [Function],
         "signAuthorization": [Function],
@@ -161,7 +171,12 @@ describe('fromHeadlessWebAuthn', () => {
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
-        "source": "webAuthn",
+        "source": "root",
+        "storage": {
+          "getItem": [Function],
+          "removeItem": [Function],
+          "setItem": [Function],
+        },
         "type": "local",
       }
     `)
@@ -180,7 +195,7 @@ describe('fromHeadlessWebAuthn', () => {
       origin: 'http://localhost',
     })
     const access = Account.fromHeadlessWebAuthn(privateKey_p256, {
-      parent: account,
+      access: account,
       rpId: 'localhost',
       origin: 'http://localhost',
     })
@@ -189,7 +204,7 @@ describe('fromHeadlessWebAuthn', () => {
       hash: '0xdeadbeef',
     })
     expect(signature).toMatchInlineSnapshot(
-      `"0x03c3cf8b814b729a1ad648b49fbbded3767bcd35fd0249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a223371322d3777222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d1b3346991a9ad1498e401dc0448e93d1bde113778d442f5bcafc44925cf3121961e9b1c21b054e54fe6c2eec0cd310c8535b7e7dd1f7dd7bf749e6d78154b48120fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240"`,
+      `"0x03c3Cf8B814B729A1ad648b49fbBdED3767BCd35fd0249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a223371322d3777222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d1b3346991a9ad1498e401dc0448e93d1bde113778d442f5bcafc44925cf3121961e9b1c21b054e54fe6c2eec0cd310c8535b7e7dd1f7dd7bf749e6d78154b48120fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240"`,
     )
     expect(SignatureEnvelope.deserialize(signature)).toMatchInlineSnapshot(`
       {
@@ -210,7 +225,7 @@ describe('fromHeadlessWebAuthn', () => {
           "type": "webAuthn",
         },
         "type": "keychain",
-        "userAddress": "0xc3cf8b814b729a1ad648b49fbbded3767bcd35fd",
+        "userAddress": "0xc3Cf8B814B729A1ad648b49fbBdED3767BCd35fd",
       }
     `)
   })
@@ -220,18 +235,41 @@ describe('fromWebCryptoP256', () => {
   test('default', async () => {
     const keyPair = await WebCryptoP256.createKeyPair()
     const account = Account.fromWebCryptoP256(keyPair)
-    expect(account.source).toBe('p256')
+    expect(account.keyType).toBe('p256')
   })
 })
 
 describe('signKeyAuthorization', () => {
+  test('default', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1)
+
+    const authorization = await account.signKeyAuthorization(key)
+
+    expect(authorization).toMatchInlineSnapshot(`
+      {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "expiry": undefined,
+        "limits": undefined,
+        "signature": {
+          "signature": {
+            "r": 37721136119011284096548390014992539348972503060868580949468237988268103471791n,
+            "s": 45950071562708881433730007694361667669997383811671320041865921767315547275450n,
+            "yParity": 1,
+          },
+          "type": "secp256k1",
+        },
+        "type": "secp256k1",
+      }
+    `)
+  })
+
   test('secp256k1', async () => {
     const account = Account.fromSecp256k1(privateKey_secp256k1)
     const key = Account.fromSecp256k1(privateKey_secp256k1)
 
-    const authorization = await account.signKeyAuthorization({
+    const authorization = await account.signKeyAuthorization(key, {
       expiry: 1234567890,
-      key,
       limits: [
         {
           token: '0x20c0000000000000000000000000000000000001',
@@ -241,7 +279,7 @@ describe('signKeyAuthorization', () => {
     })
     expect(authorization).toMatchInlineSnapshot(`
       {
-        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "expiry": 1234567890,
         "limits": [
           {
@@ -266,9 +304,8 @@ describe('signKeyAuthorization', () => {
     const account = Account.fromP256(privateKey_p256)
     const key = Account.fromSecp256k1(privateKey_p256)
 
-    const authorization = await account.signKeyAuthorization({
+    const authorization = await account.signKeyAuthorization(key, {
       expiry: 1234567890,
-      key,
       limits: [
         {
           token: '0x20c0000000000000000000000000000000000001',
@@ -278,7 +315,7 @@ describe('signKeyAuthorization', () => {
     })
     expect(authorization).toMatchInlineSnapshot(`
       {
-        "address": "0x7b9f73245dee5855ef858f5c00eea6205f9bb4d2",
+        "address": "0x7b9f73245DeE5855eF858F5C00Eea6205f9bb4D2",
         "expiry": 1234567890,
         "limits": [
           {
@@ -311,9 +348,8 @@ describe('signKeyAuthorization', () => {
     })
     const key = Account.fromSecp256k1(privateKey_secp256k1)
 
-    const authorization = await account.signKeyAuthorization({
+    const authorization = await account.signKeyAuthorization(key, {
       expiry: 1234567890,
-      key,
       limits: [
         {
           token: '0x20c0000000000000000000000000000000000001',
@@ -323,7 +359,7 @@ describe('signKeyAuthorization', () => {
     })
     expect(authorization).toMatchInlineSnapshot(`
       {
-        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "expiry": 1234567890,
         "limits": [
           {
@@ -356,9 +392,8 @@ describe('signKeyAuthorization', () => {
     const account = Account.fromSecp256k1(privateKey_secp256k1)
     const key = Account.fromSecp256k1(privateKey_secp256k1)
 
-    const authorization = await account.signKeyAuthorization({
+    const authorization = await account.signKeyAuthorization(key, {
       expiry: 1234567890,
-      key,
       limits: [
         {
           token: '0x20c0000000000000000000000000000000000001',
@@ -372,7 +407,7 @@ describe('signKeyAuthorization', () => {
     })
     expect(authorization).toMatchInlineSnapshot(`
       {
-        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "expiry": 1234567890,
         "limits": [
           {
@@ -389,32 +424,6 @@ describe('signKeyAuthorization', () => {
             "r": 110688399609937572552832643524108011859846253570894320670016520311505218610759n,
             "s": 4353629559496072529152967720041857644506920584336192730455606151402440838660n,
             "yParity": 0,
-          },
-          "type": "secp256k1",
-        },
-        "type": "secp256k1",
-      }
-    `)
-  })
-
-  test('empty', async () => {
-    const account = Account.fromSecp256k1(privateKey_secp256k1)
-    const key = Account.fromSecp256k1(privateKey_secp256k1)
-
-    const authorization = await account.signKeyAuthorization({
-      key,
-    })
-
-    expect(authorization).toMatchInlineSnapshot(`
-      {
-        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-        "expiry": undefined,
-        "limits": undefined,
-        "signature": {
-          "signature": {
-            "r": 37721136119011284096548390014992539348972503060868580949468237988268103471791n,
-            "s": 45950071562708881433730007694361667669997383811671320041865921767315547275450n,
-            "yParity": 1,
           },
           "type": "secp256k1",
         },

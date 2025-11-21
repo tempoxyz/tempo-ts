@@ -233,17 +233,14 @@ describe('sendTransaction', () => {
     test('with access key', async () => {
       const account = accounts[0]
       const accessKey = Account.fromP256(generatePrivateKey(), {
-        parent: account,
+        access: account,
       })
 
-      const keyAuthorization = await Account.signKeyAuthorization(account, {
-        key: accessKey,
-      })
+      await account.authorizeKey(accessKey)
 
       {
         const receipt = await client.sendTransactionSync({
-          account,
-          keyAuthorization,
+          account: accessKey,
         })
         expect(receipt).toBeDefined()
       }
@@ -490,17 +487,14 @@ describe('sendTransaction', () => {
     test('with access key', async () => {
       const account = accounts[0]
       const accessKey = Account.fromP256(generatePrivateKey(), {
-        parent: account,
+        access: account,
       })
 
-      const keyAuthorization = await Account.signKeyAuthorization(account, {
-        key: accessKey,
-      })
+      await account.authorizeKey(accessKey)
 
       {
         const receipt = await client.sendTransactionSync({
-          account,
-          keyAuthorization,
+          account: accessKey,
         })
         expect(receipt).toBeDefined()
       }
@@ -685,20 +679,17 @@ describe('sendTransaction', () => {
       const keyPair = await WebCryptoP256.createKeyPair()
       const account = Account.fromWebCryptoP256(keyPair)
       const accessKey = Account.fromWebCryptoP256(keyPair, {
-        parent: account,
+        access: account,
       })
 
       // fund account
       await fundAddress(client, { address: account.address })
 
-      const keyAuthorization = await Account.signKeyAuthorization(account, {
-        key: accessKey,
-      })
+      await account.authorizeKey(accessKey)
 
       {
         const receipt = await client.sendTransactionSync({
-          account,
-          keyAuthorization,
+          account: accessKey,
         })
         expect(receipt).toBeDefined()
       }
@@ -961,20 +952,17 @@ describe('sendTransaction', () => {
         },
       )
       const accessKey = Account.fromP256(generatePrivateKey(), {
-        parent: account,
+        access: account,
       })
 
       // fund account
       await fundAddress(client, { address: account.address })
 
-      const keyAuthorization = await Account.signKeyAuthorization(account, {
-        key: accessKey,
-      })
+      await account.authorizeKey(accessKey)
 
       {
         const receipt = await client.sendTransactionSync({
-          account,
-          keyAuthorization,
+          account: accessKey,
         })
         expect(receipt).toBeDefined()
       }

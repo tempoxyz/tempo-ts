@@ -12,8 +12,10 @@ import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { ChainNotConfiguredError, createConnector } from 'wagmi'
 import * as Account from '../viem/Account.js'
 import type * as tempo_Chain from '../viem/Chain.js'
+import * as Storage from '../viem/Storage.js'
 import { walletNamespaceCompat } from '../viem/Transport.js'
 import * as WebAuthnP256 from '../viem/WebAuthnP256.js'
+import * as WebCryptoP256 from '../viem/WebCryptoP256.js'
 
 type Chain = ReturnType<ReturnType<typeof tempo_Chain.define>>
 
@@ -196,7 +198,14 @@ export declare namespace dangerous_secp256k1 {
  * @returns Connector.
  */
 export function webAuthn(options: webAuthn.Parameters = {}) {
-  let account: Account.Account | undefined
+  let account: Account.RootAccount | undefined
+  let accessKey: Account.AccessKeyAccount | undefined
+
+  const idbStorage = Storage.idb<{
+    [
+      key: `accessKey:${Address.Address}`
+    ]: WebCryptoP256.createKeyPair.ReturnType
+  }>()
 
   type Properties = {
     connect<withCapabilities extends boolean = false>(parameters: {
@@ -298,8 +307,27 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
 
         config.storage?.setItem('webAuthn.activeCredential', credential)
         config.storage?.setItem('webAuthn.lastActiveCredential', credential)
-        return Account.fromWebAuthnP256(credential)
+        return Account.fromWebAuthnP256(credential, {
+          storage: Storage.from(config.storage as never),
+        })
       })()
+
+      const keyPair = await (async () => {
+        if (parameters.isReconnecting)
+          return await idbStorage?.getItem(`accessKey:${account.address}`)
+        return await WebCryptoP256.createKeyPair()
+      })()
+
+      if (keyPair) {
+        accessKey = Account.fromWebCryptoP256(keyPair, {
+          access: account,
+          storage: Storage.from(config.storage as never),
+        })
+        if (!parameters.isReconnecting) {
+          await account.authorizeKey(accessKey)
+          await idbStorage?.setItem(`accessKey:${account.address}`, keyPair)
+        }
+      }
 
       const address = getAddress(account.address)
 
@@ -362,7 +390,7 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
       if (!transport) throw new ChainNotConfiguredError()
 
       return createClient({
-        account,
+        account: accessKey ?? account,
         chain: chain as Chain,
         transport: walletNamespaceCompat(transport),
       })
