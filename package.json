@@ -1,6 +1,6 @@
 {
 	"scripts": {
-		"build": "zile --project ./tsconfig.build.json",
+		"build": "zile --project ./tsconfig.build.json && cp ./src/prool/chain.json ./dist/prool/chain.json",
 		"changeset:prepublish": "pnpm build && node ./scripts/prepublish.ts",
 		"changeset:publish": "pnpm changeset:prepublish && changeset publish",
 		"changeset:version": "changeset version && pnpm check",
@@ -50,7 +50,7 @@
 		"vitest": "^4.0.9",
 		"vitest-browser-react": "^2.0.2",
 		"wagmi": "catalog:default",
-		"zile": "^0.0.5"
+		"zile": "^0.0.13"
 	},
 	"simple-git-hooks": {
 		"pre-commit": "pnpm check"

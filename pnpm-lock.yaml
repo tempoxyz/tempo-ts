@@ -135,8 +135,8 @@ importers:
         specifier: catalog:default
         version: 2.19.0(@tanstack/query-core@5.90.5)(@tanstack/react-query@5.90.5(react@19.2.0))(@types/react@19.2.2)(bufferutil@4.0.9)(react@19.2.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@https://pkg.pr.new/viem@372c009(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))(zod@4.1.12)
       zile:
-        specifier: ^0.0.5
-        version: 0.0.5(@typescript/native-preview@7.0.0-dev.20251110.1)(typescript@5.9.3)
+        specifier: ^0.0.13
+        version: 0.0.13(@typescript/native-preview@7.0.0-dev.20251110.1)(typescript@5.9.3)
 
   examples/_template-example:
     dependencies:
@@ -648,6 +648,12 @@ packages:
 
   '@changesets/write@0.4.0':
     resolution: {integrity: sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q==}
+
+  '@clack/core@1.0.0-alpha.6':
+    resolution: {integrity: sha512-eG5P45+oShFG17u9I1DJzLkXYB1hpUgTLi32EfsMjSHLEqJUR8BOBCVFkdbUX2g08eh/HCi6UxNGpPhaac1LAA==}
+
+  '@clack/prompts@1.0.0-alpha.6':
+    resolution: {integrity: sha512-75NCtYOgDHVBE2nLdKPTDYOaESxO0GLAKC7INREp5VbS988Xua1u+588VaGlcvXiLc/kSwc25Cd+4PeTSpY6QQ==}
 
   '@coinbase/wallet-sdk@3.9.3':
     resolution: {integrity: sha512-N/A2DRIf0Y3PHc1XAMvbBUu4zisna6qAdqABMZwBMNEfWrXpAwx16pZGkYCLGE+Rvv1edbcB2LYDRnACNcmCiw==}
@@ -2890,6 +2896,9 @@ packages:
     resolution: {integrity: sha512-2wcC/oGxHis/BoHkkPwldgiPSYcpZK3JU28WoMVv55yHJgcZ8rlXvuG9iZggz+sU1d4bRgIGASwyWqjxu3FM0g==}
     engines: {node: '>=18'}
 
+  sisteransi@1.0.5:
+    resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
+
   slash@3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
@@ -3437,8 +3446,8 @@ packages:
     resolution: {integrity: sha512-CzhO+pFNo8ajLM2d2IW/R93ipy99LWjtwblvC1RsoSUMZgyLbYFr221TnSNT7GjGdYui6P459mw9JH/g/zW2ug==}
     engines: {node: '>=18'}
 
-  zile@0.0.5:
-    resolution: {integrity: sha512-PCIYo0pomR6xlG+1ybmQ1gcn74plcuJptv4p9kVUhnSfGyTdc8tyDuxNvWurEK6ADnU1lK+FuMEJX97UoOKM+w==}
+  zile@0.0.13:
+    resolution: {integrity: sha512-a6F5jiKqSd12kf/n1bVIjLpP5FbKr2g1sgdfysMvT+cpyjz0uN6ChY0HX93+7d0OkFa7UX+eiqBJG4ZPVlcIww==}
     hasBin: true
     peerDependencies:
       '@typescript/native-preview': '>=7.0.0'
@@ -3880,6 +3889,17 @@ snapshots:
       fs-extra: 7.0.1
       human-id: 4.1.2
       prettier: 2.8.8
+
+  '@clack/core@1.0.0-alpha.6':
+    dependencies:
+      picocolors: 1.1.1
+      sisteransi: 1.0.5
+
+  '@clack/prompts@1.0.0-alpha.6':
+    dependencies:
+      '@clack/core': 1.0.0-alpha.6
+      picocolors: 1.1.1
+      sisteransi: 1.0.5
 
   '@coinbase/wallet-sdk@3.9.3':
     dependencies:
@@ -6789,6 +6809,8 @@ snapshots:
       mrmime: 2.0.1
       totalist: 3.0.1
 
+  sisteransi@1.0.5: {}
+
   slash@3.0.0: {}
 
   socket.io-client@4.8.1(bufferutil@4.0.9)(utf-8-validate@5.0.10):
@@ -7267,8 +7289,9 @@ snapshots:
 
   yoctocolors@2.1.2: {}
 
-  zile@0.0.5(@typescript/native-preview@7.0.0-dev.20251110.1)(typescript@5.9.3):
+  zile@0.0.13(@typescript/native-preview@7.0.0-dev.20251110.1)(typescript@5.9.3):
     dependencies:
+      '@clack/prompts': 1.0.0-alpha.6
       cac: 6.7.14
       tsconfck: 3.1.6(typescript@5.9.3)
     optionalDependencies:
