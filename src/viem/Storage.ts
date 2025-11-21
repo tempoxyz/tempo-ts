@@ -1,4 +1,4 @@
-import { createStore, set, del, get } from 'idb-keyval'
+import { createStore, del, get, set } from 'idb-keyval'
 import * as Json from 'ox/Json'
 
 import type { MaybePromise } from '../internal/types.js'
