@@ -14,7 +14,7 @@
 		"react-dom": "^19",
 		"tempo.ts": "~0.5.4",
 		"viem": "^2",
-		"wagmi": "^2"
+		"wagmi": "^3"
 	},
 	"devDependencies": {
 		"@types/node": "^24.10.0",
