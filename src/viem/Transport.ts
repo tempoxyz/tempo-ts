@@ -36,13 +36,27 @@ export function withFeePayer(
       async request({ method, params }, options) {
         if (
           method === 'eth_sendRawTransactionSync' ||
-          method === 'eth_sendRawTransaction'
+          method === 'eth_sendRawTransaction' ||
+          method === 'eth_signTransaction'
         ) {
-          const serialized = (params as any)[0] as `0x76${string}`
-          const transaction = Transaction.deserialize(serialized)
+          console.log('request', method, params)
+          const rawSerialized = (params as any)[0]
+          const serialized =
+            typeof rawSerialized === 'string'
+              ? rawSerialized
+              : Hex.fromBytes(rawSerialized)
+          const transaction = Transaction.deserialize(
+            serialized as `0x76${string}`,
+          )
+
           // If the transaction is intended to be sponsored, forward it to the relay.
-          if (transaction.feePayerSignature === null)
+          if (transaction.feePayerSignature === null) {
+            console.log('> using fee payer transport')
             return transport_relay.request({ method, params }, options) as never
+          } else if (method === 'eth_signTransaction') {
+            return serialized
+          }
+          console.log('> using default transport')
         }
         return transport_default.request({ method, params }, options) as never
       },

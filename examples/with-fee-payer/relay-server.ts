@@ -56,8 +56,8 @@ Bun.serve({
 
     const sender = 'from' in transaction ? transaction.from : 'unknown'
 
-    if (request.method === 'eth_signTransaction') {
-      console.log(`Signed transaction for ${sender}`)
+    if ((request.method as string) === 'eth_signTransaction') {
+      console.log(`   Returning signed transaction without broadcasting`)
       return new Response(
         JSON.stringify(
           RpcResponse.from({ result: serializedTransaction }, { request }),
@@ -72,9 +72,9 @@ Bun.serve({
       )
     }
 
-    // 3. Submit to Tempo network using the original method
+    // 3. Submit to Tempo network using the original method (for eth_sendRawTransaction)
     const result = await client.request({
-      method: request.method,
+      method: request.method as any,
       params: [serializedTransaction],
     })
 

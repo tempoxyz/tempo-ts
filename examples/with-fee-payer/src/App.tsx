@@ -1,16 +1,18 @@
 import { useMutation } from '@tanstack/react-query'
+import { getConnectorClient } from '@wagmi/core'
+import { tempoAndantino } from 'tempo.ts/chains'
+import { withFeePayer } from 'tempo.ts/viem'
 import { Hooks } from 'tempo.ts/wagmi'
 import { createWalletClient, formatUnits, http, stringify } from 'viem'
 import {
   useAccount,
+  useConfig,
   useConnect,
   useConnectors,
   useDisconnect,
   useWatchBlockNumber,
 } from 'wagmi'
 import { alphaUsd } from './wagmi.config'
-import { tempoAndantino } from 'tempo.ts/chains'
-import { withFeePayer } from 'tempo.ts/viem'
 
 export function App() {
   const account = useAccount()
@@ -135,25 +137,30 @@ export function FundAccount() {
 
 export function SignTransactionWithRelay() {
   const account = useAccount()
-  const walletClient = createWalletClient({
-    account: account.address,
-    chain: tempoAndantino({ feeToken: alphaUsd }),
-    transport: withFeePayer(
-      http(undefined, {
-        fetchOptions: {
-          headers: {
-            Authorization: `Basic ${btoa('eng:zealous-mayer')}`,
-          },
-        },
-      }),
-      http('http://localhost:3050'),
-    ),
-  })
+  const config = useConfig()
 
   const sendTransaction = useMutation({
     async mutationFn() {
       if (!account.address) throw new Error('account.address not found')
-      if (!walletClient) throw new Error('walletClient not found')
+
+      // Get the connected client
+      const connectorClient = await getConnectorClient(config)
+
+      // Create wallet client with relay transport
+      const walletClient = createWalletClient({
+        account: connectorClient.account,
+        chain: tempoAndantino({ feeToken: alphaUsd }),
+        transport: withFeePayer(
+          http(undefined, {
+            fetchOptions: {
+              headers: {
+                Authorization: `Basic ${btoa('eng:zealous-mayer')}`,
+              },
+            },
+          }),
+          http('http://localhost:3050'),
+        ),
+      })
 
       // Step 1: Prepare transaction request with feePayer: true
       const request = await walletClient.prepareTransactionRequest({
@@ -167,12 +174,20 @@ export function SignTransactionWithRelay() {
         request as any,
       )
 
-      // Step 3: Submit via sendRawTransaction - relay will pick it up, sign, and submit
+      // Step 3: Request sponsorship from relay (adds fee payer signature, doesn't broadcast)
+      const sponsoredTransaction = (await walletClient.request({
+        method: 'eth_signTransaction' as any,
+        params: [signedTransaction],
+      })) as `0x${string}`
+
+      console.log('Sponsored transaction:', sponsoredTransaction)
+
+      // Step 4: Broadcast the sponsored transaction
       const hash = await walletClient.sendRawTransaction({
-        serializedTransaction: signedTransaction,
+        serializedTransaction: sponsoredTransaction,
       })
 
-      return { hash }
+      return { hash, sponsoredTransaction }
     },
   })
 
