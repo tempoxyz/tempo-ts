@@ -22,6 +22,7 @@ import {
   type Signature as viem_Signature,
   serializeTransaction as viem_serializeTransaction,
   type Transaction as viem_Transaction,
+  type TransactionReceipt as viem_TransactionReceipt,
   type TransactionRequest as viem_TransactionRequest,
   type TransactionSerializable as viem_TransactionSerializable,
   type TransactionSerialized as viem_TransactionSerialized,
@@ -30,6 +31,7 @@ import {
 import type { ExactPartial, OneOf, PartialBy } from '../internal/types.js'
 import * as SignatureEnvelope from '../ox/SignatureEnvelope.js'
 import * as TxAA from '../ox/TransactionEnvelopeAA.js'
+import type * as ox_TransactionReceipt from '../ox/TransactionReceipt.js'
 
 export type Transaction<
   bigintType = bigint,
@@ -63,7 +65,6 @@ export type TransactionAA<
   calls: readonly TxAA.Call<quantity>[]
   chainId: index
   feeToken?: Address | undefined
-  feePayer?: Address | undefined
   feePayerSignature?: viem_Signature | undefined
   nonceKey?: quantity | undefined
   signature: SignatureEnvelope.SignatureEnvelope
@@ -81,6 +82,23 @@ export type TransactionRequest<
 >
 export type TransactionRequestRpc = OneOf<
   viem_RpcTransactionRequest | TransactionRequestAA<Hex.Hex, Hex.Hex, '0x76'>
+>
+
+export type TransactionReceipt<
+  quantity = bigint,
+  index = number,
+  status = 'success' | 'reverted',
+  type = TransactionType,
+> = viem_TransactionReceipt<quantity, index, status, type> & {
+  feePayer?: Address | undefined
+  feeToken?: Address | undefined
+}
+
+export type TransactionReceiptRpc = TransactionReceipt<
+  Hex.Hex,
+  Hex.Hex,
+  ox_TransactionReceipt.RpcStatus,
+  ox_TransactionReceipt.RpcType
 >
 
 export type TransactionRequestAA<

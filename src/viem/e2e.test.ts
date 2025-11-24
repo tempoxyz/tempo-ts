@@ -171,7 +171,6 @@ describe('sendTransaction', () => {
         blockHash,
         blockNumber,
         chainId,
-        feePayer: feePayer_,
         feePayerSignature,
         from,
         gas,
@@ -188,7 +187,6 @@ describe('sendTransaction', () => {
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
       expect(chainId).toBeDefined()
-      expect(feePayer_).toBe(feePayer.address.toLowerCase())
       expect(feePayerSignature).toBeDefined()
       expect(from).toBe(account.address.toLowerCase())
       expect(gas).toBeDefined()
@@ -396,7 +394,6 @@ describe('sendTransaction', () => {
         blockHash,
         blockNumber,
         chainId,
-        feePayer: feePayer_,
         feePayerSignature,
         from,
         gas,
@@ -413,7 +410,6 @@ describe('sendTransaction', () => {
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
       expect(chainId).toBeDefined()
-      expect(feePayer_).toBe(feePayer.address.toLowerCase())
       expect(feePayerSignature).toBeDefined()
       expect(from).toBe(account.address.toLowerCase())
       expect(gas).toBeDefined()
@@ -799,7 +795,6 @@ describe('sendTransaction', () => {
         blockHash,
         blockNumber,
         chainId,
-        feePayer: feePayer_,
         feePayerSignature,
         from,
         gas,
@@ -816,7 +811,6 @@ describe('sendTransaction', () => {
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
       expect(chainId).toBeDefined()
-      expect(feePayer_).toBe(feePayer.address.toLowerCase())
       expect(feePayerSignature).toBeDefined()
       expect(from).toBe(account.address.toLowerCase())
       expect(gas).toBeDefined()
@@ -888,7 +882,6 @@ describe('signTransaction', () => {
       blockHash,
       blockNumber,
       chainId,
-      feePayer: feePayer_,
       feePayerSignature,
       from,
       gasPrice,
@@ -904,7 +897,6 @@ describe('signTransaction', () => {
     expect(blockHash).toBeDefined()
     expect(blockNumber).toBeDefined()
     expect(chainId).toBeDefined()
-    expect(feePayer_).toBe(feePayer.address.toLowerCase())
     expect(feePayerSignature).toBeDefined()
     expect(from).toBe(account.address.toLowerCase())
     expect(gasPrice).toBeDefined()
@@ -1051,7 +1043,6 @@ describe('relay', () => {
         blockHash,
         blockNumber,
         chainId,
-        feePayer,
         feePayerSignature,
         from,
         gas,
@@ -1068,7 +1059,6 @@ describe('relay', () => {
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
       expect(chainId).toBeDefined()
-      expect(feePayer).toBe(accounts[0].address.toLowerCase())
       expect(feePayerSignature).toBeDefined()
       expect(from).toBe(account.address.toLowerCase())
       expect(gas).toBeDefined()
@@ -1132,7 +1122,6 @@ describe('relay', () => {
         blockHash,
         blockNumber,
         chainId,
-        feePayer,
         feePayerSignature,
         from,
         gas,
@@ -1149,7 +1138,6 @@ describe('relay', () => {
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
       expect(chainId).toBeDefined()
-      expect(feePayer).toBe(accounts[0].address.toLowerCase())
       expect(feePayerSignature).toBeDefined()
       expect(from).toBe(account.address.toLowerCase())
       expect(gas).toBeDefined()
@@ -1244,7 +1232,6 @@ describe('relay', () => {
         blockHash,
         blockNumber,
         chainId,
-        feePayer,
         feePayerSignature,
         from,
         gas,
@@ -1261,7 +1248,6 @@ describe('relay', () => {
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
       expect(chainId).toBeDefined()
-      expect(feePayer).toBe(accounts[0].address.toLowerCase())
       expect(feePayerSignature).toBeDefined()
       expect(from).toBe(account.address.toLowerCase())
       expect(gas).toBeDefined()
