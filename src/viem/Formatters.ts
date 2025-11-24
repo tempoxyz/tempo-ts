@@ -5,6 +5,7 @@ import {
   type Chain,
   type Account as viem_Account,
   formatTransaction as viem_formatTransaction,
+  formatTransactionReceipt as viem_formatTransactionReceipt,
   formatTransactionRequest as viem_formatTransactionRequest,
 } from 'viem'
 import { parseAccount } from 'viem/accounts'
@@ -16,14 +17,16 @@ import type { GetFeeTokenParameter } from './internal/types.js'
 import {
   isTempo,
   type Transaction,
+  type TransactionReceipt,
+  type TransactionReceiptRpc,
   type TransactionRequest,
   type TransactionRequestRpc,
   type TransactionRpc,
 } from './Transaction.js'
 
-export const formatTransaction = (
+export function formatTransaction(
   transaction: TransactionRpc,
-): Transaction<bigint, number, boolean> => {
+): Transaction<bigint, number, boolean> {
   if (!isTempo(transaction)) return viem_formatTransaction(transaction as never)
 
   const {
@@ -59,15 +62,21 @@ export const formatTransaction = (
   }
 }
 
+export function formatTransactionReceipt(
+  receipt: TransactionReceiptRpc,
+): TransactionReceipt {
+  return viem_formatTransactionReceipt(receipt as never)
+}
+
 type Request<chain extends Chain | undefined> = UnionOmit<
   TransactionRequest,
   'feeToken'
 > &
   GetFeeTokenParameter<chain> & { account?: viem_Account | undefined }
-export const formatTransactionRequest = <chain extends Chain | undefined>(
+export function formatTransactionRequest<chain extends Chain | undefined>(
   r: Request<chain>,
   action?: string | undefined,
-): TransactionRequestRpc => {
+): TransactionRequestRpc {
   const request = r as Request<chain>
   const account = request.account as Account | undefined
 

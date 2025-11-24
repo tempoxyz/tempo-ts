@@ -13,6 +13,7 @@ import { client, fundAddress } from '../../test/viem/config.js'
 import { KeyAuthorization, SignatureEnvelope } from './index.js'
 import * as Transaction from './Transaction.js'
 import * as TransactionEnvelopeAA from './TransactionEnvelopeAA.js'
+import * as TransactionReceipt from './TransactionReceipt.js'
 
 test('behavior: default (secp256k1)', async () => {
   const privateKey = Secp256k1.randomPrivateKey()
@@ -50,18 +51,21 @@ test('behavior: default (secp256k1)', async () => {
     signature: SignatureEnvelope.from(signature),
   })
 
-  const receipt = await client.request({
-    method: 'eth_sendRawTransactionSync',
-    params: [serialized_signed],
-  })
-
+  const receipt = (await client
+    .request({
+      method: 'eth_sendRawTransactionSync',
+      params: [serialized_signed],
+    })
+    .then((tx) => TransactionReceipt.fromRpc(tx as any)))!
   expect(receipt).toBeDefined()
 
   {
-    const response = await client.request({
-      method: 'eth_getTransactionByHash',
-      params: [receipt.transactionHash],
-    })
+    const response = await client
+      .request({
+        method: 'eth_getTransactionByHash',
+        params: [receipt.transactionHash],
+      })
+      .then((tx) => Transaction.fromRpc(tx as any))
     if (!response) throw new Error()
 
     const {
@@ -69,13 +73,11 @@ test('behavior: default (secp256k1)', async () => {
       blockHash,
       chainId,
       hash,
-      // @ts-expect-error
       feeToken: _,
       from,
       nonce,
       maxFeePerGas,
       maxPriorityFeePerGas,
-      // @ts-expect-error
       signature,
       ...rest
     } = response
@@ -95,21 +97,21 @@ test('behavior: default (secp256k1)', async () => {
         "accessList": [],
         "calls": [
           {
-            "data": null,
-            "input": "0x",
+            "data": "0x",
             "to": "0x0000000000000000000000000000000000000000",
-            "value": "0x0",
+            "value": 0n,
           },
         ],
+        "data": undefined,
         "feePayerSignature": null,
-        "gas": "0x186a0",
-        "gasPrice": "0x4a817c800",
-        "keyAuthorization": null,
-        "nonceKey": "0x0",
-        "transactionIndex": "0x1",
-        "type": "0x76",
+        "gas": 100000n,
+        "gasPrice": 20000000000n,
+        "nonceKey": 0n,
+        "transactionIndex": 1,
+        "type": "aa",
         "validAfter": null,
         "validBefore": null,
+        "value": 0n,
       }
     `)
   }
@@ -117,7 +119,7 @@ test('behavior: default (secp256k1)', async () => {
   const {
     blockNumber,
     blockHash,
-    // @ts-expect-error
+    feePayer,
     feeToken: _,
     from,
     logs,
@@ -128,19 +130,22 @@ test('behavior: default (secp256k1)', async () => {
 
   expect(blockNumber).toBeDefined()
   expect(blockHash).toBeDefined()
+  expect(feePayer).toBeDefined()
   expect(from).toBe(address)
   expect(logs).toBeDefined()
   expect(logsBloom).toBeDefined()
   expect(transactionHash).toBe(receipt.transactionHash)
   expect(rest).toMatchInlineSnapshot(`
     {
+      "blobGasPrice": undefined,
+      "blobGasUsed": undefined,
       "contractAddress": null,
-      "cumulativeGasUsed": "0x5c30",
-      "effectiveGasPrice": "0x4a817c800",
-      "gasUsed": "0x5c30",
-      "status": "0x1",
+      "cumulativeGasUsed": 23600n,
+      "effectiveGasPrice": 20000000000n,
+      "gasUsed": 23600n,
+      "status": "success",
       "to": "0x0000000000000000000000000000000000000000",
-      "transactionIndex": "0x1",
+      "transactionIndex": 1,
       "type": "0x76",
     }
   `)
@@ -182,32 +187,34 @@ test('behavior: default (p256)', async () => {
     }),
   })
 
-  const receipt = await client.request({
-    method: 'eth_sendRawTransactionSync',
-    params: [serialized_signed],
-  })
+  const receipt = (await client
+    .request({
+      method: 'eth_sendRawTransactionSync',
+      params: [serialized_signed],
+    })
+    .then((tx) => TransactionReceipt.fromRpc(tx as any)))!
 
   expect(receipt).toBeDefined()
 
   {
-    const response = await client.request({
-      method: 'eth_getTransactionByHash',
-      params: [receipt.transactionHash],
-    })
+    const response = await client
+      .request({
+        method: 'eth_getTransactionByHash',
+        params: [receipt.transactionHash],
+      })
+      .then((tx) => Transaction.fromRpc(tx as any))
     if (!response) throw new Error()
 
     const {
       blockNumber,
       blockHash,
       chainId,
-      // @ts-expect-error
       feeToken: _,
       from,
       hash,
       nonce,
       maxFeePerGas,
       maxPriorityFeePerGas,
-      // @ts-expect-error
       signature,
       ...rest
     } = response
@@ -227,21 +234,21 @@ test('behavior: default (p256)', async () => {
         "accessList": [],
         "calls": [
           {
-            "data": null,
-            "input": "0x",
+            "data": "0x",
             "to": "0x0000000000000000000000000000000000000000",
-            "value": "0x0",
+            "value": 0n,
           },
         ],
+        "data": undefined,
         "feePayerSignature": null,
-        "gas": "0x186a0",
-        "gasPrice": "0x4a817c800",
-        "keyAuthorization": null,
-        "nonceKey": "0x0",
-        "transactionIndex": "0x1",
-        "type": "0x76",
+        "gas": 100000n,
+        "gasPrice": 20000000000n,
+        "nonceKey": 0n,
+        "transactionIndex": 1,
+        "type": "aa",
         "validAfter": null,
         "validBefore": null,
+        "value": 0n,
       }
     `)
   }
@@ -249,7 +256,7 @@ test('behavior: default (p256)', async () => {
   const {
     blockNumber,
     blockHash,
-    // @ts-expect-error
+    feePayer,
     feeToken: _,
     from,
     logs,
@@ -260,19 +267,22 @@ test('behavior: default (p256)', async () => {
 
   expect(blockNumber).toBeDefined()
   expect(blockHash).toBeDefined()
+  expect(feePayer).toBeDefined()
   expect(from).toBe(address)
   expect(logs).toBeDefined()
   expect(logsBloom).toBeDefined()
   expect(transactionHash).toBe(receipt.transactionHash)
   expect(rest).toMatchInlineSnapshot(`
     {
+      "blobGasPrice": undefined,
+      "blobGasUsed": undefined,
       "contractAddress": null,
-      "cumulativeGasUsed": "0x6fb8",
-      "effectiveGasPrice": "0x4a817c800",
-      "gasUsed": "0x6fb8",
-      "status": "0x1",
+      "cumulativeGasUsed": 28600n,
+      "effectiveGasPrice": 20000000000n,
+      "gasUsed": 28600n,
+      "status": "success",
       "to": "0x0000000000000000000000000000000000000000",
-      "transactionIndex": "0x1",
+      "transactionIndex": 1,
       "type": "0x76",
     }
   `)
@@ -313,18 +323,22 @@ test('behavior: default (p256 - webcrypto)', async () => {
     }),
   })
 
-  const receipt = await client.request({
-    method: 'eth_sendRawTransactionSync',
-    params: [serialized_signed],
-  })
+  const receipt = (await client
+    .request({
+      method: 'eth_sendRawTransactionSync',
+      params: [serialized_signed],
+    })
+    .then((tx) => TransactionReceipt.fromRpc(tx as any)))!
 
   expect(receipt).toBeDefined()
 
   {
-    const response = await client.request({
-      method: 'eth_getTransactionByHash',
-      params: [receipt.transactionHash],
-    })
+    const response = await client
+      .request({
+        method: 'eth_getTransactionByHash',
+        params: [receipt.transactionHash],
+      })
+      .then((tx) => Transaction.fromRpc(tx as any))
     if (!response) throw new Error()
 
     const {
@@ -356,21 +370,21 @@ test('behavior: default (p256 - webcrypto)', async () => {
         "accessList": [],
         "calls": [
           {
-            "data": null,
-            "input": "0x",
+            "data": "0x",
             "to": "0x0000000000000000000000000000000000000000",
-            "value": "0x0",
+            "value": 0n,
           },
         ],
+        "data": undefined,
         "feePayerSignature": null,
-        "gas": "0x186a0",
-        "gasPrice": "0x4a817c800",
-        "keyAuthorization": null,
-        "nonceKey": "0x0",
-        "transactionIndex": "0x1",
-        "type": "0x76",
+        "gas": 100000n,
+        "gasPrice": 20000000000n,
+        "nonceKey": 0n,
+        "transactionIndex": 1,
+        "type": "aa",
         "validAfter": null,
         "validBefore": null,
+        "value": 0n,
       }
     `)
   }
@@ -378,7 +392,7 @@ test('behavior: default (p256 - webcrypto)', async () => {
   const {
     blockNumber,
     blockHash,
-    // @ts-expect-error
+    feePayer,
     feeToken: _,
     from,
     logs,
@@ -389,19 +403,22 @@ test('behavior: default (p256 - webcrypto)', async () => {
 
   expect(blockNumber).toBeDefined()
   expect(blockHash).toBeDefined()
+  expect(feePayer).toBeDefined()
   expect(from).toBeDefined()
   expect(logs).toBeDefined()
   expect(logsBloom).toBeDefined()
   expect(transactionHash).toBe(receipt.transactionHash)
   expect(rest).toMatchInlineSnapshot(`
     {
+      "blobGasPrice": undefined,
+      "blobGasUsed": undefined,
       "contractAddress": null,
-      "cumulativeGasUsed": "0x6fb8",
-      "effectiveGasPrice": "0x4a817c800",
-      "gasUsed": "0x6fb8",
-      "status": "0x1",
+      "cumulativeGasUsed": 28600n,
+      "effectiveGasPrice": 20000000000n,
+      "gasUsed": 28600n,
+      "status": "success",
       "to": "0x0000000000000000000000000000000000000000",
-      "transactionIndex": "0x1",
+      "transactionIndex": 1,
       "type": "0x76",
     }
   `)
@@ -449,32 +466,34 @@ test('behavior: default (webauthn)', async () => {
     }),
   })
 
-  const receipt = await client.request({
-    method: 'eth_sendRawTransactionSync',
-    params: [serialized_signed],
-  })
+  const receipt = (await client
+    .request({
+      method: 'eth_sendRawTransactionSync',
+      params: [serialized_signed],
+    })
+    .then((tx) => TransactionReceipt.fromRpc(tx as any)))!
 
   expect(receipt).toBeDefined()
 
   {
-    const response = await client.request({
-      method: 'eth_getTransactionByHash',
-      params: [receipt.transactionHash],
-    })
+    const response = await client
+      .request({
+        method: 'eth_getTransactionByHash',
+        params: [receipt.transactionHash],
+      })
+      .then((tx) => Transaction.fromRpc(tx as any))
     if (!response) throw new Error()
 
     const {
       blockNumber,
       blockHash,
       chainId,
-      // @ts-expect-error
       feeToken: _,
       from,
       hash,
       nonce,
       maxFeePerGas,
       maxPriorityFeePerGas,
-      // @ts-expect-error
       signature,
       ...rest
     } = response
@@ -494,21 +513,21 @@ test('behavior: default (webauthn)', async () => {
         "accessList": [],
         "calls": [
           {
-            "data": null,
-            "input": "0x",
+            "data": "0x",
             "to": "0x0000000000000000000000000000000000000000",
-            "value": "0x0",
+            "value": 0n,
           },
         ],
+        "data": undefined,
         "feePayerSignature": null,
-        "gas": "0x186a0",
-        "gasPrice": "0x4a817c800",
-        "keyAuthorization": null,
-        "nonceKey": "0x0",
-        "transactionIndex": "0x1",
-        "type": "0x76",
+        "gas": 100000n,
+        "gasPrice": 20000000000n,
+        "nonceKey": 0n,
+        "transactionIndex": 1,
+        "type": "aa",
         "validAfter": null,
         "validBefore": null,
+        "value": 0n,
       }
     `)
   }
@@ -516,7 +535,7 @@ test('behavior: default (webauthn)', async () => {
   const {
     blockNumber,
     blockHash,
-    // @ts-expect-error
+    feePayer,
     feeToken: _,
     from,
     logs,
@@ -527,19 +546,22 @@ test('behavior: default (webauthn)', async () => {
 
   expect(blockNumber).toBeDefined()
   expect(blockHash).toBeDefined()
+  expect(feePayer).toBeDefined()
   expect(from).toBe(address)
   expect(logs).toBeDefined()
   expect(logsBloom).toBeDefined()
   expect(transactionHash).toBe(receipt.transactionHash)
   expect(rest).toMatchInlineSnapshot(`
     {
+      "blobGasPrice": undefined,
+      "blobGasUsed": undefined,
       "contractAddress": null,
-      "cumulativeGasUsed": "0x79e8",
-      "effectiveGasPrice": "0x4a817c800",
-      "gasUsed": "0x79e8",
-      "status": "0x1",
+      "cumulativeGasUsed": 31208n,
+      "effectiveGasPrice": 20000000000n,
+      "gasUsed": 31208n,
+      "status": "success",
       "to": "0x0000000000000000000000000000000000000000",
-      "transactionIndex": "0x1",
+      "transactionIndex": 1,
       "type": "0x76",
     }
   `)
@@ -611,16 +633,18 @@ test('behavior: feePayerSignature (user → feePayer)', async () => {
     },
   )
 
-  const receipt = await client.request({
-    method: 'eth_sendRawTransactionSync',
-    params: [serialized_signed],
-  })
+  const receipt = (await client
+    .request({
+      method: 'eth_sendRawTransactionSync',
+      params: [serialized_signed],
+    })
+    .then((tx) => TransactionReceipt.fromRpc(tx as any)))!
 
   {
     const {
       blockNumber,
       blockHash,
-      // @ts-expect-error
+      feePayer,
       feeToken: _,
       from,
       logs,
@@ -632,6 +656,7 @@ test('behavior: feePayerSignature (user → feePayer)', async () => {
 
     expect(blockNumber).toBeDefined()
     expect(blockHash).toBeDefined()
+    expect(feePayer).toBe(feePayerAddress)
     expect(from).toBe(senderAddress)
     expect(logs).toBeDefined()
     expect(logsBloom).toBeDefined()
@@ -639,25 +664,26 @@ test('behavior: feePayerSignature (user → feePayer)', async () => {
     expect(transactionIndex).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
+        "blobGasPrice": undefined,
+        "blobGasUsed": undefined,
         "contractAddress": null,
-        "cumulativeGasUsed": "0x5c30",
-        "effectiveGasPrice": "0x4a817c800",
-        "gasUsed": "0x5c30",
-        "status": "0x1",
+        "cumulativeGasUsed": 23600n,
+        "effectiveGasPrice": 20000000000n,
+        "gasUsed": 23600n,
+        "status": "success",
         "to": "0x0000000000000000000000000000000000000000",
         "type": "0x76",
       }
     `)
   }
 
-  const { feePayer, feeToken, from } = (await client
+  const { feeToken, from } = (await client
     .request({
       method: 'eth_getTransactionByHash',
       params: [receipt.transactionHash],
     })
     .then((tx) => Transaction.fromRpc(tx as any))) as any
 
-  expect(feePayer).toBe(feePayerAddress)
   expect(feeToken).toBe('0x20c0000000000000000000000000000000000001')
   expect(from).toBe(senderAddress)
 })

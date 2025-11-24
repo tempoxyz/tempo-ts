@@ -448,12 +448,6 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
       const { message } = parameters
       const signature = await sign({ hash: hashMessage(message) })
       const envelope = SignatureEnvelope.from(signature)
-      if (envelope.type !== 'secp256k1')
-        throw new Error(
-          'Unsupported signature type. Expected `secp256k1` but got `' +
-            envelope.type +
-            '`.',
-        )
       return SignatureEnvelope.serialize(envelope)
     },
     async signTransaction(transaction, options) {
@@ -475,12 +469,6 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
     async signTypedData(typedData) {
       const signature = await sign({ hash: hashTypedData(typedData) })
       const envelope = SignatureEnvelope.from(signature)
-      if (envelope.type !== 'secp256k1')
-        throw new Error(
-          'Unsupported signature type. Expected `secp256k1` but got `' +
-            envelope.type +
-            '`.',
-        )
       return SignatureEnvelope.serialize(envelope)
     },
     publicKey,
