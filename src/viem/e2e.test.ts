@@ -507,6 +507,37 @@ describe('sendTransaction', () => {
         expect(receipt).toBeDefined()
       }
     })
+
+    test('with access key + fee payer', async () => {
+      const account = Account.fromP256(
+        // unfunded account with different key
+        '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b',
+      )
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        access: account,
+      })
+      const feePayer = accounts[0]
+
+      await account.authorizeKey(accessKey)
+
+      {
+        const receipt = await client.sendTransactionSync({
+          account: accessKey,
+          feePayer,
+          to: '0x0000000000000000000000000000000000000000',
+        })
+        expect(receipt).toBeDefined()
+      }
+
+      {
+        const receipt = await client.sendTransactionSync({
+          account: accessKey,
+          feePayer,
+          to: '0x0000000000000000000000000000000000000000',
+        })
+        expect(receipt).toBeDefined()
+      }
+    })
   })
 
   describe('webcrypto', () => {

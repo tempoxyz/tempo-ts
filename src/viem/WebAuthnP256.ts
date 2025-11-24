@@ -124,9 +124,9 @@ export async function getCredential(
   const publicKey = await parameters.getPublicKey(raw)
   return {
     id: raw.id,
+    metadata,
     publicKey,
     raw,
-    metadata,
     signature,
   }
 }

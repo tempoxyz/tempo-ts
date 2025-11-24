@@ -250,7 +250,7 @@ describe('signKeyAuthorization', () => {
 
     expect(authorization).toMatchInlineSnapshot(`
       {
-        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "expiry": undefined,
         "limits": undefined,
         "signature": {
@@ -283,7 +283,7 @@ describe('signKeyAuthorization', () => {
     })
     expect(authorization).toMatchInlineSnapshot(`
       {
-        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "expiry": 1234567890,
         "limits": [
           {
@@ -321,7 +321,7 @@ describe('signKeyAuthorization', () => {
     })
     expect(authorization).toMatchInlineSnapshot(`
       {
-        "address": "0x7b9f73245DeE5855eF858F5C00Eea6205f9bb4D2",
+        "address": "0x7b9f73245dee5855ef858f5c00eea6205f9bb4d2",
         "expiry": 1234567890,
         "limits": [
           {
@@ -367,7 +367,7 @@ describe('signKeyAuthorization', () => {
     })
     expect(authorization).toMatchInlineSnapshot(`
       {
-        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "expiry": 1234567890,
         "limits": [
           {
@@ -417,7 +417,7 @@ describe('signKeyAuthorization', () => {
     })
     expect(authorization).toMatchInlineSnapshot(`
       {
-        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "expiry": 1234567890,
         "limits": [
           {
