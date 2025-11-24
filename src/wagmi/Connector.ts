@@ -40,9 +40,12 @@ export function dangerous_secp256k1(
   type Properties = {
     connect<withCapabilities extends boolean = false>(parameters: {
       capabilities?:
-        | {
-            createAccount?: boolean | undefined
-          }
+        | OneOf<
+            | {
+                type: 'sign-up'
+              }
+            | {}
+          >
         | undefined
       chainId?: number | undefined
       isReconnecting?: boolean | undefined
@@ -80,7 +83,7 @@ export function dangerous_secp256k1(
       const address = await (async () => {
         if (
           'capabilities' in parameters &&
-          parameters.capabilities?.createAccount
+          parameters.capabilities?.type === 'sign-up'
         ) {
           const privateKey = generatePrivateKey()
           const account = privateKeyToAccount(privateKey)
