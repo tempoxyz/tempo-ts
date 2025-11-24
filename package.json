@@ -65,7 +65,7 @@
 	"[!start-pkg]": "",
 	"name": "tempo.ts",
 	"type": "module",
-	"version": "0.6.1",
+	"version": "0.6.2",
 	"dependencies": {
 		"ox": "~0.9.16"
 	},
