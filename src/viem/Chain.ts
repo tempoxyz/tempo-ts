@@ -1,5 +1,6 @@
 import {
   defineTransaction,
+  defineTransactionReceipt,
   defineTransactionRequest,
   type SerializeTransactionFn,
   type Chain as viem_Chain,
@@ -35,6 +36,9 @@ function config<const chain extends Chain>(chain: chain) {
     formatters: {
       transaction: defineTransaction({
         format: Formatters.formatTransaction,
+      }),
+      transactionReceipt: defineTransactionReceipt({
+        format: Formatters.formatTransactionReceipt,
       }),
       transactionRequest: defineTransactionRequest({
         format: (

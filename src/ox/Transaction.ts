@@ -3,13 +3,11 @@ import type * as Address from 'ox/Address'
 import type * as Authorization from 'ox/Authorization'
 import type * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
-import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
 import * as ox_Transaction from 'ox/Transaction'
 import type { Compute, OneOf, UnionCompute } from '../internal/types.js'
 import * as SignatureEnvelope from './SignatureEnvelope.js'
 import type { Call } from './TransactionEnvelopeAA.js'
-import * as TransactionEnvelopeAA from './TransactionEnvelopeAA.js'
 
 /**
  * A Transaction as defined in the [Execution API specification](https://github.com/ethereum/execution-apis/blob/main/src/schemas/transaction.yaml).
@@ -54,8 +52,6 @@ export type AA<
       | undefined
     /** Array of calls to execute. */
     calls: readonly Call<bigintType>[]
-    /** Fee payer address. */
-    feePayer?: Address.Address | undefined
     /** Fee payer signature. */
     feePayerSignature?:
       | {
@@ -211,15 +207,6 @@ export function fromRpc<
     ;(transaction_.feePayerSignature as any).v = Signature.yParityToV(
       transaction_.feePayerSignature.yParity,
     )
-
-    // TODO: remove once `feePayer` returned on `eth_getTxBy*`.
-    transaction_.feePayer = Secp256k1.recoverAddress({
-      payload: TransactionEnvelopeAA.getFeePayerSignPayload(
-        transaction_ as never,
-        { sender: transaction.from },
-      ),
-      signature: transaction_.feePayerSignature,
-    })
   }
 
   return transaction_ as never
@@ -302,7 +289,6 @@ export function toRpc<pending extends boolean = false>(
     ;(rpc.feePayerSignature as any).v = Hex.fromNumber(
       Signature.yParityToV(transaction.feePayerSignature?.yParity),
     )
-    rpc.feePayer = transaction.feePayer
   }
   if (transaction.signature)
     rpc.signature = SignatureEnvelope.toRpc(transaction.signature)
