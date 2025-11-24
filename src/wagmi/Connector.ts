@@ -16,11 +16,11 @@ import * as KeyAuthorization from '../ox/KeyAuthorization.js'
 import * as SignatureEnvelope from '../ox/SignatureEnvelope.js'
 import * as Account from '../viem/Account.js'
 import type * as tempo_Chain from '../viem/Chain.js'
+import { normalizeValue } from '../viem/internal/utils.js'
 import * as Storage from '../viem/Storage.js'
 import { walletNamespaceCompat } from '../viem/Transport.js'
 import * as WebAuthnP256 from '../viem/WebAuthnP256.js'
 import * as WebCryptoP256 from '../viem/WebCryptoP256.js'
-import { normalizeValue } from '../viem/internal/utils.js'
 
 type Chain = ReturnType<ReturnType<typeof tempo_Chain.define>>
 
