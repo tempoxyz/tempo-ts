@@ -236,7 +236,8 @@ describe('sendTransaction', () => {
         access: account,
       })
 
-      await account.authorizeKey(accessKey)
+      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      await account.assignKeyAuthorization(keyAuthorization)
 
       {
         const receipt = await client.sendTransactionSync({
@@ -490,7 +491,8 @@ describe('sendTransaction', () => {
         access: account,
       })
 
-      await account.authorizeKey(accessKey)
+      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      await account.assignKeyAuthorization(keyAuthorization)
 
       {
         const receipt = await client.sendTransactionSync({
@@ -518,7 +520,8 @@ describe('sendTransaction', () => {
       })
       const feePayer = accounts[0]
 
-      await account.authorizeKey(accessKey)
+      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      await account.assignKeyAuthorization(keyAuthorization)
 
       {
         const receipt = await client.sendTransactionSync({
@@ -716,7 +719,8 @@ describe('sendTransaction', () => {
       // fund account
       await fundAddress(client, { address: account.address })
 
-      await account.authorizeKey(accessKey)
+      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      await account.assignKeyAuthorization(keyAuthorization)
 
       {
         const receipt = await client.sendTransactionSync({
@@ -989,7 +993,8 @@ describe('sendTransaction', () => {
       // fund account
       await fundAddress(client, { address: account.address })
 
-      await account.authorizeKey(accessKey)
+      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      await account.assignKeyAuthorization(keyAuthorization)
 
       {
         const receipt = await client.sendTransactionSync({
