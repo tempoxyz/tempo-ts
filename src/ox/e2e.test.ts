@@ -500,6 +500,7 @@ test('behavior: default (webauthn)', async () => {
       nonce,
       maxFeePerGas,
       maxPriorityFeePerGas,
+      transactionIndex,
       signature,
       ...rest
     } = response
@@ -513,6 +514,7 @@ test('behavior: default (webauthn)', async () => {
     expect(maxFeePerGas).toBeDefined()
     expect(maxPriorityFeePerGas).toBeDefined()
     expect(signature).toBeDefined()
+    expect(transactionIndex).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
         "aaAuthorizationList": [],
@@ -529,7 +531,6 @@ test('behavior: default (webauthn)', async () => {
         "gas": 100000n,
         "gasPrice": 20000000000n,
         "nonceKey": 0n,
-        "transactionIndex": 1,
         "type": "aa",
         "validAfter": null,
         "validBefore": null,
@@ -548,6 +549,7 @@ test('behavior: default (webauthn)', async () => {
     logs,
     logsBloom,
     transactionHash,
+    transactionIndex,
     ...rest
   } = receipt
 
@@ -559,6 +561,7 @@ test('behavior: default (webauthn)', async () => {
   expect(logs).toBeDefined()
   expect(logsBloom).toBeDefined()
   expect(transactionHash).toBe(receipt.transactionHash)
+  expect(transactionIndex).toBeDefined()
   expect(rest).toMatchInlineSnapshot(`
     {
       "blobGasPrice": undefined,
@@ -568,7 +571,6 @@ test('behavior: default (webauthn)', async () => {
       "gasUsed": 31208n,
       "status": "success",
       "to": "0x0000000000000000000000000000000000000000",
-      "transactionIndex": 1,
       "type": "0x76",
     }
   `)
