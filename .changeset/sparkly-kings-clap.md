@@ -2,4 +2,4 @@
 "tempo.ts": patch
 ---
 
-Added `keyAuthorization` attribute to `Transaction` & `TransactionEnvelopeAA`.
+`tempo.ts/ox`: Added `keyAuthorization` attribute to `Transaction` & `TransactionEnvelopeAA`.
