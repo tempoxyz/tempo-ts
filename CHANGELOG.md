@@ -1,5 +1,21 @@
 # tempo.ts
 
+## 0.6.0
+
+### Minor Changes
+
+- [#71](https://github.com/tempoxyz/tempo-ts/pull/71) [`95d4649`](https://github.com/tempoxyz/tempo-ts/commit/95d464995bc13d5ba46a91f9e2a6f7b1c14675e0) Thanks [@gorried](https://github.com/gorried)! - Renamed `Instance#faucet.address` to `faucet.addresses` in order to support multiple tokens.
+
+- [#78](https://github.com/tempoxyz/tempo-ts/pull/78) [`6c20dc0`](https://github.com/tempoxyz/tempo-ts/commit/6c20dc090b21a092e90855c7244d9c9d5d22930d) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `feePayer` from `Transaction`. Extract the `feePayer` from `TransactionReceipt` instead.
+
+### Patch Changes
+
+- [`57ee208`](https://github.com/tempoxyz/tempo-ts/commit/57ee2084c40929dba587ccd5b4ed1aac4cb327b9) Thanks [@jxom](https://github.com/jxom)! - Removed sig envelope assertions on account signing.
+
+- [#74](https://github.com/tempoxyz/tempo-ts/pull/74) [`b604600`](https://github.com/tempoxyz/tempo-ts/commit/b604600fd2c0202807175d4f669db648cb5dae95) Thanks [@gorried](https://github.com/gorried)! - Fixed formatting of `addresses` when starting prool `Instance`
+
+- [`e82713f`](https://github.com/tempoxyz/tempo-ts/commit/e82713f192206e94a63e425307cb1566ce800092) Thanks [@jxom](https://github.com/jxom)! - Normalized `credential` before storing.
+
 ## 0.5.4
 
 ### Patch Changes
