@@ -106,6 +106,7 @@ test('behavior: default (secp256k1)', async () => {
         "feePayerSignature": null,
         "gas": 100000n,
         "gasPrice": 20000000000n,
+        "keyAuthorization": null,
         "nonceKey": 0n,
         "transactionIndex": 1,
         "type": "aa",
