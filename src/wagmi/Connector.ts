@@ -20,6 +20,7 @@ import * as Storage from '../viem/Storage.js'
 import { walletNamespaceCompat } from '../viem/Transport.js'
 import * as WebAuthnP256 from '../viem/WebAuthnP256.js'
 import * as WebCryptoP256 from '../viem/WebCryptoP256.js'
+import { normalizeValue } from '../viem/internal/utils.js'
 
 type Chain = ReturnType<ReturnType<typeof tempo_Chain.define>>
 
@@ -386,8 +387,14 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
         }
       })()
 
-      config.storage?.setItem('webAuthn.lastActiveCredential', credential)
-      config.storage?.setItem('webAuthn.activeCredential', credential)
+      config.storage?.setItem(
+        'webAuthn.lastActiveCredential',
+        normalizeValue(credential),
+      )
+      config.storage?.setItem(
+        'webAuthn.activeCredential',
+        normalizeValue(credential),
+      )
 
       account = Account.fromWebAuthnP256(credential, {
         storage: Storage.from(config.storage as never),

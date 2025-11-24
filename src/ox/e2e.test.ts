@@ -79,6 +79,7 @@ test('behavior: default (secp256k1)', async () => {
       maxFeePerGas,
       maxPriorityFeePerGas,
       signature,
+      transactionIndex,
       ...rest
     } = response
 
@@ -91,6 +92,7 @@ test('behavior: default (secp256k1)', async () => {
     expect(maxPriorityFeePerGas).toBeDefined()
     expect(nonce).toBeDefined()
     expect(signature).toBeDefined()
+    expect(transactionIndex).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
         "aaAuthorizationList": [],
@@ -108,7 +110,6 @@ test('behavior: default (secp256k1)', async () => {
         "gasPrice": 20000000000n,
         "keyAuthorization": null,
         "nonceKey": 0n,
-        "transactionIndex": 1,
         "type": "aa",
         "validAfter": null,
         "validBefore": null,
@@ -126,6 +127,7 @@ test('behavior: default (secp256k1)', async () => {
     logs,
     logsBloom,
     transactionHash,
+    transactionIndex,
     ...rest
   } = receipt
 
@@ -136,6 +138,7 @@ test('behavior: default (secp256k1)', async () => {
   expect(logs).toBeDefined()
   expect(logsBloom).toBeDefined()
   expect(transactionHash).toBe(receipt.transactionHash)
+  expect(transactionIndex).toBeDefined()
   expect(rest).toMatchInlineSnapshot(`
     {
       "blobGasPrice": undefined,
@@ -146,7 +149,6 @@ test('behavior: default (secp256k1)', async () => {
       "gasUsed": 23600n,
       "status": "success",
       "to": "0x0000000000000000000000000000000000000000",
-      "transactionIndex": 1,
       "type": "0x76",
     }
   `)
@@ -217,6 +219,7 @@ test('behavior: default (p256)', async () => {
       maxFeePerGas,
       maxPriorityFeePerGas,
       signature,
+      transactionIndex,
       ...rest
     } = response
 
@@ -229,6 +232,7 @@ test('behavior: default (p256)', async () => {
     expect(maxFeePerGas).toBeDefined()
     expect(maxPriorityFeePerGas).toBeDefined()
     expect(signature).toBeDefined()
+    expect(transactionIndex).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
         "aaAuthorizationList": [],
@@ -246,7 +250,6 @@ test('behavior: default (p256)', async () => {
         "gasPrice": 20000000000n,
         "keyAuthorization": null,
         "nonceKey": 0n,
-        "transactionIndex": 1,
         "type": "aa",
         "validAfter": null,
         "validBefore": null,
@@ -264,6 +267,7 @@ test('behavior: default (p256)', async () => {
     logs,
     logsBloom,
     transactionHash,
+    transactionIndex,
     ...rest
   } = receipt
 
@@ -274,6 +278,7 @@ test('behavior: default (p256)', async () => {
   expect(logs).toBeDefined()
   expect(logsBloom).toBeDefined()
   expect(transactionHash).toBe(receipt.transactionHash)
+  expect(transactionIndex).toBeDefined()
   expect(rest).toMatchInlineSnapshot(`
     {
       "blobGasPrice": undefined,
@@ -284,7 +289,6 @@ test('behavior: default (p256)', async () => {
       "gasUsed": 28600n,
       "status": "success",
       "to": "0x0000000000000000000000000000000000000000",
-      "transactionIndex": 1,
       "type": "0x76",
     }
   `)
@@ -354,6 +358,7 @@ test('behavior: default (p256 - webcrypto)', async () => {
       maxFeePerGas,
       maxPriorityFeePerGas,
       signature,
+      transactionIndex,
       ...rest
     } = response as any
 
@@ -366,6 +371,7 @@ test('behavior: default (p256 - webcrypto)', async () => {
     expect(maxFeePerGas).toBeDefined()
     expect(maxPriorityFeePerGas).toBeDefined()
     expect(signature).toBeDefined()
+    expect(transactionIndex).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
         "aaAuthorizationList": [],
@@ -383,7 +389,6 @@ test('behavior: default (p256 - webcrypto)', async () => {
         "gasPrice": 20000000000n,
         "keyAuthorization": null,
         "nonceKey": 0n,
-        "transactionIndex": 1,
         "type": "aa",
         "validAfter": null,
         "validBefore": null,
@@ -401,6 +406,7 @@ test('behavior: default (p256 - webcrypto)', async () => {
     logs,
     logsBloom,
     transactionHash,
+    transactionIndex,
     ...rest
   } = receipt
 
@@ -411,6 +417,7 @@ test('behavior: default (p256 - webcrypto)', async () => {
   expect(logs).toBeDefined()
   expect(logsBloom).toBeDefined()
   expect(transactionHash).toBe(receipt.transactionHash)
+  expect(transactionIndex).toBeDefined()
   expect(rest).toMatchInlineSnapshot(`
     {
       "blobGasPrice": undefined,
@@ -421,7 +428,6 @@ test('behavior: default (p256 - webcrypto)', async () => {
       "gasUsed": 28600n,
       "status": "success",
       "to": "0x0000000000000000000000000000000000000000",
-      "transactionIndex": 1,
       "type": "0x76",
     }
   `)
@@ -497,6 +503,7 @@ test('behavior: default (webauthn)', async () => {
       nonce,
       maxFeePerGas,
       maxPriorityFeePerGas,
+      transactionIndex,
       signature,
       ...rest
     } = response
@@ -510,6 +517,7 @@ test('behavior: default (webauthn)', async () => {
     expect(maxFeePerGas).toBeDefined()
     expect(maxPriorityFeePerGas).toBeDefined()
     expect(signature).toBeDefined()
+    expect(transactionIndex).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
         "aaAuthorizationList": [],
@@ -527,7 +535,6 @@ test('behavior: default (webauthn)', async () => {
         "gasPrice": 20000000000n,
         "keyAuthorization": null,
         "nonceKey": 0n,
-        "transactionIndex": 1,
         "type": "aa",
         "validAfter": null,
         "validBefore": null,
@@ -539,33 +546,35 @@ test('behavior: default (webauthn)', async () => {
   const {
     blockNumber,
     blockHash,
+    cumulativeGasUsed,
     feePayer,
     feeToken: _,
     from,
     logs,
     logsBloom,
     transactionHash,
+    transactionIndex,
     ...rest
   } = receipt
 
   expect(blockNumber).toBeDefined()
   expect(blockHash).toBeDefined()
+  expect(cumulativeGasUsed).toBeDefined()
   expect(feePayer).toBeDefined()
   expect(from).toBe(address)
   expect(logs).toBeDefined()
   expect(logsBloom).toBeDefined()
   expect(transactionHash).toBe(receipt.transactionHash)
+  expect(transactionIndex).toBeDefined()
   expect(rest).toMatchInlineSnapshot(`
     {
       "blobGasPrice": undefined,
       "blobGasUsed": undefined,
       "contractAddress": null,
-      "cumulativeGasUsed": 31208n,
       "effectiveGasPrice": 20000000000n,
       "gasUsed": 31208n,
       "status": "success",
       "to": "0x0000000000000000000000000000000000000000",
-      "transactionIndex": 1,
       "type": "0x76",
     }
   `)
