@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.6.1
+
+### Patch Changes
+
+- [`82d51eb`](https://github.com/tempoxyz/tempo-ts/commit/82d51eb5dfa872b0a6b2dfdb6da78660ebb07c4e) Thanks [@jxom](https://github.com/jxom)! - Published CHANGELOG.md
+
 ## 0.6.0
 
 ### Minor Changes
