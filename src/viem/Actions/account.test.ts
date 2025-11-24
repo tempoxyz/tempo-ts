@@ -1,6 +1,6 @@
 import { Hex, P256, Secp256k1, WebCryptoP256 } from 'ox'
-import { describe, expect, test } from 'vitest'
 import { verifyMessage, verifyTypedData } from 'viem/actions'
+import { describe, expect, test } from 'vitest'
 import { client as baseClient } from '../../../test/viem/config.js'
 import * as Account from '../Account.js'
 import { decorator as tempoActions } from '../Decorator.js'

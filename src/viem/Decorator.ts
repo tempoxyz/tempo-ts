@@ -1,5 +1,6 @@
 import type { Account, Chain, Client, Transport } from 'viem'
 import type { VerifyHashParameters, VerifyHashReturnType } from 'viem/actions'
+import type { PartialBy } from '../internal/types.js'
 import * as accountActions from './Actions/account.js'
 import * as ammActions from './Actions/amm.js'
 import * as dexActions from './Actions/dex.js'
@@ -8,7 +9,6 @@ import * as feeActions from './Actions/fee.js'
 import * as policyActions from './Actions/policy.js'
 import * as rewardActions from './Actions/reward.js'
 import * as tokenActions from './Actions/token.js'
-import type { PartialBy } from '../internal/types.js'
 
 export type Decorator<
   chain extends Chain | undefined = Chain | undefined,
