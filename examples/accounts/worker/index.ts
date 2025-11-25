@@ -21,7 +21,7 @@ export default {
       )
 
       return Response.json({
-        challenge: Bytes.fromHex(challenge),
+        challenge,
         rp: {
           id: rpId,
           name: rpId,
@@ -85,10 +85,9 @@ export default {
           status: 400,
         })
 
-      // Verify origin (optional but recommended)
-      // if (clientDataJSON.origin !== expectedOrigin) {
-      //   return new Response('Invalid origin', { status: 400 })
-      // }
+      // Verify origin
+      if (clientDataJSON.origin !== new URL(`https://${rpId}`).origin)
+        return new Response('Invalid origin', { status: 400 })
 
       // Parse authenticatorData
       const authenticatorData = Bytes.fromHex(

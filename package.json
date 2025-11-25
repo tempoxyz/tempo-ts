@@ -67,7 +67,7 @@
 	"type": "module",
 	"version": "0.6.1",
 	"dependencies": {
-		"ox": "~0.9.16"
+		"ox": "~0.9.17"
 	},
 	"peerDependencies": {
 		"@tanstack/query-core": ">=5.0.0",
