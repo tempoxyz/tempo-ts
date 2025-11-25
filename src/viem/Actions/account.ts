@@ -63,9 +63,8 @@ export async function verifyHash<chain extends Chain | undefined>(
 
   const [envelope, userAddress] = (() => {
     const envelope = SignatureEnvelope.from(signature)
-    // TODO: add once we have key auth
-    // if (envelope.type === 'keychain')
-    //   return [envelope.inner, envelope.userAddress]
+    if (envelope.type === 'keychain')
+      return [envelope.inner, envelope.userAddress]
     return [envelope, undefined]
   })()
 
@@ -83,8 +82,7 @@ export async function verifyHash<chain extends Chain | undefined>(
       publicKey: envelope.publicKey,
       signature: envelope.signature,
     })
-  // TODO: add once we have key auth
-  // if (envelope.type === 'keychain') throw new Error('not supported')
+  if (envelope.type === 'keychain') throw new Error('not supported')
 
   const address =
     parameters.address ??
