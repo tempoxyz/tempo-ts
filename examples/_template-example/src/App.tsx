@@ -42,7 +42,7 @@ export function Connect() {
     <div>
       <button
         onClick={() =>
-          connect.connect({ connector, capabilities: { createAccount: true } })
+          connect.connect({ connector, capabilities: { type: 'sign-up' } })
         }
         type="button"
       >

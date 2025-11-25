@@ -1,5 +1,12 @@
 import type { FixedArray } from '@wagmi/core/internal'
-import { Actions, Addresses, Chain, Tick } from 'tempo.ts/viem'
+import * as Mnemonic from 'ox/Mnemonic'
+import {
+  Actions,
+  Addresses,
+  Chain,
+  Tick,
+  Account as tempo_Account,
+} from 'tempo.ts/viem'
 import {
   type Account,
   type Address,
@@ -8,11 +15,10 @@ import {
   createClient,
   type HttpTransportConfig,
   http,
-  type LocalAccount,
   parseUnits,
   type Transport,
 } from 'viem'
-import { english, generateMnemonic, mnemonicToAccount } from 'viem/accounts'
+import { english, generateMnemonic } from 'viem/accounts'
 import { sendTransactionSync } from 'viem/actions'
 import { tempoAndantino, tempoDev } from '../../src/chains.js'
 import type { TokenIdOrAddress } from '../../src/ox/TokenId.js'
@@ -25,11 +31,13 @@ const accountsMnemonic = (() => {
   return generateMnemonic(english)
 })()
 
-export const accounts = Array.from({ length: 20 }, (_, i) =>
-  mnemonicToAccount(accountsMnemonic, {
-    accountIndex: i,
-  }),
-) as unknown as FixedArray<LocalAccount, 20>
+export const accounts = Array.from({ length: 20 }, (_, i) => {
+  const privateKey = Mnemonic.toPrivateKey(accountsMnemonic, {
+    as: 'Hex',
+    path: Mnemonic.path({ account: i }),
+  })
+  return tempo_Account.fromSecp256k1(privateKey)
+}) as unknown as FixedArray<tempo_Account.RootAccount, 20>
 
 export const tempoTest = Chain.define({
   id: 1337,

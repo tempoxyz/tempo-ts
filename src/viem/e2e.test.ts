@@ -232,6 +232,45 @@ describe('sendTransaction', () => {
         }
       `)
     })
+
+    test('with access key', async () => {
+      const account = accounts[0]
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        access: account,
+      })
+
+      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      await account.assignKeyAuthorization(keyAuthorization)
+
+      {
+        const receipt = await client.sendTransactionSync({
+          account: accessKey,
+        })
+        expect(receipt).toBeDefined()
+      }
+
+      // TODO: uncomment once unlimited spend supported
+      // {
+      //   const receipt = await client.token.transferSync({
+      //     account: accessKey,
+      //     amount: 100n,
+      //     token: '0x20c0000000000000000000000000000000000001',
+      //     to: '0x0000000000000000000000000000000000000001',
+      //   })
+      //   expect(receipt).toBeDefined()
+      // }
+
+      {
+        const receipt = await client.token.createSync({
+          account: accessKey,
+          admin: accessKey.address,
+          currency: 'USD',
+          name: 'Test Token 4',
+          symbol: 'TEST4',
+        })
+        expect(receipt).toBeDefined()
+      }
+    })
   })
 
   describe('p256', () => {
@@ -461,6 +500,63 @@ describe('sendTransaction', () => {
         }
       `)
     })
+
+    test('with access key', async () => {
+      const account = accounts[0]
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        access: account,
+      })
+
+      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      await account.assignKeyAuthorization(keyAuthorization)
+
+      {
+        const receipt = await client.sendTransactionSync({
+          account: accessKey,
+        })
+        expect(receipt).toBeDefined()
+      }
+
+      {
+        const receipt = await client.sendTransactionSync({
+          account: accessKey,
+          to: '0x0000000000000000000000000000000000000000',
+        })
+        expect(receipt).toBeDefined()
+      }
+    })
+
+    test('with access key + fee payer', async () => {
+      const account = Account.fromP256(
+        // unfunded account with different key
+        '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b',
+      )
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        access: account,
+      })
+      const feePayer = accounts[0]
+
+      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      await account.assignKeyAuthorization(keyAuthorization)
+
+      {
+        const receipt = await client.sendTransactionSync({
+          account: accessKey,
+          feePayer,
+          to: '0x0000000000000000000000000000000000000000',
+        })
+        expect(receipt).toBeDefined()
+      }
+
+      {
+        const receipt = await client.sendTransactionSync({
+          account: accessKey,
+          feePayer,
+          to: '0x0000000000000000000000000000000000000000',
+        })
+        expect(receipt).toBeDefined()
+      }
+    })
   })
 
   describe('webcrypto', () => {
@@ -632,6 +728,35 @@ describe('sendTransaction', () => {
       expect(nonce).toBeDefined()
       expect(signature).toBeDefined()
       expect(transaction).toBeDefined()
+    })
+
+    test('with access key', async () => {
+      const keyPair = await WebCryptoP256.createKeyPair()
+      const account = Account.fromWebCryptoP256(keyPair)
+      const accessKey = Account.fromWebCryptoP256(keyPair, {
+        access: account,
+      })
+
+      // fund account
+      await fundAddress(client, { address: account.address })
+
+      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      await account.assignKeyAuthorization(keyAuthorization)
+
+      {
+        const receipt = await client.sendTransactionSync({
+          account: accessKey,
+        })
+        expect(receipt).toBeDefined()
+      }
+
+      {
+        const receipt = await client.sendTransactionSync({
+          account: accessKey,
+          to: '0x0000000000000000000000000000000000000000',
+        })
+        expect(receipt).toBeDefined()
+      }
     })
   })
 
@@ -873,6 +998,40 @@ describe('sendTransaction', () => {
           "yParity": undefined,
         }
       `)
+    })
+
+    test('with access key', async () => {
+      const account = Account.fromHeadlessWebAuthn(
+        '0x6a3086fb3f2f95a3f36ef5387d18151ff51dc98a1e0eb987b159ba196beb0c99',
+        {
+          rpId: 'localhost',
+          origin: 'http://localhost',
+        },
+      )
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        access: account,
+      })
+
+      // fund account
+      await fundAddress(client, { address: account.address })
+
+      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      await account.assignKeyAuthorization(keyAuthorization)
+
+      {
+        const receipt = await client.sendTransactionSync({
+          account: accessKey,
+        })
+        expect(receipt).toBeDefined()
+      }
+
+      {
+        const receipt = await client.sendTransactionSync({
+          account: accessKey,
+          to: '0x0000000000000000000000000000000000000000',
+        })
+        expect(receipt).toBeDefined()
+      }
     })
   })
 })
@@ -1319,6 +1478,7 @@ describe('relay', () => {
           ],
           "data": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
+          "keyAuthorization": null,
           "maxFeePerBlobGas": undefined,
           "nonceKey": 0n,
           "to": null,

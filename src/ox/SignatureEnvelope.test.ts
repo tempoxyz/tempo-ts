@@ -37,6 +37,22 @@ const signature_webauthn = SignatureEnvelope.from({
   },
 })
 
+// Keychain signatures with different inner types
+const signature_keychain_secp256k1 = SignatureEnvelope.from({
+  userAddress: '0x1234567890123456789012345678901234567890',
+  inner: SignatureEnvelope.from(signature_secp256k1),
+})
+
+const signature_keychain_p256 = SignatureEnvelope.from({
+  userAddress: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
+  inner: signature_p256,
+})
+
+const signature_keychain_webauthn = SignatureEnvelope.from({
+  userAddress: '0xfedcbafedcbafedcbafedcbafedcbafedcbafedc',
+  inner: signature_webauthn,
+})
+
 describe('assert', () => {
   describe('secp256k1', () => {
     test('behavior: validates valid signature', () => {
@@ -383,6 +399,47 @@ describe('assert', () => {
     })
   })
 
+  describe('keychain', () => {
+    test('behavior: validates valid keychain with secp256k1 inner', () => {
+      expect(() =>
+        SignatureEnvelope.assert(signature_keychain_secp256k1),
+      ).not.toThrow()
+    })
+
+    test('behavior: validates valid keychain with p256 inner', () => {
+      expect(() =>
+        SignatureEnvelope.assert(signature_keychain_p256),
+      ).not.toThrow()
+    })
+
+    test('behavior: validates valid keychain with webAuthn inner', () => {
+      expect(() =>
+        SignatureEnvelope.assert(signature_keychain_webauthn),
+      ).not.toThrow()
+    })
+
+    test('behavior: validates keychain without explicit type', () => {
+      const { type: _, ...signatureWithoutType } = signature_keychain_secp256k1
+      expect(() => SignatureEnvelope.assert(signatureWithoutType)).not.toThrow()
+    })
+
+    test('error: throws on invalid inner signature', () => {
+      expect(() =>
+        SignatureEnvelope.assert({
+          userAddress: '0x1234567890123456789012345678901234567890',
+          inner: SignatureEnvelope.from({
+            r: 0n,
+            s: 0n,
+            yParity: 2,
+          }),
+          type: 'keychain',
+        } as any),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `[Signature.InvalidYParityError: Value \`2\` is an invalid y-parity value. Y-parity must be 0 or 1.]`,
+      )
+    })
+  })
+
   test('error: throws on invalid envelope', () => {
     expect(() =>
       SignatureEnvelope.assert({} as any),
@@ -549,6 +606,86 @@ describe('deserialize', () => {
       )
     })
   })
+
+  describe('keychain', () => {
+    test('behavior: deserializes keychain signature with secp256k1 inner', () => {
+      const serialized = SignatureEnvelope.serialize(
+        signature_keychain_secp256k1,
+      )
+      const deserialized = SignatureEnvelope.deserialize(serialized)
+
+      expect(deserialized).toMatchObject({
+        userAddress: signature_keychain_secp256k1.userAddress,
+        inner: SignatureEnvelope.from(signature_secp256k1),
+        type: 'keychain',
+      })
+    })
+
+    test('behavior: deserializes keychain signature with p256 inner', () => {
+      const serialized = SignatureEnvelope.serialize(signature_keychain_p256)
+      const deserialized = SignatureEnvelope.deserialize(serialized)
+
+      expect(deserialized).toMatchInlineSnapshot(`
+        {
+          "inner": {
+            "prehash": true,
+            "publicKey": {
+              "prefix": 4,
+              "x": 78495282704852028275327922540131762143565388050940484317945369745559774511861n,
+              "y": 8109764566587999957624872393871720746996669263962991155166704261108473113504n,
+            },
+            "signature": {
+              "r": 92602584010956101470289867944347135737570451066466093224269890121909314569518n,
+              "s": 54171125190222965779385658110416711469231271457324878825831748147306957269813n,
+            },
+            "type": "p256",
+          },
+          "type": "keychain",
+          "userAddress": "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
+        }
+      `)
+    })
+
+    test('behavior: deserializes keychain signature with webAuthn inner', () => {
+      const serialized = SignatureEnvelope.serialize(
+        signature_keychain_webauthn,
+      )
+      const deserialized = SignatureEnvelope.deserialize(serialized)
+
+      expect(deserialized).toMatchInlineSnapshot(`
+        {
+          "inner": {
+            "metadata": {
+              "authenticatorData": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000",
+              "clientDataJSON": "{"type":"webauthn.get","challenge":"3q2-7w","origin":"http://localhost","crossOrigin":false}",
+            },
+            "publicKey": {
+              "prefix": 4,
+              "x": 78495282704852028275327922540131762143565388050940484317945369745559774511861n,
+              "y": 8109764566587999957624872393871720746996669263962991155166704261108473113504n,
+            },
+            "signature": {
+              "r": 92602584010956101470289867944347135737570451066466093224269890121909314569518n,
+              "s": 54171125190222965779385658110416711469231271457324878825831748147306957269813n,
+            },
+            "type": "webAuthn",
+          },
+          "type": "keychain",
+          "userAddress": "0xfedcbafedcbafedcbafedcbafedcbafedcbafedc",
+        }
+      `)
+    })
+
+    test('error: throws on invalid keychain signature length', () => {
+      // Keychain signature too short (must be at least 21 bytes: 1 type + 20 address)
+      const invalidSig = `0x03${'00'.repeat(10)}` as const
+      expect(() =>
+        SignatureEnvelope.deserialize(invalidSig),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `[Hex.SliceOffsetOutOfBoundsError: Slice starting at offset \`20\` is out-of-bounds (size: \`10\`).]`,
+      )
+    })
+  })
 })
 
 describe('from', () => {
@@ -636,6 +773,38 @@ describe('from', () => {
       expect(envelope.type).toBe('webAuthn')
     })
   })
+
+  describe('keychain', () => {
+    test('behavior: coerces from hex string with secp256k1 inner', () => {
+      const serialized = SignatureEnvelope.serialize(
+        signature_keychain_secp256k1,
+      )
+      const envelope = SignatureEnvelope.from(serialized)
+
+      expect(envelope).toMatchObject({
+        userAddress: signature_keychain_secp256k1.userAddress,
+        inner: SignatureEnvelope.from(signature_secp256k1),
+        type: 'keychain',
+      })
+    })
+
+    test('behavior: coerces from hex string with p256 inner', () => {
+      const serialized = SignatureEnvelope.serialize(signature_keychain_p256)
+      const envelope = SignatureEnvelope.from(serialized)
+
+      expect(envelope).toMatchObject({
+        userAddress: signature_keychain_p256.userAddress,
+        type: 'keychain',
+      })
+    })
+
+    test('behavior: adds type to object', () => {
+      const { type: _, ...withoutType } = signature_keychain_secp256k1
+      const envelope = SignatureEnvelope.from(withoutType)
+
+      expect(envelope.type).toBe('keychain')
+    })
+  })
 })
 
 describe('getType', () => {
@@ -680,6 +849,29 @@ describe('getType', () => {
     test('behavior: infers type from properties', () => {
       const { type: _, ...signatureWithoutType } = signature_webauthn
       expect(SignatureEnvelope.getType(signatureWithoutType)).toBe('webAuthn')
+    })
+  })
+
+  describe('keychain', () => {
+    test('behavior: returns explicit type', () => {
+      expect(SignatureEnvelope.getType(signature_keychain_secp256k1)).toBe(
+        'keychain',
+      )
+    })
+
+    test('behavior: infers type from properties', () => {
+      const { type: _, ...signatureWithoutType } = signature_keychain_secp256k1
+      expect(SignatureEnvelope.getType(signatureWithoutType)).toBe('keychain')
+    })
+
+    test('behavior: infers type for keychain with p256 inner', () => {
+      const { type: _, ...signatureWithoutType } = signature_keychain_p256
+      expect(SignatureEnvelope.getType(signatureWithoutType)).toBe('keychain')
+    })
+
+    test('behavior: infers type for keychain with webAuthn inner', () => {
+      const { type: _, ...signatureWithoutType } = signature_keychain_webauthn
+      expect(SignatureEnvelope.getType(signatureWithoutType)).toBe('keychain')
     })
   })
 
@@ -776,6 +968,83 @@ describe('serialize', () => {
     })
   })
 
+  describe('keychain', () => {
+    test('behavior: serializes keychain signature with secp256k1 inner and type identifier', () => {
+      const serialized = SignatureEnvelope.serialize(
+        signature_keychain_secp256k1,
+      )
+
+      // Should be: 1 (type) + 20 (address) + 65 (secp256k1 signature)
+      expect(Hex.size(serialized)).toBe(1 + 20 + 65)
+
+      // First byte should be Keychain type identifier (0x03)
+      expect(Hex.slice(serialized, 0, 1)).toBe('0x03')
+
+      // Next 20 bytes should be the user address (without '0x')
+      expect(Hex.slice(serialized, 1, 21)).toBe(
+        signature_keychain_secp256k1.userAddress,
+      )
+    })
+
+    test('behavior: serializes keychain signature with p256 inner', () => {
+      const serialized = SignatureEnvelope.serialize(signature_keychain_p256)
+
+      // Should be: 1 (type) + 20 (address) + 130 (p256 signature with type)
+      expect(Hex.size(serialized)).toBe(1 + 20 + 130)
+
+      // First byte should be Keychain type identifier (0x03)
+      expect(Hex.slice(serialized, 0, 1)).toBe('0x03')
+
+      // Next 20 bytes should be the user address (without '0x')
+      expect(Hex.slice(serialized, 1, 21)).toBe(
+        signature_keychain_p256.userAddress,
+      )
+
+      // Next 130 bytes should be the p256 signature
+      expect(Hex.slice(serialized, 21, 151)).toBe(
+        SignatureEnvelope.serialize(signature_p256),
+      )
+    })
+
+    test('behavior: serializes keychain signature with webAuthn inner', () => {
+      const serialized = SignatureEnvelope.serialize(
+        signature_keychain_webauthn,
+      )
+
+      // First byte should be Keychain type identifier (0x03)
+      expect(Hex.slice(serialized, 0, 1)).toBe('0x03')
+
+      // Should contain the user address
+      expect(Hex.slice(serialized, 1, 21)).toBe(
+        signature_keychain_webauthn.userAddress,
+      )
+
+      // Next N bytes should be the webAuthn signature
+      expect(Hex.slice(serialized, 21)).toBe(
+        SignatureEnvelope.serialize(signature_webauthn),
+      )
+    })
+
+    test('behavior: preserves userAddress and inner signature', () => {
+      const serialized = SignatureEnvelope.serialize(
+        signature_keychain_secp256k1,
+      )
+      const deserialized = SignatureEnvelope.deserialize(serialized)
+
+      expect(deserialized.userAddress).toBe(
+        signature_keychain_secp256k1.userAddress,
+      )
+      expect(deserialized.inner).toMatchObject({
+        type: 'secp256k1',
+        signature: {
+          r: signature_secp256k1.r,
+          s: signature_secp256k1.s,
+          yParity: signature_secp256k1.yParity,
+        },
+      })
+    })
+  })
+
   describe('roundtrip', () => {
     describe('secp256k1', () => {
       test('behavior: roundtrips serialize -> deserialize', () => {
@@ -869,6 +1138,72 @@ describe('serialize', () => {
         expect(deserialized.metadata?.clientDataJSON).toBe(longClientData)
       })
     })
+
+    describe('keychain', () => {
+      test('behavior: roundtrips serialize -> deserialize with secp256k1 inner', () => {
+        const serialized = SignatureEnvelope.serialize(
+          signature_keychain_secp256k1,
+        )
+        const deserialized = SignatureEnvelope.deserialize(serialized)
+
+        expect(deserialized).toMatchObject(signature_keychain_secp256k1)
+      })
+
+      test('behavior: roundtrips serialize -> deserialize with p256 inner', () => {
+        const serialized = SignatureEnvelope.serialize(signature_keychain_p256)
+        const deserialized = SignatureEnvelope.deserialize(serialized)
+
+        expect(deserialized).toMatchInlineSnapshot(`
+          {
+            "inner": {
+              "prehash": true,
+              "publicKey": {
+                "prefix": 4,
+                "x": 78495282704852028275327922540131762143565388050940484317945369745559774511861n,
+                "y": 8109764566587999957624872393871720746996669263962991155166704261108473113504n,
+              },
+              "signature": {
+                "r": 92602584010956101470289867944347135737570451066466093224269890121909314569518n,
+                "s": 54171125190222965779385658110416711469231271457324878825831748147306957269813n,
+              },
+              "type": "p256",
+            },
+            "type": "keychain",
+            "userAddress": "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
+          }
+        `)
+      })
+
+      test('behavior: roundtrips serialize -> deserialize with webAuthn inner', () => {
+        const serialized = SignatureEnvelope.serialize(
+          signature_keychain_webauthn,
+        )
+        const deserialized = SignatureEnvelope.deserialize(serialized)
+
+        expect(deserialized).toMatchInlineSnapshot(`
+          {
+            "inner": {
+              "metadata": {
+                "authenticatorData": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000",
+                "clientDataJSON": "{"type":"webauthn.get","challenge":"3q2-7w","origin":"http://localhost","crossOrigin":false}",
+              },
+              "publicKey": {
+                "prefix": 4,
+                "x": 78495282704852028275327922540131762143565388050940484317945369745559774511861n,
+                "y": 8109764566587999957624872393871720746996669263962991155166704261108473113504n,
+              },
+              "signature": {
+                "r": 92602584010956101470289867944347135737570451066466093224269890121909314569518n,
+                "s": 54171125190222965779385658110416711469231271457324878825831748147306957269813n,
+              },
+              "type": "webAuthn",
+            },
+            "type": "keychain",
+            "userAddress": "0xfedcbafedcbafedcbafedcbafedcbafedcbafedc",
+          }
+        `)
+      })
+    })
   })
 
   test('error: throws on invalid envelope', () => {
@@ -940,6 +1275,39 @@ describe('validate', () => {
     test('behavior: returns false for invalid WebAuthn signature', () => {
       const { metadata: _, ...withoutMetadata } = signature_webauthn
       expect(SignatureEnvelope.validate(withoutMetadata as any)).toBe(false)
+    })
+  })
+
+  describe('keychain', () => {
+    test('behavior: returns true for valid keychain with secp256k1 inner', () => {
+      expect(SignatureEnvelope.validate(signature_keychain_secp256k1)).toBe(
+        true,
+      )
+    })
+
+    test('behavior: returns true for valid keychain with p256 inner', () => {
+      expect(SignatureEnvelope.validate(signature_keychain_p256)).toBe(true)
+    })
+
+    test('behavior: returns true for valid keychain with webAuthn inner', () => {
+      expect(SignatureEnvelope.validate(signature_keychain_webauthn)).toBe(true)
+    })
+
+    test('behavior: returns false for invalid keychain signature', () => {
+      expect(
+        SignatureEnvelope.validate({
+          userAddress: '0x1234567890123456789012345678901234567890',
+          inner: {
+            signature: {
+              r: 0n,
+              s: 0n,
+              yParity: 2,
+            },
+            type: 'secp256k1',
+          },
+          type: 'keychain',
+        } as any),
+      ).toBe(false)
     })
   })
 
@@ -1046,6 +1414,118 @@ describe('fromRpc', () => {
       })
     })
   })
+
+  describe('keychain', () => {
+    test('behavior: converts RPC keychain signature with secp256k1 inner', () => {
+      const rpc: SignatureEnvelope.KeychainRpc = {
+        type: 'keychain',
+        userAddress: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+        signature: {
+          type: 'secp256k1',
+          r: '0xa2bb71146c20ce932456c043ebb2973ed205e07cd32c35a60bdefca1285fd132',
+          s: '0x7cba10692bccdbfba9a215418443c2903dbee6fe5cb55c91172e47efc607840e',
+          yParity: '0x1',
+        },
+      }
+
+      const envelope = SignatureEnvelope.fromRpc(rpc)
+
+      expect(envelope).toMatchObject({
+        type: 'keychain',
+        userAddress: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+        inner: {
+          type: 'secp256k1',
+          signature: {
+            r: 0xa2bb71146c20ce932456c043ebb2973ed205e07cd32c35a60bdefca1285fd132n,
+            s: 0x7cba10692bccdbfba9a215418443c2903dbee6fe5cb55c91172e47efc607840en,
+            yParity: 1,
+          },
+        },
+      })
+    })
+
+    test('behavior: converts RPC keychain signature with p256 inner', () => {
+      const rpc: SignatureEnvelope.KeychainRpc = {
+        type: 'keychain',
+        userAddress: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
+        signature: {
+          prehash: true,
+          pubKeyX: Hex.fromNumber(publicKey.x, { size: 32 }),
+          pubKeyY: Hex.fromNumber(publicKey.y, { size: 32 }),
+          r: Hex.fromNumber(p256Signature.r, { size: 32 }),
+          s: Hex.fromNumber(p256Signature.s, { size: 32 }),
+          type: 'p256',
+        },
+      }
+
+      const envelope = SignatureEnvelope.fromRpc(rpc)
+
+      expect(envelope).toMatchObject({
+        type: 'keychain',
+        userAddress: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
+        inner: {
+          type: 'p256',
+          prehash: true,
+          publicKey: {
+            x: publicKey.x,
+            y: publicKey.y,
+          },
+          signature: {
+            r: p256Signature.r,
+            s: p256Signature.s,
+          },
+        },
+      })
+    })
+
+    test('behavior: converts RPC keychain signature with webAuthn inner', () => {
+      const webauthnData = WebAuthnP256.getAuthenticatorData({
+        rpId: 'localhost',
+      })
+      const clientDataJSON = WebAuthnP256.getClientDataJSON({
+        challenge: '0xdeadbeef',
+        origin: 'http://localhost',
+      })
+
+      const rpc: SignatureEnvelope.KeychainRpc = {
+        type: 'keychain',
+        userAddress: '0xfedcbafedcbafedcbafedcbafedcbafedcbafedc',
+        signature: {
+          pubKeyX: Hex.fromNumber(publicKey.x, { size: 32 }),
+          pubKeyY: Hex.fromNumber(publicKey.y, { size: 32 }),
+          r: Hex.fromNumber(p256Signature.r, { size: 32 }),
+          s: Hex.fromNumber(p256Signature.s, { size: 32 }),
+          type: 'webAuthn',
+          webauthnData: Hex.concat(
+            webauthnData,
+            Hex.fromString(clientDataJSON),
+          ),
+        },
+      }
+
+      const envelope = SignatureEnvelope.fromRpc(rpc)
+
+      expect(envelope).toMatchObject({
+        type: 'keychain',
+        userAddress: '0xfedcbafedcbafedcbafedcbafedcbafedcbafedc',
+        inner: {
+          type: 'webAuthn',
+          metadata: {
+            authenticatorData: webauthnData,
+            clientDataJSON,
+          },
+          publicKey: {
+            x: publicKey.x,
+            y: publicKey.y,
+          },
+          signature: {
+            r: p256Signature.r,
+            s: p256Signature.s,
+          },
+        },
+      })
+    })
+  })
 })
 
 describe('toRpc', () => {
@@ -1111,6 +1591,56 @@ describe('toRpc', () => {
       expect(rpc.webauthnData).toContain(
         signature_webauthn.metadata.authenticatorData.slice(2),
       )
+    })
+  })
+
+  describe('keychain', () => {
+    test('behavior: converts keychain signature with secp256k1 inner to RPC', () => {
+      const envelope: SignatureEnvelope.Keychain = {
+        type: 'keychain',
+        userAddress: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+        inner: {
+          signature: signature_secp256k1,
+          type: 'secp256k1',
+        },
+      }
+
+      const rpc = SignatureEnvelope.toRpc(
+        envelope,
+      ) as SignatureEnvelope.KeychainRpc
+
+      expect(rpc.type).toBe('keychain')
+      expect(rpc.userAddress).toBe('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+      expect(rpc.signature).toMatchObject({
+        r: Signature.toRpc(signature_secp256k1).r,
+        s: Signature.toRpc(signature_secp256k1).s,
+        yParity: Signature.toRpc(signature_secp256k1).yParity,
+        type: 'secp256k1',
+      })
+    })
+
+    test('behavior: converts keychain signature with p256 inner to RPC', () => {
+      const rpc = SignatureEnvelope.toRpc(
+        signature_keychain_p256,
+      ) as SignatureEnvelope.KeychainRpc
+
+      expect(rpc.type).toBe('keychain')
+      expect(rpc.userAddress).toBe(signature_keychain_p256.userAddress)
+      expect(rpc.signature.type).toBe('p256')
+      expect(typeof rpc.signature.pubKeyX).toBe('string')
+      expect(typeof rpc.signature.pubKeyY).toBe('string')
+    })
+
+    test('behavior: converts keychain signature with webAuthn inner to RPC', () => {
+      const rpc = SignatureEnvelope.toRpc(
+        signature_keychain_webauthn,
+      ) as SignatureEnvelope.KeychainRpc
+
+      expect(rpc.type).toBe('keychain')
+      expect(rpc.userAddress).toBe(signature_keychain_webauthn.userAddress)
+      expect(rpc.signature.type).toBe('webAuthn')
+      expect(typeof rpc.signature.pubKeyX).toBe('string')
+      expect(typeof rpc.signature.webauthnData).toBe('string')
     })
   })
 })
@@ -1221,6 +1751,100 @@ describe('roundtrip: toRpc <-> fromRpc', () => {
       const roundtripped = SignatureEnvelope.fromRpc(rpc)
 
       expect(roundtripped.metadata?.clientDataJSON).toBe(longClientData)
+    })
+  })
+
+  describe('keychain', () => {
+    test('behavior: roundtrips toRpc -> fromRpc with secp256k1 inner', () => {
+      const envelope: SignatureEnvelope.Keychain = {
+        type: 'keychain',
+        userAddress: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+        inner: {
+          signature: signature_secp256k1,
+          type: 'secp256k1',
+        },
+      }
+
+      const rpc = SignatureEnvelope.toRpc(envelope)
+      const roundtripped = SignatureEnvelope.fromRpc(rpc)
+
+      expect(roundtripped).toMatchObject({
+        type: 'keychain',
+        userAddress: envelope.userAddress,
+        inner: {
+          type: 'secp256k1',
+          signature: {
+            r: signature_secp256k1.r,
+            s: signature_secp256k1.s,
+            yParity: signature_secp256k1.yParity,
+          },
+        },
+      })
+    })
+
+    test('behavior: roundtrips toRpc -> fromRpc with p256 inner', () => {
+      const rpc = SignatureEnvelope.toRpc(signature_keychain_p256)
+      const roundtripped = SignatureEnvelope.fromRpc(rpc)
+
+      expect(roundtripped).toMatchObject({
+        type: 'keychain',
+        userAddress: signature_keychain_p256.userAddress,
+        inner: {
+          type: 'p256',
+          prehash: signature_p256.prehash,
+          publicKey: {
+            x: signature_p256.publicKey.x,
+            y: signature_p256.publicKey.y,
+          },
+          signature: {
+            r: signature_p256.signature.r,
+            s: signature_p256.signature.s,
+          },
+        },
+      })
+    })
+
+    test('behavior: roundtrips toRpc -> fromRpc with webAuthn inner', () => {
+      const rpc = SignatureEnvelope.toRpc(signature_keychain_webauthn)
+      const roundtripped = SignatureEnvelope.fromRpc(rpc)
+
+      expect(roundtripped).toMatchObject({
+        type: 'keychain',
+        userAddress: signature_keychain_webauthn.userAddress,
+        inner: {
+          type: 'webAuthn',
+          metadata: {
+            authenticatorData: signature_webauthn.metadata.authenticatorData,
+            clientDataJSON: signature_webauthn.metadata.clientDataJSON,
+          },
+          publicKey: {
+            x: signature_webauthn.publicKey.x,
+            y: signature_webauthn.publicKey.y,
+          },
+          signature: {
+            r: signature_webauthn.signature.r,
+            s: signature_webauthn.signature.s,
+          },
+        },
+      })
+    })
+
+    test('behavior: roundtrips fromRpc -> toRpc with secp256k1 inner', () => {
+      const rpc: SignatureEnvelope.KeychainRpc = {
+        type: 'keychain',
+        userAddress: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+        signature: {
+          type: 'secp256k1',
+          r: '0xa2bb71146c20ce932456c043ebb2973ed205e07cd32c35a60bdefca1285fd132',
+          s: '0x7cba10692bccdbfba9a215418443c2903dbee6fe5cb55c91172e47efc607840e',
+          yParity: '0x1',
+        },
+      }
+
+      const envelope = SignatureEnvelope.fromRpc(rpc)
+      const roundtripped = SignatureEnvelope.toRpc(envelope)
+
+      expect(roundtripped).toMatchObject(rpc)
     })
   })
 })

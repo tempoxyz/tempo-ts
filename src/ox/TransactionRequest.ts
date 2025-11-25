@@ -3,6 +3,7 @@ import type * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 import * as ox_TransactionRequest from 'ox/TransactionRequest'
 import type { Compute } from '../internal/types.js'
+import * as KeyAuthorization from './KeyAuthorization.js'
 import * as TokenId from './TokenId.js'
 import * as Transaction from './Transaction.js'
 import type { Call } from './TransactionEnvelopeAA.js'
@@ -17,6 +18,7 @@ export type TransactionRequest<
 > = Compute<
   ox_TransactionRequest.TransactionRequest<bigintType, numberType, type> & {
     calls?: readonly Call<bigintType>[] | undefined
+    keyAuthorization?: KeyAuthorization.KeyAuthorization<true> | undefined
     keyData?: Hex.Hex | undefined
     keyType?: KeyType | undefined
     feeToken?: TokenId.TokenIdOrAddress | undefined
@@ -26,7 +28,12 @@ export type TransactionRequest<
 >
 
 /** RPC representation of a {@link ox#TransactionRequest.TransactionRequest}. */
-export type Rpc = TransactionRequest<Hex.Hex, Hex.Hex, string>
+export type Rpc = Omit<
+  TransactionRequest<Hex.Hex, Hex.Hex, string>,
+  'keyAuthorization'
+> & {
+  keyAuthorization?: KeyAuthorization.Rpc | undefined
+}
 
 /**
  * Converts a {@link ox#TransactionRequest.TransactionRequest} to a {@link ox#TransactionRequest.Rpc}.
@@ -82,6 +89,10 @@ export function toRpc(request: TransactionRequest): Rpc {
     }))
   if (typeof request.feeToken !== 'undefined')
     request_rpc.feeToken = TokenId.toAddress(request.feeToken)
+  if (request.keyAuthorization)
+    request_rpc.keyAuthorization = KeyAuthorization.toRpc(
+      request.keyAuthorization,
+    )
   if (typeof request.validBefore !== 'undefined')
     request_rpc.validBefore = Hex.fromNumber(request.validBefore)
   if (typeof request.validAfter !== 'undefined')

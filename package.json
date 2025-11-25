@@ -1,6 +1,6 @@
 {
 	"scripts": {
-		"build": "zile --project ./tsconfig.build.json",
+		"build": "zile --project ./tsconfig.build.json && cp ./src/prool/chain.json ./dist/prool/chain.json",
 		"changeset:prepublish": "pnpm build && node ./scripts/prepublish.ts",
 		"changeset:publish": "pnpm changeset:prepublish && changeset publish",
 		"changeset:version": "changeset version && pnpm check",
@@ -13,7 +13,7 @@
 		"preconstruct": "zile dev --project ./tsconfig.build.json && pnpm check",
 		"submodules:pull": "git submodule foreach git pull origin main && pnpm gen:abis",
 		"test": "vitest",
-		"test:install": "cd test/tempo && cargo install --path bin/tempo && cargo run --bin tempo-xtask generate-genesis --accounts 1 --output ../../src/prool/internal/chain.json"
+		"test:install": "cd test/tempo && cargo install --path bin/tempo && cargo run --bin tempo-xtask generate-genesis --accounts 1 --output ../../src/prool/chain.json"
 	},
 	"packageManager": "pnpm@10.18.3",
 	"devEngines": {
@@ -50,7 +50,7 @@
 		"vitest": "^4.0.13",
 		"vitest-browser-react": "^2.0.2",
 		"wagmi": "catalog:default",
-		"zile": "^0.0.5"
+		"zile": "^0.0.13"
 	},
 	"simple-git-hooks": {
 		"pre-commit": "pnpm check"
@@ -67,6 +67,7 @@
 	"type": "module",
 	"version": "0.6.2",
 	"dependencies": {
+		"idb-keyval": "^6.2.2",
 		"ox": "~0.9.16"
 	},
 	"peerDependencies": {

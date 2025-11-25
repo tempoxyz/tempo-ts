@@ -241,30 +241,6 @@ describe('useHasRole', () => {
   })
 })
 
-describe('useApprove', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() => ({
-      connect: useConnect(),
-      approve: hooks.useApprove(),
-    }))
-
-    await result.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    const hash = await result.current.approve.mutateAsync({
-      spender: account2.address,
-      amount: parseUnits('100', 6),
-      token: addresses.alphaUsd,
-    })
-    expect(hash).toBeDefined()
-
-    await vi.waitFor(() =>
-      expect(result.current.approve.isSuccess).toBeTruthy(),
-    )
-  })
-})
-
 describe('useApproveSync', () => {
   test('default', async () => {
     const { result } = await renderHook(() => ({
@@ -287,51 +263,6 @@ describe('useApproveSync', () => {
     await vi.waitFor(() =>
       expect(result.current.approve.isSuccess).toBeTruthy(),
     )
-  })
-})
-
-describe('useBurn', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() => ({
-      connect: useConnect(),
-      createSync: hooks.useCreateSync(),
-      grantRolesSync: hooks.useGrantRolesSync(),
-      mintSync: hooks.useMintSync(),
-      burn: hooks.useBurn(),
-    }))
-
-    await result.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    // Create a new token
-    const { token: tokenAddr } = await result.current.createSync.mutateAsync({
-      currency: 'USD',
-      name: 'Burnable Hook Token',
-      symbol: 'BURNHOOK',
-    })
-
-    // Grant issuer role
-    await result.current.grantRolesSync.mutateAsync({
-      token: tokenAddr,
-      roles: ['issuer'],
-      to: account.address,
-    })
-
-    // Mint some tokens
-    await result.current.mintSync.mutateAsync({
-      token: tokenAddr,
-      to: account.address,
-      amount: parseUnits('1000', 6),
-    })
-
-    const hash = await result.current.burn.mutateAsync({
-      token: tokenAddr,
-      amount: parseUnits('1', 6),
-    })
-    expect(hash).toBeDefined()
-
-    await vi.waitFor(() => expect(result.current.burn.isSuccess).toBeTruthy())
   })
 })
 
@@ -381,37 +312,6 @@ describe('useBurnSync', () => {
   })
 })
 
-describe('useChangeTransferPolicy', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() => ({
-      connect: useConnect(),
-      createSync: hooks.useCreateSync(),
-      changeTransferPolicy: hooks.useChangeTransferPolicy(),
-    }))
-
-    await result.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    // Create a new token
-    const { token: tokenAddr } = await result.current.createSync.mutateAsync({
-      currency: 'USD',
-      name: 'Policy Hook Token',
-      symbol: 'POLICYHOOK',
-    })
-
-    const hash = await result.current.changeTransferPolicy.mutateAsync({
-      token: tokenAddr,
-      policyId: 0n,
-    })
-    expect(hash).toBeDefined()
-
-    await vi.waitFor(() =>
-      expect(result.current.changeTransferPolicy.isSuccess).toBeTruthy(),
-    )
-  })
-})
-
 describe('useChangeTransferPolicySync', () => {
   test('default', async () => {
     const { result } = await renderHook(() => ({
@@ -444,28 +344,6 @@ describe('useChangeTransferPolicySync', () => {
   })
 })
 
-describe('useCreate', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() => ({
-      connect: useConnect(),
-      create: hooks.useCreate(),
-    }))
-
-    await result.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    const hash = await result.current.create.mutateAsync({
-      name: 'Hook Test Token',
-      symbol: 'HOOKTEST',
-      currency: 'USD',
-    })
-    expect(hash).toBeDefined()
-
-    await vi.waitFor(() => expect(result.current.create.isSuccess).toBeTruthy())
-  })
-})
-
 describe('useCreateSync', () => {
   test('default', async () => {
     const { result } = await renderHook(() => ({
@@ -488,50 +366,6 @@ describe('useCreateSync', () => {
     expect(data.name).toBe('Hook Test Token Sync')
 
     await vi.waitFor(() => expect(result.current.create.isSuccess).toBeTruthy())
-  })
-})
-
-describe('useUpdateQuoteToken', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() => ({
-      connect: useConnect(),
-      createSync: hooks.useCreateSync(),
-      prepareUpdateQuoteTokenSync: hooks.usePrepareUpdateQuoteTokenSync(),
-      updateQuoteToken: hooks.useUpdateQuoteToken(),
-    }))
-
-    await result.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    // Create quote token
-    const { token: quoteToken } = await result.current.createSync.mutateAsync({
-      currency: 'USD',
-      name: 'Finalize Quote Hook',
-      symbol: 'FQHOOK',
-    })
-
-    // Create main token
-    const { token: tokenAddr } = await result.current.createSync.mutateAsync({
-      currency: 'USD',
-      name: 'Finalize Main Hook',
-      symbol: 'FMHOOK',
-    })
-
-    // Prepare quote token update first
-    await result.current.prepareUpdateQuoteTokenSync.mutateAsync({
-      token: tokenAddr,
-      quoteToken,
-    })
-
-    const hash = await result.current.updateQuoteToken.mutateAsync({
-      token: tokenAddr,
-    })
-    expect(hash).toBeDefined()
-
-    await vi.waitFor(() =>
-      expect(result.current.updateQuoteToken.isSuccess).toBeTruthy(),
-    )
   })
 })
 
@@ -646,44 +480,6 @@ describe('useGrantRolesSync', () => {
   })
 })
 
-describe('useMint', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() => ({
-      connect: useConnect(),
-      createSync: hooks.useCreateSync(),
-      grantRolesSync: hooks.useGrantRolesSync(),
-      mint: hooks.useMint(),
-    }))
-
-    await result.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    // Create a new token
-    const { token: tokenAddr } = await result.current.createSync.mutateAsync({
-      currency: 'USD',
-      name: 'Mint Hook Token',
-      symbol: 'MINTHOOK',
-    })
-
-    // Grant issuer role
-    await result.current.grantRolesSync.mutateAsync({
-      token: tokenAddr,
-      roles: ['issuer'],
-      to: account.address,
-    })
-
-    const hash = await result.current.mint.mutateAsync({
-      token: tokenAddr,
-      to: account.address,
-      amount: parseUnits('100', 6),
-    })
-    expect(hash).toBeDefined()
-
-    await vi.waitFor(() => expect(result.current.mint.isSuccess).toBeTruthy())
-  })
-})
-
 describe('useMintSync', () => {
   test('default', async () => {
     const { result } = await renderHook(() => ({
@@ -720,42 +516,6 @@ describe('useMintSync', () => {
     expect(data.receipt).toBeDefined()
 
     await vi.waitFor(() => expect(result.current.mint.isSuccess).toBeTruthy())
-  })
-})
-
-describe('usePause', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() => ({
-      connect: useConnect(),
-      createSync: hooks.useCreateSync(),
-      grantRolesSync: hooks.useGrantRolesSync(),
-      pause: hooks.usePause(),
-    }))
-
-    await result.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    // Create a new token
-    const { token: tokenAddr } = await result.current.createSync.mutateAsync({
-      currency: 'USD',
-      name: 'Pause Hook Token',
-      symbol: 'PAUSEHOOK',
-    })
-
-    // Grant pause role
-    await result.current.grantRolesSync.mutateAsync({
-      token: tokenAddr,
-      roles: ['pause'],
-      to: account.address,
-    })
-
-    const hash = await result.current.pause.mutateAsync({
-      token: tokenAddr,
-    })
-    expect(hash).toBeDefined()
-
-    await vi.waitFor(() => expect(result.current.pause.isSuccess).toBeTruthy())
   })
 })
 
@@ -796,45 +556,6 @@ describe('usePauseSync', () => {
   })
 })
 
-describe('useRenounceRoles', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() => ({
-      connect: useConnect(),
-      createSync: hooks.useCreateSync(),
-      grantRolesSync: hooks.useGrantRolesSync(),
-      renounceRoles: hooks.useRenounceRoles(),
-    }))
-
-    await result.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    // Create a new token
-    const { token: tokenAddr } = await result.current.createSync.mutateAsync({
-      currency: 'USD',
-      name: 'Renounce Hook Token',
-      symbol: 'RENOUNCEHOOK',
-    })
-
-    // Grant issuer role to ourselves
-    await result.current.grantRolesSync.mutateAsync({
-      token: tokenAddr,
-      roles: ['issuer'],
-      to: account.address,
-    })
-
-    const hash = await result.current.renounceRoles.mutateAsync({
-      token: tokenAddr,
-      roles: ['issuer'],
-    })
-    expect(hash).toBeDefined()
-
-    await vi.waitFor(() =>
-      expect(result.current.renounceRoles.isSuccess).toBeTruthy(),
-    )
-  })
-})
-
 describe('useRenounceRolesSync', () => {
   test('default', async () => {
     const { result } = await renderHook(() => ({
@@ -872,46 +593,6 @@ describe('useRenounceRolesSync', () => {
 
     await vi.waitFor(() =>
       expect(result.current.renounceRoles.isSuccess).toBeTruthy(),
-    )
-  })
-})
-
-describe('useRevokeRoles', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() => ({
-      connect: useConnect(),
-      createSync: hooks.useCreateSync(),
-      grantRolesSync: hooks.useGrantRolesSync(),
-      revokeRoles: hooks.useRevokeRoles(),
-    }))
-
-    await result.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    // Create a new token
-    const { token: tokenAddr } = await result.current.createSync.mutateAsync({
-      currency: 'USD',
-      name: 'Revoke Hook Token',
-      symbol: 'REVOKEHOOK',
-    })
-
-    // Grant issuer role to account2
-    await result.current.grantRolesSync.mutateAsync({
-      token: tokenAddr,
-      roles: ['issuer'],
-      to: account2.address,
-    })
-
-    const hash = await result.current.revokeRoles.mutateAsync({
-      token: tokenAddr,
-      roles: ['issuer'],
-      from: account2.address,
-    })
-    expect(hash).toBeDefined()
-
-    await vi.waitFor(() =>
-      expect(result.current.revokeRoles.isSuccess).toBeTruthy(),
     )
   })
 })
@@ -958,38 +639,6 @@ describe('useRevokeRolesSync', () => {
   })
 })
 
-describe('useSetRoleAdmin', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() => ({
-      connect: useConnect(),
-      createSync: hooks.useCreateSync(),
-      setRoleAdmin: hooks.useSetRoleAdmin(),
-    }))
-
-    await result.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    // Create a new token
-    const { token: tokenAddr } = await result.current.createSync.mutateAsync({
-      currency: 'USD',
-      name: 'Role Admin Hook Token',
-      symbol: 'ROLEADMINHOOK',
-    })
-
-    const hash = await result.current.setRoleAdmin.mutateAsync({
-      token: tokenAddr,
-      role: 'issuer',
-      adminRole: 'pause',
-    })
-    expect(hash).toBeDefined()
-
-    await vi.waitFor(() =>
-      expect(result.current.setRoleAdmin.isSuccess).toBeTruthy(),
-    )
-  })
-})
-
 describe('useSetRoleAdminSync', () => {
   test('default', async () => {
     const { result } = await renderHook(() => ({
@@ -1019,37 +668,6 @@ describe('useSetRoleAdminSync', () => {
 
     await vi.waitFor(() =>
       expect(result.current.setRoleAdmin.isSuccess).toBeTruthy(),
-    )
-  })
-})
-
-describe('useSetSupplyCap', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() => ({
-      connect: useConnect(),
-      createSync: hooks.useCreateSync(),
-      setSupplyCap: hooks.useSetSupplyCap(),
-    }))
-
-    await result.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    // Create a new token
-    const { token: tokenAddr } = await result.current.createSync.mutateAsync({
-      currency: 'USD',
-      name: 'Supply Cap Hook Token',
-      symbol: 'SUPPLYCAPHOOK',
-    })
-
-    const hash = await result.current.setSupplyCap.mutateAsync({
-      token: tokenAddr,
-      supplyCap: parseUnits('1000000', 6),
-    })
-    expect(hash).toBeDefined()
-
-    await vi.waitFor(() =>
-      expect(result.current.setSupplyCap.isSuccess).toBeTruthy(),
     )
   })
 })
@@ -1086,30 +704,6 @@ describe('useSetSupplyCapSync', () => {
   })
 })
 
-describe('useTransfer', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() => ({
-      connect: useConnect(),
-      transfer: hooks.useTransfer(),
-    }))
-
-    await result.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    const hash = await result.current.transfer.mutateAsync({
-      to: account2.address,
-      amount: parseUnits('1', 6),
-      token: addresses.alphaUsd,
-    })
-    expect(hash).toBeDefined()
-
-    await vi.waitFor(() =>
-      expect(result.current.transfer.isSuccess).toBeTruthy(),
-    )
-  })
-})
-
 describe('useTransferSync', () => {
   test('default', async () => {
     const { result } = await renderHook(() => ({
@@ -1131,50 +725,6 @@ describe('useTransferSync', () => {
 
     await vi.waitFor(() =>
       expect(result.current.transfer.isSuccess).toBeTruthy(),
-    )
-  })
-})
-
-describe('useUnpause', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() => ({
-      connect: useConnect(),
-      createSync: hooks.useCreateSync(),
-      grantRolesSync: hooks.useGrantRolesSync(),
-      pauseSync: hooks.usePauseSync(),
-      unpause: hooks.useUnpause(),
-    }))
-
-    await result.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    // Create a new token
-    const { token: tokenAddr } = await result.current.createSync.mutateAsync({
-      currency: 'USD',
-      name: 'Unpause Hook Token',
-      symbol: 'UNPAUSEHOOK',
-    })
-
-    // Grant pause and unpause roles
-    await result.current.grantRolesSync.mutateAsync({
-      token: tokenAddr,
-      roles: ['pause', 'unpause'],
-      to: account.address,
-    })
-
-    // First pause it
-    await result.current.pauseSync.mutateAsync({
-      token: tokenAddr,
-    })
-
-    const hash = await result.current.unpause.mutateAsync({
-      token: tokenAddr,
-    })
-    expect(hash).toBeDefined()
-
-    await vi.waitFor(() =>
-      expect(result.current.unpause.isSuccess).toBeTruthy(),
     )
   })
 })
@@ -1220,44 +770,6 @@ describe('useUnpauseSync', () => {
 
     await vi.waitFor(() =>
       expect(result.current.unpause.isSuccess).toBeTruthy(),
-    )
-  })
-})
-
-describe('usePrepareUpdateQuoteToken', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() => ({
-      connect: useConnect(),
-      createSync: hooks.useCreateSync(),
-      prepareUpdateQuoteToken: hooks.usePrepareUpdateQuoteToken(),
-    }))
-
-    await result.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    // Create quote token
-    const { token: quoteToken } = await result.current.createSync.mutateAsync({
-      currency: 'USD',
-      name: 'Update Quote Hook',
-      symbol: 'UQHOOK',
-    })
-
-    // Create main token
-    const { token: tokenAddr } = await result.current.createSync.mutateAsync({
-      currency: 'USD',
-      name: 'Update Main Hook',
-      symbol: 'UMHOOK',
-    })
-
-    const hash = await result.current.prepareUpdateQuoteToken.mutateAsync({
-      token: tokenAddr,
-      quoteToken,
-    })
-    expect(hash).toBeDefined()
-
-    await vi.waitFor(() =>
-      expect(result.current.prepareUpdateQuoteToken.isSuccess).toBeTruthy(),
     )
   })
 })

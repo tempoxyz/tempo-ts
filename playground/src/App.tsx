@@ -117,7 +117,7 @@ function Connect() {
                   connect.connect({
                     connector,
                     capabilities: {
-                      createAccount: { label: 'Tempo.ts Playground' },
+                      type: 'sign-up',
                     },
                   })
                 }}

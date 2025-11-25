@@ -117,15 +117,17 @@ export declare namespace createCredential {
 export async function getCredential(
   parameters: getCredential.Parameters,
 ): Promise<getCredential.ReturnValue> {
-  const { raw } = await WebAuthnP256.sign({
+  const { metadata, raw, signature } = await WebAuthnP256.sign({
     ...parameters,
     challenge: parameters.hash ?? '0x',
   })
   const publicKey = await parameters.getPublicKey(raw)
   return {
     id: raw.id,
+    metadata,
     publicKey,
     raw,
+    signature,
   }
 }
 
@@ -136,5 +138,9 @@ export declare namespace getCredential {
       credential: WebAuthnP256.P256Credential['raw'],
     ) => Promise<Hex.Hex>
   }
-  export type ReturnValue = P256Credential
+
+  export type ReturnValue = WebAuthnP256.sign.ReturnType & {
+    id: string
+    publicKey: Hex.Hex
+  }
 }

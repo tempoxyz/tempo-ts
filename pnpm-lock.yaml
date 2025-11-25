@@ -46,6 +46,9 @@ importers:
 
   .:
     dependencies:
+      idb-keyval:
+        specifier: ^6.2.2
+        version: 6.2.2
       ox:
         specifier: ~0.9.16
         version: 0.9.16(typescript@5.9.3)(zod@4.1.12)
@@ -132,8 +135,8 @@ importers:
         specifier: catalog:default
         version: 3.0.1(@coinbase/wallet-sdk@4.3.6(@types/react@19.2.2)(bufferutil@4.0.9)(react@19.2.0)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.0))(utf-8-validate@5.0.10)(zod@4.1.12))(@metamask/sdk@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@safe-global/safe-apps-provider@0.18.6(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))(@safe-global/safe-apps-sdk@9.1.0(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))(@tanstack/query-core@5.90.5)(@tanstack/react-query@5.90.5(react@19.2.0))(@types/react@19.2.2)(@walletconnect/ethereum-provider@2.21.1(@types/react@19.2.2)(bufferutil@4.0.9)(react@19.2.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))(react@19.2.0)(typescript@5.9.3)(viem@2.40.2(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))
       zile:
-        specifier: ^0.0.5
-        version: 0.0.5(@typescript/native-preview@7.0.0-dev.20251110.1)(typescript@5.9.3)
+        specifier: ^0.0.13
+        version: 0.0.13(@typescript/native-preview@7.0.0-dev.20251110.1)(typescript@5.9.3)
 
   examples/_template-example:
     dependencies:
@@ -642,6 +645,12 @@ packages:
 
   '@changesets/write@0.4.0':
     resolution: {integrity: sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q==}
+
+  '@clack/core@1.0.0-alpha.7':
+    resolution: {integrity: sha512-3vdh6Ar09D14rVxJZIm3VQJkU+ZOKKT5I5cC0cOVazy70CNyYYjiwRj9unwalhESndgxx6bGc/m6Hhs4EKF5XQ==}
+
+  '@clack/prompts@1.0.0-alpha.7':
+    resolution: {integrity: sha512-BLB8LYOdfI4q6XzDl8la69J/y/7s0tHjuU1/5ak+o8yB2BPZBNE22gfwbFUIEmlq/BGBD6lVUAMR7w+1K7Pr6Q==}
 
   '@coinbase/wallet-sdk@4.3.6':
     resolution: {integrity: sha512-4q8BNG1ViL4mSAAvPAtpwlOs1gpC+67eQtgIwNvT3xyeyFFd+guwkc8bcX5rTmQhXpqnhzC4f0obACbP9CqMSA==}
@@ -2768,6 +2777,9 @@ packages:
     resolution: {integrity: sha512-2wcC/oGxHis/BoHkkPwldgiPSYcpZK3JU28WoMVv55yHJgcZ8rlXvuG9iZggz+sU1d4bRgIGASwyWqjxu3FM0g==}
     engines: {node: '>=18'}
 
+  sisteransi@1.0.5:
+    resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
+
   slash@3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
@@ -3300,8 +3312,8 @@ packages:
     resolution: {integrity: sha512-CzhO+pFNo8ajLM2d2IW/R93ipy99LWjtwblvC1RsoSUMZgyLbYFr221TnSNT7GjGdYui6P459mw9JH/g/zW2ug==}
     engines: {node: '>=18'}
 
-  zile@0.0.5:
-    resolution: {integrity: sha512-PCIYo0pomR6xlG+1ybmQ1gcn74plcuJptv4p9kVUhnSfGyTdc8tyDuxNvWurEK6ADnU1lK+FuMEJX97UoOKM+w==}
+  zile@0.0.13:
+    resolution: {integrity: sha512-a6F5jiKqSd12kf/n1bVIjLpP5FbKr2g1sgdfysMvT+cpyjz0uN6ChY0HX93+7d0OkFa7UX+eiqBJG4ZPVlcIww==}
     hasBin: true
     peerDependencies:
       '@typescript/native-preview': '>=7.0.0'
@@ -3705,6 +3717,17 @@ snapshots:
       fs-extra: 7.0.1
       human-id: 4.1.2
       prettier: 2.8.8
+
+  '@clack/core@1.0.0-alpha.7':
+    dependencies:
+      picocolors: 1.1.1
+      sisteransi: 1.0.5
+
+  '@clack/prompts@1.0.0-alpha.7':
+    dependencies:
+      '@clack/core': 1.0.0-alpha.7
+      picocolors: 1.1.1
+      sisteransi: 1.0.5
 
   '@coinbase/wallet-sdk@4.3.6(@types/react@19.2.2)(bufferutil@4.0.9)(react@19.2.0)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.0))(utf-8-validate@5.0.10)(zod@4.1.12)':
     dependencies:
@@ -5947,8 +5970,7 @@ snapshots:
   idb-keyval@6.2.1:
     optional: true
 
-  idb-keyval@6.2.2:
-    optional: true
+  idb-keyval@6.2.2: {}
 
   ieee754@1.2.1:
     optional: true
@@ -6601,6 +6623,8 @@ snapshots:
       mrmime: 2.0.1
       totalist: 3.0.1
 
+  sisteransi@1.0.5: {}
+
   slash@3.0.0: {}
 
   socket.io-client@4.8.1(bufferutil@4.0.9)(utf-8-validate@5.0.10):
@@ -7076,8 +7100,9 @@ snapshots:
 
   yoctocolors@2.1.2: {}
 
-  zile@0.0.5(@typescript/native-preview@7.0.0-dev.20251110.1)(typescript@5.9.3):
+  zile@0.0.13(@typescript/native-preview@7.0.0-dev.20251110.1)(typescript@5.9.3):
     dependencies:
+      '@clack/prompts': 1.0.0-alpha.7
       cac: 6.7.14
       tsconfck: 3.1.6(typescript@5.9.3)
     optionalDependencies:

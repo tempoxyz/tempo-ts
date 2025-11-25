@@ -1,5 +1,118 @@
 // Generated with `pnpm gen:abis`. Do not modify manually.
 
+export const accountKeychain = [
+  {
+    name: 'authorizeKey',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      { type: 'uint8', name: 'signatureType' },
+      { type: 'uint64', name: 'expiry' },
+      {
+        type: 'tuple[]',
+        name: 'limits',
+        components: [
+          { type: 'address', name: 'token' },
+          { type: 'uint256', name: 'amount' },
+        ],
+      },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'revokeKey',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'address', name: 'keyId' }],
+    outputs: [],
+  },
+  {
+    name: 'updateSpendingLimit',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      { type: 'address', name: 'token' },
+      { type: 'uint256', name: 'newLimit' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'getKey',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'keyId' },
+    ],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'uint8', name: 'signatureType' },
+          { type: 'address', name: 'keyId' },
+          { type: 'uint64', name: 'expiry' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'getRemainingLimit',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'keyId' },
+      { type: 'address', name: 'token' },
+    ],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'getTransactionKey',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'KeyAuthorized',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bytes32', name: 'publicKey', indexed: true },
+      { type: 'uint8', name: 'signatureType' },
+      { type: 'uint64', name: 'expiry' },
+    ],
+  },
+  {
+    name: 'KeyRevoked',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bytes32', name: 'publicKey', indexed: true },
+    ],
+  },
+  {
+    name: 'SpendingLimitUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bytes32', name: 'publicKey', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'uint256', name: 'newLimit' },
+    ],
+  },
+  { name: 'UnauthorizedCaller', type: 'error', inputs: [] },
+  { name: 'KeyAlreadyExists', type: 'error', inputs: [] },
+  { name: 'KeyNotFound', type: 'error', inputs: [] },
+  { name: 'KeyExpired', type: 'error', inputs: [] },
+  { name: 'KeyInactive', type: 'error', inputs: [] },
+  { name: 'SpendingLimitExceeded', type: 'error', inputs: [] },
+  { name: 'InvalidSignatureType', type: 'error', inputs: [] },
+  { name: 'ZeroPublicKey', type: 'error', inputs: [] },
+] as const
+
 export const linkingUsd = [
   {
     name: 'TRANSFER_ROLE',
@@ -369,6 +482,7 @@ export const stablecoinExchange = [
     type: 'error',
     inputs: [{ type: 'uint128', name: 'amount' }],
   },
+  { name: 'InvalidBaseToken', type: 'error', inputs: [] },
 ] as const
 
 export const tip20 = [
@@ -869,6 +983,7 @@ export const tip20 = [
   { name: 'NoOptedInSupply', type: 'error', inputs: [] },
   { name: 'Unauthorized', type: 'error', inputs: [] },
   { name: 'RewardsDisabled', type: 'error', inputs: [] },
+  { name: 'ScheduledRewardsDisabled', type: 'error', inputs: [] },
   {
     name: 'hasRole',
     type: 'function',
@@ -1131,6 +1246,16 @@ export const tipAccountRegistrar = [
     stateMutability: 'nonpayable',
     inputs: [
       { type: 'bytes32', name: 'hash' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'address', name: 'authority' }],
+  },
+  {
+    name: 'delegateToDefault',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'bytes', name: 'message' },
       { type: 'bytes', name: 'signature' },
     ],
     outputs: [{ type: 'address', name: 'authority' }],
