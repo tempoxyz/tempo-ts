@@ -1,5 +1,17 @@
 # tempo.ts
 
+## 0.6.2
+
+### Patch Changes
+
+- [#80](https://github.com/tempoxyz/tempo-ts/pull/80) [`ec4fb0d`](https://github.com/tempoxyz/tempo-ts/commit/ec4fb0d99868cb16fe28fdf0053253e01adc8c33) Thanks [@jxom](https://github.com/jxom)! - `tempo.ts/viem`: Added `verifyHash` action.
+
+## 0.6.1
+
+### Patch Changes
+
+- [`82d51eb`](https://github.com/tempoxyz/tempo-ts/commit/82d51eb5dfa872b0a6b2dfdb6da78660ebb07c4e) Thanks [@jxom](https://github.com/jxom)! - Published CHANGELOG.md
+
 ## 0.6.0
 
 ### Minor Changes
