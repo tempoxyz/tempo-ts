@@ -71,11 +71,15 @@ const transaction = await client.getTransaction({ hash });
 ```ts
 import { createConfig, http } from 'wagmi';
 import { tempo } from 'tempo.ts/chains';
-import { Actions, Hooks, webauthn } from 'tempo.ts/wagmi';
+import { Actions, Hooks, KeyManager, webauthn } from 'tempo.ts/wagmi';
 
 export const config = createConfig({
   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
-  connectors: [webAuthn()],
+  connectors: [
+    webAuthn({
+      keyManager: KeyManager.localStorage(),
+    })
+  ],
   transports: {
     [tempo.id]: http(),
   },

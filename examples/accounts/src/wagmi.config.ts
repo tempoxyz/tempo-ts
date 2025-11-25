@@ -1,6 +1,6 @@
 import { QueryClient } from '@tanstack/react-query'
 import { tempoAndantino } from 'tempo.ts/chains'
-import { webAuthn } from 'tempo.ts/wagmi'
+import { KeyManager, webAuthn } from 'tempo.ts/wagmi'
 import { createConfig, webSocket } from 'wagmi'
 
 export const alphaUsd = '0x20c0000000000000000000000000000000000001'
@@ -11,7 +11,11 @@ export const config = createConfig({
   batch: {
     multicall: false,
   },
-  connectors: [webAuthn()],
+  connectors: [
+    webAuthn({
+      keyManager: KeyManager.localStorage(),
+    }),
+  ],
   chains: [tempoAndantino({ feeToken: alphaUsd })],
   transports: {
     [tempoAndantino.id]: webSocket(
