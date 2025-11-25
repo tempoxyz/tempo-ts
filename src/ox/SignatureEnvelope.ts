@@ -496,11 +496,14 @@ export function fromRpc(envelope: SignatureEnvelopeRpc): SignatureEnvelope {
     }
   }
 
-  if (envelope.type === 'keychain')
+  if (
+    envelope.type === 'keychain' ||
+    ('userAddress' in envelope && 'signature' in envelope)
+  )
     return {
       type: 'keychain',
-      userAddress: envelope.userAddress,
-      inner: fromRpc(envelope.signature),
+      userAddress: (envelope as KeychainRpc).userAddress,
+      inner: fromRpc((envelope as KeychainRpc).signature),
     }
 
   throw new CoercionError({ envelope })

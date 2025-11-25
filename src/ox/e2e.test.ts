@@ -836,20 +836,25 @@ describe('behavior: keyAuthorization', () => {
       blockNumber,
       blockHash,
       // @ts-expect-error
+      feePayer,
+      // @ts-expect-error
       feeToken: _,
       from,
       logs,
       logsBloom,
       transactionHash,
+      transactionIndex,
       ...rest
     } = receipt
 
     expect(blockNumber).toBeDefined()
     expect(blockHash).toBeDefined()
+    expect(feePayer).toBeDefined()
     expect(from).toBeDefined()
     expect(logs).toBeDefined()
     expect(logsBloom).toBeDefined()
     expect(transactionHash).toBe(receipt.transactionHash)
+    expect(transactionIndex).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
         "contractAddress": null,
@@ -858,7 +863,6 @@ describe('behavior: keyAuthorization', () => {
         "gasUsed": "0x5c30",
         "status": "0x1",
         "to": "0x0000000000000000000000000000000000000000",
-        "transactionIndex": "0x1",
         "type": "0x76",
       }
     `)
@@ -1046,20 +1050,25 @@ describe('behavior: keyAuthorization', () => {
       blockNumber,
       blockHash,
       // @ts-expect-error
+      feePayer,
+      // @ts-expect-error
       feeToken: _,
       from,
       logs,
       logsBloom,
       transactionHash,
+      transactionIndex,
       ...rest
     } = receipt
 
     expect(blockNumber).toBeDefined()
     expect(blockHash).toBeDefined()
+    expect(feePayer).toBeDefined()
     expect(from).toBeDefined()
     expect(logs).toBeDefined()
     expect(logsBloom).toBeDefined()
     expect(transactionHash).toBe(receipt.transactionHash)
+    expect(transactionIndex).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
         "contractAddress": null,
@@ -1068,7 +1077,6 @@ describe('behavior: keyAuthorization', () => {
         "gasUsed": "0x6fb8",
         "status": "0x1",
         "to": "0x0000000000000000000000000000000000000000",
-        "transactionIndex": "0x1",
         "type": "0x76",
       }
     `)
