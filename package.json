@@ -57,7 +57,7 @@
 	},
 	"pnpm": {
 		"overrides": {
-			"ox": "~0.9.14",
+			"ox": "~0.9.16",
 			"tempo.ts": "workspace:*",
 			"viem": "catalog:default"
 		}
@@ -65,10 +65,10 @@
 	"[!start-pkg]": "",
 	"name": "tempo.ts",
 	"type": "module",
-	"version": "0.6.0",
+	"version": "0.6.2",
 	"dependencies": {
 		"idb-keyval": "^6.2.2",
-		"ox": "~0.9.14"
+		"ox": "~0.9.16"
 	},
 	"peerDependencies": {
 		"@tanstack/query-core": ">=5.0.0",
