@@ -246,8 +246,7 @@ export function webAuthn(options: webAuthn.Parameters) {
             typeof parameters.capabilities?.createAccount === 'boolean'
               ? {}
               : parameters.capabilities?.createAccount
-          const createOptions_remote =
-            await options.keyManager.getCreateOptions?.()
+          const createOptions_remote = await options.keyManager.getChallenge?.()
           credential = await WebAuthnP256.createCredential({
             ...(options.createOptions ?? {}),
             ...(createOptions_remote ?? {}),

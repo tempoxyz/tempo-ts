@@ -5,7 +5,7 @@ import * as Storage from '../viem/Storage.js'
 
 export type KeyManager = {
   /** Function to fetch create options for WebAuthn. */
-  getCreateOptions?:
+  getChallenge?:
     | (() => Promise<
         ExactPartial<
           UnionOmit<WebAuthnP256.createCredential.Options, 'createFn'>
@@ -51,13 +51,108 @@ export function fromStorage(s: Storage.Storage): KeyManager {
  * process. If a user clears their storage, or visits the website on a different device,
  * they will not be able to access their account.
  *
- * Instead, we recommend to set up a remote store such as [`KeyManager.http`](#TODO) to register
+ * Instead, we recommend to set up a remote store such as [`KeyManager.http`](#http) to register
  * public keys against their WebAuthn credential.
  *
- * @see TODO
+ * @see {@link http}
  *
  * @deprecated
  */
 export function localStorage(options: Storage.localStorage.Options = {}) {
   return fromStorage(Storage.localStorage(options))
+}
+
+/**
+ * Instantiates a key manager that uses HTTP endpoints for credential management.
+ *
+ * @example
+ * ```tsx
+ * import { KeyManager } from 'tempo.ts/wagmi'
+ *
+ * const keyManager = KeyManager.http('https://api.example.com')
+ * ```
+ *
+ * @param options - Configuration options for HTTP endpoints.
+ * @returns A KeyManager instance that uses HTTP for credential operations.
+ */
+export function http(baseUrl: string, options: http.Options = {}): KeyManager {
+  const { endpoints = {}, fetch: fetchFn = globalThis.fetch } = options
+  const {
+    getChallenge = `${baseUrl}/webauthn/challenge`,
+    getPublicKey = `${baseUrl}/webauthn/:credentialId`,
+    setPublicKey = `${baseUrl}/webauthn/:credentialId`,
+  } = endpoints
+
+  return from({
+    async getChallenge() {
+      const request =
+        getChallenge instanceof Request
+          ? getChallenge
+          : new Request(getChallenge)
+
+      const response = await fetchFn(request)
+
+      if (!response.ok)
+        throw new Error(`Failed to get create options: ${response.statusText}`)
+      return await response.json()
+    },
+
+    async getPublicKey(parameters) {
+      const request =
+        getPublicKey instanceof Request
+          ? getPublicKey
+          : new Request(getPublicKey)
+
+      const response = await fetchFn(
+        new Request(
+          request.url.replace(':credentialId', parameters.credential.id),
+          request,
+        ),
+      )
+
+      if (!response.ok)
+        throw new Error(`Failed to get public key: ${response.statusText}`)
+      const data = await response.json()
+      return data.publicKey as Hex.Hex
+    },
+
+    async setPublicKey(parameters) {
+      const request =
+        setPublicKey instanceof Request
+          ? setPublicKey
+          : new Request(setPublicKey)
+
+      const response = await fetchFn(
+        new Request(
+          request.url.replace(':credentialId', parameters.credential.id),
+          request,
+        ),
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ publicKey: parameters.publicKey }),
+        },
+      )
+
+      if (!response.ok)
+        throw new Error(`Failed to set public key: ${response.statusText}`)
+    },
+  })
+}
+
+export namespace http {
+  export type Options = {
+    /** Endpoints for the HTTP endpoints. */
+    endpoints?:
+      | {
+          getChallenge?: string | Request | undefined
+          getPublicKey?: string | Request | undefined
+          setPublicKey?: string | Request | undefined
+        }
+      | undefined
+    /** Custom fetch function. @default `globalThis.fetch`. */
+    fetch?: typeof fetch | undefined
+  }
 }
