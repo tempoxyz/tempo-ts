@@ -1,5 +1,4 @@
 import * as Address from 'ox/Address'
-import * as Bytes from 'ox/Bytes'
 import type * as Hex from 'ox/Hex'
 import {
   createClient,
@@ -12,10 +11,10 @@ import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { ChainNotConfiguredError, createConnector } from 'wagmi'
 import * as Account from '../viem/Account.js'
 import type * as tempo_Chain from '../viem/Chain.js'
+import { normalizeValue } from '../viem/internal/utils.js'
 import { walletNamespaceCompat } from '../viem/Transport.js'
 import * as WebAuthnP256 from '../viem/WebAuthnP256.js'
 import type * as KeyManager from './KeyManager.js'
-import { normalizeValue } from '../viem/internal/utils.js'
 
 type Chain = ReturnType<ReturnType<typeof tempo_Chain.define>>
 

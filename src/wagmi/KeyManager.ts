@@ -1,7 +1,7 @@
-import type * as WebAuthnP256 from 'ox/WebAuthnP256'
 import type * as Hex from 'ox/Hex'
-import * as Storage from '../viem/Storage.js'
+import type * as WebAuthnP256 from 'ox/WebAuthnP256'
 import type { ExactPartial, UnionOmit } from '../internal/types.js'
+import * as Storage from '../viem/Storage.js'
 
 export type KeyManager = {
   /** Function to fetch create options for WebAuthn. */
