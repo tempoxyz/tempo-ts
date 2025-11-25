@@ -954,6 +954,7 @@ describe('relay', () => {
     transport: withFeePayer(
       http(undefined, { fetchOptions }),
       http('http://localhost:3050'),
+      { policy: 'sign-and-broadcast' },
     ),
   })
     .extend(tempoActions())
@@ -974,7 +975,9 @@ describe('relay', () => {
 
         const request = RpcRequest.from(await r.json())
 
+        // Validate method
         if (
+          request.method !== 'eth_signTransaction' &&
           request.method !== 'eth_sendRawTransaction' &&
           request.method !== 'eth_sendRawTransactionSync'
         )
@@ -983,7 +986,7 @@ describe('relay', () => {
               {
                 error: new RpcResponse.InvalidParamsError({
                   message:
-                    'service only supports `eth_sendRawTransaction` and `eth_sendRawTransactionSync`',
+                    'service only supports `eth_signTransaction`, `eth_sendRawTransaction`, and `eth_sendRawTransactionSync`',
                 }),
               },
               { request },
@@ -996,7 +999,7 @@ describe('relay', () => {
             RpcResponse.from(
               {
                 error: new RpcResponse.InvalidParamsError({
-                  message: 'service only supports `0x77` transactions',
+                  message: 'service only supports `0x76` transactions',
                 }),
               },
               { request },
@@ -1008,6 +1011,16 @@ describe('relay', () => {
           ...transaction,
           feePayer: client.account,
         })
+
+        // Handle based on RPC method
+        if (request.method === 'eth_signTransaction') {
+          // Policy: 'sign-only' - Return signed transaction without broadcasting
+          return Response.json(
+            RpcResponse.from({ result: serializedTransaction }, { request }),
+          )
+        }
+
+        // Policy: 'sign-and-broadcast' - Sign, broadcast, and return hash
         const result = await client.request({
           method: request.method,
           params: [serializedTransaction],
@@ -1299,6 +1312,64 @@ describe('relay', () => {
           "yParity": undefined,
         }
       `)
+    })
+  })
+
+  describe('policy: sign-only', () => {
+    test('relay co-signs and transport auto-submits', async () => {
+      const signClient = getClient({
+        transport: withFeePayer(
+          http(undefined, { fetchOptions }),
+          http('http://localhost:3050'),
+          { policy: 'sign-only' },
+        ),
+      })
+        .extend(tempoActions())
+        .extend(walletActions)
+        .extend(publicActions)
+
+      // unfunded account that needs sponsorship
+      const account = privateKeyToAccount(
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+
+      // With 'sign-only' policy, the relay co-signs and the transport auto-submits
+      const { user, token, receipt } = await signClient.fee.setUserTokenSync({
+        account,
+        feePayer: true,
+        token: 1n,
+      })
+
+      // Verify the action returned the expected values
+      expect(user).toBe(account.address)
+      expect(token).toBe('0x20C0000000000000000000000000000000000001')
+      expect(receipt).toBeDefined()
+
+      // Verify the transaction was successfully executed
+      const userToken = await signClient.fee.getUserToken({
+        account: account.address,
+      })
+      expect(userToken?.id).toBe(1n)
+
+      const {
+        feePayerSignature,
+        from,
+        gas,
+        gasPrice,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        signature,
+      } = (await signClient.getTransaction({
+        hash: receipt.transactionHash,
+      })) as any
+
+      expect(feePayerSignature).toBeDefined()
+      expect(from).toBe(account.address.toLowerCase())
+      expect(gas).toBeDefined()
+      expect(gasPrice).toBeDefined()
+      expect(maxFeePerGas).toBeDefined()
+      expect(maxPriorityFeePerGas).toBeDefined()
+      expect(signature).toBeDefined()
     })
   })
 })
