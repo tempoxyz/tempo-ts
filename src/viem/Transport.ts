@@ -18,14 +18,22 @@ export type FeePayer = Transport<typeof withFeePayer.type>
  * Creates a fee payer transport that routes requests between
  * the default transport or the fee payer transport.
  *
+ * The policy parameter controls how the fee payer handles transactions:
+ * - `'sign-only'`: Fee payer co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport
+ * - `'sign-and-broadcast'`: Fee payer co-signs and broadcasts the transaction directly
+ *
  * @param defaultTransport - The default transport to use.
  * @param feePayerTransport - The fee payer transport to use.
+ * @param parameters - Configuration parameters.
  * @returns A relay transport.
  */
 export function withFeePayer(
   defaultTransport: Transport,
   relayTransport: Transport,
+  parameters?: withFeePayer.Parameters,
 ): withFeePayer.ReturnValue {
+  const { policy = 'sign-only' } = parameters ?? {}
+
   return (config) => {
     const transport_default = defaultTransport(config)
     const transport_relay = relayTransport(config)
@@ -38,11 +46,34 @@ export function withFeePayer(
           method === 'eth_sendRawTransactionSync' ||
           method === 'eth_sendRawTransaction'
         ) {
-          const serialized = (params as any)[0] as `0x76${string}`
-          const transaction = Transaction.deserialize(serialized)
+          const rawSerialized = (params as any)[0]
+          const serialized =
+            typeof rawSerialized === 'string'
+              ? rawSerialized
+              : Hex.fromBytes(rawSerialized)
+          const transaction = Transaction.deserialize(
+            serialized as `0x76${string}`,
+          )
+
           // If the transaction is intended to be sponsored, forward it to the relay.
-          if (transaction.feePayerSignature === null)
+          if (transaction.feePayerSignature === null) {
+            if (policy === 'sign-only') {
+              // Request signature from relay using eth_signTransaction
+              const signedTransaction = (await transport_relay.request(
+                { method: 'eth_signTransaction', params: [(params as any)[0]] },
+                options,
+              )) as any
+
+              // Broadcast the signed transaction via the default transport
+              return transport_default.request(
+                { method, params: [signedTransaction] },
+                options,
+              ) as never
+            }
+
+            // For 'sign-and-broadcast', relay signs and broadcasts
             return transport_relay.request({ method, params }, options) as never
+          }
         }
         return transport_default.request({ method, params }, options) as never
       },
@@ -53,6 +84,11 @@ export function withFeePayer(
 
 export declare namespace withFeePayer {
   export const type = 'feePayer'
+
+  export type Parameters = {
+    /** Policy for how the fee payer should handle transactions. Defaults to `'sign-only'`. */
+    policy?: 'sign-only' | 'sign-and-broadcast' | undefined
+  }
 
   export type ReturnValue = FeePayer
 }
