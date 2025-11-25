@@ -246,12 +246,24 @@ describe('sendTransaction', () => {
         expect(receipt).toBeDefined()
       }
 
+      // TODO: uncomment once unlimited spend supported
+      // {
+      //   const receipt = await client.token.transferSync({
+      //     account: accessKey,
+      //     amount: 100n,
+      //     token: '0x20c0000000000000000000000000000000000001',
+      //     to: '0x0000000000000000000000000000000000000001',
+      //   })
+      //   expect(receipt).toBeDefined()
+      // }
+
       {
-        const receipt = await client.token.transferSync({
+        const receipt = await client.token.createSync({
           account: accessKey,
-          amount: 100n,
-          token: '0x20c0000000000000000000000000000000000001',
-          to: '0x0000000000000000000000000000000000000000',
+          admin: accessKey.address,
+          currency: 'USD',
+          name: 'Test Token 4',
+          symbol: 'TEST4',
         })
         expect(receipt).toBeDefined()
       }
