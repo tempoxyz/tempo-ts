@@ -502,8 +502,8 @@ export function fromRpc(envelope: SignatureEnvelopeRpc): SignatureEnvelope {
   )
     return {
       type: 'keychain',
-      userAddress: (envelope as KeychainRpc).userAddress,
-      inner: fromRpc((envelope as KeychainRpc).signature),
+      userAddress: envelope.userAddress,
+      inner: fromRpc(envelope.signature),
     }
 
   throw new CoercionError({ envelope })

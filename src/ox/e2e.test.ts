@@ -766,12 +766,12 @@ describe('behavior: keyAuthorization', () => {
       }),
     })
 
-    const receipt = await client.request({
-      method: 'eth_sendRawTransactionSync',
-      params: [serialized_signed],
-    })
-
-    expect(receipt).toBeDefined()
+    const receipt = (await client
+      .request({
+        method: 'eth_sendRawTransactionSync',
+        params: [serialized_signed],
+      })
+      .then((tx) => TransactionReceipt.fromRpc(tx as any)))!
 
     {
       const response = await client
@@ -835,10 +835,8 @@ describe('behavior: keyAuthorization', () => {
     const {
       blockNumber,
       blockHash,
-      // @ts-expect-error
       feePayer,
-      // @ts-expect-error
-      feeToken: _,
+      feeToken,
       from,
       logs,
       logsBloom,
@@ -849,6 +847,7 @@ describe('behavior: keyAuthorization', () => {
 
     expect(blockNumber).toBeDefined()
     expect(blockHash).toBeDefined()
+    expect(feeToken).toBeDefined()
     expect(feePayer).toBeDefined()
     expect(from).toBeDefined()
     expect(logs).toBeDefined()
@@ -857,11 +856,13 @@ describe('behavior: keyAuthorization', () => {
     expect(transactionIndex).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
+        "blobGasPrice": undefined,
+        "blobGasUsed": undefined,
         "contractAddress": null,
-        "cumulativeGasUsed": "0x5c30",
-        "effectiveGasPrice": "0x4a817c800",
-        "gasUsed": "0x5c30",
-        "status": "0x1",
+        "cumulativeGasUsed": 23600n,
+        "effectiveGasPrice": 20000000000n,
+        "gasUsed": 23600n,
+        "status": "success",
         "to": "0x0000000000000000000000000000000000000000",
         "type": "0x76",
       }
@@ -980,11 +981,12 @@ describe('behavior: keyAuthorization', () => {
       }),
     })
 
-    const receipt = await client.request({
-      method: 'eth_sendRawTransactionSync',
-      params: [serialized_signed],
-    })
-
+    const receipt = (await client
+      .request({
+        method: 'eth_sendRawTransactionSync',
+        params: [serialized_signed],
+      })
+      .then((tx) => TransactionReceipt.fromRpc(tx as any)))!
     expect(receipt).toBeDefined()
 
     {
@@ -1049,10 +1051,8 @@ describe('behavior: keyAuthorization', () => {
     const {
       blockNumber,
       blockHash,
-      // @ts-expect-error
       feePayer,
-      // @ts-expect-error
-      feeToken: _,
+      feeToken,
       from,
       logs,
       logsBloom,
@@ -1064,6 +1064,7 @@ describe('behavior: keyAuthorization', () => {
     expect(blockNumber).toBeDefined()
     expect(blockHash).toBeDefined()
     expect(feePayer).toBeDefined()
+    expect(feeToken).toBeDefined()
     expect(from).toBeDefined()
     expect(logs).toBeDefined()
     expect(logsBloom).toBeDefined()
@@ -1071,11 +1072,13 @@ describe('behavior: keyAuthorization', () => {
     expect(transactionIndex).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
+        "blobGasPrice": undefined,
+        "blobGasUsed": undefined,
         "contractAddress": null,
-        "cumulativeGasUsed": "0x6fb8",
-        "effectiveGasPrice": "0x4a817c800",
-        "gasUsed": "0x6fb8",
-        "status": "0x1",
+        "cumulativeGasUsed": 28600n,
+        "effectiveGasPrice": 20000000000n,
+        "gasUsed": 28600n,
+        "status": "success",
         "to": "0x0000000000000000000000000000000000000000",
         "type": "0x76",
       }
