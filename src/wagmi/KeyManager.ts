@@ -1,17 +1,16 @@
 import type * as Hex from 'ox/Hex'
+import * as Json from 'ox/Json'
 import type * as WebAuthnP256 from 'ox/WebAuthnP256'
 import type { ExactPartial, UnionOmit } from '../internal/types.js'
 import * as Storage from '../viem/Storage.js'
 
+export type Challenge = ExactPartial<
+  UnionOmit<WebAuthnP256.createCredential.Options, 'createFn'>
+>
+
 export type KeyManager = {
   /** Function to fetch create options for WebAuthn. */
-  getChallenge?:
-    | (() => Promise<
-        ExactPartial<
-          UnionOmit<WebAuthnP256.createCredential.Options, 'createFn'>
-        >
-      >)
-    | undefined
+  getChallenge?: (() => Promise<Challenge>) | undefined
   /** Function to fetch the public key for a credential. */
   getPublicKey: (parameters: {
     credential: WebAuthnP256.P256Credential['raw']
@@ -75,8 +74,12 @@ export function localStorage(options: Storage.localStorage.Options = {}) {
  * @param options - Configuration options for HTTP endpoints.
  * @returns A KeyManager instance that uses HTTP for credential operations.
  */
-export function http(baseUrl: string, options: http.Options = {}): KeyManager {
-  const { endpoints = {}, fetch: fetchFn = globalThis.fetch } = options
+export function http(options: http.Options = {}): KeyManager {
+  const {
+    baseUrl = '',
+    endpoints = {},
+    fetch: fetchFn = globalThis.fetch,
+  } = options
   const {
     getChallenge = `${baseUrl}/webauthn/challenge`,
     getPublicKey = `${baseUrl}/webauthn/:credentialId`,
@@ -132,7 +135,7 @@ export function http(baseUrl: string, options: http.Options = {}): KeyManager {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ publicKey: parameters.publicKey }),
+          body: Json.stringify(parameters),
         },
       )
 
@@ -144,6 +147,8 @@ export function http(baseUrl: string, options: http.Options = {}): KeyManager {
 
 export namespace http {
   export type Options = {
+    /** Base URL for the HTTP endpoints. */
+    baseUrl?: string | undefined
     /** Endpoints for the HTTP endpoints. */
     endpoints?:
       | {
