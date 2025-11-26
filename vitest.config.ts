@@ -46,10 +46,10 @@ export default defineConfig({
           name: 'server',
           root: './src/server',
           globalSetup: [
-            join(import.meta.dirname, './test/viem/setup.global.ts'),
+            join(import.meta.dirname, './test/server/setup.global.ts'),
           ],
           sequence: { groupOrder: 2 },
-          setupFiles: [join(import.meta.dirname, './test/viem/setup.ts')],
+          setupFiles: [join(import.meta.dirname, './test/server/setup.ts')],
         },
       },
       {

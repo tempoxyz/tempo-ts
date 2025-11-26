@@ -4,25 +4,39 @@
 
 Added `Handler.feePayer` server handler for fee sponsorship.
 
-Example:
+`Handler.feePayer` returns a `fetch` or `listener` handler that can be used by the majority of
+server frameworks.
+
+For example:
 
 ```ts
-import { createServer } from 'node:http'
-import { createClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { tempo } from 'tempo.ts/chains'
 import { Handler } from 'tempo.ts/server'
-
-const client = createClient({
-  chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
-  transport: http(),
-})
+import { client } from './viem.config'
 
 const handler = Handler.feePayer({ 
   account: privateKeyToAccount('0x...'),
   client 
 })
 
+// Node.js
+import { createServer } from 'node:http'
 const server = createServer(handler.listener)
 server.listen(3000)
+
+// Bun
+Bun.serve(handler)
+
+// Cloudflare
+export default {
+  fetch(request) {
+    return handler.fetch(request)
+  }
+}
+
+// Express
+import express from 'express'
+const app = express()
+app.use(handler.listener)
+app.listen(3000)
 ```
