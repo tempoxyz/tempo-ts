@@ -1462,7 +1462,6 @@ describe('relay', () => {
           ],
           "data": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
-          "keyAuthorization": null,
           "maxFeePerBlobGas": undefined,
           "nonceKey": 0n,
           "to": null,
