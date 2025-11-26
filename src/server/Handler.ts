@@ -463,7 +463,7 @@ export declare namespace keyManager {
  * @returns Request handler.
  */
 export function feePayer(options: feePayer.Options) {
-  const { account, client, onRequest, path = '/sponsor' } = options
+  const { account, client, onRequest, path = '/fee-payer' } = options
 
   const router = from()
 

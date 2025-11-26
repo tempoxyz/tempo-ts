@@ -460,11 +460,11 @@ describe('feePayer', () => {
     requests = []
   })
 
-  describe('POST /sponsor', () => {
+  describe('POST /fee-payer', () => {
     test('behavior: eth_signRawTransaction', async () => {
       const client = getClient({
         account: userAccount,
-        transport: withFeePayer(transport, http(`${server.url}/sponsor`)),
+        transport: withFeePayer(transport, http(`${server.url}/fee-payer`)),
       })
 
       await sendTransaction(client, {
@@ -489,7 +489,7 @@ describe('feePayer', () => {
     test('behavior: eth_sendRawTransaction', async () => {
       const client = getClient({
         account: userAccount,
-        transport: withFeePayer(transport, http(`${server.url}/sponsor`), {
+        transport: withFeePayer(transport, http(`${server.url}/fee-payer`), {
           policy: 'sign-and-broadcast',
         }),
       })
@@ -516,7 +516,7 @@ describe('feePayer', () => {
     test('behavior: eth_sendRawTransactionSync', async () => {
       const client = getClient({
         account: userAccount,
-        transport: withFeePayer(transport, http(`${server.url}/sponsor`), {
+        transport: withFeePayer(transport, http(`${server.url}/fee-payer`), {
           policy: 'sign-and-broadcast',
         }),
       })
@@ -542,7 +542,7 @@ describe('feePayer', () => {
 
     test('behavior: unsupported method', async () => {
       await expect(
-        fetch(`${server.url}/sponsor`, {
+        fetch(`${server.url}/fee-payer`, {
           method: 'POST',
           body: JSON.stringify({
             jsonrpc: '2.0',
