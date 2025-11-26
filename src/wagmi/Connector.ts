@@ -249,12 +249,15 @@ export function webAuthn(options: webAuthn.Parameters) {
           const createOptions_remote = await options.keyManager.getChallenge?.()
           credential = await WebAuthnP256.createCredential({
             ...(options.createOptions ?? {}),
-            ...(createOptions_remote ?? {}),
             label:
               createOptions.label ??
               options.createOptions?.label ??
               `Account ${new Date().toISOString().split('T')[0]}`,
-            rpId: options.createOptions?.rpId ?? options.rpId,
+            rpId:
+              createOptions_remote?.rp?.id ??
+              options.createOptions?.rpId ??
+              options.rpId,
+            ...(createOptions_remote ?? {}),
           })
           await options.keyManager.setPublicKey({
             credential: credential.raw,

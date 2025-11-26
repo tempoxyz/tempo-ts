@@ -1,25 +1,21 @@
 import type * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
-import type * as WebAuthnP256 from 'ox/WebAuthnP256'
-import type { ExactPartial, UnionOmit } from '../internal/types.js'
+import type * as Handler from '../server/Handler.js'
 import * as Storage from '../viem/Storage.js'
-
-export type Challenge = ExactPartial<
-  UnionOmit<WebAuthnP256.createCredential.Options, 'createFn'>
->
 
 export type KeyManager = {
   /** Function to fetch create options for WebAuthn. */
-  getChallenge?: (() => Promise<Challenge>) | undefined
+  getChallenge?:
+    | (() => Promise<Handler.keyManager.ChallengeResponse>)
+    | undefined
   /** Function to fetch the public key for a credential. */
-  getPublicKey: (parameters: {
-    credential: WebAuthnP256.P256Credential['raw']
-  }) => Promise<Hex.Hex>
+  getPublicKey: (
+    parameters: Handler.keyManager.GetPublicKeyParameters,
+  ) => Promise<Hex.Hex>
   /** Function to set the public key for a credential. */
-  setPublicKey: (parameters: {
-    credential: WebAuthnP256.P256Credential['raw']
-    publicKey: Hex.Hex
-  }) => Promise<void>
+  setPublicKey: (
+    parameters: Handler.keyManager.SetPublicKeyParameters,
+  ) => Promise<void>
 }
 
 /** Instantiates a key manager. */
@@ -81,9 +77,9 @@ export function http(options: http.Options = {}): KeyManager {
     fetch: fetchFn = globalThis.fetch,
   } = options
   const {
-    getChallenge = `${baseUrl}/webauthn/challenge`,
-    getPublicKey = `${baseUrl}/webauthn/:credentialId`,
-    setPublicKey = `${baseUrl}/webauthn/:credentialId`,
+    getChallenge = `${baseUrl}/key/challenge`,
+    getPublicKey = `${baseUrl}/key/:credentialId`,
+    setPublicKey = `${baseUrl}/key/:credentialId`,
   } = endpoints
 
   return from({
