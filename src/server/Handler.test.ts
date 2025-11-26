@@ -435,9 +435,8 @@ describe('feePayer', () => {
   beforeAll(async () => {
     server = await createServer(
       Handler.feePayer({
-        client: getClient({
-          account: feePayerAccount,
-        }),
+        account: feePayerAccount,
+        client: getClient(),
         onRequest: async (request) => {
           requests.push(request)
         },

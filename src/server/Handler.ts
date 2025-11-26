@@ -3,7 +3,7 @@ import { RpcRequest, RpcResponse } from 'ox'
 import * as Base64 from 'ox/Base64'
 import * as Hex from 'ox/Hex'
 import type * as WebAuthnP256 from 'ox/WebAuthnP256'
-import type { Chain, Client, Transport } from 'viem'
+import type { Client } from 'viem'
 import type { LocalAccount } from 'viem/accounts'
 import { signTransaction } from 'viem/actions'
 import { formatTransaction } from '../viem/Formatters.js'
@@ -303,16 +303,16 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({
- *     feeToken: '0x20c0000000000000000000000000000000000001',
- *   }),
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
  * export default {
  *   fetch(request) {
- *     return Handler.feePayer({ client }).fetch(request)
+ *     return Handler.feePayer({
+ *       account: privateKeyToAccount('0x...'),
+ *       client,
+ *     }).fetch(request)
  *   }
  * }
  * ```
@@ -327,14 +327,14 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({
- *     feeToken: '0x20c0000000000000000000000000000000000001',
- *   }),
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
- * const handler = Handler.feePayer({ client })
+ * const handler = Handler.feePayer({
+ *   account: privateKeyToAccount('0x...'),
+ *   client,
+ * })
  *
  * export GET = handler.fetch
  * export POST = handler.fetch
@@ -350,14 +350,14 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({
- *     feeToken: '0x20c0000000000000000000000000000000000001',
- *   }),
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
- * const handler = Handler.feePayer({ client })
+ * const handler = Handler.feePayer({
+ *   account: privateKeyToAccount('0x...'),
+ *   client,
+ * })
  *
  * const app = new Hono()
  * app.all('*', handler)
@@ -375,14 +375,14 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({
- *     feeToken: '0x20c0000000000000000000000000000000000001',
- *   }),
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
- * const handler = Handler.feePayer({ client })
+ * const handler = Handler.feePayer({
+ *   account: privateKeyToAccount('0x...'),
+ *   client,
+ * })
  *
  * const server = createServer(handler.listener)
  * server.listen(3000)
@@ -405,7 +405,10 @@ export declare namespace keyManager {
  *   transport: http(),
  * })
  *
- * const handler = Handler.feePayer({ client })
+ * const handler = Handler.feePayer({
+ *   account: privateKeyToAccount('0x...'),
+ *   client,
+ * })
  *
  * Bun.serve(handler)
  * ```
@@ -420,14 +423,14 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({
- *     feeToken: '0x20c0000000000000000000000000000000000001',
- *   }),
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
- * const handler = Handler.feePayer({ client })
+ * const handler = Handler.feePayer({
+ *   account: privateKeyToAccount('0x...'),
+ *   client,
+ * })
  *
  * Deno.serve(handler)
  * ```
@@ -442,14 +445,14 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({
- *     feeToken: '0x20c0000000000000000000000000000000000001',
- *   }),
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
- * const handler = Handler.feePayer({ client })
+ * const handler = Handler.feePayer({
+ *   account: privateKeyToAccount('0x...'),
+ *   client,
+ * })
  *
  * const app = express()
  * app.use(handler.listener)
@@ -460,7 +463,7 @@ export declare namespace keyManager {
  * @returns Request handler.
  */
 export function feePayer(options: feePayer.Options) {
-  const { client, onRequest, path = '/sponsor' } = options
+  const { account, client, onRequest, path = '/sponsor' } = options
 
   const router = from()
 
@@ -474,8 +477,9 @@ export function feePayer(options: feePayer.Options) {
 
       const serializedTransaction = await signTransaction(client, {
         ...transactionRequest,
+        account,
         // @ts-expect-error
-        feePayer: client.account,
+        feePayer: account,
       })
 
       return Response.json(
@@ -489,8 +493,9 @@ export function feePayer(options: feePayer.Options) {
 
       const serializedTransaction = await signTransaction(client, {
         ...transaction,
+        account,
         // @ts-expect-error
-        feePayer: client.account,
+        feePayer: account,
       })
 
       return Response.json(
@@ -507,8 +512,9 @@ export function feePayer(options: feePayer.Options) {
 
       const serializedTransaction = await signTransaction(client, {
         ...transaction,
+        account,
         // @ts-expect-error
-        feePayer: client.account,
+        feePayer: account,
       })
 
       const result = await client.request({
@@ -537,8 +543,10 @@ export function feePayer(options: feePayer.Options) {
 
 export declare namespace feePayer {
   export type Options = {
+    /** Account to use as the fee payer. */
+    account: LocalAccount
     /** Client to use. */
-    client: Client<Transport, Chain, LocalAccount>
+    client: Client
     /** Function to call before handling the request. */
     onRequest?: (request: RpcRequest.RpcRequest) => Promise<void>
     /** Path to use for the handler. */
