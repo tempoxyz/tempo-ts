@@ -43,6 +43,14 @@ export default defineConfig({
       {
         extends: true,
         test: {
+          name: 'server',
+          root: './src/server',
+          sequence: { groupOrder: 2 },
+        },
+      },
+      {
+        extends: true,
+        test: {
           env: {
             RPC_PORT: '8545',
           },
@@ -51,7 +59,7 @@ export default defineConfig({
           ],
           name: 'viem',
           root: './src/viem',
-          sequence: { groupOrder: 2 },
+          sequence: { groupOrder: 3 },
           setupFiles: [join(import.meta.dirname, './test/viem/setup.ts')],
         },
       },
@@ -87,7 +95,7 @@ export default defineConfig({
           name: 'wagmi',
           setupFiles: [join(import.meta.dirname, './test/wagmi/setup.ts')],
           root: './src/wagmi',
-          sequence: { groupOrder: 3 },
+          sequence: { groupOrder: 4 },
         },
       },
     ],

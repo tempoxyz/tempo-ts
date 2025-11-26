@@ -1,5 +1,4 @@
 import * as Address from 'ox/Address'
-import * as Bytes from 'ox/Bytes'
 import type * as Hex from 'ox/Hex'
 import {
   createClient,
@@ -12,8 +11,10 @@ import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { ChainNotConfiguredError, createConnector } from 'wagmi'
 import * as Account from '../viem/Account.js'
 import type * as tempo_Chain from '../viem/Chain.js'
+import { normalizeValue } from '../viem/internal/utils.js'
 import { walletNamespaceCompat } from '../viem/Transport.js'
 import * as WebAuthnP256 from '../viem/WebAuthnP256.js'
+import type * as KeyManager from './KeyManager.js'
 
 type Chain = ReturnType<ReturnType<typeof tempo_Chain.define>>
 
@@ -195,7 +196,7 @@ export declare namespace dangerous_secp256k1 {
  *
  * @returns Connector.
  */
-export function webAuthn(options: webAuthn.Parameters = {}) {
+export function webAuthn(options: webAuthn.Parameters) {
   let account: Account.Account | undefined
 
   type Properties = {
@@ -219,7 +220,6 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
   type StorageItem = {
     'webAuthn.activeCredential': WebAuthnP256.P256Credential
     'webAuthn.lastActiveCredential': WebAuthnP256.P256Credential
-    [key: `webAuthn.${string}.publicKey`]: Hex.Hex
   }
 
   return createConnector<Provider, Properties, StorageItem>((config) => ({
@@ -246,22 +246,23 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
             typeof parameters.capabilities?.createAccount === 'boolean'
               ? {}
               : parameters.capabilities?.createAccount
-          const challenge = await options.createOptions?.getChallenge?.()
+          const createOptions_remote = await options.keyManager.getChallenge?.()
           credential = await WebAuthnP256.createCredential({
             ...(options.createOptions ?? {}),
-            challenge: challenge
-              ? new Uint8Array(Bytes.fromHex(challenge))
-              : undefined,
             label:
               createOptions.label ??
               options.createOptions?.label ??
               `Account ${new Date().toISOString().split('T')[0]}`,
-            rpId: options.createOptions?.rpId ?? options.rpId,
+            rpId:
+              createOptions_remote?.rp?.id ??
+              options.createOptions?.rpId ??
+              options.rpId,
+            ...(createOptions_remote ?? {}),
           })
-          config.storage?.setItem(
-            `webAuthn.${credential.id}.publicKey`,
-            credential.publicKey,
-          )
+          await options.keyManager.setPublicKey({
+            credential: credential.raw,
+            publicKey: credential.publicKey,
+          })
         } else {
           // Load credential (log in)
           credential = (await config.storage?.getItem(
@@ -278,19 +279,11 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
             // biome-ignore lint/suspicious/noTsIgnore: _
             // @ts-ignore
             async getPublicKey(credential) {
-              {
-                const publicKey =
-                  await options.getOptions?.getPublicKey?.(credential)
-                if (publicKey) return publicKey
-              }
-
-              {
-                const publicKey = await config.storage?.getItem(
-                  `webAuthn.${credential.id}.publicKey`,
-                )
-                if (!publicKey) throw new Error('publicKey not found')
-                return publicKey as Hex.Hex
-              }
+              const publicKey = await options.keyManager.getPublicKey({
+                credential,
+              })
+              if (!publicKey) throw new Error('publicKey not found.')
+              return publicKey
             },
             rpId: options.getOptions?.rpId ?? options.rpId,
           })
@@ -380,49 +373,22 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
   }))
 }
 
-export declare namespace webAuthn {
+export namespace webAuthn {
   export type Parameters = {
     /** Options for WebAuthn registration. */
     createOptions?:
-      | (Pick<
+      | Pick<
           WebAuthnP256.createCredential.Parameters,
           'createFn' | 'label' | 'rpId' | 'userId' | 'timeout'
-        > & {
-          /** Function to fetch a challenge to sign over at registration. */
-          getChallenge?: (() => Promise<Hex.Hex>) | undefined
-        })
+        >
       | undefined
     /** Options for WebAuthn authentication. */
     getOptions?:
-      | (Pick<WebAuthnP256.getCredential.Parameters, 'getFn' | 'rpId'> & {
-          /** Function to fetch the public key for a credential. */
-          getPublicKey?:
-            | WebAuthnP256.getCredential.Parameters['getPublicKey']
-            | undefined
-        })
+      | Pick<WebAuthnP256.getCredential.Parameters, 'getFn' | 'rpId'>
       | undefined
+    /** Public key manager. */
+    keyManager: KeyManager.KeyManager
     /** The RP ID to use for WebAuthn. */
     rpId?: string | undefined
   }
-}
-
-/**
- * Normalizes a value into a structured-clone compatible format.
- *
- * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/structuredClone
- */
-export function normalizeValue<type>(value: type): type {
-  if (Array.isArray(value)) return value.map(normalizeValue) as never
-  if (typeof value === 'function') return undefined as never
-  if (typeof value !== 'object' || value === null) return value
-  if (Object.getPrototypeOf(value) !== Object.prototype)
-    try {
-      return structuredClone(value)
-    } catch {
-      return undefined as never
-    }
-
-  const normalized: Record<string, unknown> = {}
-  for (const [k, v] of Object.entries(value)) normalized[k] = normalizeValue(v)
-  return normalized as never
 }
