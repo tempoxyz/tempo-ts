@@ -1,7 +1,13 @@
 import { createRouter, type Router } from '@remix-run/fetch-router'
+import { RpcRequest, RpcResponse } from 'ox'
 import * as Base64 from 'ox/Base64'
 import * as Hex from 'ox/Hex'
 import type * as WebAuthnP256 from 'ox/WebAuthnP256'
+import type { Chain, Client, Transport } from 'viem'
+import type { LocalAccount } from 'viem/accounts'
+import { signTransaction } from 'viem/actions'
+import { formatTransaction } from '../viem/Formatters.js'
+import * as Transaction from '../viem/Transaction.js'
 import * as RequestListener from './internal/requestListener.js'
 import type * as Kv from './Kv.js'
 
@@ -133,7 +139,7 @@ export function from(): Handler {
  * @returns Request handler.
  */
 export function keyManager(options: keyManager.Options) {
-  const { kv } = options
+  const { kv, path = '/key' } = options
 
   const rp = (() => {
     if (typeof options.rp === 'string')
@@ -149,7 +155,7 @@ export function keyManager(options: keyManager.Options) {
   const router = from()
 
   // Get challenge for WebAuthn credential creation
-  router.get('/key/challenge', async () => {
+  router.get(`${path}/challenge`, async () => {
     // Generate a random challenge
     const challenge = Hex.random(32)
 
@@ -163,7 +169,7 @@ export function keyManager(options: keyManager.Options) {
   })
 
   // Get public key for a credential
-  router.get('/key/:id', async ({ params }) => {
+  router.get(`${path}/:id`, async ({ params }) => {
     const { id } = params
 
     const publicKey = await kv.get<Hex.Hex>(`credential:${id}`)
@@ -176,9 +182,9 @@ export function keyManager(options: keyManager.Options) {
   })
 
   // Set public key for a credential
-  router.post('/key/:id', async ({ params, request }) => {
+  router.post(`${path}/:id`, async ({ params, request }) => {
     const { id } = params
-    const { credential, publicKey } = await request.json()
+    const { credential, publicKey } = (await request.json()) as any
 
     if (!credential)
       return Response.json({ error: 'Missing `credential`' }, { status: 400 })
@@ -251,6 +257,8 @@ export declare namespace keyManager {
   export type Options = {
     /** The KV store to use for key management. */
     kv: Kv.Kv
+    /** The path to use for the handler. */
+    path?: string | undefined
     /** The RP to use for WebAuthn. */
     rp?:
       | string
@@ -278,5 +286,262 @@ export declare namespace keyManager {
   export type SetPublicKeyParameters = {
     credential: WebAuthnP256.P256Credential['raw']
     publicKey: Hex.Hex
+  }
+}
+
+/**
+ * Instantiates a fee payer service request handler that can be used to
+ * sponsor the fee for user transactions.
+ *
+ * @example
+ * ### Cloudflare Worker
+ *
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Handler } from 'tempo.ts/server'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo({
+ *     feeToken: '0x20c0000000000000000000000000000000000001',
+ *   }),
+ *   transport: http(),
+ * })
+ *
+ * export default {
+ *   fetch(request) {
+ *     return Handler.feePayer({ client }).fetch(request)
+ *   }
+ * }
+ * ```
+ *
+ * @example
+ * ### Next.js
+ *
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Handler } from 'tempo.ts/server'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo({
+ *     feeToken: '0x20c0000000000000000000000000000000000001',
+ *   }),
+ *   transport: http(),
+ * })
+ *
+ * const handler = Handler.feePayer({ client })
+ *
+ * export GET = handler.fetch
+ * export POST = handler.fetch
+ * ```
+ *
+ * @example
+ * ### Hono
+ *
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Handler } from 'tempo.ts/server'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo({
+ *     feeToken: '0x20c0000000000000000000000000000000000001',
+ *   }),
+ *   transport: http(),
+ * })
+ *
+ * const handler = Handler.feePayer({ client })
+ *
+ * const app = new Hono()
+ * app.all('*', handler)
+ *
+ * export default app
+ * ```
+ *
+ * @example
+ * ### Node.js
+ *
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Handler } from 'tempo.ts/server'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo({
+ *     feeToken: '0x20c0000000000000000000000000000000000001',
+ *   }),
+ *   transport: http(),
+ * })
+ *
+ * const handler = Handler.feePayer({ client })
+ *
+ * const server = createServer(handler.listener)
+ * server.listen(3000)
+ * ```
+ *
+ * @example
+ * ### Bun
+ *
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Handler } from 'tempo.ts/server'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo({
+ *     feeToken: '0x20c0000000000000000000000000000000000001',
+ *   }),
+ *   transport: http(),
+ * })
+ *
+ * const handler = Handler.feePayer({ client })
+ *
+ * Bun.serve(handler)
+ * ```
+ *
+ * @example
+ * ### Deno
+ *
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Handler } from 'tempo.ts/server'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo({
+ *     feeToken: '0x20c0000000000000000000000000000000000001',
+ *   }),
+ *   transport: http(),
+ * })
+ *
+ * const handler = Handler.feePayer({ client })
+ *
+ * Deno.serve(handler)
+ * ```
+ *
+ * @example
+ * ### Express
+ *
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Handler } from 'tempo.ts/server'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo({
+ *     feeToken: '0x20c0000000000000000000000000000000000001',
+ *   }),
+ *   transport: http(),
+ * })
+ *
+ * const handler = Handler.feePayer({ client })
+ *
+ * const app = express()
+ * app.use(handler.listener)
+ * app.listen(3000)
+ * ```
+ *
+ * @param options - Options.
+ * @returns Request handler.
+ */
+export function feePayer(options: feePayer.Options) {
+  const { client, onRequest, path = '/sponsor' } = options
+
+  const router = from()
+
+  router.post(path, async ({ request: req }) => {
+    const request = RpcRequest.from((await req.json()) as any)
+
+    await onRequest?.(request)
+
+    if (request.method === 'eth_signTransaction') {
+      const transactionRequest = formatTransaction(request.params?.[0] as never)
+
+      const serializedTransaction = await signTransaction(client, {
+        ...transactionRequest,
+        // @ts-expect-error
+        feePayer: client.account,
+      })
+
+      return Response.json(
+        RpcResponse.from({ result: serializedTransaction }, { request }),
+      )
+    }
+
+    if ((request as any).method === 'eth_signRawTransaction') {
+      const serialized = request.params?.[0] as `0x76${string}`
+      const transaction = Transaction.deserialize(serialized)
+
+      const serializedTransaction = await signTransaction(client, {
+        ...transaction,
+        // @ts-expect-error
+        feePayer: client.account,
+      })
+
+      return Response.json(
+        RpcResponse.from({ result: serializedTransaction }, { request }),
+      )
+    }
+
+    if (
+      request.method === 'eth_sendRawTransaction' ||
+      request.method === 'eth_sendRawTransactionSync'
+    ) {
+      const serialized = request.params?.[0] as `0x76${string}`
+      const transaction = Transaction.deserialize(serialized)
+
+      const serializedTransaction = await signTransaction(client, {
+        ...transaction,
+        // @ts-expect-error
+        feePayer: client.account,
+      })
+
+      const result = await client.request({
+        method: request.method,
+        params: [serializedTransaction],
+      })
+
+      return Response.json(RpcResponse.from({ result }, { request }))
+    }
+
+    return Response.json(
+      RpcResponse.from(
+        {
+          error: new RpcResponse.MethodNotSupportedError({
+            message: `Method not supported: ${request.method}`,
+          }),
+        },
+        { request },
+      ),
+      { status: 400 },
+    )
+  })
+
+  return router
+}
+
+export declare namespace feePayer {
+  export type Options = {
+    /** Client to use. */
+    client: Client<Transport, Chain, LocalAccount>
+    /** Function to call before handling the request. */
+    onRequest?: (request: RpcRequest.RpcRequest) => Promise<void>
+    /** Path to use for the handler. */
+    path?: string | undefined
   }
 }

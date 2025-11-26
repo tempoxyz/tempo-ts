@@ -46,23 +46,28 @@ export function withFeePayer(
           method === 'eth_sendRawTransactionSync' ||
           method === 'eth_sendRawTransaction'
         ) {
-          const rawSerialized = (params as any)[0]
-          const serialized =
-            typeof rawSerialized === 'string'
-              ? rawSerialized
-              : Hex.fromBytes(rawSerialized)
-          const transaction = Transaction.deserialize(
-            serialized as `0x76${string}`,
-          )
+          const serialized = (params as any)[0] as `0x76${string}`
+          const transaction = Transaction.deserialize(serialized)
 
           // If the transaction is intended to be sponsored, forward it to the relay.
           if (transaction.feePayerSignature === null) {
-            if (policy === 'sign-only') {
-              // Request signature from relay using eth_signTransaction
-              const signedTransaction = (await transport_relay.request(
-                { method: 'eth_signTransaction', params: [(params as any)[0]] },
+            // For 'sign-and-broadcast', relay signs and broadcasts
+            if (policy === 'sign-and-broadcast')
+              return transport_relay.request(
+                { method, params },
                 options,
-              )) as any
+              ) as never
+
+            // For 'sign-only', request signature from relay using eth_signRawTransaction
+            {
+              // Request signature from relay using eth_signRawTransaction
+              const signedTransaction = await transport_relay.request(
+                {
+                  method: 'eth_signRawTransaction',
+                  params: [serialized],
+                },
+                options,
+              )
 
               // Broadcast the signed transaction via the default transport
               return transport_default.request(
@@ -70,9 +75,6 @@ export function withFeePayer(
                 options,
               ) as never
             }
-
-            // For 'sign-and-broadcast', relay signs and broadcasts
-            return transport_relay.request({ method, params }, options) as never
           }
         }
         return transport_default.request({ method, params }, options) as never
