@@ -1,5 +1,3 @@
-import type { UseMutationResult } from '@tanstack/react-query'
-import { useState } from 'react'
 import { Hooks } from 'tempo.ts/wagmi'
 import { formatUnits, pad, parseUnits, stringToHex } from 'viem'
 import {
@@ -264,79 +262,6 @@ export function SendPayment() {
           View receipt
         </a>
       )}
-
-      {sendPayment && <DebugPanel mutation={sendPayment} />}
     </form>
-  )
-}
-
-function DebugPanel({
-  mutation,
-}: {
-  mutation: UseMutationResult<any, any, any, any>
-}) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
-
-  // Only show if mutation has been triggered
-  if (mutation.status === 'idle') return null
-
-  return (
-    <div style={{ backgroundColor: '#eaeaea' }}>
-      <div>
-        <strong>Debug Info</strong>
-        <button type="button" onClick={() => setIsCollapsed(!isCollapsed)}>
-          {isCollapsed ? 'Expand' : 'Collapse'}
-        </button>
-      </div>
-
-      {!isCollapsed && (
-        <div>
-          <div>
-            <strong>Status:</strong> {mutation.status ?? 'idle'}
-          </div>
-          <div>
-            <strong>isPending:</strong> {String(mutation.isPending)}
-          </div>
-          <div>
-            <strong>isSuccess:</strong> {String(mutation.isSuccess)}
-          </div>
-          <div>
-            <strong>isError:</strong> {String(mutation.isError)}
-          </div>
-          {mutation.error && (
-            <div>
-              <strong>Error:</strong>
-              <div>{String(mutation.error)}</div>
-            </div>
-          )}
-          {mutation.variables && (
-            <div>
-              <strong>Variables:</strong>
-              <pre>
-                {JSON.stringify(
-                  mutation.variables,
-                  (_key, value) =>
-                    typeof value === 'bigint' ? value.toString() : value,
-                  2,
-                )}
-              </pre>
-            </div>
-          )}
-          {mutation.data && (
-            <div>
-              <strong>Response Data:</strong>
-              <pre>
-                {JSON.stringify(
-                  mutation.data,
-                  (_key, value) =>
-                    typeof value === 'bigint' ? value.toString() : value,
-                  2,
-                )}
-              </pre>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
   )
 }
