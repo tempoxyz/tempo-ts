@@ -11,7 +11,6 @@ export const betaUsd = '0x20c0000000000000000000000000000000000002'
 // Sponsor account for gasless transactions (test mnemonic)
 export const sponsorAccount = mnemonicToAccount(
   'test test test test test test test test test test test junk',
-  { accountIndex: 0 },
 )
 
 export const queryClient = new QueryClient()
@@ -34,7 +33,7 @@ export const config = createConfig({
         'wss://rpc.testnet.tempo.xyz?supersecretargument=pleasedonotusemeinprod',
       ),
       // Transport for sponsored transactions (feePayer: true)
-      http('http://localhost:3050'),
+      http('/sponsor'),
     ),
   },
 })

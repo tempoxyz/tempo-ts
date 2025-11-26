@@ -11,77 +11,6 @@ import {
 } from 'wagmi'
 import { alphaUsd, betaUsd, sponsorAccount } from './wagmi.config'
 
-function DebugPanel({
-  mutation,
-}: {
-  mutation: UseMutationResult<any, any, any, any>
-}) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
-
-  // Only show if mutation has been triggered
-  if (mutation.status === 'idle') return null
-
-  return (
-    <div style={{ backgroundColor: '#eaeaea' }}>
-      <div>
-        <strong>Debug Info</strong>
-        <button type="button" onClick={() => setIsCollapsed(!isCollapsed)}>
-          {isCollapsed ? 'Expand' : 'Collapse'}
-        </button>
-      </div>
-
-      {!isCollapsed && (
-        <div>
-          <div>
-            <strong>Status:</strong> {mutation.status ?? 'idle'}
-          </div>
-          <div>
-            <strong>isPending:</strong> {String(mutation.isPending)}
-          </div>
-          <div>
-            <strong>isSuccess:</strong> {String(mutation.isSuccess)}
-          </div>
-          <div>
-            <strong>isError:</strong> {String(mutation.isError)}
-          </div>
-          {mutation.error && (
-            <div>
-              <strong>Error:</strong>
-              <div>{String(mutation.error)}</div>
-            </div>
-          )}
-          {mutation.variables && (
-            <div>
-              <strong>Variables:</strong>
-              <pre>
-                {JSON.stringify(
-                  mutation.variables,
-                  (_key, value) =>
-                    typeof value === 'bigint' ? value.toString() : value,
-                  2,
-                )}
-              </pre>
-            </div>
-          )}
-          {mutation.data && (
-            <div>
-              <strong>Response Data:</strong>
-              <pre>
-                {JSON.stringify(
-                  mutation.data,
-                  (_key, value) =>
-                    typeof value === 'bigint' ? value.toString() : value,
-                  2,
-                )}
-              </pre>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
-
 export function App() {
   const account = useAccount()
 
@@ -213,6 +142,7 @@ export function Balance() {
           {betaUsdMetadata.data?.symbol}
         </div>
       )}
+      <br />
       {alphaUsdMetadata.data && (
         <div>
           <div>
@@ -261,91 +191,69 @@ export function FundAccount() {
 }
 
 export function SendPayment() {
-  const [recipient, setRecipient] = useState<`0x${string}` | ''>('')
-  const [memo, setMemo] = useState('')
-  const [feeToken, setFeeToken] = useState<`0x${string}`>(alphaUsd)
-
   const sendPayment = Hooks.token.useTransferSync()
-
   const metadata = Hooks.token.useGetMetadata({
     token: alphaUsd,
   })
 
-  const handleSend = (params: {
-    feeToken?: `0x${string}`
-    feePayer?: typeof sponsorAccount | true
-  }) => {
-    if (!recipient) throw new Error('Recipient is required')
-    if (!metadata.data?.decimals) throw new Error('metadata.decimals not found')
-
-    sendPayment.mutate({
-      amount: parseUnits('100', metadata.data.decimals),
-      to: recipient,
-      token: alphaUsd as `0x${string}`,
-      memo: memo ? pad(stringToHex(memo), { size: 32 }) : undefined,
-      ...params,
-    })
-  }
-
+  if (!metadata.data) return null
   return (
-    <div>
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        const formData = new FormData(event.target as HTMLFormElement)
+
+        const recipient = (formData.get('recipient') ||
+          '0x0000000000000000000000000000000000000000') as `0x${string}`
+        const memo = formData.get('memo') as string
+        const feePayment = formData.get('feePayment') as
+          | 'relay'
+          | 'direct'
+          | 'alphaUsd'
+          | 'betaUsd'
+
+        const [feePayer, feeToken] = (() => {
+          if (feePayment === 'alphaUsd') return [undefined, alphaUsd] as const
+          if (feePayment === 'betaUsd') return [undefined, betaUsd] as const
+          if (feePayment === 'relay') return [true, undefined] as const
+          if (feePayment === 'direct')
+            return [sponsorAccount, undefined] as const
+          throw new Error('invalid option')
+        })()
+
+        sendPayment.mutate({
+          amount: parseUnits('100', metadata.data.decimals),
+          memo: memo ? pad(stringToHex(memo), { size: 32 }) : undefined,
+          feePayer,
+          feeToken,
+          to: recipient,
+          token: alphaUsd,
+        })
+      }}
+    >
       <div>
         <label htmlFor="recipient">Recipient address</label>
-        <input
-          type="text"
-          name="recipient"
-          placeholder="0x..."
-          value={recipient}
-          onChange={(e) => setRecipient(e.target.value as `0x${string}`)}
-        />
+        <input type="text" name="recipient" placeholder="0x..." />
       </div>
 
       <div>
         <label htmlFor="memo">Memo (optional)</label>
-        <input
-          type="text"
-          name="memo"
-          placeholder="INV-12345"
-          value={memo}
-          onChange={(e) => setMemo(e.target.value)}
-        />
+        <input type="text" name="memo" placeholder="INV-12345" />
       </div>
 
       <div>
-        <label htmlFor="feeToken">Fee Token (for fee token mode)</label>
-        <select
-          name="feeToken"
-          value={feeToken}
-          onChange={(e) => setFeeToken(e.target.value as `0x${string}`)}
-        >
-          <option value={alphaUsd}>Alpha USD</option>
-          <option value={betaUsd}>Beta USD</option>
+        <label htmlFor="feePayment">Fee Payment</label>
+        <select name="feePayment">
+          <option value="relay">Sponsored (via Relay)</option>
+          <option value="direct">Sponsored (via Local Sponsor)</option>
+          <option value="alphaUsd">Alpha USD</option>
+          <option value="betaUsd">Beta USD</option>
         </select>
       </div>
 
-      <div>
-        <button
-          disabled={sendPayment.isPending}
-          type="button"
-          onClick={() => handleSend({ feeToken })}
-        >
-          Send with Fee Token
-        </button>
-        <button
-          disabled={sendPayment.isPending}
-          type="button"
-          onClick={() => handleSend({ feePayer: sponsorAccount })}
-        >
-          Send Gasless (Direct Sponsor)
-        </button>
-        <button
-          disabled={sendPayment.isPending}
-          type="button"
-          onClick={() => handleSend({ feePayer: true })}
-        >
-          Send Gasless (Relayed)
-        </button>
-      </div>
+      <button disabled={sendPayment.isPending} type="submit">
+        Send Payment
+      </button>
 
       {sendPayment.data && (
         <a
@@ -358,6 +266,77 @@ export function SendPayment() {
       )}
 
       {sendPayment && <DebugPanel mutation={sendPayment} />}
+    </form>
+  )
+}
+
+function DebugPanel({
+  mutation,
+}: {
+  mutation: UseMutationResult<any, any, any, any>
+}) {
+  const [isCollapsed, setIsCollapsed] = useState(false)
+
+  // Only show if mutation has been triggered
+  if (mutation.status === 'idle') return null
+
+  return (
+    <div style={{ backgroundColor: '#eaeaea' }}>
+      <div>
+        <strong>Debug Info</strong>
+        <button type="button" onClick={() => setIsCollapsed(!isCollapsed)}>
+          {isCollapsed ? 'Expand' : 'Collapse'}
+        </button>
+      </div>
+
+      {!isCollapsed && (
+        <div>
+          <div>
+            <strong>Status:</strong> {mutation.status ?? 'idle'}
+          </div>
+          <div>
+            <strong>isPending:</strong> {String(mutation.isPending)}
+          </div>
+          <div>
+            <strong>isSuccess:</strong> {String(mutation.isSuccess)}
+          </div>
+          <div>
+            <strong>isError:</strong> {String(mutation.isError)}
+          </div>
+          {mutation.error && (
+            <div>
+              <strong>Error:</strong>
+              <div>{String(mutation.error)}</div>
+            </div>
+          )}
+          {mutation.variables && (
+            <div>
+              <strong>Variables:</strong>
+              <pre>
+                {JSON.stringify(
+                  mutation.variables,
+                  (_key, value) =>
+                    typeof value === 'bigint' ? value.toString() : value,
+                  2,
+                )}
+              </pre>
+            </div>
+          )}
+          {mutation.data && (
+            <div>
+              <strong>Response Data:</strong>
+              <pre>
+                {JSON.stringify(
+                  mutation.data,
+                  (_key, value) =>
+                    typeof value === 'bigint' ? value.toString() : value,
+                  2,
+                )}
+              </pre>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
