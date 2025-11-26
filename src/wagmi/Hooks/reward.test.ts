@@ -1,4 +1,4 @@
-import { type Address, parseUnits } from 'viem'
+import type { Address } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
 import { config, renderHook, setupToken } from '../../../test/wagmi/config.js'
