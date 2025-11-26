@@ -1151,7 +1151,7 @@ describe('relay', () => {
 
         // Validate method
         if (
-          request.method !== 'eth_signTransaction' &&
+          (request as any).method !== 'eth_signRawTransaction' &&
           request.method !== 'eth_sendRawTransaction' &&
           request.method !== 'eth_sendRawTransactionSync'
         )
@@ -1187,7 +1187,7 @@ describe('relay', () => {
         })
 
         // Handle based on RPC method
-        if (request.method === 'eth_signTransaction') {
+        if ((request as any).method === 'eth_signRawTransaction') {
           // Policy: 'sign-only' - Return signed transaction without broadcasting
           return Response.json(
             RpcResponse.from({ result: serializedTransaction }, { request }),
@@ -1198,7 +1198,7 @@ describe('relay', () => {
         const result = await client.request({
           method: request.method,
           params: [serializedTransaction],
-        })
+        } as never)
 
         return Response.json(RpcResponse.from({ result }, { request }))
       }),

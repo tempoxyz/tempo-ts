@@ -29,6 +29,12 @@ export function from<schema extends Record<string, unknown>>(
   }
 }
 
+export namespace from {
+  export type Options = {
+    key?: string | undefined
+  }
+}
+
 export function idb<schema extends Record<string, unknown>>() {
   const store =
     typeof indexedDB !== 'undefined'
@@ -49,37 +55,56 @@ export function idb<schema extends Record<string, unknown>>() {
   })
 }
 
-export function localStorage<schema extends Record<string, unknown>>() {
-  return from<schema>({
-    async getItem(name) {
-      const item = window.localStorage.getItem(name)
-      if (item === null) return null
-      try {
-        return Json.parse(item)
-      } catch {
-        return null
-      }
+export function localStorage<schema extends Record<string, unknown>>(
+  options: localStorage.Options = {},
+) {
+  if (typeof window === 'undefined') return memory<schema>()
+  return from<schema>(
+    {
+      async getItem(name) {
+        const item = window.localStorage.getItem(name)
+        if (item === null) return null
+        try {
+          return Json.parse(item)
+        } catch {
+          return null
+        }
+      },
+      async removeItem(name) {
+        window.localStorage.removeItem(name)
+      },
+      async setItem(name, value) {
+        window.localStorage.setItem(name, Json.stringify(value))
+      },
     },
-    async removeItem(name) {
-      window.localStorage.removeItem(name)
-    },
-    async setItem(name, value) {
-      window.localStorage.setItem(name, Json.stringify(value))
-    },
-  })
+    options,
+  )
+}
+
+export namespace localStorage {
+  export type Options = from.Options
 }
 
 const store = new Map<string, any>()
-export function memory<schema extends Record<string, unknown>>() {
-  return from<schema>({
-    getItem(name) {
-      return store.get(name) ?? null
+export function memory<schema extends Record<string, unknown>>(
+  options: memory.Options = {},
+) {
+  return from<schema>(
+    {
+      getItem(name) {
+        return store.get(name) ?? null
+      },
+      removeItem(name) {
+        store.delete(name)
+      },
+      setItem(name, value) {
+        store.set(name, value)
+      },
     },
-    removeItem(name) {
-      store.delete(name)
-    },
-    setItem(name, value) {
-      store.set(name, value)
-    },
-  })
+    options,
+  )
+}
+
+export namespace memory {
+  export type Options = from.Options
 }

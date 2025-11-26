@@ -62,6 +62,14 @@ export const chainFn = (() => {
 })()
 export const chain = chainFn({ feeToken: 1n })
 
+export const transport = http(undefined, {
+  fetchOptions,
+  ...debugOptions({
+    enabled: import.meta.env.VITE_HTTP_LOG === 'true',
+    rpcUrl,
+  }),
+})
+
 export function getClient<
   accountOrAddress extends Account | Address | undefined = undefined,
 >(
@@ -75,13 +83,7 @@ export function getClient<
   return createClient({
     pollingInterval: 100,
     chain,
-    transport: http(undefined, {
-      fetchOptions,
-      ...debugOptions({
-        enabled: import.meta.env.VITE_HTTP_LOG === 'true',
-        rpcUrl,
-      }),
-    }),
+    transport,
     ...parameters,
   })
 }
@@ -167,14 +169,9 @@ export async function setupPoolWithLiquidity(
 
   // Add liquidity to pool
   await Actions.amm.mintSync(client, {
-    userToken: {
-      address: token,
-      amount: parseUnits('100', 6),
-    },
-    validatorToken: {
-      address: addresses.alphaUsd,
-      amount: parseUnits('100', 6),
-    },
+    userTokenAddress: token,
+    validatorTokenAddress: addresses.alphaUsd,
+    validatorTokenAmount: parseUnits('100', 6),
     to: client.account.address,
   })
 

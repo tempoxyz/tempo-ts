@@ -1,6 +1,6 @@
 import { QueryClient } from '@tanstack/react-query'
 import { tempoAndantino, tempoLocal } from 'tempo.ts/chains'
-import { dangerous_secp256k1, webAuthn } from 'tempo.ts/wagmi'
+import { dangerous_secp256k1, KeyManager, webAuthn } from 'tempo.ts/wagmi'
 import { createConfig, http } from 'wagmi'
 
 export const config = createConfig({
@@ -12,7 +12,13 @@ export const config = createConfig({
       ? tempoAndantino({ feeToken: 1n })
       : tempoLocal({ feeToken: 1n }),
   ],
-  connectors: [webAuthn({ grantAccessKey: true }), dangerous_secp256k1()],
+  connectors: [
+    webAuthn({
+      grantAccessKey: true,
+      keyManager: KeyManager.localStorage(),
+    }),
+    dangerous_secp256k1(),
+  ],
   transports: {
     [tempoAndantino.id]: http(undefined, {
       batch: true,

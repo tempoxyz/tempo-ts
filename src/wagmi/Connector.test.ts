@@ -3,6 +3,7 @@ import { cdp } from 'vitest/browser'
 import { useAccount, useConnect } from 'wagmi'
 import { renderHook } from '../../test/wagmi/config.js'
 import { webAuthn } from './Connector.js'
+import * as KeyManager from './KeyManager.js'
 
 async function setupWebAuthn() {
   const client = cdp()
@@ -39,8 +40,10 @@ test('connect', async (context) => {
   expect(result.current.useAccount.status).toEqual('disconnected')
 
   result.current.useConnect.connect({
-    connector: webAuthn(),
     capabilities: { type: 'sign-up', label: 'Test Account' },
+    connector: webAuthn({
+      keyManager: KeyManager.localStorage(),
+    }),
   })
 
   await vi.waitFor(() =>

@@ -194,7 +194,7 @@ export function fromRpc<
   if (transaction.calls)
     transaction_.calls = transaction.calls.map((call) => ({
       to: call.to,
-      value: call.value ? BigInt(call.value) : undefined,
+      value: call.value && call.value !== '0x' ? BigInt(call.value) : undefined,
       // @ts-expect-error
       data: call.input || call.data || '0x',
     }))

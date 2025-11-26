@@ -1,5 +1,4 @@
 import * as Address from 'ox/Address'
-import * as Bytes from 'ox/Bytes'
 import type * as Hex from 'ox/Hex'
 import * as PublicKey from 'ox/PublicKey'
 import {
@@ -21,6 +20,7 @@ import * as Storage from '../viem/Storage.js'
 import { walletNamespaceCompat } from '../viem/Transport.js'
 import * as WebAuthnP256 from '../viem/WebAuthnP256.js'
 import * as WebCryptoP256 from '../viem/WebCryptoP256.js'
+import type * as KeyManager from './KeyManager.js'
 
 type Chain = ReturnType<ReturnType<typeof tempo_Chain.define>>
 
@@ -237,7 +237,6 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
   type StorageItem = {
     'webAuthn.activeCredential': WebAuthnP256.P256Credential
     'webAuthn.lastActiveCredential': WebAuthnP256.P256Credential
-    [key: `webAuthn.publicKey.${string}`]: Hex.Hex
   }
 
   return createConnector<Provider, Properties, StorageItem>((config) => ({
@@ -264,7 +263,8 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
         // If the connection type is of "sign-up", we are going to create a new credential
         // and provision an access key (if needed).
         if (capabilities.type === 'sign-up') {
-          const challenge = await options.createOptions?.getChallenge?.()
+          // Create credential (sign up)
+          const createOptions_remote = await options.keyManager.getChallenge?.()
           const label =
             capabilities.label ??
             options.createOptions?.label ??
@@ -272,16 +272,10 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
           const rpId = options.createOptions?.rpId ?? options.rpId
           const credential = await WebAuthnP256.createCredential({
             ...(options.createOptions ?? {}),
-            challenge: challenge
-              ? new Uint8Array(Bytes.fromHex(challenge))
-              : undefined,
             label,
             rpId,
+            ...(createOptions_remote ?? {}),
           })
-          config.storage?.setItem(
-            `webAuthn.publicKey.${credential.id}`,
-            credential.publicKey,
-          )
 
           // Get key pair (access key) to use for the account.
           const keyPair = await (async () => {
@@ -352,19 +346,11 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
             ...(options.getOptions ?? {}),
             credentialId: lastActiveCredential?.id,
             async getPublicKey(credential) {
-              {
-                const publicKey =
-                  await options.getOptions?.getPublicKey?.(credential)
-                if (publicKey) return publicKey
-              }
-
-              {
-                const publicKey = await config.storage?.getItem(
-                  `webAuthn.publicKey.${credential.id}`,
-                )
-                if (!publicKey) throw new Error('publicKey not found')
-                return publicKey as Hex.Hex
-              }
+              const publicKey = await options.keyManager.getPublicKey({
+                credential,
+              })
+              if (!publicKey) throw new Error('publicKey not found.')
+              return publicKey
             },
             hash,
             rpId: options.getOptions?.rpId ?? options.rpId,
@@ -496,26 +482,18 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
   }))
 }
 
-export declare namespace webAuthn {
+export namespace webAuthn {
   export type Parameters = {
     /** Options for WebAuthn registration. */
     createOptions?:
-      | (Pick<
+      | Pick<
           WebAuthnP256.createCredential.Parameters,
           'createFn' | 'label' | 'rpId' | 'userId' | 'timeout'
-        > & {
-          /** Function to fetch a challenge to sign over at registration. */
-          getChallenge?: (() => Promise<Hex.Hex>) | undefined
-        })
+        >
       | undefined
     /** Options for WebAuthn authentication. */
     getOptions?:
-      | (Pick<WebAuthnP256.getCredential.Parameters, 'getFn' | 'rpId'> & {
-          /** Function to fetch the public key for a credential. */
-          getPublicKey?:
-            | WebAuthnP256.getCredential.Parameters['getPublicKey']
-            | undefined
-        })
+      | Pick<WebAuthnP256.getCredential.Parameters, 'getFn' | 'rpId'>
       | undefined
     /**
      * Whether or not to grant an access key upon connection.
@@ -531,6 +509,8 @@ export declare namespace webAuthn {
      * @default false
      */
     grantAccessKey?: boolean | 'lax'
+    /** Public key manager. */
+    keyManager: KeyManager.KeyManager
     /** The RP ID to use for WebAuthn. */
     rpId?: string | undefined
   }

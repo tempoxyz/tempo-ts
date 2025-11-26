@@ -101,66 +101,6 @@ export type Decorator<
       parameters: ammActions.getLiquidityBalance.Parameters,
     ) => Promise<ammActions.getLiquidityBalance.ReturnValue>
     /**
-     * Performs a rebalance swap from validator token to user token.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { tempoActions } from 'tempo.ts/viem'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const hash = await client.amm.rebalanceSwap({
-     *   userToken: '0x...',
-     *   validatorToken: '0x...',
-     *   amountOut: 100n,
-     *   to: '0x...',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
-     */
-    rebalanceSwap: (
-      parameters: ammActions.rebalanceSwap.Parameters<chain, account>,
-    ) => Promise<ammActions.rebalanceSwap.ReturnValue>
-    /**
-     * Performs a rebalance swap from validator token to user token.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { tempoActions } from 'tempo.ts/viem'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const result = await client.amm.rebalanceSwapSync({
-     *   userToken: '0x...',
-     *   validatorToken: '0x...',
-     *   amountOut: 100n,
-     *   to: '0x...',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt and event data.
-     */
-    rebalanceSwapSync: (
-      parameters: ammActions.rebalanceSwapSync.Parameters<chain, account>,
-    ) => Promise<ammActions.rebalanceSwapSync.ReturnValue>
-    /**
      * Adds liquidity to a pool.
      *
      * @example
@@ -231,118 +171,6 @@ export type Decorator<
       parameters: ammActions.mintSync.Parameters<chain, account>,
     ) => Promise<ammActions.mintSync.ReturnValue>
     /**
-     * Removes liquidity from a pool.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { tempoActions } from 'tempo.ts/viem'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const hash = await client.amm.burn({
-     *   userToken: '0x...',
-     *   validatorToken: '0x...',
-     *   liquidity: 50n,
-     *   to: '0x...',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
-     */
-    burn: (
-      parameters: ammActions.burn.Parameters<chain, account>,
-    ) => Promise<ammActions.burn.ReturnValue>
-    /**
-     * Removes liquidity from a pool.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { tempoActions } from 'tempo.ts/viem'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const result = await client.amm.burnSync({
-     *   userToken: '0x...',
-     *   validatorToken: '0x...',
-     *   liquidity: 50n,
-     *   to: '0x...',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt and event data.
-     */
-    burnSync: (
-      parameters: ammActions.burnSync.Parameters<chain, account>,
-    ) => Promise<ammActions.burnSync.ReturnValue>
-    /**
-     * Watches for rebalance swap events.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { tempoActions } from 'tempo.ts/viem'
-     *
-     * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const unwatch = client.amm.watchRebalanceSwap({
-     *   onRebalanceSwap: (args, log) => {
-     *     console.log('Rebalance swap:', args)
-     *   },
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
-     */
-    watchRebalanceSwap: (
-      parameters: ammActions.watchRebalanceSwap.Parameters,
-    ) => () => void
-    /**
-     * Watches for fee swap events.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { tempoActions } from 'tempo.ts/viem'
-     *
-     * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const unwatch = client.amm.watchFeeSwap({
-     *   onFeeSwap: (args, log) => {
-     *     console.log('Fee swap:', args)
-     *   },
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
-     */
-    watchFeeSwap: (parameters: ammActions.watchFeeSwap.Parameters) => () => void
-    /**
      * Watches for liquidity mint events.
      *
      * @example
@@ -367,31 +195,6 @@ export type Decorator<
      * @returns A function to unsubscribe from the event.
      */
     watchMint: (parameters: ammActions.watchMint.Parameters) => () => void
-    /**
-     * Watches for liquidity burn events.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { tempoActions } from 'tempo.ts/viem'
-     *
-     * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const unwatch = client.amm.watchBurn({
-     *   onBurn: (args, log) => {
-     *     console.log('Liquidity removed:', args)
-     *   },
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
-     */
-    watchBurn: (parameters: ammActions.watchBurn.Parameters) => () => void
   }
   dex: {
     /**
@@ -1601,88 +1404,6 @@ export type Decorator<
     ) => () => void
   }
   reward: {
-    /**
-     * Cancels an active reward stream and refunds remaining tokens.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { tempoActions } from 'tempo.ts/viem'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const hash = await client.reward.cancel({
-     *   id: 1n,
-     *   token: '0x20c0000000000000000000000000000000000001',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
-     */
-    cancel: (
-      parameters: rewardActions.cancel.Parameters<chain, account>,
-    ) => Promise<rewardActions.cancel.ReturnValue>
-    /**
-     * Cancels an active reward stream and waits for confirmation.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { tempoActions } from 'tempo.ts/viem'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const result = await client.reward.cancelSync({
-     *   id: 1n,
-     *   token: '0x20c0000000000000000000000000000000000001',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt and event data.
-     */
-    cancelSync: (
-      parameters: rewardActions.cancelSync.Parameters<chain, account>,
-    ) => Promise<rewardActions.cancelSync.ReturnValue>
-    /**
-     * Gets a reward stream by its ID.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { tempoActions } from 'tempo.ts/viem'
-     *
-     * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const stream = await client.reward.getStream({
-     *   id: 1n,
-     *   token: '0x20c0000000000000000000000000000000000001',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The reward stream details.
-     */
-    getStream: (
-      parameters: rewardActions.getStream.Parameters,
-    ) => Promise<rewardActions.getStream.ReturnValue>
     /**
      * Gets the total reward per second rate for all active streams.
      *
@@ -2985,20 +2706,9 @@ export function decorator() {
         getPool: (parameters) => ammActions.getPool(client, parameters),
         getLiquidityBalance: (parameters) =>
           ammActions.getLiquidityBalance(client, parameters),
-        rebalanceSwap: (parameters) =>
-          ammActions.rebalanceSwap(client, parameters),
-        rebalanceSwapSync: (parameters) =>
-          ammActions.rebalanceSwapSync(client, parameters),
         mint: (parameters) => ammActions.mint(client, parameters),
         mintSync: (parameters) => ammActions.mintSync(client, parameters),
-        burn: (parameters) => ammActions.burn(client, parameters),
-        burnSync: (parameters) => ammActions.burnSync(client, parameters),
-        watchRebalanceSwap: (parameters) =>
-          ammActions.watchRebalanceSwap(client, parameters),
-        watchFeeSwap: (parameters) =>
-          ammActions.watchFeeSwap(client, parameters),
         watchMint: (parameters) => ammActions.watchMint(client, parameters),
-        watchBurn: (parameters) => ammActions.watchBurn(client, parameters),
       },
       dex: {
         buy: (parameters) => dexActions.buy(client, parameters),
@@ -3078,10 +2788,6 @@ export function decorator() {
           policyActions.watchBlacklistUpdated(client, parameters),
       },
       reward: {
-        cancel: (parameters) => rewardActions.cancel(client, parameters),
-        cancelSync: (parameters) =>
-          rewardActions.cancelSync(client, parameters),
-        getStream: (parameters) => rewardActions.getStream(client, parameters),
         getTotalPerSecond: (parameters) =>
           rewardActions.getTotalPerSecond(client, parameters),
         setRecipient: (parameters) =>

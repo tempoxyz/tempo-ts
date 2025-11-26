@@ -21,8 +21,11 @@ jobs:
       - name: Check code
         run: pnpm check
 
+      - name: Check build
+        run: pnpm build
+
       - name: Check types
-        run: pnpm preconstruct && pnpm check:types
+        run: pnpm check:types
 
   test-localnet:
     name: 'Test Runtime (env: localnet, tag: ${{ matrix.tag }})'

@@ -1,5 +1,133 @@
 # tempo.ts
 
+## 0.7.0
+
+### Minor Changes
+
+- [#88](https://github.com/tempoxyz/tempo-ts/pull/88) [`f6da019`](https://github.com/tempoxyz/tempo-ts/commit/f6da019ddcef6eb5c492e6bf853d2fc4e15fac64) Thanks [@jxom](https://github.com/jxom)! - Removed `userToken.amount` from `amm.mint`, and flattened the API:
+
+  ```diff
+  Actions.amm.mint({
+  - userToken: {
+  -   address: '0x...',
+  -   amount: 100n,
+  - },
+  + userTokenAddress: '0x...',
+  - validatorToken: {
+  -   address: '0x...',
+  -   amount: 100n,
+  - },
+  + validatorTokenAddress: '0x...',
+  + validatorTokenAmount: 100n,
+    to: '0x...',
+  })
+  ```
+
+- [#88](https://github.com/tempoxyz/tempo-ts/pull/88) [`f6da019`](https://github.com/tempoxyz/tempo-ts/commit/f6da019ddcef6eb5c492e6bf853d2fc4e15fac64) Thanks [@jxom](https://github.com/jxom)! - Removed the following APIs:
+
+  #### `tempo.ts/viem`
+  - `Actions.amm.rebalanceSwap`
+  - `Actions.amm.rebalanceSwapSync`
+  - `Actions.amm.watchRebalanceSwap`
+  - `Actions.amm.watchFeeSwap`
+  - `Actions.amm.watchBurn`
+  - `Actions.reward.cancel`
+  - `Actions.reward.cancelSync`
+  - `Actions.reward.getStream`
+
+  #### `tempo.ts/wagmi`
+  - `Actions.amm.rebalanceSwap`
+  - `Actions.amm.rebalanceSwapSync`
+  - `Actions.amm.burn`
+  - `Actions.amm.burnSync`
+  - `Actions.amm.watchRebalanceSwap`
+  - `Actions.amm.watchFeeSwap`
+  - `Actions.amm.watchBurn`
+  - `Actions.reward.cancel`
+  - `Actions.reward.cancelSync`
+  - `Actions.reward.getStream`
+  - `Hooks.amm.useBurn`
+  - `Hooks.amm.useBurnSync`
+  - `Hooks.amm.useWatchMint`
+  - `Hooks.reward.useCancel`
+  - `Hooks.reward.useCancelSync`
+  - `Hooks.reward.useGetStream`
+
+### Patch Changes
+
+- [#87](https://github.com/tempoxyz/tempo-ts/pull/87) [`e5ff1a4`](https://github.com/tempoxyz/tempo-ts/commit/e5ff1a41bf53834348604a55480ab5acc0492a9c) Thanks [@jxom](https://github.com/jxom)! - Added `Handler.feePayer` server handler for fee sponsorship.
+
+  `Handler.feePayer` returns a `fetch` or `listener` handler that can be used by the majority of
+  server frameworks.
+
+  For example:
+
+  ```ts
+  import { privateKeyToAccount } from "viem/accounts";
+  import { Handler } from "tempo.ts/server";
+  import { client } from "./viem.config";
+
+  const handler = Handler.feePayer({
+    account: privateKeyToAccount("0x..."),
+    client,
+  });
+
+  // Node.js
+  import { createServer } from "node:http";
+  const server = createServer(handler.listener);
+  server.listen(3000);
+
+  // Bun
+  Bun.serve(handler);
+
+  // Cloudflare
+  export default {
+    fetch(request) {
+      return handler.fetch(request);
+    },
+  };
+
+  // Express
+  import express from "express";
+  const app = express();
+  app.use(handler.listener);
+  app.listen(3000);
+  ```
+
+- [#82](https://github.com/tempoxyz/tempo-ts/pull/82) [`94388bc`](https://github.com/tempoxyz/tempo-ts/commit/94388bcaa88ae85c4848c5bdfce6254f5b21218d) Thanks [@jxom](https://github.com/jxom)! - Added `tempo.ts/server` entrypoint with a `Handler` module. The `Handler` module provides a `keyManager` handler to instantiate a lightweight Key Manager API to use for WebAuthn credential management.
+
+  Each `Handler` function returns a `fetch` or `listener` handler that can be used by the majority of
+  server frameworks.
+
+  For example:
+
+  ```ts
+  import { Handler, Kv } from "tempo.ts/server";
+
+  const handler = Handler.keyManager({ kv: Kv.memory() });
+
+  // Node.js
+  import { createServer } from "node:http";
+  const server = createServer(handler.listener);
+  server.listen(3000);
+
+  // Bun
+  Bun.serve(handler);
+
+  // Cloudflare
+  export default {
+    fetch(request) {
+      return handler.fetch(request);
+    },
+  };
+
+  // Express
+  import express from "express";
+  const app = express();
+  app.use(handler.listener);
+  app.listen(3000);
+  ```
+
 ## 0.6.2
 
 ### Patch Changes

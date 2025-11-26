@@ -16,215 +16,6 @@ import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 
 /**
- * Cancels an active reward stream and refunds remaining tokens.
- *
- * - Callable only by the stream's funder.
- * - Stops future emission for the stream at the current block timestamp.
- * - Computes the refund as `amountTotal - distributedSoFar` and attempts to transfer it back to the funder.
- * - If the refund transfer is forbidden by TIP-403, the stream is still canceled but `refund` will be 0 in the event.
- * - Reverts with `StreamInactive` if the stream doesn't exist, is already canceled, or has already ended.
- * - Reverts with `NotStreamFunder` if the caller is not the stream's funder.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
- *   transport: http(),
- * })
- *
- * const hash = await Actions.rewards.cancel(client, {
- *   id: 1n,
- *   token: '0x20c0000000000000000000000000000000000001',
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The transaction hash.
- */
-export async function cancel<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: cancel.Parameters<chain, account>,
-): Promise<cancel.ReturnValue> {
-  return cancel.inner(writeContract, client, parameters)
-}
-
-/**
- * Cancels an active reward stream and waits for confirmation.
- *
- * - Callable only by the stream's funder.
- * - Stops future emission for the stream at the current block timestamp.
- * - Computes the refund as `amountTotal - distributedSoFar` and attempts to transfer it back to the funder.
- * - If the refund transfer is forbidden by TIP-403, the stream is still canceled but `refund` will be 0.
- * - Reverts with `StreamInactive` if the stream doesn't exist, is already canceled, or has already ended.
- * - Reverts with `NotStreamFunder` if the caller is not the stream's funder.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
- *   transport: http(),
- * })
- *
- * const { funder, id, refund, receipt } = await Actions.rewards.cancelSync(client, {
- *   id: 1n,
- *   token: '0x20c0000000000000000000000000000000000001',
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The funder, stream ID, refund amount, and transaction receipt.
- */
-export async function cancelSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: cancelSync.Parameters<chain, account>,
-): Promise<cancelSync.ReturnValue> {
-  const { throwOnReceiptRevert = true, ...rest } = parameters
-  const receipt = await cancel.inner(writeContractSync, client, {
-    ...rest,
-    throwOnReceiptRevert,
-  } as never)
-  const { args } = cancel.extractEvent(receipt.logs)
-  return {
-    ...args,
-    receipt,
-  } as never
-}
-
-export namespace cancel {
-  export type Args = {
-    /** The unique stream ID to cancel (must be owned by the caller) */
-    id: bigint
-    /** The TIP20 token address containing the reward stream */
-    token: Address
-  }
-
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
-
-  export type ReturnValue = WriteContractReturnType
-
-  // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
-
-  /** @internal */
-  export async function inner<
-    action extends typeof writeContract | typeof writeContractSync,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    action: action,
-    client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
-  ): Promise<ReturnType<action>> {
-    const { id, token, ...rest } = parameters
-    const call = cancel.call({ id, token })
-    return (await action(client, {
-      ...rest,
-      ...call,
-    } as never)) as never
-  }
-
-  /**
-   * Defines a call to the `cancel` function.
-   *
-   * Can be passed as a parameter to:
-   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
-   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
-   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
-   *
-   * @example
-   * ```ts
-   * import { createClient, http, walletActions } from 'viem'
-   * import { tempo } from 'tempo.ts/chains'
-   * import { Actions } from 'tempo.ts/viem'
-   *
-   * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-   *   transport: http(),
-   * }).extend(walletActions)
-   *
-   * const hash = await client.sendTransaction({
-   *   calls: [actions.rewards.cancel.call({
-   *     id: 1n,
-   *     token: '0x20c0000000000000000000000000000000000001',
-   *   })],
-   * })
-   * ```
-   *
-   * @param args - Arguments.
-   * @returns The call.
-   */
-  export function call(args: Args) {
-    const { id, token } = args
-    return defineCall({
-      address: token,
-      abi: Abis.tip20,
-      args: [id],
-      functionName: 'cancelReward',
-    })
-  }
-
-  /**
-   * Extracts the `RewardCanceled` event from logs.
-   *
-   * @param logs - The logs.
-   * @returns The `RewardCanceled` event.
-   */
-  export function extractEvent(logs: Log[]) {
-    const [log] = parseEventLogs({
-      abi: Abis.tip20,
-      logs,
-      eventName: 'RewardCanceled',
-      strict: true,
-    })
-    if (!log) throw new Error('`RewardCanceled` event not found.')
-    return log
-  }
-}
-
-export declare namespace cancelSync {
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & cancel.Args
-
-  export type ReturnValue = {
-    /** The address that funded the stream */
-    funder: Address
-    /** The stream ID that was canceled */
-    id: bigint
-    /** The transaction receipt */
-    receipt: Awaited<ReturnType<typeof writeContractSync>>
-    /** The amount refunded to the funder (0 if TIP-403 policy forbids the refund transfer) */
-    refund: bigint
-  }
-
-  export type ErrorType = cancel.ErrorType
-}
-
-/**
  * Claims accumulated rewards for a recipient.
  *
  * This function allows a reward recipient to claim their accumulated rewards
@@ -415,82 +206,6 @@ export namespace claimSync {
   }
 
   export type ErrorType = claim.ErrorType
-}
-
-/**
- * Gets a reward stream by its ID.
- *
- * Returns the stream details including:
- * - `funder`: The address that funded the stream
- * - `startTime`: When the stream started (block timestamp)
- * - `endTime`: When the stream is scheduled to end
- * - `ratePerSecondScaled`: The per-second emission rate (scaled by ACC_PRECISION = 1e18)
- * - `amountTotal`: The total amount allocated to the stream
- *
- * Note: If the stream has been canceled or doesn't exist, `funder` will be the zero address.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
- *
- * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
- *   transport: http(),
- * })
- *
- * const stream = await Actions.rewards.getStream(client, {
- *   id: 1n,
- *   token: '0x20c0000000000000000000000000000000000001',
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The reward stream details.
- */
-export async function getStream<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: getStream.Parameters,
-): Promise<getStream.ReturnValue> {
-  return readContract(client, {
-    ...parameters,
-    ...getStream.call(parameters),
-  })
-}
-
-export namespace getStream {
-  export type Parameters = ReadParameters & Args
-
-  export type Args = {
-    /** The stream ID to query (0 is never used for streams, only for immediate distributions) */
-    id: bigint
-    /** The TIP20 token address */
-    token: Address
-  }
-
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.tip20,
-    'getStream',
-    never
-  >
-
-  /**
-   * Defines a call to the `getStream` function.
-   *
-   * @param args - Arguments.
-   * @returns The call.
-   */
-  export function call(args: Args) {
-    const { id, token } = args
-    return defineCall({
-      address: token,
-      abi: Abis.tip20,
-      args: [id],
-      functionName: 'getStream',
-    })
-  }
 }
 
 /**
@@ -883,8 +598,6 @@ export namespace start {
   export type Args = {
     /** The amount of tokens to distribute (must be > 0) */
     amount: bigint
-    /** The duration in seconds (0 for immediate distribution, >0 for linear streaming) */
-    seconds: number
     /** The TIP20 token address */
     token: Address
   }
@@ -909,8 +622,8 @@ export namespace start {
     client: Client<Transport, chain, account>,
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { amount, seconds, token, ...rest } = parameters
-    const call = start.call({ amount, seconds, token })
+    const { amount, token, ...rest } = parameters
+    const call = start.call({ amount, token })
     return (await action(client, {
       ...rest,
       ...call,
@@ -949,11 +662,11 @@ export namespace start {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { amount, seconds, token } = args
+    const { amount, token } = args
     return defineCall({
       address: token,
       abi: Abis.tip20,
-      args: [amount, seconds],
+      args: [amount, 0],
       functionName: 'startReward',
     })
   }

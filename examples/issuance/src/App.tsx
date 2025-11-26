@@ -8,7 +8,7 @@ import {
   useDisconnect,
   useWatchBlockNumber,
 } from 'wagmi'
-import { alphaUsd, linkingUsd } from './wagmi.config'
+import { alphaUsd } from './wagmi.config'
 
 export function App() {
   const account = useAccount()
@@ -165,9 +165,6 @@ export function CreateStablecoin() {
           token={create.data.token}
           roles={['issuer', 'pause', 'unpause', 'burnBlocked']}
         />
-      )}
-      {create.data?.token && (
-        <MintFeeAmmLiquidity tokenAddress={create.data.token} />
       )}
     </div>
   )
@@ -343,55 +340,6 @@ export function BurnToken(props: { token: Address }) {
           </div>
         )}
       </form>
-    </div>
-  )
-}
-
-export function MintFeeAmmLiquidity({
-  tokenAddress,
-}: {
-  tokenAddress: Address
-}) {
-  const { address } = useAccount()
-
-  const mintFeeLiquidity = Hooks.amm.useMintSync()
-
-  return (
-    <div>
-      <h2>Mint Fee Amm Liquidity</h2>
-
-      <button
-        onClick={() => {
-          if (!address || !tokenAddress) return
-          mintFeeLiquidity.mutate({
-            userToken: {
-              amount: 0n,
-              address: tokenAddress,
-            },
-            validatorToken: {
-              amount: parseUnits('100', 6),
-              address: linkingUsd,
-            },
-            to: address,
-            feeToken: alphaUsd,
-          })
-        }}
-        type="button"
-      >
-        Add Liquidity
-      </button>
-
-      {mintFeeLiquidity.data && (
-        <div>
-          <a
-            href={`https://explore.tempo.xyz/tx/${mintFeeLiquidity.data.receipt.transactionHash}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View receipt
-          </a>
-        </div>
-      )}
     </div>
   )
 }

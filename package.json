@@ -5,7 +5,7 @@
 		"changeset:publish": "pnpm changeset:prepublish && changeset publish",
 		"changeset:version": "changeset version && pnpm check",
 		"check": "biome check . --write --unsafe",
-		"check:types": "tsgo -b && pnpm check:types:examples",
+		"check:types": "tsgo -b",
 		"check:types:examples": "pnpm --filter *-example check:types",
 		"gen:abis": "node scripts/gen:abis.ts && pnpm check",
 		"playground": "pnpm preconstruct && pnpm --filter playground dev",
@@ -31,7 +31,8 @@
 		"@remix-run/node-fetch-server": "^0.10.0",
 		"@tanstack/query-core": "^5.90.5",
 		"@tanstack/react-query": "catalog:default",
-		"@types/node": "latest",
+		"@types/express": "^5.0.5",
+		"@types/node": "^24.10.0",
 		"@types/react": "catalog:default",
 		"@types/react-dom": "catalog:default",
 		"@typescript/native-preview": "7.0.0-dev.20251110.1",
@@ -40,6 +41,8 @@
 		"@vitest/browser-playwright": "^4.0.13",
 		"@vitest/coverage-v8": "^4.0.13",
 		"@wagmi/core": "catalog:default",
+		"express": "^5.1.0",
+		"hono": "^4.10.6",
 		"playwright": "^1.56.1",
 		"prool": "catalog:default",
 		"react": "catalog:default",
@@ -57,7 +60,7 @@
 	},
 	"pnpm": {
 		"overrides": {
-			"ox": "~0.9.16",
+			"ox": "~0.9.17",
 			"tempo.ts": "workspace:*",
 			"viem": "catalog:default"
 		}
@@ -65,10 +68,11 @@
 	"[!start-pkg]": "",
 	"name": "tempo.ts",
 	"type": "module",
-	"version": "0.6.2",
+	"version": "0.7.0",
 	"dependencies": {
+		"@remix-run/fetch-router": "~0.12.0",
 		"idb-keyval": "^6.2.2",
-		"ox": "~0.9.16"
+		"ox": "~0.9.17"
 	},
 	"peerDependencies": {
 		"@tanstack/query-core": ">=5.0.0",
@@ -129,6 +133,11 @@
 			"src": "./src/prool/index.ts",
 			"types": "./dist/prool/index.d.ts",
 			"default": "./dist/prool/index.js"
+		},
+		"./server": {
+			"src": "./src/server/index.ts",
+			"types": "./dist/server/index.d.ts",
+			"default": "./dist/server/index.js"
 		},
 		"./viem": {
 			"src": "./src/viem/index.ts",

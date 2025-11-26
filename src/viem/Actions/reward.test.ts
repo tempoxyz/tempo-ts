@@ -1,44 +1,11 @@
-import { parseEther, parseUnits } from 'viem'
+import { parseUnits } from 'viem'
 import { describe, expect, test } from 'vitest'
 import { clientWithAccount, setupToken } from '../../../test/viem/config.js'
 import * as actions from './index.js'
 
 const account = clientWithAccount.account
 
-describe('cancelSync', () => {
-  test('default', async () => {
-    const { token } = await setupToken(clientWithAccount)
-
-    // Start a reward stream with longer duration
-    const rewardAmount = parseUnits('100', 6)
-    const { id: streamId } = await actions.reward.startSync(clientWithAccount, {
-      amount: rewardAmount,
-      seconds: 3600, // 1 hour to avoid stream ending during test
-      token,
-    })
-
-    // Cancel the reward
-    const { receipt, refund, ...result } = await actions.reward.cancelSync(
-      clientWithAccount,
-      {
-        id: streamId,
-        token,
-      },
-    )
-
-    expect(refund).toBeGreaterThan(0n)
-    expect(receipt).toBeDefined()
-    expect(result).toMatchInlineSnapshot(`
-      {
-        "funder": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "id": 1n,
-      }
-    `)
-  })
-})
-
-// TODO: unskip
-describe.skip('claimSync', () => {
+describe('claimSync', () => {
   test('default', async () => {
     const { token } = await setupToken(clientWithAccount)
 
@@ -63,7 +30,6 @@ describe.skip('claimSync', () => {
     // Start immediate reward to distribute rewards
     await actions.reward.startSync(clientWithAccount, {
       amount: rewardAmount,
-      seconds: 0,
       token,
     })
 
@@ -120,7 +86,6 @@ describe.skip('claimSync', () => {
     // Start a streaming reward (not immediate)
     await actions.reward.startSync(clientWithAccount, {
       amount: rewardAmount,
-      seconds: 10,
       token,
     })
 
@@ -146,73 +111,6 @@ describe.skip('claimSync', () => {
   })
 })
 
-describe('getStream', () => {
-  test('default', async () => {
-    const { token } = await setupToken(clientWithAccount)
-
-    // Start a reward stream
-    const rewardAmount = parseUnits('100', 6)
-    const duration = 10
-    const { id: streamId } = await actions.reward.startSync(clientWithAccount, {
-      amount: rewardAmount,
-      seconds: duration,
-      token,
-    })
-
-    // Get the stream
-    const { endTime, startTime, ...stream } = await actions.reward.getStream(
-      clientWithAccount,
-      {
-        id: streamId,
-        token,
-      },
-    )
-
-    expect(startTime).toBeGreaterThan(0)
-    expect(endTime).toBeGreaterThan(startTime)
-    expect(stream).toMatchInlineSnapshot(`
-      {
-        "amountTotal": 100000000n,
-        "funder": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "ratePerSecondScaled": 10000000000000000000000000n,
-      }
-    `)
-  })
-
-  test('behavior: canceled stream has zero funder', async () => {
-    const { token } = await setupToken(clientWithAccount)
-
-    // Start and cancel a reward stream
-    const rewardAmount = parseUnits('100', 6)
-    const { id: streamId } = await actions.reward.startSync(clientWithAccount, {
-      amount: rewardAmount,
-      seconds: 3600, // 1 hour to avoid stream ending during test
-      token,
-    })
-
-    await actions.reward.cancelSync(clientWithAccount, {
-      id: streamId,
-      token,
-    })
-
-    // Get the canceled stream
-    const stream = await actions.reward.getStream(clientWithAccount, {
-      id: streamId,
-      token,
-    })
-
-    expect(stream).toMatchInlineSnapshot(`
-      {
-        "amountTotal": 0n,
-        "endTime": 0n,
-        "funder": "0x0000000000000000000000000000000000000000",
-        "ratePerSecondScaled": 0n,
-        "startTime": 0n,
-      }
-    `)
-  })
-})
-
 describe('getTotalPerSecond', () => {
   test('default', async () => {
     const { token } = await setupToken(clientWithAccount)
@@ -222,29 +120,6 @@ describe('getTotalPerSecond', () => {
     })
 
     expect(rate).toBe(0n)
-  })
-
-  test('behavior: increases after starting stream', async () => {
-    const { token } = await setupToken(clientWithAccount)
-
-    // Start a reward stream
-    const rewardAmount = parseUnits('100', 6)
-    const duration = 100
-    await actions.reward.startSync(clientWithAccount, {
-      amount: rewardAmount,
-      seconds: duration,
-      token,
-    })
-
-    // Check total reward per second
-    const rate = await actions.reward.getTotalPerSecond(clientWithAccount, {
-      token,
-    })
-
-    // Expected rate = (amount * ACC_PRECISION) / seconds
-    // ACC_PRECISION = 1e18
-    const expectedRate = (rewardAmount * parseEther('1')) / BigInt(duration)
-    expect(rate).toBe(expectedRate)
   })
 })
 
@@ -288,88 +163,7 @@ describe('setRecipientSync', () => {
 })
 
 describe('startSync', () => {
-  test('default', async () => {
-    const { token } = await setupToken(clientWithAccount)
-
-    // Start a reward stream
-    const duration = 10
-    const rewardAmount = parseUnits('100', 6)
-    const { id, receipt, ...result } = await actions.reward.startSync(
-      clientWithAccount,
-      {
-        amount: rewardAmount,
-        seconds: duration,
-        token,
-      },
-    )
-
-    expect(receipt).toBeDefined()
-    expect(result).toMatchInlineSnapshot(`
-      {
-        "amount": 100000000n,
-        "durationSeconds": 10,
-        "funder": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-      }
-    `)
-
-    // Verify the stream was created
-    const { endTime, startTime, ...stream } = await actions.reward.getStream(
-      clientWithAccount,
-      {
-        id,
-        token,
-      },
-    )
-
-    expect(startTime).toBeGreaterThan(0)
-    expect(endTime).toBeGreaterThan(startTime)
-    expect(stream).toMatchInlineSnapshot(`
-      {
-        "amountTotal": 100000000n,
-        "funder": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "ratePerSecondScaled": 10000000000000000000000000n,
-      }
-    `)
-
-    // Verify total reward per second
-    const totalRate = await actions.reward.getTotalPerSecond(
-      clientWithAccount,
-      {
-        token,
-      },
-    )
-    const expectedRate = (rewardAmount * parseEther('1')) / BigInt(duration)
-    expect(totalRate).toBe(expectedRate)
-  })
-
-  test('behavior: streaming distribution', async () => {
-    const { token } = await setupToken(clientWithAccount)
-
-    // Start a streaming reward
-    const duration = 3600
-    const rewardAmount = parseUnits('100', 6)
-    const { id } = await actions.reward.startSync(clientWithAccount, {
-      amount: rewardAmount,
-      seconds: duration,
-      token,
-    })
-
-    expect(id).toBeGreaterThan(0n) // Streaming distributions return ID > 0
-
-    // Verify the stream was created with correct rate
-    const totalRate = await actions.reward.getTotalPerSecond(
-      clientWithAccount,
-      {
-        token,
-      },
-    )
-
-    const expectedRate = (rewardAmount * parseEther('1')) / BigInt(duration)
-    expect(totalRate).toBe(expectedRate)
-  })
-
-  // TODO: unskip
-  test.skip('behavior: immediate distribution (seconds = 0)', async () => {
+  test('behavior: immediate distribution (seconds = 0)', async () => {
     const { token } = await setupToken(clientWithAccount)
 
     // Opt in to rewards
@@ -393,10 +187,9 @@ describe('startSync', () => {
       token,
     })
 
-    // Start immediate reward (seconds = 0)
+    // Start immediate reward
     const { id } = await actions.reward.startSync(clientWithAccount, {
       amount: rewardAmount,
-      seconds: 0,
       token,
     })
 
@@ -454,7 +247,6 @@ describe('startSync', () => {
     const { amount, durationSeconds, funder, id } =
       await actions.reward.startSync(clientWithAccount, {
         amount: rewardAmount,
-        seconds: 0,
         token,
       })
 
