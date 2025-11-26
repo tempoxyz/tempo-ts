@@ -3,9 +3,10 @@ import { RpcRequest, RpcResponse } from 'ox'
 import * as Base64 from 'ox/Base64'
 import * as Hex from 'ox/Hex'
 import type * as WebAuthnP256 from 'ox/WebAuthnP256'
-import type { Client } from 'viem'
+import { type Chain, type Client, createClient, type Transport } from 'viem'
 import type { LocalAccount } from 'viem/accounts'
 import { signTransaction } from 'viem/actions'
+import type { OneOf } from '../internal/types.js'
 import { formatTransaction } from '../viem/Formatters.js'
 import * as Transaction from '../viem/Transaction.js'
 import * as RequestListener from './internal/requestListener.js'
@@ -463,7 +464,17 @@ export declare namespace keyManager {
  * @returns Request handler.
  */
 export function feePayer(options: feePayer.Options) {
-  const { account, client, onRequest, path = '/fee-payer' } = options
+  const { account, onRequest, path = '/fee-payer' } = options
+
+  const client = (() => {
+    if ('client' in options) return options.client!
+    if ('chain' in options && 'transport' in options)
+      return createClient({
+        chain: options.chain,
+        transport: options.transport,
+      })
+    throw new Error('No client or chain provided')
+  })()
 
   const router = from()
 
@@ -545,11 +556,20 @@ export declare namespace feePayer {
   export type Options = {
     /** Account to use as the fee payer. */
     account: LocalAccount
-    /** Client to use. */
-    client: Client
     /** Function to call before handling the request. */
     onRequest?: (request: RpcRequest.RpcRequest) => Promise<void>
     /** Path to use for the handler. */
     path?: string | undefined
-  }
+  } & OneOf<
+    | {
+        /** Client to use. */
+        client: Client
+      }
+    | {
+        /** Chain to use. */
+        chain: Chain
+        /** Transport to use. */
+        transport: Transport
+      }
+  >
 }

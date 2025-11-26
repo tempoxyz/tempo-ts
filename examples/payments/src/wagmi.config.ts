@@ -33,7 +33,7 @@ export const config = createConfig({
         'wss://rpc.testnet.tempo.xyz?supersecretargument=pleasedonotusemeinprod',
       ),
       // Transport for sponsored transactions (feePayer: true)
-      http('/sponsor'),
+      http('/fee-payer'),
     ),
   },
 })
