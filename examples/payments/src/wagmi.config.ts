@@ -1,7 +1,7 @@
 import { QueryClient } from '@tanstack/react-query'
 import { tempoAndantino } from 'tempo.ts/chains'
 import { withFeePayer } from 'tempo.ts/viem'
-import { webAuthn } from 'tempo.ts/wagmi'
+import { KeyManager, webAuthn } from 'tempo.ts/wagmi'
 import { mnemonicToAccount } from 'viem/accounts'
 import { createConfig, http, webSocket } from 'wagmi'
 
@@ -20,7 +20,11 @@ export const config = createConfig({
   batch: {
     multicall: false,
   },
-  connectors: [webAuthn()],
+  connectors: [
+    webAuthn({
+      keyManager: KeyManager.localStorage(),
+    }),
+  ],
   chains: [tempoAndantino({ feeToken: alphaUsd })],
   multiInjectedProviderDiscovery: false,
   transports: {

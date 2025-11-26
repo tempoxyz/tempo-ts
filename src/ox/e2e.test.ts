@@ -75,6 +75,8 @@ test('behavior: default (secp256k1)', async () => {
       hash,
       feeToken: _,
       from,
+      // @ts-expect-error
+      keyAuthorization: __,
       nonce,
       maxFeePerGas,
       maxPriorityFeePerGas,
@@ -213,6 +215,8 @@ test('behavior: default (p256)', async () => {
       chainId,
       feeToken: _,
       from,
+      // @ts-expect-error
+      keyAuthorization: __,
       hash,
       nonce,
       maxFeePerGas,
@@ -351,6 +355,7 @@ test('behavior: default (p256 - webcrypto)', async () => {
       chainId,
       feeToken: _,
       from,
+      keyAuthorization: __,
       hash,
       nonce,
       maxFeePerGas,
@@ -496,6 +501,8 @@ test('behavior: default (webauthn)', async () => {
       chainId,
       feeToken: _,
       from,
+      // @ts-expect-error
+      keyAuthorization: __,
       hash,
       nonce,
       maxFeePerGas,
