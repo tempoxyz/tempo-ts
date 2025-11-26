@@ -14,7 +14,7 @@ export const tempoAndantino = /*#__PURE__*/ Chain.define({
 })
 
 export const tempoDev = /*#__PURE__*/ Chain.define({
-  id: 42427,
+  id: 42429,
   name: 'Tempo Devnet',
   nativeCurrency: {
     name: 'USD',
@@ -23,7 +23,7 @@ export const tempoDev = /*#__PURE__*/ Chain.define({
   },
   rpcUrls: {
     default: {
-      http: ['https://devnet.tempoxyz.dev'],
+      http: ['https://rpc.devnet.tempo.xyz'],
     },
   },
 })
