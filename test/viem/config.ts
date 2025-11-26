@@ -54,6 +54,14 @@ export const chainFn = (() => {
 })()
 export const chain = chainFn({ feeToken: 1n })
 
+export const transport = http(undefined, {
+  fetchOptions,
+  ...debugOptions({
+    enabled: import.meta.env.VITE_HTTP_LOG === 'true',
+    rpcUrl,
+  }),
+})
+
 export function getClient<
   accountOrAddress extends Account | Address | undefined = undefined,
 >(
@@ -67,13 +75,7 @@ export function getClient<
   return createClient({
     pollingInterval: 100,
     chain,
-    transport: http(undefined, {
-      fetchOptions,
-      ...debugOptions({
-        enabled: import.meta.env.VITE_HTTP_LOG === 'true',
-        rpcUrl,
-      }),
-    }),
+    transport,
     ...parameters,
   })
 }

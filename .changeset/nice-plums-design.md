@@ -2,17 +2,22 @@
 "tempo.ts": patch
 ---
 
-Added `tempo.ts/server` entrypoint with a `Handler` module. The `Handler` module provides a `keyManager` handler to instantiate a lightweight Key Manager API to use for WebAuthn credential management.
+Added `Handler.feePayer` server handler for fee sponsorship.
 
-Each `Handler` function returns a `fetch` or `listener` handler that can be used by the majority of
+`Handler.feePayer` returns a `fetch` or `listener` handler that can be used by the majority of
 server frameworks.
 
 For example:
 
 ```ts
-import { Handler, Kv } from 'tempo.ts/server'
+import { privateKeyToAccount } from 'viem/accounts'
+import { Handler } from 'tempo.ts/server'
+import { client } from './viem.config'
 
-const handler = Handler.keyManager({ kv: Kv.memory() })
+const handler = Handler.feePayer({ 
+  account: privateKeyToAccount('0x...'),
+  client 
+})
 
 // Node.js
 import { createServer } from 'node:http'
