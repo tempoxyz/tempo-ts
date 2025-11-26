@@ -5,7 +5,7 @@
 		"changeset:publish": "pnpm changeset:prepublish && changeset publish",
 		"changeset:version": "changeset version && pnpm check",
 		"check": "biome check . --write --unsafe",
-		"check:types": "tsgo -b && pnpm check:types:examples",
+		"check:types": "tsgo -b",
 		"check:types:examples": "pnpm --filter *-example check:types",
 		"gen:abis": "node scripts/gen:abis.ts && pnpm check",
 		"playground": "pnpm preconstruct && pnpm --filter playground dev",

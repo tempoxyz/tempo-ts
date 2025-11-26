@@ -161,14 +161,9 @@ export async function setupPoolWithLiquidity(
 
   // Add liquidity to pool
   await Actions.amm.mintSync(client, {
-    userToken: {
-      address: token,
-      amount: parseUnits('100', 6),
-    },
-    validatorToken: {
-      address: addresses.alphaUsd,
-      amount: parseUnits('100', 6),
-    },
+    userTokenAddress: token,
+    validatorTokenAddress: addresses.alphaUsd,
+    validatorTokenAmount: parseUnits('100', 6),
     to: client.account.address,
   })
 
