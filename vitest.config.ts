@@ -43,6 +43,9 @@ export default defineConfig({
       {
         extends: true,
         test: {
+          env: {
+            RPC_PORT: '9545',
+          },
           name: 'server',
           root: './src/server',
           globalSetup: [
