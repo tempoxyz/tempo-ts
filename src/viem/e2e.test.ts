@@ -41,7 +41,6 @@ describe('sendTransaction', () => {
         gas,
         gasPrice,
         hash: hash_,
-        // @ts-expect-error
         keyAuthorization: __,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -117,7 +116,6 @@ describe('sendTransaction', () => {
         gas,
         gasPrice,
         hash: hash_,
-        // @ts-expect-error
         keyAuthorization: __,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -182,7 +180,6 @@ describe('sendTransaction', () => {
         gas,
         gasPrice,
         hash: hash_,
-        // @ts-expect-error
         keyAuthorization: __,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -296,7 +293,6 @@ describe('sendTransaction', () => {
         gas,
         gasPrice,
         hash,
-        // @ts-expect-error
         keyAuthorization: __,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -380,7 +376,6 @@ describe('sendTransaction', () => {
         gas,
         gasPrice,
         hash,
-        // @ts-expect-error
         keyAuthorization: __,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -450,7 +445,6 @@ describe('sendTransaction', () => {
         gas,
         gasPrice,
         hash: hash_,
-        // @ts-expect-error
         keyAuthorization: __,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -580,7 +574,6 @@ describe('sendTransaction', () => {
         from,
         gasPrice,
         hash,
-        // @ts-expect-error
         keyAuthorization: __,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -663,7 +656,6 @@ describe('sendTransaction', () => {
         gas,
         gasPrice,
         hash,
-        // @ts-expect-error
         keyAuthorization: __,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -708,7 +700,6 @@ describe('sendTransaction', () => {
         from,
         gasPrice,
         hash: hash_,
-        // @ts-expect-error
         keyAuthorization: __,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -787,7 +778,6 @@ describe('sendTransaction', () => {
         gas,
         gasPrice,
         hash,
-        // @ts-expect-error
         keyAuthorization: __,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -875,7 +865,6 @@ describe('sendTransaction', () => {
         gas,
         gasPrice,
         hash,
-        // @ts-expect-error
         keyAuthorization: __,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -949,7 +938,6 @@ describe('sendTransaction', () => {
         gas,
         gasPrice,
         hash: hash_,
-        // @ts-expect-error
         keyAuthorization: __,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -1071,7 +1059,6 @@ describe('signTransaction', () => {
       from,
       gasPrice,
       hash: hash_,
-      // @ts-expect-error
       keyAuthorization: __,
       maxFeePerGas,
       maxPriorityFeePerGas,
@@ -1248,7 +1235,6 @@ describe('relay', () => {
         gas,
         gasPrice,
         hash,
-        // @ts-expect-error
         keyAuthorization: __,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -1329,7 +1315,6 @@ describe('relay', () => {
         gas,
         gasPrice,
         hash,
-        // @ts-expect-error
         keyAuthorization: __,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -1441,7 +1426,6 @@ describe('relay', () => {
         gas,
         gasPrice,
         hash,
-        // @ts-expect-error
         keyAuthorization: __,
         maxFeePerGas,
         maxPriorityFeePerGas,

@@ -205,7 +205,7 @@ export declare namespace dangerous_secp256k1 {
  *
  * @returns Connector.
  */
-export function webAuthn(options: webAuthn.Parameters = {}) {
+export function webAuthn(options: webAuthn.Parameters) {
   let account: Account.RootAccount | undefined
   let accessKey: Account.AccessKeyAccount | undefined
 
