@@ -1,9 +1,22 @@
 import express from 'express'
 import { Hono } from 'hono'
+import type { RpcRequest } from 'ox'
 import * as Base64 from 'ox/Base64'
 import * as Hex from 'ox/Hex'
-import { beforeEach, describe, expect, test } from 'vitest'
-import { createServer } from '../../test/server/utils.js'
+import { http } from 'viem'
+import { sendTransaction, sendTransactionSync } from 'viem/actions'
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from 'vitest'
+import { createServer, type Server } from '../../test/server/utils.js'
+import { accounts, getClient, transport } from '../../test/viem/config.js'
+import { withFeePayer } from '../viem/Transport.js'
 import * as Handler from './Handler.js'
 import * as Kv from './Kv.js'
 
@@ -408,6 +421,146 @@ describe('keyManager', () => {
       expect(response.status).toBe(400)
       const data = await response.json()
       expect(data.error).toBe('User not present')
+    })
+  })
+})
+
+describe('feePayer', () => {
+  const userAccount = accounts[9]!
+  const feePayerAccount = accounts[0]!
+
+  let server: Server
+  let requests: RpcRequest.RpcRequest[] = []
+
+  beforeAll(async () => {
+    server = await createServer(
+      Handler.feePayer({
+        account: feePayerAccount,
+        client: getClient(),
+        onRequest: async (request) => {
+          requests.push(request)
+        },
+      }).listener,
+    )
+  })
+
+  afterAll(() => {
+    server.close()
+    process.on('SIGINT', () => {
+      server.close()
+      process.exit(0)
+    })
+    process.on('SIGTERM', () => {
+      server.close()
+      process.exit(0)
+    })
+  })
+
+  afterEach(() => {
+    requests = []
+  })
+
+  describe('POST /fee-payer', () => {
+    test('behavior: eth_signRawTransaction', async () => {
+      const client = getClient({
+        account: userAccount,
+        transport: withFeePayer(transport, http(`${server.url}/fee-payer`)),
+      })
+
+      await sendTransaction(client, {
+        feePayer: true,
+        to: '0x0000000000000000000000000000000000000000',
+      })
+
+      expect(
+        requests.map(({ method, params }) => [method, params]),
+      ).toMatchInlineSnapshot(`
+        [
+          [
+            "eth_signRawTransaction",
+            [
+              "0x76f871820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c0808080808000c0b841b907983eed3ef10ace951150a92d4281dc4879db229ec52da8dc1a85370f41255d414cc614dd25feab2b3c741006f6049c50bceb1f1f73cf2c574a956bd62b031c9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
+            ],
+          ],
+        ]
+      `)
+    })
+
+    test('behavior: eth_sendRawTransaction', async () => {
+      const client = getClient({
+        account: userAccount,
+        transport: withFeePayer(transport, http(`${server.url}/fee-payer`), {
+          policy: 'sign-and-broadcast',
+        }),
+      })
+
+      await sendTransaction(client, {
+        feePayer: true,
+        to: '0x0000000000000000000000000000000000000000',
+      })
+
+      expect(
+        requests.map(({ method, params }) => [method, params]),
+      ).toMatchInlineSnapshot(`
+        [
+          [
+            "eth_sendRawTransaction",
+            [
+              "0x76f871820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c0800180808000c0b841c5a62964b827e6d9b703beec996c496dec13afda19776b9aedce1125d75cf3220815c2d6466a8100d56e8a5e91e6fb15600143effc7cfb2d5f6f48352361cd711c9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
+            ],
+          ],
+        ]
+      `)
+    })
+
+    test('behavior: eth_sendRawTransactionSync', async () => {
+      const client = getClient({
+        account: userAccount,
+        transport: withFeePayer(transport, http(`${server.url}/fee-payer`), {
+          policy: 'sign-and-broadcast',
+        }),
+      })
+
+      await sendTransactionSync(client, {
+        feePayer: true,
+        to: '0x0000000000000000000000000000000000000000',
+      })
+
+      expect(
+        requests.map(({ method, params }) => [method, params]),
+      ).toMatchInlineSnapshot(`
+        [
+          [
+            "eth_sendRawTransactionSync",
+            [
+              "0x76f871820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c0800280808000c0b841f1b96061f66f044829e4237e881924e7d2efcff378df03212451831af5aedbe6262a8f2001ee0ffc4dab7211bc324c42298da463e01ce05402f5c16f884a608b1c9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
+            ],
+          ],
+        ]
+      `)
+    })
+
+    test('behavior: unsupported method', async () => {
+      await expect(
+        fetch(`${server.url}/fee-payer`, {
+          method: 'POST',
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'eth_chainId',
+          }),
+        }).then((response) => response.json()),
+      ).resolves.toMatchInlineSnapshot(`
+        {
+          "error": {
+            "code": -32004,
+            "name": "RpcResponse.MethodNotSupportedError",
+            "stack": "",
+          },
+          "id": 1,
+          "jsonrpc": "2.0",
+        }
+      `)
     })
   })
 })
