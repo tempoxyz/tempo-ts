@@ -68,7 +68,7 @@
 	"[!start-pkg]": "",
 	"name": "tempo.ts",
 	"type": "module",
-	"version": "0.7.0",
+	"version": "0.7.1",
 	"dependencies": {
 		"@remix-run/fetch-router": "~0.12.0",
 		"ox": "~0.9.17"

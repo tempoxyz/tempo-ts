@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.7.1
+
+### Patch Changes
+
+- [`e2c53ba`](https://github.com/tempoxyz/tempo-ts/commit/e2c53ba9bebe8cbda19dfe531fef95d963fcd8af) Thanks [@jxom](https://github.com/jxom)! - Added back `amm` actions.
+
 ## 0.7.0
 
 ### Minor Changes
