@@ -785,5 +785,30 @@ describe('feePayer', () => {
         }
       `)
     })
+
+    test('behavior: internal error', async () => {
+      const response = await fetch(server.url, {
+        method: 'POST',
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_signRawTransaction',
+          params: ['0xinvalid'],
+        }),
+      })
+
+      const data = await response.json()
+      expect(data).toMatchInlineSnapshot(`
+        {
+          "error": {
+            "code": -32603,
+            "name": "RpcResponse.InternalError",
+            "stack": "",
+          },
+          "id": 1,
+          "jsonrpc": "2.0",
+        }
+      `)
+    })
   })
 })

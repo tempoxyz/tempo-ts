@@ -521,72 +521,86 @@ export function feePayer(options: feePayer.Options) {
   router.post(path, async ({ request: req }) => {
     const request = RpcRequest.from((await req.json()) as any)
 
-    await onRequest?.(request)
+    try {
+      await onRequest?.(request)
 
-    if (request.method === 'eth_signTransaction') {
-      const transactionRequest = formatTransaction(request.params?.[0] as never)
+      if (request.method === 'eth_signTransaction') {
+        const transactionRequest = formatTransaction(
+          request.params?.[0] as never,
+        )
 
-      const serializedTransaction = await signTransaction(client, {
-        ...transactionRequest,
-        account,
-        // @ts-expect-error
-        feePayer: account,
-      })
+        const serializedTransaction = await signTransaction(client, {
+          ...transactionRequest,
+          account,
+          // @ts-expect-error
+          feePayer: account,
+        })
+
+        return Response.json(
+          RpcResponse.from({ result: serializedTransaction }, { request }),
+        )
+      }
+
+      if ((request as any).method === 'eth_signRawTransaction') {
+        const serialized = request.params?.[0] as `0x76${string}`
+        const transaction = Transaction.deserialize(serialized)
+
+        const serializedTransaction = await signTransaction(client, {
+          ...transaction,
+          account,
+          // @ts-expect-error
+          feePayer: account,
+        })
+
+        return Response.json(
+          RpcResponse.from({ result: serializedTransaction }, { request }),
+        )
+      }
+
+      if (
+        request.method === 'eth_sendRawTransaction' ||
+        request.method === 'eth_sendRawTransactionSync'
+      ) {
+        const serialized = request.params?.[0] as `0x76${string}`
+        const transaction = Transaction.deserialize(serialized)
+
+        const serializedTransaction = await signTransaction(client, {
+          ...transaction,
+          account,
+          // @ts-expect-error
+          feePayer: account,
+        })
+
+        const result = await client.request({
+          method: request.method,
+          params: [serializedTransaction],
+        })
+
+        return Response.json(RpcResponse.from({ result }, { request }))
+      }
 
       return Response.json(
-        RpcResponse.from({ result: serializedTransaction }, { request }),
+        RpcResponse.from(
+          {
+            error: new RpcResponse.MethodNotSupportedError({
+              message: `Method not supported: ${request.method}`,
+            }),
+          },
+          { request },
+        ),
       )
-    }
-
-    if ((request as any).method === 'eth_signRawTransaction') {
-      const serialized = request.params?.[0] as `0x76${string}`
-      const transaction = Transaction.deserialize(serialized)
-
-      const serializedTransaction = await signTransaction(client, {
-        ...transaction,
-        account,
-        // @ts-expect-error
-        feePayer: account,
-      })
-
+    } catch (error) {
       return Response.json(
-        RpcResponse.from({ result: serializedTransaction }, { request }),
+        RpcResponse.from(
+          {
+            error: new RpcResponse.InternalError({
+              message: (error as Error).message,
+            }),
+          },
+          { request },
+        ),
       )
     }
-
-    if (
-      request.method === 'eth_sendRawTransaction' ||
-      request.method === 'eth_sendRawTransactionSync'
-    ) {
-      const serialized = request.params?.[0] as `0x76${string}`
-      const transaction = Transaction.deserialize(serialized)
-
-      const serializedTransaction = await signTransaction(client, {
-        ...transaction,
-        account,
-        // @ts-expect-error
-        feePayer: account,
-      })
-
-      const result = await client.request({
-        method: request.method,
-        params: [serializedTransaction],
-      })
-
-      return Response.json(RpcResponse.from({ result }, { request }))
-    }
-
-    return Response.json(
-      RpcResponse.from(
-        {
-          error: new RpcResponse.MethodNotSupportedError({
-            message: `Method not supported: ${request.method}`,
-          }),
-        },
-        { request },
-      ),
-      { status: 400 },
-    )
   })
 
   return router
