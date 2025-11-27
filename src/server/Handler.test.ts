@@ -1,3 +1,4 @@
+import { Elysia } from 'elysia'
 import express from 'express'
 import { Hono } from 'hono'
 import type { RpcRequest } from 'ox'
@@ -19,6 +20,210 @@ import { accounts, getClient, transport } from '../../test/viem/config.js'
 import { withFeePayer } from '../viem/Transport.js'
 import * as Handler from './Handler.js'
 import * as Kv from './Kv.js'
+
+describe('compose', () => {
+  test('default', async () => {
+    const handler1 = Handler.from()
+    handler1.get('/test', () => new Response('test'))
+    const handler2 = Handler.from()
+    handler2.get('/test2', () => new Response('test2'))
+
+    const handler = Handler.compose([handler1, handler2])
+    expect(handler).toBeDefined()
+
+    {
+      const response = await handler.fetch(new Request('http://localhost/test'))
+      expect(response.status).toBe(200)
+      expect(await response.text()).toBe('test')
+    }
+
+    {
+      const response = await handler.fetch(
+        new Request('http://localhost/test2'),
+      )
+      expect(response.status).toBe(200)
+      expect(await response.text()).toBe('test2')
+    }
+  })
+
+  test('behavior: path', async () => {
+    const handler1 = Handler.from()
+    handler1.get('/test', () => new Response('test'))
+    const handler2 = Handler.from()
+    handler2.get('/test2', () => new Response('test2'))
+
+    const handler = Handler.compose([handler1, handler2], {
+      path: '/api',
+    })
+    expect(handler).toBeDefined()
+
+    {
+      const response = await handler.fetch(
+        new Request('http://localhost/api/test'),
+      )
+      expect(response.status).toBe(200)
+      expect(await response.text()).toBe('test')
+    }
+
+    {
+      const response = await handler.fetch(
+        new Request('http://localhost/api/test2'),
+      )
+      expect(response.status).toBe(200)
+      expect(await response.text()).toBe('test2')
+    }
+  })
+
+  describe('integration', () => {
+    const handler1 = Handler.from()
+    handler1.get('/foo', () => new Response('foo'))
+    handler1.post('/bar', () => new Response('bar'))
+
+    const handler2 = Handler.from()
+    handler2.get('/baz', () => new Response('baz'))
+    handler2.post('/qux', () => new Response('qux'))
+
+    const handler = Handler.compose([handler1, handler2], {
+      path: '/api',
+    })
+
+    test('hono', async () => {
+      const app = new Hono()
+      app.use((c) => handler.fetch(c.req.raw))
+
+      {
+        const response = await app.request('/api/foo')
+        expect(await response.text()).toBe('foo')
+      }
+
+      {
+        const response = await app.request('/api/bar', {
+          method: 'POST',
+        })
+        expect(await response.text()).toBe('bar')
+      }
+
+      {
+        const response = await app.request('/api/baz', {
+          method: 'GET',
+        })
+        expect(await response.text()).toBe('baz')
+      }
+
+      {
+        const response = await app.request('/api/qux', {
+          method: 'POST',
+        })
+        expect(await response.text()).toBe('qux')
+      }
+    })
+
+    test('elysia', async () => {
+      const app = new Elysia().all('*', ({ request }) => handler.fetch(request))
+
+      {
+        const response = await app.handle(
+          new Request('http://localhost/api/foo'),
+        )
+        expect(await response.text()).toBe('foo')
+      }
+
+      {
+        const response = await app.handle(
+          new Request('http://localhost/api/bar', {
+            method: 'POST',
+          }),
+        )
+        expect(await response.text()).toBe('bar')
+      }
+
+      {
+        const response = await app.handle(
+          new Request('http://localhost/api/baz', {
+            method: 'GET',
+          }),
+        )
+        expect(await response.text()).toBe('baz')
+      }
+
+      {
+        const response = await app.handle(
+          new Request('http://localhost/api/qux', {
+            method: 'POST',
+          }),
+        )
+        expect(await response.text()).toBe('qux')
+      }
+    })
+
+    test('node.js', async () => {
+      const server = await createServer(handler.listener)
+
+      {
+        const response = await fetch(`${server.url}/api/foo`)
+        expect(await response.text()).toBe('foo')
+      }
+
+      {
+        const response = await fetch(`${server.url}/api/bar`, {
+          method: 'POST',
+        })
+        expect(await response.text()).toBe('bar')
+      }
+
+      {
+        const response = await fetch(`${server.url}/api/baz`, {
+          method: 'GET',
+        })
+        expect(await response.text()).toBe('baz')
+      }
+
+      {
+        const response = await fetch(`${server.url}/api/qux`, {
+          method: 'POST',
+        })
+        expect(await response.text()).toBe('qux')
+      }
+
+      await server.closeAsync()
+    })
+
+    test('express', async () => {
+      const app = express()
+      app.use(handler.listener)
+
+      const server = await createServer(app)
+
+      {
+        const response = await fetch(`${server.url}/api/foo`)
+        expect(await response.text()).toBe('foo')
+      }
+
+      {
+        const response = await fetch(`${server.url}/api/bar`, {
+          method: 'POST',
+        })
+        expect(await response.text()).toBe('bar')
+      }
+
+      {
+        const response = await fetch(`${server.url}/api/baz`, {
+          method: 'GET',
+        })
+        expect(await response.text()).toBe('baz')
+      }
+
+      {
+        const response = await fetch(`${server.url}/api/qux`, {
+          method: 'POST',
+        })
+        expect(await response.text()).toBe('qux')
+      }
+
+      await server.closeAsync()
+    })
+  })
+})
 
 describe('from', () => {
   test('default', () => {
@@ -69,6 +274,24 @@ describe('from', () => {
         const response = await app.request('/bar', {
           method: 'POST',
         })
+        expect(await response.text()).toBe('bar')
+      }
+    })
+
+    test('elysia', async () => {
+      const app = new Elysia().all('*', ({ request }) => handler.fetch(request))
+
+      {
+        const response = await app.handle(new Request('http://localhost/foo'))
+        expect(await response.text()).toBe('foo')
+      }
+
+      {
+        const response = await app.handle(
+          new Request('http://localhost/bar', {
+            method: 'POST',
+          }),
+        )
         expect(await response.text()).toBe('bar')
       }
     })

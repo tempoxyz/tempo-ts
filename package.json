@@ -41,6 +41,7 @@
 		"@vitest/browser-playwright": "^4.0.13",
 		"@vitest/coverage-v8": "^4.0.13",
 		"@wagmi/core": "catalog:default",
+		"elysia": "^1.4.16",
 		"express": "^5.1.0",
 		"hono": "^4.10.6",
 		"playwright": "^1.56.1",

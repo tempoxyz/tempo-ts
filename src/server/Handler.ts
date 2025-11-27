@@ -1,4 +1,8 @@
-import { createRouter, type Router } from '@remix-run/fetch-router'
+import {
+  createRouter,
+  type Router,
+  type RouterOptions,
+} from '@remix-run/fetch-router'
 import { RpcRequest, RpcResponse } from 'ox'
 import * as Base64 from 'ox/Base64'
 import * as Hex from 'ox/Hex'
@@ -16,20 +20,54 @@ export type Handler = Router & {
   listener: (req: any, res: any) => void
 }
 
+export function compose(
+  handlers: Handler[],
+  options: compose.Options = {},
+): Handler {
+  const path = options.path ?? '/'
+
+  return from({
+    async defaultHandler(context) {
+      const url = new URL(context.request.url)
+      if (!url.pathname.startsWith(path))
+        return new Response('Not Found', { status: 404 })
+
+      url.pathname = url.pathname.replace(path, '')
+      for (const handler of handlers) {
+        const request = new Request(url, context.request.clone())
+        const response = await handler.fetch(request)
+        if (response.status !== 404) return response
+      }
+      return new Response('Not Found', { status: 404 })
+    },
+  })
+}
+
+export declare namespace compose {
+  export type Options = {
+    /** The path to use for the handler. */
+    path?: string | undefined
+  }
+}
+
 /**
  * Instantiates a new request handler.
  *
  * @param options - constructor options
  * @returns Handler instance
  */
-export function from(): Handler {
-  const router = createRouter()
+export function from(options: from.Options = {}): Handler {
+  const router = createRouter(options)
   return {
     ...router,
     listener: RequestListener.fromFetchHandler((request) => {
       return router.fetch(request)
     }),
   }
+}
+
+export declare namespace from {
+  export type Options = RouterOptions
 }
 
 /**
