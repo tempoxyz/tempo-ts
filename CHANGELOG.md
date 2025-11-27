@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.7.3
+
+### Patch Changes
+
+- [`f0369cd`](https://github.com/tempoxyz/tempo-ts/commit/f0369cd13c6d651c2aff1abe85e7984a60588f0f) Thanks [@jxom](https://github.com/jxom)! - Added error handling to `Handler.feePayer`.
+
 ## 0.7.2
 
 ### Patch Changes
