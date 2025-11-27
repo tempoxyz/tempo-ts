@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.7.4
+
+### Patch Changes
+
+- [`1b5c63b`](https://github.com/tempoxyz/tempo-ts/commit/1b5c63bfd3ebb348049b3051baf093620af2b2a6) Thanks [@jxom](https://github.com/jxom)! - Added `headers` to `Handler` functions.
+
 ## 0.7.3
 
 ### Patch Changes
