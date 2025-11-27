@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.7.5
+
+### Patch Changes
+
+- [`3c43d28`](https://github.com/tempoxyz/tempo-ts/commit/3c43d283b6bd841a3c67bdf765376203e2a8a28b) Thanks [@jxom](https://github.com/jxom)! - Propogated `options` in `Handler.feePayer`.
+
 ## 0.7.4
 
 ### Patch Changes
