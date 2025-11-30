@@ -1,4 +1,9 @@
-import { createRouter, type Router } from '@remix-run/fetch-router'
+import {
+  createRouter,
+  type Middleware,
+  type Router,
+  type RouterOptions,
+} from '@remix-run/fetch-router'
 import { RpcRequest, RpcResponse } from 'ox'
 import * as Base64 from 'ox/Base64'
 import * as Hex from 'ox/Hex'
@@ -16,19 +21,61 @@ export type Handler = Router & {
   listener: (req: any, res: any) => void
 }
 
+export function compose(
+  handlers: Handler[],
+  options: compose.Options = {},
+): Handler {
+  const path = options.path ?? '/'
+
+  return from({
+    ...options,
+    async defaultHandler(context) {
+      const url = new URL(context.request.url)
+      if (!url.pathname.startsWith(path))
+        return new Response('Not Found', { status: 404 })
+
+      url.pathname = url.pathname.replace(path, '')
+      for (const handler of handlers) {
+        const request = new Request(url, context.request.clone())
+        const response = await handler.fetch(request)
+        if (response.status !== 404) return response
+      }
+      return new Response('Not Found', { status: 404 })
+    },
+  })
+}
+
+export declare namespace compose {
+  export type Options = from.Options & {
+    /** The path to use for the handler. */
+    path?: string | undefined
+  }
+}
+
 /**
  * Instantiates a new request handler.
  *
  * @param options - constructor options
  * @returns Handler instance
  */
-export function from(): Handler {
-  const router = createRouter()
+export function from(options: from.Options = {}): Handler {
+  const router = createRouter({
+    ...options,
+    middleware: [headers(options.headers), preflight(options.headers)],
+  })
+
   return {
     ...router,
     listener: RequestListener.fromFetchHandler((request) => {
       return router.fetch(request)
     }),
+  }
+}
+
+export declare namespace from {
+  export type Options = RouterOptions & {
+    /** Headers to add to the response. */
+    headers?: Headers | Record<string, string> | undefined
   }
 }
 
@@ -155,7 +202,7 @@ export function keyManager(options: keyManager.Options) {
     return undefined
   })()
 
-  const router = from()
+  const router = from(options)
 
   // Get challenge for WebAuthn credential creation
   router.get(`${path}/challenge`, async () => {
@@ -257,7 +304,7 @@ export function keyManager(options: keyManager.Options) {
 }
 
 export declare namespace keyManager {
-  export type Options = {
+  export type Options = from.Options & {
     /** The KV store to use for key management. */
     kv: Kv.Kv
     /** The path to use for the handler. */
@@ -478,84 +525,98 @@ export function feePayer(options: feePayer.Options) {
     throw new Error('No client or chain provided')
   })()
 
-  const router = from()
+  const router = from(options)
 
   router.post(path, async ({ request: req }) => {
     const request = RpcRequest.from((await req.json()) as any)
 
-    await onRequest?.(request)
+    try {
+      await onRequest?.(request)
 
-    if (request.method === 'eth_signTransaction') {
-      const transactionRequest = formatTransaction(request.params?.[0] as never)
+      if (request.method === 'eth_signTransaction') {
+        const transactionRequest = formatTransaction(
+          request.params?.[0] as never,
+        )
 
-      const serializedTransaction = await signTransaction(client, {
-        ...transactionRequest,
-        account,
-        // @ts-expect-error
-        feePayer: account,
-      })
+        const serializedTransaction = await signTransaction(client, {
+          ...transactionRequest,
+          account,
+          // @ts-expect-error
+          feePayer: account,
+        })
+
+        return Response.json(
+          RpcResponse.from({ result: serializedTransaction }, { request }),
+        )
+      }
+
+      if ((request as any).method === 'eth_signRawTransaction') {
+        const serialized = request.params?.[0] as `0x76${string}`
+        const transaction = Transaction.deserialize(serialized)
+
+        const serializedTransaction = await signTransaction(client, {
+          ...transaction,
+          account,
+          // @ts-expect-error
+          feePayer: account,
+        })
+
+        return Response.json(
+          RpcResponse.from({ result: serializedTransaction }, { request }),
+        )
+      }
+
+      if (
+        request.method === 'eth_sendRawTransaction' ||
+        request.method === 'eth_sendRawTransactionSync'
+      ) {
+        const serialized = request.params?.[0] as `0x76${string}`
+        const transaction = Transaction.deserialize(serialized)
+
+        const serializedTransaction = await signTransaction(client, {
+          ...transaction,
+          account,
+          // @ts-expect-error
+          feePayer: account,
+        })
+
+        const result = await client.request({
+          method: request.method,
+          params: [serializedTransaction],
+        })
+
+        return Response.json(RpcResponse.from({ result }, { request }))
+      }
 
       return Response.json(
-        RpcResponse.from({ result: serializedTransaction }, { request }),
+        RpcResponse.from(
+          {
+            error: new RpcResponse.MethodNotSupportedError({
+              message: `Method not supported: ${request.method}`,
+            }),
+          },
+          { request },
+        ),
       )
-    }
-
-    if ((request as any).method === 'eth_signRawTransaction') {
-      const serialized = request.params?.[0] as `0x76${string}`
-      const transaction = Transaction.deserialize(serialized)
-
-      const serializedTransaction = await signTransaction(client, {
-        ...transaction,
-        account,
-        // @ts-expect-error
-        feePayer: account,
-      })
-
+    } catch (error) {
       return Response.json(
-        RpcResponse.from({ result: serializedTransaction }, { request }),
+        RpcResponse.from(
+          {
+            error: new RpcResponse.InternalError({
+              message: (error as Error).message,
+            }),
+          },
+          { request },
+        ),
       )
     }
-
-    if (
-      request.method === 'eth_sendRawTransaction' ||
-      request.method === 'eth_sendRawTransactionSync'
-    ) {
-      const serialized = request.params?.[0] as `0x76${string}`
-      const transaction = Transaction.deserialize(serialized)
-
-      const serializedTransaction = await signTransaction(client, {
-        ...transaction,
-        account,
-        // @ts-expect-error
-        feePayer: account,
-      })
-
-      const result = await client.request({
-        method: request.method,
-        params: [serializedTransaction],
-      })
-
-      return Response.json(RpcResponse.from({ result }, { request }))
-    }
-
-    return Response.json(
-      RpcResponse.from(
-        {
-          error: new RpcResponse.MethodNotSupportedError({
-            message: `Method not supported: ${request.method}`,
-          }),
-        },
-        { request },
-      ),
-      { status: 400 },
-    )
   })
 
   return router
 }
 
 export declare namespace feePayer {
-  export type Options = {
+  export type Options = from.Options & {
     /** Account to use as the fee payer. */
     account: LocalAccount
     /** Function to call before handling the request. */
@@ -563,15 +624,47 @@ export declare namespace feePayer {
     /** Path to use for the handler. */
     path?: string | undefined
   } & OneOf<
-    | {
-        /** Client to use. */
-        client: Client
-      }
-    | {
-        /** Chain to use. */
-        chain: Chain
-        /** Transport to use. */
-        transport: Transport
-      }
-  >
+      | {
+          /** Client to use. */
+          client: Client
+        }
+      | {
+          /** Chain to use. */
+          chain: Chain
+          /** Transport to use. */
+          transport: Transport
+        }
+    >
+}
+
+/** @internal */
+function normalizeHeaders(headers?: Headers | Record<string, string>): Headers {
+  if (!headers) return new Headers()
+  if (headers instanceof Headers) return headers
+  return new Headers(headers)
+}
+
+/** @internal */
+function headers(headers?: Headers | Record<string, string>): Middleware {
+  const normalizedHeaders = normalizeHeaders(headers)
+  return async (_, next) => {
+    const response = await next()
+    const headers = new Headers(response.headers)
+    for (const [key, value] of normalizedHeaders.entries())
+      headers.set(key, value)
+    return new Response(response.body, {
+      headers,
+      status: response.status,
+      statusText: response.statusText,
+    })
+  }
+}
+
+/** @internal */
+function preflight(headers?: Headers | Record<string, string>): Middleware {
+  const normalizedHeaders = normalizeHeaders(headers)
+  return async (context) => {
+    if (context.request.method === 'OPTIONS')
+      return new Response(null, { headers: normalizedHeaders })
+  }
 }

@@ -1,5 +1,61 @@
 # tempo.ts
 
+## 0.7.5
+
+### Patch Changes
+
+- [`3c43d28`](https://github.com/tempoxyz/tempo-ts/commit/3c43d283b6bd841a3c67bdf765376203e2a8a28b) Thanks [@jxom](https://github.com/jxom)! - Propogated `options` in `Handler.feePayer`.
+
+## 0.7.4
+
+### Patch Changes
+
+- [`1b5c63b`](https://github.com/tempoxyz/tempo-ts/commit/1b5c63bfd3ebb348049b3051baf093620af2b2a6) Thanks [@jxom](https://github.com/jxom)! - Added `headers` to `Handler` functions.
+
+## 0.7.3
+
+### Patch Changes
+
+- [`f0369cd`](https://github.com/tempoxyz/tempo-ts/commit/f0369cd13c6d651c2aff1abe85e7984a60588f0f) Thanks [@jxom](https://github.com/jxom)! - Added error handling to `Handler.feePayer`.
+
+## 0.7.2
+
+### Patch Changes
+
+- [#90](https://github.com/tempoxyz/tempo-ts/pull/90) [`625c8e4`](https://github.com/tempoxyz/tempo-ts/commit/625c8e4a4b0c4fac3d6c278c9a964fc5d6b7a78f) Thanks [@jxom](https://github.com/jxom)! - Added `Handler.compose` to compose multiple handlers into a single handler.
+
+  ```ts
+  import { Handler, Kv } from 'tempo.ts/server'
+
+  const handler = Handler.compose([
+    Handler.feePayer({
+      account,
+      client,
+      path: '/fee-payer'
+    }),
+    Handler.keyManager({
+      kv: Kv.memory()
+      path: '/key'
+    }),
+  ], { path: '/api' })
+
+  Bun.serve(handler) // Bun
+  Deno.serve(handler) // Deno
+  createServer(handler.listener) // Node.js
+  app.use(c => handler.fetch(c.req.raw)) // Hono
+  app.use(handler.listener) // Express
+
+  // Exposed endpoints:
+  // - '/api/fee-payer'
+  // - '/api/key/*'
+  ```
+
+## 0.7.1
+
+### Patch Changes
+
+- [`e2c53ba`](https://github.com/tempoxyz/tempo-ts/commit/e2c53ba9bebe8cbda19dfe531fef95d963fcd8af) Thanks [@jxom](https://github.com/jxom)! - Added back `amm` actions.
+
 ## 0.7.0
 
 ### Minor Changes
