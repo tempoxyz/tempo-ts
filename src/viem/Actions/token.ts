@@ -998,7 +998,7 @@ export namespace create {
       name,
       symbol,
       currency,
-      quoteToken = Addresses.linkingUsd,
+      quoteToken = Addresses.pathUsd,
       admin,
     } = args
     return defineCall({
@@ -1285,7 +1285,7 @@ export async function getMetadata<chain extends Chain | undefined>(
   const address = TokenId.toAddress(token)
   const abi = Abis.tip20
 
-  if (TokenId.from(token) === TokenId.fromAddress(Addresses.linkingUsd))
+  if (TokenId.from(token) === TokenId.fromAddress(Addresses.pathUsd))
     return multicall(client, {
       ...rest,
       contracts: [

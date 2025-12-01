@@ -1,1 +1,1 @@
-export const linkingUsd = 0n
+export const pathUsd = 0n

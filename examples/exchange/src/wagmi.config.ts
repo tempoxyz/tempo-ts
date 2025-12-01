@@ -3,7 +3,7 @@ import { tempoAndantino } from 'tempo.ts/chains'
 import { KeyManager, webAuthn } from 'tempo.ts/wagmi'
 import { createConfig, webSocket } from 'wagmi'
 
-export const linkingUsd = '0x20c0000000000000000000000000000000000000'
+export const pathUsd = '0x20c0000000000000000000000000000000000000'
 export const alphaUsd = '0x20c0000000000000000000000000000000000001'
 export const betaUsd = '0x20c0000000000000000000000000000000000002'
 

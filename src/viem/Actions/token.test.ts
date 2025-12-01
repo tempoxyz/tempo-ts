@@ -360,7 +360,7 @@ describe('getMetadata', () => {
   test('behavior: quote token', async () => {
     {
       const metadata = await actions.token.getMetadata(clientWithAccount, {
-        token: TokenIds.linkingUsd,
+        token: TokenIds.pathUsd,
       })
 
       expect(metadata).toMatchInlineSnapshot(`
@@ -376,7 +376,7 @@ describe('getMetadata', () => {
 
     {
       const metadata = await actions.token.getMetadata(clientWithAccount, {
-        token: Addresses.linkingUsd,
+        token: Addresses.pathUsd,
       })
 
       expect(metadata).toMatchInlineSnapshot(`
