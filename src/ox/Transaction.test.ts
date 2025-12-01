@@ -224,6 +224,7 @@ describe('fromRpc', () => {
         "hash": "0x353fdfc38a2f26115daadee9f5b8392ce62b84f410957967e2ed56b35338cdd0",
         "keyAuthorization": {
           "address": "0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c",
+          "chainId": 0n,
           "expiry": 281474976710655,
           "limits": [
             {
@@ -486,6 +487,7 @@ describe('toRpc', () => {
         "hash": "0x353fdfc38a2f26115daadee9f5b8392ce62b84f410957967e2ed56b35338cdd0",
         "input": undefined,
         "keyAuthorization": {
+          "chainId": "0x",
           "expiry": "0xffffffffffff",
           "keyId": "0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c",
           "keyType": "secp256k1",

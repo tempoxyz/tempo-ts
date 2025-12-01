@@ -7,7 +7,7 @@ import {
   WebCryptoP256,
 } from 'ox'
 import { getTransactionCount } from 'viem/actions'
-import { describe, expect, test } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
 import { chainId } from '../../test/config.js'
 import { client, fundAddress } from '../../test/viem/config.js'
 import { KeyAuthorization, SignatureEnvelope } from './index.js'
@@ -702,11 +702,18 @@ test('behavior: feePayerSignature (user → feePayer)', async () => {
 })
 
 describe('behavior: keyAuthorization', () => {
+  const privateKey = Secp256k1.randomPrivateKey()
+  const address = Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }))
   const root = {
-    address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-    privateKey:
-      '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+    address,
+    privateKey,
   } as const
+
+  beforeEach(async () => {
+    await fundAddress(client, {
+      address,
+    })
+  })
 
   test('behavior: secp256k1 access key', async () => {
     const privateKey =
@@ -744,7 +751,7 @@ describe('behavior: keyAuthorization', () => {
           to: '0x0000000000000000000000000000000000000000',
         },
       ],
-      chainId: 1337,
+      chainId,
       feeToken: '0x20c0000000000000000000000000000000000001',
       keyAuthorization: keyAuth_signed,
       nonce: BigInt(nonce),
@@ -785,8 +792,10 @@ describe('behavior: keyAuthorization', () => {
       const {
         blockNumber,
         blockHash,
+        chainId: _,
         gasPrice,
         hash,
+        from,
         keyAuthorization,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -802,6 +811,7 @@ describe('behavior: keyAuthorization', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(from).toBe(root.address)
       expect(hash).toBe(receipt.transactionHash)
       expect(keyAuthorization).toBeDefined()
       expect(signature).toBeDefined()
@@ -817,11 +827,9 @@ describe('behavior: keyAuthorization', () => {
               "value": 0n,
             },
           ],
-          "chainId": 1337,
           "data": undefined,
           "feePayerSignature": null,
           "feeToken": "0x20c0000000000000000000000000000000000001",
-          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "gas": 100000n,
           "nonceKey": 0n,
           "type": "aa",
@@ -881,7 +889,7 @@ describe('behavior: keyAuthorization', () => {
             to: '0x0000000000000000000000000000000000000000',
           },
         ],
-        chainId: 1337,
+        chainId,
         feeToken: '0x20c0000000000000000000000000000000000001',
         nonce: BigInt(nonce),
         gas: 100_000n,
@@ -924,13 +932,6 @@ describe('behavior: keyAuthorization', () => {
 
     const keyAuth = KeyAuthorization.from({
       address: access.address,
-      expiry: 0xffffffffffff,
-      limits: [
-        {
-          token: '0x20c0000000000000000000000000000000000001',
-          limit: Value.fromEther('10'),
-        },
-      ],
       type: 'p256',
     })
 
@@ -954,7 +955,7 @@ describe('behavior: keyAuthorization', () => {
           to: '0x0000000000000000000000000000000000000000',
         },
       ],
-      chainId: 1337,
+      chainId,
       feeToken: '0x20c0000000000000000000000000000000000001',
       keyAuthorization: keyAuth_signed,
       nonce: BigInt(nonce),
@@ -1001,8 +1002,10 @@ describe('behavior: keyAuthorization', () => {
       const {
         blockNumber,
         blockHash,
+        chainId: _,
         gasPrice,
         hash,
+        from,
         keyAuthorization,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -1016,6 +1019,7 @@ describe('behavior: keyAuthorization', () => {
       expect(blockHash).toBeDefined()
       expect(gasPrice).toBeDefined()
       expect(hash).toBe(receipt.transactionHash)
+      expect(from).toBe(root.address)
       expect(keyAuthorization).toBeDefined()
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
@@ -1033,11 +1037,9 @@ describe('behavior: keyAuthorization', () => {
               "value": 0n,
             },
           ],
-          "chainId": 1337,
           "data": undefined,
           "feePayerSignature": null,
           "feeToken": "0x20c0000000000000000000000000000000000001",
-          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "gas": 100000n,
           "nonceKey": 0n,
           "type": "aa",
@@ -1097,7 +1099,7 @@ describe('behavior: keyAuthorization', () => {
             to: '0x0000000000000000000000000000000000000000',
           },
         ],
-        chainId: 1337,
+        chainId,
         feeToken: '0x20c0000000000000000000000000000000000001',
         nonce: BigInt(nonce),
         gas: 100_000n,
@@ -1143,13 +1145,6 @@ describe('behavior: keyAuthorization', () => {
 
     const keyAuth = KeyAuthorization.from({
       address: access.address,
-      expiry: 0xffffffffffff,
-      limits: [
-        {
-          token: '0x20c0000000000000000000000000000000000001',
-          limit: Value.fromEther('10'),
-        },
-      ],
       type: 'p256',
     })
 
@@ -1173,7 +1168,7 @@ describe('behavior: keyAuthorization', () => {
           to: '0x0000000000000000000000000000000000000000',
         },
       ],
-      chainId: 1337,
+      chainId,
       feeToken: '0x20c0000000000000000000000000000000000001',
       keyAuthorization: keyAuth_signed,
       nonce: BigInt(nonce),
@@ -1219,8 +1214,10 @@ describe('behavior: keyAuthorization', () => {
       const {
         blockNumber,
         blockHash,
+        chainId: _,
         gasPrice,
         hash,
+        from,
         keyAuthorization,
         maxFeePerGas,
         maxPriorityFeePerGas,
@@ -1234,6 +1231,7 @@ describe('behavior: keyAuthorization', () => {
       expect(blockHash).toBeDefined()
       expect(gasPrice).toBeDefined()
       expect(hash).toBe(receipt.transactionHash)
+      expect(from).toBe(root.address)
       expect(keyAuthorization).toBeDefined()
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
@@ -1251,11 +1249,9 @@ describe('behavior: keyAuthorization', () => {
               "value": 0n,
             },
           ],
-          "chainId": 1337,
           "data": undefined,
           "feePayerSignature": null,
           "feeToken": "0x20c0000000000000000000000000000000000001",
-          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "gas": 100000n,
           "nonceKey": 0n,
           "type": "aa",
@@ -1279,7 +1275,7 @@ describe('behavior: keyAuthorization', () => {
             to: '0x0000000000000000000000000000000000000000',
           },
         ],
-        chainId: 1337,
+        chainId,
         feeToken: '0x20c0000000000000000000000000000000000001',
         nonce: BigInt(nonce),
         gas: 100_000n,

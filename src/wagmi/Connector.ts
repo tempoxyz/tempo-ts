@@ -269,12 +269,19 @@ export function webAuthn(options: webAuthn.Parameters) {
             capabilities.label ??
             options.createOptions?.label ??
             new Date().toISOString()
-          const rpId = options.createOptions?.rpId ?? options.rpId
+          const rpId =
+            createOptions_remote?.rp?.id ??
+            options.createOptions?.rpId ??
+            options.rpId
           const credential = await WebAuthnP256.createCredential({
             ...(options.createOptions ?? {}),
             label,
             rpId,
             ...(createOptions_remote ?? {}),
+          })
+          await options.keyManager.setPublicKey({
+            credential: credential.raw,
+            publicKey: credential.publicKey,
           })
 
           // Get key pair (access key) to use for the account.

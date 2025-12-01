@@ -75,32 +75,32 @@ jobs:
           VITE_NODE_TAG: ${{ matrix.tag }}
           VITE_RPC_CREDENTIALS: ${{ secrets.VITE_RPC_CREDENTIALS }}
 
-  # test-deployed:
-  #   name: 'Test Runtime (env: ${{ matrix.node-env }}, e2e)'
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 30
-  #   strategy:
-  #     matrix:
-  #       node-env: 
-  #         # - devnet
-  #         - testnet
-  #   steps:
-  #     - name: Clone repository
-  #       uses: actions/checkout@v4
-  #       with:
-  #         submodules: 'recursive'
-  #         token: ${{ secrets.GH_PAT }}
+  test-deployed:
+    name: 'Test Runtime (env: ${{ matrix.node-env }}, e2e)'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        node-env: 
+          - devnet
+          # - testnet
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          token: ${{ secrets.GH_PAT }}
 
-  #     - name: Install dependencies
-  #       uses: ./.github/actions/install-dependencies
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
 
-  #     - name: Run tests
-  #       uses: nick-fields/retry@v3
-  #       with:
-  #         timeout_minutes: 10
-  #         max_attempts: 3
-  #         command: pnpm test e2e --bail=1
-  #       env:
-  #         CI: true
-  #         VITE_NODE_ENV: ${{ matrix.node-env }}
-  #         VITE_RPC_CREDENTIALS: ${{ secrets.VITE_RPC_CREDENTIALS }}
+      - name: Run tests
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pnpm test e2e --bail=1
+        env:
+          CI: true
+          VITE_NODE_ENV: ${{ matrix.node-env }}
+          VITE_RPC_CREDENTIALS: ${{ secrets.VITE_RPC_CREDENTIALS }}

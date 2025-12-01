@@ -549,11 +549,13 @@ describe('fromRpc', () => {
 describe('fromTuple', () => {
   test('default', () => {
     const authorization = KeyAuthorization.fromTuple([
-      '0x00', // chainId
-      '0x00', // keyType (secp256k1)
-      Hex.fromNumber(expiry),
-      [[token, '0x989680']],
-      address,
+      [
+        '0x00', // chainId
+        '0x00', // keyType (secp256k1)
+        address,
+        Hex.fromNumber(expiry),
+        [[token, '0x989680']],
+      ],
     ])
 
     expect(authorization).toMatchInlineSnapshot(`
@@ -578,11 +580,13 @@ describe('fromTuple', () => {
     )
 
     const authorization = KeyAuthorization.fromTuple([
-      '0x00', // chainId
-      '0x00', // keyType (secp256k1)
-      Hex.fromNumber(expiry),
-      [[token, '0x989680']],
-      address,
+      [
+        '0x00', // chainId
+        '0x00', // keyType (secp256k1)
+        address,
+        Hex.fromNumber(expiry),
+        [[token, '0x989680']],
+      ],
       signature,
     ])
 
@@ -614,11 +618,13 @@ describe('fromTuple', () => {
     const signature = SignatureEnvelope.serialize(signature_p256)
 
     const authorization = KeyAuthorization.fromTuple([
-      '0x00', // chainId
-      '0x01', // keyType (p256)
-      Hex.fromNumber(expiry),
-      [[token, '0x989680']],
-      address,
+      [
+        '0x00', // chainId
+        '0x01', // keyType (p256)
+        address,
+        Hex.fromNumber(expiry),
+        [[token, '0x989680']],
+      ],
       signature,
     ])
 
@@ -655,11 +661,13 @@ describe('fromTuple', () => {
     const signature = SignatureEnvelope.serialize(signature_webauthn)
 
     const authorization = KeyAuthorization.fromTuple([
-      '0x00', // chainId
-      '0x02', // keyType (webAuthn)
-      Hex.fromNumber(expiry),
-      [[token, '0x989680']],
-      address,
+      [
+        '0x00', // chainId
+        '0x02', // keyType (webAuthn)
+        address,
+        Hex.fromNumber(expiry),
+        [[token, '0x989680']],
+      ],
       signature,
     ])
 
@@ -697,14 +705,16 @@ describe('fromTuple', () => {
 
   test('multiple limits', () => {
     const authorization = KeyAuthorization.fromTuple([
-      '0x00', // chainId
-      '0x00', // keyType (secp256k1)
-      Hex.fromNumber(expiry),
       [
-        ['0x20c0000000000000000000000000000000000001', '0x989680'],
-        ['0x20c0000000000000000000000000000000000002', '0x1312d00'],
+        '0x00', // chainId
+        '0x00', // keyType (secp256k1)
+        address,
+        Hex.fromNumber(expiry),
+        [
+          ['0x20c0000000000000000000000000000000000001', '0x989680'],
+          ['0x20c0000000000000000000000000000000000002', '0x1312d00'],
+        ],
       ],
-      address,
     ])
 
     expect(authorization).toMatchInlineSnapshot(`
@@ -729,11 +739,13 @@ describe('fromTuple', () => {
 
   test('with non-zero chainId', () => {
     const authorization = KeyAuthorization.fromTuple([
-      Hex.fromNumber(123), // chainId
-      '0x00', // keyType (secp256k1)
-      Hex.fromNumber(expiry),
-      [[token, '0x989680']],
-      address,
+      [
+        Hex.fromNumber(123), // chainId
+        '0x00', // keyType (secp256k1)
+        address,
+        Hex.fromNumber(expiry),
+        [[token, '0x989680']],
+      ],
     ])
 
     expect(authorization).toMatchInlineSnapshot(`
@@ -754,11 +766,13 @@ describe('fromTuple', () => {
 
   test('empty keyType treated as secp256k1', () => {
     const authorization = KeyAuthorization.fromTuple([
-      '0x00', // chainId
-      '0x', // keyType (empty = secp256k1)
-      Hex.fromNumber(expiry),
-      [[token, '0x989680']],
-      address,
+      [
+        '0x00', // chainId
+        '0x', // keyType (empty = secp256k1)
+        address,
+        Hex.fromNumber(expiry),
+        [[token, '0x989680']],
+      ],
     ])
 
     expect(authorization).toMatchInlineSnapshot(`
@@ -878,54 +892,8 @@ describe('hash', () => {
       ],
     })
 
-    const hash = KeyAuthorization.hash(authorization, { presign: true })
+    const hash = KeyAuthorization.hash(authorization)
 
-    expect(hash).toMatchInlineSnapshot(
-      `"0x6d56b62bb5e94ca0206340e4bc1ece5a35e7ad31c30c6b98074d146d5c5de993"`,
-    )
-  })
-
-  test('with signature', () => {
-    const authorization = KeyAuthorization.from({
-      address,
-      expiry,
-      type: 'secp256k1',
-      limits: [
-        {
-          token,
-          limit: Value.from('10', 6),
-        },
-      ],
-      signature: SignatureEnvelope.from(signature_secp256k1),
-    })
-
-    const hash = KeyAuthorization.hash(authorization, { presign: true })
-
-    // Hash should be same (signature is ignored in presign mode)
-    expect(hash).toMatchInlineSnapshot(
-      `"0x6d56b62bb5e94ca0206340e4bc1ece5a35e7ad31c30c6b98074d146d5c5de993"`,
-    )
-  })
-
-  test('presign: true (should match getSignPayload)', () => {
-    const authorization = KeyAuthorization.from({
-      address,
-      expiry,
-      type: 'secp256k1',
-      limits: [
-        {
-          token,
-          limit: Value.from('10', 6),
-        },
-      ],
-      signature: SignatureEnvelope.from(signature_secp256k1),
-    })
-
-    const hash = KeyAuthorization.hash(authorization, { presign: true })
-    const payload = KeyAuthorization.getSignPayload(authorization)
-
-    // Should be identical
-    expect(hash).toBe(payload)
     expect(hash).toMatchInlineSnapshot(
       `"0x6d56b62bb5e94ca0206340e4bc1ece5a35e7ad31c30c6b98074d146d5c5de993"`,
     )
@@ -1163,33 +1131,21 @@ describe('toRpc', () => {
 })
 
 describe('toTuple', () => {
-  test('without signature', () => {
+  test('default', () => {
     const authorization = KeyAuthorization.from({
       address,
-      expiry,
       type: 'secp256k1',
-      limits: [
-        {
-          token,
-          limit: Value.from('10', 6),
-        },
-      ],
     })
 
     const tuple = KeyAuthorization.toTuple(authorization)
 
     expect(tuple).toMatchInlineSnapshot(`
       [
-        "0x",
-        "0x",
-        "0x499602d2",
         [
-          [
-            "0x20c0000000000000000000000000000000000001",
-            "0x989680",
-          ],
+          "0x",
+          "0x",
+          "0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c",
         ],
-        "0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c",
       ]
     `)
   })
@@ -1212,16 +1168,18 @@ describe('toTuple', () => {
 
     expect(tuple).toMatchInlineSnapshot(`
       [
-        "0x",
-        "0x",
-        "0x499602d2",
         [
+          "0x",
+          "0x",
+          "0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c",
+          "0x499602d2",
           [
-            "0x20c0000000000000000000000000000000000001",
-            "0x989680",
+            [
+              "0x20c0000000000000000000000000000000000001",
+              "0x989680",
+            ],
           ],
         ],
-        "0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c",
         "0xfa78c5905fb0b9d6066ef531f962a62bc6ef0d5eb59ecb134056d206f75aaed7780926ff2601a935c2c79707d9e1799948c9f19dcdde1e090e903b19a07923d01c",
       ]
     `)
@@ -1245,16 +1203,18 @@ describe('toTuple', () => {
 
     expect(tuple).toMatchInlineSnapshot(`
       [
-        "0x",
-        "0x01",
-        "0x499602d2",
         [
+          "0x",
+          "0x01",
+          "0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c",
+          "0x499602d2",
           [
-            "0x20c0000000000000000000000000000000000001",
-            "0x989680",
+            [
+              "0x20c0000000000000000000000000000000000001",
+              "0x989680",
+            ],
           ],
         ],
-        "0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c",
         "0x01ccbb3485d4726235f13cb15ef394fb7158179fb7b1925eccec0147671090c52e77c3c53373cc1e3b05e7c23f609deb17cea8fe097300c45411237e9fe4166b35ad8ac16e167d6992c3e120d7f17d2376bc1cbcf30c46ba6dd00ce07303e742f511edf6ce1c32de66846f56afa7be1cbd729bc35750b6d0cdcf3ec9d75461aba001",
       ]
     `)
@@ -1278,16 +1238,18 @@ describe('toTuple', () => {
 
     expect(tuple).toMatchInlineSnapshot(`
       [
-        "0x",
-        "0x02",
-        "0x499602d2",
         [
+          "0x",
+          "0x02",
+          "0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c",
+          "0x499602d2",
           [
-            "0x20c0000000000000000000000000000000000001",
-            "0x989680",
+            [
+              "0x20c0000000000000000000000000000000000001",
+              "0x989680",
+            ],
           ],
         ],
-        "0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c",
         "0x0249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a223371322d3777222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657dccbb3485d4726235f13cb15ef394fb7158179fb7b1925eccec0147671090c52e77c3c53373cc1e3b05e7c23f609deb17cea8fe097300c45411237e9fe4166b35ad8ac16e167d6992c3e120d7f17d2376bc1cbcf30c46ba6dd00ce07303e742f511edf6ce1c32de66846f56afa7be1cbd729bc35750b6d0cdcf3ec9d75461aba0",
       ]
     `)
@@ -1314,20 +1276,22 @@ describe('toTuple', () => {
 
     expect(tuple).toMatchInlineSnapshot(`
       [
-        "0x",
-        "0x",
-        "0x499602d2",
         [
+          "0x",
+          "0x",
+          "0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c",
+          "0x499602d2",
           [
-            "0x20c0000000000000000000000000000000000001",
-            "0x989680",
-          ],
-          [
-            "0x20c0000000000000000000000000000000000002",
-            "0x1312d00",
+            [
+              "0x20c0000000000000000000000000000000000001",
+              "0x989680",
+            ],
+            [
+              "0x20c0000000000000000000000000000000000002",
+              "0x1312d00",
+            ],
           ],
         ],
-        "0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c",
       ]
     `)
   })
@@ -1350,16 +1314,18 @@ describe('toTuple', () => {
 
     expect(tuple).toMatchInlineSnapshot(`
       [
-        "0x7b",
-        "0x",
-        "0x499602d2",
         [
+          "0x7b",
+          "0x",
+          "0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c",
+          "0x499602d2",
           [
-            "0x20c0000000000000000000000000000000000001",
-            "0x989680",
+            [
+              "0x20c0000000000000000000000000000000000001",
+              "0x989680",
+            ],
           ],
         ],
-        "0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c",
       ]
     `)
   })

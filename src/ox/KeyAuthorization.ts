@@ -54,22 +54,34 @@ export type Signed<bigintType = bigint, numberType = number> = KeyAuthorization<
   numberType
 >
 
+type BaseTuple = readonly [
+  chainId: Hex.Hex,
+  keyType: Hex.Hex,
+  keyId: Address.Address,
+]
+
 /** Tuple representation of a Key Authorization. */
 export type Tuple<signed extends boolean = boolean> = signed extends true
   ? readonly [
-      chainId: Hex.Hex,
-      keyType: Hex.Hex,
-      expiry: Hex.Hex,
-      limits: readonly [token: Address.Address, limit: Hex.Hex][],
-      keyId: Address.Address,
+      authorization:
+        | BaseTuple
+        | readonly [...BaseTuple, expiry: Hex.Hex]
+        | readonly [
+            ...BaseTuple,
+            expiry: Hex.Hex,
+            limits: readonly [token: Address.Address, limit: Hex.Hex][],
+          ],
       signature: Hex.Hex,
     ]
   : readonly [
-      chainId: Hex.Hex,
-      keyType: Hex.Hex,
-      expiry: Hex.Hex,
-      limits: readonly [token: Address.Address, limit: Hex.Hex][],
-      keyId: Address.Address,
+      authorization:
+        | BaseTuple
+        | readonly [...BaseTuple, expiry: Hex.Hex]
+        | readonly [
+            ...BaseTuple,
+            expiry: Hex.Hex,
+            limits: readonly [token: Address.Address, limit: Hex.Hex][],
+          ],
     ]
 
 /**
@@ -206,19 +218,13 @@ export declare namespace from {
  * @returns A signed {@link ox#AuthorizationAA.AuthorizationAA}.
  */
 export function fromRpc(authorization: Rpc): Signed {
-  const {
-    chainId = '0x0',
-    keyId,
-    expiry = defaultExpiry,
-    limits = [],
-    keyType,
-  } = authorization
+  const { chainId = '0x0', keyId, expiry = 0, limits, keyType } = authorization
   const signature = SignatureEnvelope.fromRpc(authorization.signature)
   return {
     address: keyId,
     chainId: chainId === '0x' ? 0n : Hex.toBigInt(chainId),
     expiry: Number(expiry),
-    limits: limits.map((limit) => ({
+    limits: limits?.map((limit) => ({
       token: limit.token,
       limit: BigInt(limit.limit),
     })),
@@ -292,8 +298,8 @@ export declare namespace fromRpc {
 export function fromTuple<const tuple extends Tuple>(
   tuple: tuple,
 ): fromTuple.ReturnType<tuple> {
-  const [chainId, keyType_hex, expiry, limits, keyId, signatureSerialized] =
-    tuple
+  const [authorization, signatureSerialized] = tuple
+  const [chainId, keyType_hex, keyId, expiry, limits] = authorization
   const keyType = (() => {
     switch (keyType_hex) {
       case '0x':
@@ -309,13 +315,18 @@ export function fromTuple<const tuple extends Tuple>(
   })()
   const args: KeyAuthorization = {
     address: keyId,
-    chainId: chainId === '0x' ? 0n : Hex.toBigInt(chainId),
-    expiry: Hex.toNumber(expiry),
-    limits: limits.map(([token, limit]) => ({
-      token,
-      limit: BigInt(limit),
-    })),
+    expiry: typeof expiry !== 'undefined' ? Hex.toNumber(expiry) : undefined,
     type: keyType,
+    ...(chainId !== '0x' ? { chainId: Hex.toBigInt(chainId) } : {}),
+    ...(typeof expiry !== 'undefined' ? { expiry: Hex.toNumber(expiry) } : {}),
+    ...(typeof limits !== 'undefined'
+      ? {
+          limits: limits.map(([token, limit]) => ({
+            token,
+            limit: BigInt(limit),
+          })),
+        }
+      : {}),
   }
   if (signatureSerialized)
     args.signature = SignatureEnvelope.deserialize(signatureSerialized)
@@ -363,7 +374,7 @@ export declare namespace fromTuple {
  * @returns The sign payload.
  */
 export function getSignPayload(authorization: KeyAuthorization): Hex.Hex {
-  return hash(authorization, { presign: true })
+  return hash(authorization)
 }
 
 export declare namespace getSignPayload {
@@ -394,41 +405,9 @@ export declare namespace getSignPayload {
  * @param authorization - The {@link ox#KeyAuthorization.KeyAuthorization}.
  * @returns The hash.
  */
-export function hash(
-  authorization: KeyAuthorization,
-  options: hash.Options = {},
-): Hex.Hex {
-  const { presign } = options
-  const {
-    address,
-    chainId = 0n,
-    signature: _,
-    expiry = defaultExpiry,
-    limits = [],
-  } = authorization
-
-  if (!presign) throw new Error('unsupported')
-
-  const type = (() => {
-    switch (authorization.type) {
-      case 'secp256k1':
-        return '0x'
-      case 'p256':
-        return '0x01'
-      case 'webAuthn':
-        return '0x02'
-      default:
-        throw new Error(`Invalid key type: ${authorization.type}`)
-    }
-  })()
-
-  const serialized = Rlp.fromHex([
-    chainId === 0n ? '0x' : Hex.fromNumber(chainId),
-    type,
-    address,
-    Hex.fromNumber(expiry),
-    limits.map((limit) => [limit.token, Hex.fromNumber(limit.limit)]),
-  ])
+export function hash(authorization: KeyAuthorization): Hex.Hex {
+  const [authorizationTuple] = toTuple(authorization)
+  const serialized = Rlp.fromHex(authorizationTuple)
   return Hash.keccak256(serialized)
 }
 
@@ -439,11 +418,6 @@ export declare namespace hash {
     | Hex.concat.ErrorType
     | Rlp.fromHex.ErrorType
     | Errors.GlobalErrorType
-
-  type Options = {
-    /** Whether to hash this authorization for signing. @default false */
-    presign?: boolean | undefined
-  }
 }
 
 /**
@@ -533,12 +507,7 @@ export declare namespace toRpc {
 export function toTuple<const authorization extends KeyAuthorization>(
   authorization: authorization,
 ): toTuple.ReturnType<authorization> {
-  const {
-    address,
-    chainId = 0n,
-    expiry = defaultExpiry,
-    limits = [],
-  } = authorization
+  const { address, chainId = 0n, expiry, limits } = authorization
   const signature = authorization.signature
     ? SignatureEnvelope.serialize(authorization.signature)
     : undefined
@@ -554,14 +523,15 @@ export function toTuple<const authorization extends KeyAuthorization>(
         throw new Error(`Invalid key type: ${authorization.type}`)
     }
   })()
-  return [
+  const authorizationTuple = [
     chainId === 0n ? '0x' : Hex.fromNumber(chainId),
     type,
-    Hex.fromNumber(expiry),
-    limits.map((limit) => [limit.token, Hex.fromNumber(limit.limit)]),
     address,
-    ...(signature ? [signature] : []),
-  ] as never
+    typeof expiry === 'number' ? Hex.fromNumber(expiry) : undefined,
+    limits?.map((limit) => [limit.token, Hex.fromNumber(limit.limit)]) ??
+      undefined,
+  ].filter(Boolean)
+  return [authorizationTuple, ...(signature ? [signature] : [])] as never
 }
 
 export declare namespace toTuple {
