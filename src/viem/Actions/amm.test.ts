@@ -129,45 +129,31 @@ describe('mint', () => {
       token,
     })
 
-    // First, establish initial liquidity with two-sided mint
-    await Actions.amm.mintSync(clientWithAccount, {
-      userTokenAddress: token,
-      validatorTokenAddress: 1n,
-      validatorTokenAmount: parseUnits('100', 6),
-      to: account.address,
-    })
-
-    // Get initial pool state
-    const poolBefore = await Actions.amm.getPool(clientWithAccount, {
-      userToken: token,
-      validatorToken: 1n,
-    })
-
-    // Add more liquidity
+    // Single-sided mint with only validatorToken
     const { receipt: mintReceipt, ...mintResult } = await Actions.amm.mintSync(
       clientWithAccount,
       {
         userTokenAddress: token,
         validatorTokenAddress: 1n,
-        validatorTokenAmount: parseUnits('50', 6),
+        validatorTokenAmount: parseUnits('100', 6),
         to: account.address,
       },
     )
 
     expect(mintReceipt).toBeDefined()
-    expect(mintResult.amountValidatorToken).toBe(parseUnits('50', 6))
+    expect(mintResult.amountUserToken).toBe(0n)
+    expect(mintResult.amountValidatorToken).toBe(parseUnits('100', 6))
     expect(mintResult.liquidity).toBeGreaterThan(0n)
 
-    // Verify pool reserves increased
-    const poolAfter = await Actions.amm.getPool(clientWithAccount, {
+    // Verify pool was created with only validatorToken
+    const pool = await Actions.amm.getPool(clientWithAccount, {
       userToken: token,
       validatorToken: 1n,
     })
 
-    expect(poolAfter.reserveValidatorToken).toBe(
-      poolBefore.reserveValidatorToken + parseUnits('50', 6),
-    )
-    expect(poolAfter.totalSupply).toBeGreaterThan(poolBefore.totalSupply)
+    expect(pool.reserveUserToken).toBe(0n)
+    expect(pool.reserveValidatorToken).toBe(parseUnits('100', 6))
+    expect(pool.totalSupply).toBeGreaterThan(0n)
   })
 })
 
