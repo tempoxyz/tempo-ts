@@ -491,12 +491,20 @@ export namespace mint {
   export type Args = {
     /** Address to mint LP tokens to. */
     to: Address
-    /** User token address. */
-    userTokenAddress: TokenId.TokenIdOrAddress
-    /** Validator token address. */
-    validatorTokenAddress: TokenId.TokenIdOrAddress
-    /** Amount of validator token to add. */
-    validatorTokenAmount: bigint
+    /** User token address and amount. */
+    userToken: {
+      /** Address or ID of the user token. */
+      address: TokenId.TokenIdOrAddress
+      /** Amount of user token to add. */
+      amount?: bigint | undefined
+    }
+    /** Validator token address and amount. */
+    validatorToken: {
+      /** Address or ID of the validator token. */
+      address: TokenId.TokenIdOrAddress
+      /** Amount of validator token to add. */
+      amount: bigint
+    }
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -511,19 +519,8 @@ export namespace mint {
     client: Client<Transport, chain, account>,
     parameters: mint.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const {
-      to,
-      userTokenAddress,
-      validatorTokenAddress,
-      validatorTokenAmount,
-      ...rest
-    } = parameters
-    const call = mint.call({
-      to,
-      userTokenAddress,
-      validatorTokenAddress,
-      validatorTokenAmount,
-    })
+    const { to, userToken, validatorToken, ...rest } = parameters
+    const call = mint.call({ to, userToken, validatorToken })
     return (await action(client, {
       ...rest,
       ...call,
@@ -581,22 +578,33 @@ export namespace mint {
    * @returns The call.
    */
   export function call(args: Args) {
-    const {
-      to,
-      userTokenAddress,
-      validatorTokenAddress,
-      validatorTokenAmount,
-    } = args
+    const { to, userToken, validatorToken } = args
+    const callArgs = (() => {
+      if (userToken.amount)
+        return {
+          functionName: 'mint',
+          args: [
+            TokenId.toAddress(userToken.address),
+            TokenId.toAddress(validatorToken.address),
+            userToken.amount,
+            validatorToken.amount,
+            to,
+          ],
+        } as const
+      return {
+        functionName: 'mintWithValidatorToken',
+        args: [
+          TokenId.toAddress(userToken.address),
+          TokenId.toAddress(validatorToken.address),
+          validatorToken.amount,
+          to,
+        ],
+      } as const
+    })()
     return defineCall({
       address: Addresses.feeManager,
       abi: Abis.feeAmm,
-      functionName: 'mintWithValidatorToken',
-      args: [
-        TokenId.toAddress(userTokenAddress),
-        TokenId.toAddress(validatorTokenAddress),
-        validatorTokenAmount,
-        to,
-      ],
+      ...callArgs,
     })
   }
 

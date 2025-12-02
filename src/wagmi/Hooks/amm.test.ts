@@ -1,8 +1,9 @@
+import { getConnectorClient } from '@wagmi/core'
 import { type Address, parseUnits } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
 import { addresses } from '../../../test/config.js'
-import { accounts } from '../../../test/viem/config.js'
+import { accounts, setupPoolWithLiquidity } from '../../../test/viem/config.js'
 import { config, renderHook } from '../../../test/wagmi/config.js'
 import * as hooks from './amm.js'
 import * as tokenHooks from './token.js'
@@ -19,7 +20,7 @@ describe('usePool', () => {
     )
 
     await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy(), {
-      timeout: 10_000,
+      timeout: 5_000,
     })
 
     expect(result.current.data).toMatchInlineSnapshot(`
@@ -150,9 +151,14 @@ describe('useMintSync', () => {
 
     // Add liquidity to pool
     const data = await result.current.mintSync.mutateAsync({
-      userTokenAddress: token,
-      validatorTokenAddress: addresses.alphaUsd,
-      validatorTokenAmount: parseUnits('100', 6),
+      userToken: {
+        address: token,
+        amount: parseUnits('100', 6),
+      },
+      validatorToken: {
+        address: addresses.alphaUsd,
+        amount: parseUnits('100', 6),
+      },
       to: account.address,
     })
 
@@ -161,7 +167,131 @@ describe('useMintSync', () => {
     )
 
     expect(data.receipt).toBeDefined()
+    expect(data.amountUserToken).toBe(parseUnits('100', 6))
     expect(data.amountValidatorToken).toBe(parseUnits('100', 6))
+  })
+})
+
+describe('useBurnSync', () => {
+  test('default', async () => {
+    const { result } = await renderHook(() => ({
+      connect: useConnect(),
+      burnSync: hooks.useBurnSync(),
+      getLiquidityBalance: hooks.useLiquidityBalance,
+    }))
+
+    await result.current.connect.connectAsync({
+      connector: config.connectors[0]!,
+    })
+
+    const client = await getConnectorClient(config)
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
+
+    // Get LP balance before burn
+    const { result: balanceResult } = await renderHook(() =>
+      result.current.getLiquidityBalance({
+        userToken: tokenAddress,
+        validatorToken: addresses.alphaUsd,
+        address: account.address,
+      }),
+    )
+
+    await vi.waitFor(() => expect(balanceResult.current.isSuccess).toBeTruthy())
+
+    const lpBalanceBefore = balanceResult.current.data!
+
+    // Burn half of LP tokens
+    const data = await result.current.burnSync.mutateAsync({
+      userToken: tokenAddress,
+      validatorToken: addresses.alphaUsd,
+      liquidity: lpBalanceBefore / 2n,
+      to: account.address,
+    })
+
+    await vi.waitFor(() =>
+      expect(result.current.burnSync.isSuccess).toBeTruthy(),
+    )
+
+    expect(data.receipt).toBeDefined()
+    expect(data.liquidity).toBe(lpBalanceBefore / 2n)
+  })
+})
+
+describe('useRebalanceSwapSync', () => {
+  test('default', async () => {
+    const { result } = await renderHook(() => ({
+      connect: useConnect(),
+      rebalanceSwapSync: hooks.useRebalanceSwapSync(),
+    }))
+
+    await result.current.connect.connectAsync({
+      connector: config.connectors[0]!,
+    })
+
+    const client = await getConnectorClient(config)
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
+
+    const account2 = accounts[1]
+
+    // Perform rebalance swap
+    const data = await result.current.rebalanceSwapSync.mutateAsync({
+      userToken: tokenAddress,
+      validatorToken: addresses.alphaUsd,
+      amountOut: parseUnits('10', 6),
+      to: account2.address,
+    })
+
+    await vi.waitFor(() =>
+      expect(result.current.rebalanceSwapSync.isSuccess).toBeTruthy(),
+    )
+
+    expect(data.receipt).toBeDefined()
+    expect(data.amountOut).toBe(parseUnits('10', 6))
+    expect(data.swapper).toBe(account.address)
+  })
+})
+
+describe('useWatchRebalanceSwap', () => {
+  test('default', async () => {
+    const { result: connectResult } = await renderHook(() => ({
+      connect: useConnect(),
+      rebalanceSwapSync: hooks.useRebalanceSwapSync(),
+    }))
+
+    await connectResult.current.connect.connectAsync({
+      connector: config.connectors[0]!,
+    })
+
+    const client = await getConnectorClient(config)
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
+
+    const events: any[] = []
+    await renderHook(() =>
+      hooks.useWatchRebalanceSwap({
+        onRebalanceSwap(args) {
+          events.push(args)
+        },
+      }),
+    )
+
+    const account2 = accounts[1]
+
+    // Perform rebalance swap
+    await connectResult.current.rebalanceSwapSync.mutateAsync({
+      userToken: tokenAddress,
+      validatorToken: addresses.alphaUsd,
+      amountOut: parseUnits('10', 6),
+      to: account2.address,
+    })
+
+    await vi.waitUntil(() => events.length >= 1)
+
+    expect(events.length).toBeGreaterThanOrEqual(1)
+    expect(events[0]?.userToken.toLowerCase()).toBe(tokenAddress.toLowerCase())
+    expect(events[0]?.validatorToken.toLowerCase()).toBe(
+      addresses.alphaUsd.toLowerCase(),
+    )
+    expect(events[0]?.amountOut).toBe(parseUnits('10', 6))
   })
 })
 
@@ -211,9 +341,14 @@ describe('useWatchMint', () => {
 
     // Add liquidity to pool
     await connectResult.current.mintSync.mutateAsync({
-      userTokenAddress: token,
-      validatorTokenAddress: addresses.alphaUsd,
-      validatorTokenAmount: parseUnits('100', 6),
+      userToken: {
+        address: token,
+        amount: parseUnits('100', 6),
+      },
+      validatorToken: {
+        address: addresses.alphaUsd,
+        amount: parseUnits('100', 6),
+      },
       to: account.address,
     })
 
@@ -224,6 +359,63 @@ describe('useWatchMint', () => {
     expect(events[0]?.validatorToken.address.toLowerCase()).toBe(
       addresses.alphaUsd.toLowerCase(),
     )
+    expect(events[0]?.userToken.amount).toBe(parseUnits('100', 6))
     expect(events[0]?.validatorToken.amount).toBe(parseUnits('100', 6))
+  })
+})
+
+describe('useWatchBurn', () => {
+  test('default', async () => {
+    const { result: connectResult } = await renderHook(() => ({
+      connect: useConnect(),
+      burnSync: hooks.useBurnSync(),
+      getLiquidityBalance: hooks.useLiquidityBalance,
+    }))
+
+    await connectResult.current.connect.connectAsync({
+      connector: config.connectors[0]!,
+    })
+
+    const client = await getConnectorClient(config)
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
+
+    // Get LP balance
+    const { result: balanceResult } = await renderHook(() =>
+      connectResult.current.getLiquidityBalance({
+        userToken: tokenAddress,
+        validatorToken: addresses.alphaUsd,
+        address: account.address,
+      }),
+    )
+
+    await vi.waitFor(() => expect(balanceResult.current.isSuccess).toBeTruthy())
+
+    const lpBalance = balanceResult.current.data!
+
+    const events: any[] = []
+    await renderHook(() =>
+      hooks.useWatchBurn({
+        onBurn(args) {
+          events.push(args)
+        },
+      }),
+    )
+
+    // Burn LP tokens
+    await connectResult.current.burnSync.mutateAsync({
+      userToken: tokenAddress,
+      validatorToken: addresses.alphaUsd,
+      liquidity: lpBalance / 2n,
+      to: account.address,
+    })
+
+    await vi.waitUntil(() => events.length >= 1)
+
+    expect(events.length).toBeGreaterThanOrEqual(1)
+    expect(events[0]?.userToken.toLowerCase()).toBe(tokenAddress.toLowerCase())
+    expect(events[0]?.validatorToken.toLowerCase()).toBe(
+      addresses.alphaUsd.toLowerCase(),
+    )
+    expect(events[0]?.liquidity).toBe(lpBalance / 2n)
   })
 })

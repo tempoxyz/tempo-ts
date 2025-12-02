@@ -195,6 +195,69 @@ export type Decorator<
      * @returns A function to unsubscribe from the event.
      */
     watchMint: (parameters: ammActions.watchMint.Parameters) => () => void
+    /**
+     * Swaps tokens during a rebalance operation.
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    rebalanceSwap: (
+      parameters: ammActions.rebalanceSwap.Parameters<chain, account>,
+    ) => Promise<ammActions.rebalanceSwap.ReturnValue>
+    /**
+     * Swaps tokens during a rebalance operation and waits for confirmation.
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    rebalanceSwapSync: (
+      parameters: ammActions.rebalanceSwapSync.Parameters<chain, account>,
+    ) => Promise<ammActions.rebalanceSwapSync.ReturnValue>
+    /**
+     * Removes liquidity from a pool.
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    burn: (
+      parameters: ammActions.burn.Parameters<chain, account>,
+    ) => Promise<ammActions.burn.ReturnValue>
+    /**
+     * Removes liquidity from a pool and waits for confirmation.
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    burnSync: (
+      parameters: ammActions.burnSync.Parameters<chain, account>,
+    ) => Promise<ammActions.burnSync.ReturnValue>
+    /**
+     * Watches for rebalance swap events.
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchRebalanceSwap: (
+      parameters: ammActions.watchRebalanceSwap.Parameters,
+    ) => () => void
+    /**
+     * Watches for fee swap events.
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchFeeSwap: (
+      parameters: ammActions.watchFeeSwap.Parameters
+    ) => () => void
+    /**
+     * Watches for burn (liquidity removal) events.
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchBurn: (
+      parameters: ammActions.watchBurn.Parameters
+    ) => () => void
   }
   dex: {
     /**
@@ -2709,6 +2772,17 @@ export function decorator() {
         mint: (parameters) => ammActions.mint(client, parameters),
         mintSync: (parameters) => ammActions.mintSync(client, parameters),
         watchMint: (parameters) => ammActions.watchMint(client, parameters),
+        rebalanceSwap: (parameters) =>
+          ammActions.rebalanceSwap(client, parameters),
+        rebalanceSwapSync: (parameters) =>
+          ammActions.rebalanceSwapSync(client, parameters),
+        burn: (parameters) => ammActions.burn(client, parameters),
+        burnSync: (parameters) => ammActions.burnSync(client, parameters),
+        watchRebalanceSwap: (parameters) =>
+          ammActions.watchRebalanceSwap(client, parameters),
+        watchFeeSwap: (parameters) =>
+          ammActions.watchFeeSwap(client, parameters),
+        watchBurn: (parameters) => ammActions.watchBurn(client, parameters),
       },
       dex: {
         buy: (parameters) => dexActions.buy(client, parameters),

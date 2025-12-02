@@ -1,8 +1,8 @@
-import { connect } from '@wagmi/core'
+import { connect, getConnectorClient } from '@wagmi/core'
 import { parseUnits } from 'viem'
 import { describe, expect, test } from 'vitest'
 import { addresses } from '../../../test/config.js'
-import { accounts } from '../../../test/viem/config.js'
+import { accounts, setupPoolWithLiquidity } from '../../../test/viem/config.js'
 import { config, queryClient } from '../../../test/wagmi/config.js'
 import * as ammActions from './amm.js'
 import * as tokenActions from './token.js'
@@ -96,20 +96,98 @@ describe('mintSync', () => {
     const { receipt: mintReceipt, ...mintResult } = await ammActions.mintSync(
       config,
       {
-        userTokenAddress: token,
-        validatorTokenAddress: addresses.alphaUsd,
-        validatorTokenAmount: parseUnits('100', 6),
+        userToken: {
+          address: token,
+          amount: parseUnits('100', 6),
+        },
+        validatorToken: {
+          address: addresses.alphaUsd,
+          amount: parseUnits('100', 6),
+        },
         to: account.address,
       },
     )
     expect(mintReceipt).toBeDefined()
     expect(mintResult).toMatchInlineSnapshot(`
       {
-        "amountUserToken": 0n,
+        "amountUserToken": 100000000n,
         "amountValidatorToken": 100000000n,
-        "liquidity": 49999000n,
+        "liquidity": 4999999999999000n,
         "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "userToken": "0x20C0000000000000000000000000000000000004",
+        "validatorToken": "0x20C0000000000000000000000000000000000001",
+      }
+    `)
+  })
+})
+
+describe('burnSync', () => {
+  test('default', async () => {
+    await connect(config, {
+      connector: config.connectors[0]!,
+    })
+
+    const client = await getConnectorClient(config)
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
+
+    // Get LP balance before burn
+    const lpBalanceBefore = await ammActions.getLiquidityBalance(config, {
+      userToken: tokenAddress,
+      validatorToken: addresses.alphaUsd,
+      address: account.address,
+    })
+
+    // Burn half of LP tokens
+    const { receipt: burnReceipt, ...burnResult } = await ammActions.burnSync(
+      config,
+      {
+        userToken: tokenAddress,
+        validatorToken: addresses.alphaUsd,
+        liquidity: lpBalanceBefore / 2n,
+        to: account.address,
+      },
+    )
+    expect(burnReceipt).toBeDefined()
+    expect(burnResult).toMatchInlineSnapshot(`
+      {
+        "amountUserToken": 49999999n,
+        "amountValidatorToken": 49999999n,
+        "liquidity": 2499999999999500n,
+        "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "userToken": "0x20c0000000000000000000000000000000000005",
+        "validatorToken": "0x20C0000000000000000000000000000000000001",
+      }
+    `)
+  })
+})
+
+describe('rebalanceSwapSync', () => {
+  test('default', async () => {
+    await connect(config, {
+      connector: config.connectors[0]!,
+    })
+
+    const client = await getConnectorClient(config)
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
+
+    const account2 = accounts[1]
+
+    // Perform rebalance swap
+    const { receipt: swapReceipt, ...swapResult } =
+      await ammActions.rebalanceSwapSync(config, {
+        userToken: tokenAddress,
+        validatorToken: addresses.alphaUsd,
+        amountOut: parseUnits('10', 6),
+        to: account2.address,
+      })
+    expect(swapReceipt).toBeDefined()
+    expect(swapResult).toMatchInlineSnapshot(`
+      {
+        "amountIn": 9985001n,
+        "amountOut": 10000000n,
+        "swapper": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "userToken": "0x20C0000000000000000000000000000000000006",
         "validatorToken": "0x20C0000000000000000000000000000000000001",
       }
     `)
