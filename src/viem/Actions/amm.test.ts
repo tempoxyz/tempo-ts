@@ -121,6 +121,14 @@ describe('burn', () => {
       },
     )
 
+    // TODO(TEMPO-1183): Remove this janky fix to get some user token in the pool
+    await Actions.token.transferSync(clientWithAccount, {
+      to: '0x30D861999070Ae03B9548501DBd573E11A9f59Ee',
+      amount: 600n,
+      token: tokenAddress,
+      feeToken: tokenAddress,
+    })
+
     // Burn half of LP tokens
     const {
       receipt: burnReceipt,
@@ -140,9 +148,9 @@ describe('burn', () => {
     expect(to).toBe(account2.address)
     expect(rest).toMatchInlineSnapshot(`
       {
-        "amountUserToken": 49999999n,
-        "amountValidatorToken": 49999999n,
-        "liquidity": 2499999999999500n,
+        "amountUserToken": 337n,
+        "amountValidatorToken": 49998664n,
+        "liquidity": 24999500n,
         "validatorToken": "0x20C0000000000000000000000000000000000001",
       }
     `)
@@ -166,9 +174,9 @@ describe('burn', () => {
     })
     expect(pool).toMatchInlineSnapshot(`
       {
-        "reserveUserToken": 50000001n,
-        "reserveValidatorToken": 50000001n,
-        "totalSupply": 2500000000000500n,
+        "reserveUserToken": 338n,
+        "reserveValidatorToken": 50000664n,
+        "totalSupply": 25000500n,
       }
     `)
   })
@@ -177,6 +185,14 @@ describe('burn', () => {
 describe('rebalanceSwap', () => {
   test('default', async () => {
     const { tokenAddress } = await setupPoolWithLiquidity(clientWithAccount)
+
+    // TODO(TEMPO-1183): Remove this janky fix to get some user token in the pool
+    await Actions.token.transferSync(clientWithAccount, {
+      to: '0x30D861999070Ae03B9548501DBd573E11A9f59Ee',
+      amount: 600n,
+      token: tokenAddress,
+      feeToken: tokenAddress,
+    })
 
     // Get balance before swap
     const balanceBefore = await Actions.token.getBalance(clientWithAccount, {
@@ -193,7 +209,7 @@ describe('rebalanceSwap', () => {
     } = await Actions.amm.rebalanceSwapSync(clientWithAccount, {
       userToken: tokenAddress,
       validatorToken: 1n,
-      amountOut: parseUnits('10', 6),
+      amountOut: 100n,
       to: account2.address,
       account: account,
     })
@@ -202,8 +218,8 @@ describe('rebalanceSwap', () => {
     expect(swapper).toBe(account.address)
     expect(swapResult).toMatchInlineSnapshot(`
       {
-        "amountIn": 9985001n,
-        "amountOut": 10000000n,
+        "amountIn": 100n,
+        "amountOut": 100n,
         "validatorToken": "0x20C0000000000000000000000000000000000001",
       }
     `)
@@ -213,13 +229,21 @@ describe('rebalanceSwap', () => {
       token: tokenAddress,
       account: account2.address,
     })
-    expect(balanceAfter).toBe(balanceBefore + parseUnits('10', 6))
+    expect(balanceAfter).toBe(balanceBefore + 100n)
   })
 })
 
 describe('watchRebalanceSwap', () => {
   test('default', async () => {
     const { tokenAddress } = await setupPoolWithLiquidity(clientWithAccount)
+
+    // TODO(TEMPO-1183): Remove this janky fix to get some user token in the pool
+    await Actions.token.transferSync(clientWithAccount, {
+      to: '0x30D861999070Ae03B9548501DBd573E11A9f59Ee',
+      amount: 600n,
+      token: tokenAddress,
+      feeToken: tokenAddress,
+    })
 
     let eventArgs: any = null
     const unwatch = Actions.amm.watchRebalanceSwap(clientWithAccount, {
@@ -232,7 +256,7 @@ describe('watchRebalanceSwap', () => {
     await Actions.amm.rebalanceSwapSync(clientWithAccount, {
       userToken: tokenAddress,
       validatorToken: 1n,
-      amountOut: parseUnits('10', 6),
+      amountOut: 100n,
       to: account2.address,
       account: account,
     })
@@ -244,7 +268,7 @@ describe('watchRebalanceSwap', () => {
     expect(eventArgs.validatorToken.toLowerCase()).toBe(
       '0x20c0000000000000000000000000000000000001',
     )
-    expect(eventArgs.amountOut).toBe(parseUnits('10', 6))
+    expect(eventArgs.amountOut).toBe(100n)
 
     unwatch()
   })
@@ -318,6 +342,14 @@ describe('watchBurn', () => {
       userToken: tokenAddress,
       validatorToken: 1n,
       address: account.address,
+    })
+
+    // TODO(TEMPO-1183): Remove this janky fix to get some user token in the pool
+    await Actions.token.transferSync(clientWithAccount, {
+      to: '0x30D861999070Ae03B9548501DBd573E11A9f59Ee',
+      amount: 600n,
+      token: tokenAddress,
+      feeToken: tokenAddress,
     })
 
     let eventArgs: any = null
