@@ -119,7 +119,7 @@ export type TransactionRequestAA<
     calls?: readonly TxAA.Call<quantity>[] | undefined
     feePayer?: Account | true | undefined
     feeToken?: Address | bigint | undefined
-    nonceKey?: quantity | undefined
+    nonceKey?: 'random' | quantity | undefined
     validBefore?: index | undefined
     validAfter?: index | undefined
   }

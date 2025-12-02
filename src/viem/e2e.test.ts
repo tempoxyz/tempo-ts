@@ -1044,12 +1044,12 @@ describe('sendTransaction', () => {
     const receipts = await Promise.all([
       client.sendTransactionSync({
         account,
-        nonceKey: 345n,
+        nonceKey: 'random',
         to: '0x0000000000000000000000000000000000000000',
       }),
       client.sendTransactionSync({
         account,
-        nonceKey: 123n,
+        nonceKey: 'random',
         to: '0x0000000000000000000000000000000000000000',
       }),
     ])

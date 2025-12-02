@@ -100,15 +100,15 @@ export function formatTransactionRequest<chain extends Chain | undefined>(
     ]
 
   const nonceKey = (() => {
-    if (typeof request.nonceKey === 'bigint') return request.nonceKey
-    if (request.feePayer === true) return Hex.toBigInt(Hex.random(6))
+    if (typeof request.nonceKey !== 'undefined') return request.nonceKey
+    if (request.feePayer === true) return 'random'
     return undefined
   })()
 
   const nonce = (() => {
     if (typeof request.nonce === 'bigint') return request.nonce
     // TODO: remove this line once `eth_fillTransaction` supports nonce keys.
-    if (typeof nonceKey === 'bigint') return 0n
+    if (typeof nonceKey !== 'undefined') return 0n
     return undefined
   })()
 
