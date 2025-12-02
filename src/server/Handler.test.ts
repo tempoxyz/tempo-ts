@@ -1005,10 +1005,12 @@ describe('feePayer', () => {
         transport: withFeePayer(http(), http(server.url)),
       })
 
-      await sendTransactionSync(client, {
+      const receipt = await sendTransactionSync(client, {
         feePayer: true,
         to: '0x0000000000000000000000000000000000000000',
       })
+
+      expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
 
       expect(
         requests.map(({ method, params }) => [method, params]),
@@ -1017,7 +1019,7 @@ describe('feePayer', () => {
           [
             "eth_signRawTransaction",
             [
-              "0x76f877820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c0869d43987ae88f8080808000c0b841beb10508837dd69f2544f3927f83629814e8008f86a76b7e344913c53ec3c228451353bd2f5ad95d547580d3a37777c313c0ae7e6c5d2aeebc9fefc8503fe31f1b9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
+              "0x76f877820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c0864fcffb2f7fdf8080808000c0b8410ff9880fd72a727b67d7d44b49e4530afa45e1f95f33a30c6b0b40cf90572a05549435ce9d74e04c283afe5e4effd68ee93e3074ad39b428fb7b3351052b39421b9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
             ],
           ],
         ]
@@ -1032,10 +1034,12 @@ describe('feePayer', () => {
         }),
       })
 
-      await sendTransactionSync(client, {
+      const receipt = await sendTransactionSync(client, {
         feePayer: true,
         to: '0x0000000000000000000000000000000000000000',
       })
+
+      expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
 
       expect(
         requests.map(({ method, params }) => [method, params]),
@@ -1044,7 +1048,7 @@ describe('feePayer', () => {
           [
             "eth_sendRawTransactionSync",
             [
-              "0x76f877820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c0861a1057de33498080808000c0b84116a41080588995d453a58b4d9d67ae6852227fedd0cc3bb9a51a5571c73dd6c5467b19c1e71a73ab176a708d21cf77c0411bc795ce408bc5afc192a2897858641c9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
+              "0x76f877820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c086b37bb56838eb8080808000c0b8419c9ea57eee1be7d7c493a069b84d3b38cc6b2740f1af40420929257cba92e7344efe24bee0f70625f778d5c0dae13719f2005f00aa92707ec3fc2fb0c63c11591b9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
             ],
           ],
         ]
@@ -1059,10 +1063,12 @@ describe('feePayer', () => {
         }),
       })
 
-      await sendTransactionSync(client, {
+      const receipt = await sendTransactionSync(client, {
         feePayer: true,
         to: '0x0000000000000000000000000000000000000000',
       })
+
+      expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
 
       expect(
         requests.map(({ method, params }) => [method, params]),
@@ -1071,7 +1077,7 @@ describe('feePayer', () => {
           [
             "eth_sendRawTransactionSync",
             [
-              "0x76f877820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c086a3b01b0a84628080808000c0b841a5b3998cce03f61ca38f4cb7d5a01027c88ce10648d2a2bbf1ceb1288834378517a879d283940a9cabd99b751fd9fb3addc286c0e2dec5b6be2611cabff9300e1b9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
+              "0x76f877820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c08660b653f6aaaa8080808000c0b841e85685b4dc119dd94d97a0b3631d356bc8d3383473a8e1accc6309274a477a531c6be77f2a49242177d0c93d6f84af9087f1a11993d8bee687b2d738a307ed871c9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
             ],
           ],
         ]
