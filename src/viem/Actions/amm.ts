@@ -456,14 +456,9 @@ export namespace rebalanceSwapSync {
  * })
  *
  * const hash = await Actions.amm.mint(client, {
- *   userToken: {
- *     address: '0x20c0...beef',
- *     amount: 100n,
- *   },
- *   validatorToken: {
- *     address: '0x20c0...babe',
- *     amount: 100n,
- *   },
+ *   userTokenAddress: '0x20c0...beef',
+ *   validatorTokenAddress: '0x20c0...babe',
+ *   validatorTokenAmount: 100n,
  *   to: '0xfeed...fede',
  * })
  * ```
@@ -491,20 +486,12 @@ export namespace mint {
   export type Args = {
     /** Address to mint LP tokens to. */
     to: Address
-    /** User token address and amount. */
-    userToken: {
-      /** Address or ID of the user token. */
-      address: TokenId.TokenIdOrAddress
-      /** Amount of user token to add. */
-      amount?: bigint | undefined
-    }
-    /** Validator token address and amount. */
-    validatorToken: {
-      /** Address or ID of the validator token. */
-      address: TokenId.TokenIdOrAddress
-      /** Amount of validator token to add. */
-      amount: bigint
-    }
+    /** User token address. */
+    userTokenAddress: TokenId.TokenIdOrAddress
+    /** Validator token address. */
+    validatorTokenAddress: TokenId.TokenIdOrAddress
+    /** Amount of validator token to add. */
+    validatorTokenAmount: bigint
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -519,8 +506,19 @@ export namespace mint {
     client: Client<Transport, chain, account>,
     parameters: mint.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { to, userToken, validatorToken, ...rest } = parameters
-    const call = mint.call({ to, userToken, validatorToken })
+    const {
+      to,
+      userTokenAddress,
+      validatorTokenAddress,
+      validatorTokenAmount,
+      ...rest
+    } = parameters
+    const call = mint.call({
+      to,
+      userTokenAddress,
+      validatorTokenAddress,
+      validatorTokenAmount,
+    })
     return (await action(client, {
       ...rest,
       ...call,
@@ -549,25 +547,15 @@ export namespace mint {
    * const { result } = await client.sendCalls({
    *   calls: [
    *     actions.amm.mint.call({
-   *       userToken: {
-   *         address: '0x20c0...beef',
-   *         amount: 100n,
-   *       },
-   *       validatorToken: {
-   *         address: '0x20c0...babe',
-   *         amount: 100n,
-   *       },
+   *       userTokenAddress: '0x20c0...beef',
+   *       validatorTokenAddress: '0x20c0...babe',
+   *       validatorTokenAmount: 100n,
    *       to: '0xfeed...fede',
    *     }),
    *     actions.amm.mint.call({
-   *       userToken: {
-   *         address: '0x20c0...babe',
-   *         amount: 100n,
-   *       },
-   *       validatorToken: {
-   *         address: '0x20c0...babe',
-   *         amount: 100n,
-   *       },
+   *       userTokenAddress: '0x20c0...babe',
+   *       validatorTokenAddress: '0x20c0...babe',
+   *       validatorTokenAmount: 100n,
    *       to: '0xfeed...fede',
    *     }),
    *   ]
@@ -578,33 +566,22 @@ export namespace mint {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { to, userToken, validatorToken } = args
-    const callArgs = (() => {
-      if (userToken.amount)
-        return {
-          functionName: 'mint',
-          args: [
-            TokenId.toAddress(userToken.address),
-            TokenId.toAddress(validatorToken.address),
-            userToken.amount,
-            validatorToken.amount,
-            to,
-          ],
-        } as const
-      return {
-        functionName: 'mintWithValidatorToken',
-        args: [
-          TokenId.toAddress(userToken.address),
-          TokenId.toAddress(validatorToken.address),
-          validatorToken.amount,
-          to,
-        ],
-      } as const
-    })()
+    const {
+      to,
+      userTokenAddress,
+      validatorTokenAddress,
+      validatorTokenAmount,
+    } = args
     return defineCall({
       address: Addresses.feeManager,
       abi: Abis.feeAmm,
-      ...callArgs,
+      functionName: 'mintWithValidatorToken',
+      args: [
+        TokenId.toAddress(userTokenAddress),
+        TokenId.toAddress(validatorTokenAddress),
+        validatorTokenAmount,
+        to,
+      ],
     })
   }
 
@@ -643,14 +620,9 @@ export namespace mint {
  * })
  *
  * const hash = await Actions.amm.mint(client, {
- *   userToken: {
- *     address: '0x20c0...beef',
- *     amount: 100n,
- *   },
- *   validatorToken: {
- *     address: '0x20c0...babe',
- *     amount: 100n,
- *   },
+ *   userTokenAddress: '0x20c0...beef',
+ *   validatorTokenAddress: '0x20c0...babe',
+ *   validatorTokenAmount: 100n,
  *   to: '0xfeed...fede',
  * })
  * ```

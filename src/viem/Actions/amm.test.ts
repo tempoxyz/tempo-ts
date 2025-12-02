@@ -66,14 +66,9 @@ describe('mint', () => {
     const { receipt: mintReceipt, ...mintResult } = await Actions.amm.mintSync(
       clientWithAccount,
       {
-        userToken: {
-          address: token,
-          amount: parseUnits('100', 6),
-        },
-        validatorToken: {
-          address: 1n,
-          amount: parseUnits('100', 6),
-        },
+        userTokenAddress: token,
+        validatorTokenAddress: 1n,
+        validatorTokenAmount: parseUnits('100', 6),
         to: account.address,
       },
     )
@@ -136,14 +131,9 @@ describe('mint', () => {
 
     // First, establish initial liquidity with two-sided mint
     await Actions.amm.mintSync(clientWithAccount, {
-      userToken: {
-        address: token,
-        amount: parseUnits('100', 6),
-      },
-      validatorToken: {
-        address: 1n,
-        amount: parseUnits('100', 6),
-      },
+      userTokenAddress: token,
+      validatorTokenAddress: 1n,
+      validatorTokenAmount: parseUnits('100', 6),
       to: account.address,
     })
 
@@ -153,34 +143,27 @@ describe('mint', () => {
       validatorToken: 1n,
     })
 
-    // Add single-sided liquidity (only validatorToken)
+    // Add more liquidity
     const { receipt: mintReceipt, ...mintResult } = await Actions.amm.mintSync(
       clientWithAccount,
       {
-        userToken: {
-          address: token,
-        },
-        validatorToken: {
-          address: 1n,
-          amount: parseUnits('50', 6),
-        },
+        userTokenAddress: token,
+        validatorTokenAddress: 1n,
+        validatorTokenAmount: parseUnits('50', 6),
         to: account.address,
       },
     )
 
     expect(mintReceipt).toBeDefined()
-    // amountUserToken should be 0 for single-sided mint
-    expect(mintResult.amountUserToken).toBe(0n)
     expect(mintResult.amountValidatorToken).toBe(parseUnits('50', 6))
     expect(mintResult.liquidity).toBeGreaterThan(0n)
 
-    // Verify pool reserves - only validatorToken should increase
+    // Verify pool reserves increased
     const poolAfter = await Actions.amm.getPool(clientWithAccount, {
       userToken: token,
       validatorToken: 1n,
     })
 
-    expect(poolAfter.reserveUserToken).toBe(poolBefore.reserveUserToken)
     expect(poolAfter.reserveValidatorToken).toBe(
       poolBefore.reserveValidatorToken + parseUnits('50', 6),
     )
@@ -371,26 +354,20 @@ describe('watchMint', () => {
 
     // Add liquidity to pool
     await Actions.amm.mintSync(clientWithAccount, {
-      userToken: {
-        address: token,
-        amount: parseUnits('100', 6),
-      },
-      validatorToken: {
-        address: 1n,
-        amount: parseUnits('100', 6),
-      },
+      userTokenAddress: token,
+      validatorTokenAddress: 1n,
+      validatorTokenAmount: parseUnits('100', 6),
       to: account.address,
     })
 
     await setTimeout(1000)
 
     expect(eventArgs).toBeDefined()
-    expect(eventArgs.userToken.address.toLowerCase()).toBe(token.toLowerCase())
-    expect(eventArgs.validatorToken.address.toLowerCase()).toBe(
+    expect(eventArgs.userToken.toLowerCase()).toBe(token.toLowerCase())
+    expect(eventArgs.validatorToken.toLowerCase()).toBe(
       '0x20c0000000000000000000000000000000000001',
     )
-    expect(eventArgs.userToken.amount).toBe(parseUnits('100', 6))
-    expect(eventArgs.validatorToken.amount).toBe(parseUnits('100', 6))
+    expect(eventArgs.amountValidatorToken).toBe(parseUnits('100', 6))
 
     unwatch()
   })

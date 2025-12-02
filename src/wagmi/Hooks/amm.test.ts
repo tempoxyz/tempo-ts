@@ -151,14 +151,9 @@ describe('useMintSync', () => {
 
     // Add liquidity to pool
     const data = await result.current.mintSync.mutateAsync({
-      userToken: {
-        address: token,
-        amount: parseUnits('100', 6),
-      },
-      validatorToken: {
-        address: addresses.alphaUsd,
-        amount: parseUnits('100', 6),
-      },
+      userTokenAddress: token,
+      validatorTokenAddress: addresses.alphaUsd,
+      validatorTokenAmount: parseUnits('100', 6),
       to: account.address,
     })
 
@@ -167,7 +162,6 @@ describe('useMintSync', () => {
     )
 
     expect(data.receipt).toBeDefined()
-    expect(data.amountUserToken).toBe(parseUnits('100', 6))
     expect(data.amountValidatorToken).toBe(parseUnits('100', 6))
   })
 })
@@ -341,26 +335,20 @@ describe('useWatchMint', () => {
 
     // Add liquidity to pool
     await connectResult.current.mintSync.mutateAsync({
-      userToken: {
-        address: token,
-        amount: parseUnits('100', 6),
-      },
-      validatorToken: {
-        address: addresses.alphaUsd,
-        amount: parseUnits('100', 6),
-      },
+      userTokenAddress: token,
+      validatorTokenAddress: addresses.alphaUsd,
+      validatorTokenAmount: parseUnits('100', 6),
       to: account.address,
     })
 
     await vi.waitUntil(() => events.length >= 1)
 
     expect(events.length).toBeGreaterThanOrEqual(1)
-    expect(events[0]?.userToken.address.toLowerCase()).toBe(token.toLowerCase())
-    expect(events[0]?.validatorToken.address.toLowerCase()).toBe(
+    expect(events[0]?.userToken.toLowerCase()).toBe(token.toLowerCase())
+    expect(events[0]?.validatorToken.toLowerCase()).toBe(
       addresses.alphaUsd.toLowerCase(),
     )
-    expect(events[0]?.userToken.amount).toBe(parseUnits('100', 6))
-    expect(events[0]?.validatorToken.amount).toBe(parseUnits('100', 6))
+    expect(events[0]?.amountValidatorToken).toBe(parseUnits('100', 6))
   })
 })
 
