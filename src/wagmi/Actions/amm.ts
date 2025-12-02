@@ -322,14 +322,9 @@ export declare namespace rebalanceSwapSync {
  * })
  *
  * const hash = await Actions.amm.mint(config, {
- *   userToken: {
- *     address: '0x20c0...beef',
- *     amount: 100n,
- *   },
- *   validatorToken: {
- *     address: '0x20c0...babe',
- *     amount: 100n,
- *   },
+ *   userTokenAddress: '0x20c0...beef',
+ *   validatorTokenAddress: '0x20c0...babe',
+ *   validatorTokenAmount: 100n,
  *   to: '0xfeed...fede',
  * })
  * ```
@@ -382,14 +377,9 @@ export declare namespace mint {
  * })
  *
  * const result = await Actions.amm.mintSync(config, {
- *   userToken: {
- *     address: '0x20c0...beef',
- *     amount: 100n,
- *   },
- *   validatorToken: {
- *     address: '0x20c0...babe',
- *     amount: 100n,
- *   },
+ *   userTokenAddress: '0x20c0...beef',
+ *   validatorTokenAddress: '0x20c0...babe',
+ *   validatorTokenAmount: 100n,
  *   to: '0xfeed...fede',
  * })
  * ```

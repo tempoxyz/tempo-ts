@@ -456,14 +456,9 @@ export namespace rebalanceSwapSync {
  * })
  *
  * const hash = await Actions.amm.mint(client, {
- *   userToken: {
- *     address: '0x20c0...beef',
- *     amount: 100n,
- *   },
- *   validatorToken: {
- *     address: '0x20c0...babe',
- *     amount: 100n,
- *   },
+ *   userTokenAddress: '0x20c0...beef',
+ *   validatorTokenAddress: '0x20c0...babe',
+ *   validatorTokenAmount: 100n,
  *   to: '0xfeed...fede',
  * })
  * ```
@@ -552,25 +547,15 @@ export namespace mint {
    * const { result } = await client.sendCalls({
    *   calls: [
    *     actions.amm.mint.call({
-   *       userToken: {
-   *         address: '0x20c0...beef',
-   *         amount: 100n,
-   *       },
-   *       validatorToken: {
-   *         address: '0x20c0...babe',
-   *         amount: 100n,
-   *       },
+   *       userTokenAddress: '0x20c0...beef',
+   *       validatorTokenAddress: '0x20c0...babe',
+   *       validatorTokenAmount: 100n,
    *       to: '0xfeed...fede',
    *     }),
    *     actions.amm.mint.call({
-   *       userToken: {
-   *         address: '0x20c0...babe',
-   *         amount: 100n,
-   *       },
-   *       validatorToken: {
-   *         address: '0x20c0...babe',
-   *         amount: 100n,
-   *       },
+   *       userTokenAddress: '0x20c0...babe',
+   *       validatorTokenAddress: '0x20c0...babe',
+   *       validatorTokenAmount: 100n,
    *       to: '0xfeed...fede',
    *     }),
    *   ]
@@ -635,14 +620,9 @@ export namespace mint {
  * })
  *
  * const hash = await Actions.amm.mint(client, {
- *   userToken: {
- *     address: '0x20c0...beef',
- *     amount: 100n,
- *   },
- *   validatorToken: {
- *     address: '0x20c0...babe',
- *     amount: 100n,
- *   },
+ *   userTokenAddress: '0x20c0...beef',
+ *   validatorTokenAddress: '0x20c0...babe',
+ *   validatorTokenAmount: 100n,
  *   to: '0xfeed...fede',
  * })
  * ```

@@ -319,14 +319,9 @@ export declare namespace useRebalanceSwapSync {
  *     <button
  *       onClick={() =>
  *         mutate({
- *           userToken: {
- *             address: '0x20c0...beef',
- *             amount: 100n,
- *           },
- *           validatorToken: {
- *             address: '0x20c0...babe',
- *             amount: 100n,
- *           },
+ *           userTokenAddress: '0x20c0...beef',
+ *           validatorTokenAddress: '0x20c0...babe',
+ *           validatorTokenAmount: 100n,
  *           to: '0xfeed...fede',
  *         })
  *       }
@@ -401,14 +396,9 @@ export declare namespace useMint {
  *     <button
  *       onClick={() =>
  *         mutate({
- *           userToken: {
- *             address: '0x20c0...beef',
- *             amount: 100n,
- *           },
- *           validatorToken: {
- *             address: '0x20c0...babe',
- *             amount: 100n,
- *           },
+ *           userTokenAddress: '0x20c0...beef',
+ *           validatorTokenAddress: '0x20c0...babe',
+ *           validatorTokenAmount: 100n,
  *           to: '0xfeed...fede',
  *         })
  *       }
