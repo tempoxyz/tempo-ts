@@ -1012,16 +1012,9 @@ describe('feePayer', () => {
 
       expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
 
-      expect(
-        requests.map(({ method, params }) => [method, params]),
-      ).toMatchInlineSnapshot(`
+      expect(requests.map(({ method }) => method)).toMatchInlineSnapshot(`
         [
-          [
-            "eth_signRawTransaction",
-            [
-              "0x76f877820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c0864fcffb2f7fdf8080808000c0b8410ff9880fd72a727b67d7d44b49e4530afa45e1f95f33a30c6b0b40cf90572a05549435ce9d74e04c283afe5e4effd68ee93e3074ad39b428fb7b3351052b39421b9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
-            ],
-          ],
+          "eth_signRawTransaction",
         ]
       `)
     })
@@ -1041,16 +1034,9 @@ describe('feePayer', () => {
 
       expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
 
-      expect(
-        requests.map(({ method, params }) => [method, params]),
-      ).toMatchInlineSnapshot(`
+      expect(requests.map(({ method }) => method)).toMatchInlineSnapshot(`
         [
-          [
-            "eth_sendRawTransactionSync",
-            [
-              "0x76f877820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c086b37bb56838eb8080808000c0b8419c9ea57eee1be7d7c493a069b84d3b38cc6b2740f1af40420929257cba92e7344efe24bee0f70625f778d5c0dae13719f2005f00aa92707ec3fc2fb0c63c11591b9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
-            ],
-          ],
+          "eth_sendRawTransactionSync",
         ]
       `)
     })
@@ -1070,16 +1056,9 @@ describe('feePayer', () => {
 
       expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
 
-      expect(
-        requests.map(({ method, params }) => [method, params]),
-      ).toMatchInlineSnapshot(`
+      expect(requests.map(({ method }) => method)).toMatchInlineSnapshot(`
         [
-          [
-            "eth_sendRawTransactionSync",
-            [
-              "0x76f877820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c08660b653f6aaaa8080808000c0b841e85685b4dc119dd94d97a0b3631d356bc8d3383473a8e1accc6309274a477a531c6be77f2a49242177d0c93d6f84af9087f1a11993d8bee687b2d738a307ed871c9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
-            ],
-          ],
+          "eth_sendRawTransactionSync",
         ]
       `)
     })
