@@ -22,6 +22,7 @@ export type TransactionRequest<
     keyData?: Hex.Hex | undefined
     keyType?: KeyType | undefined
     feeToken?: TokenId.TokenIdOrAddress | undefined
+    nonceKey?: bigintType | undefined
     validBefore?: numberType | undefined
     validAfter?: numberType | undefined
   }
@@ -97,6 +98,7 @@ export function toRpc(request: TransactionRequest): Rpc {
     request_rpc.validBefore = Hex.fromNumber(request.validBefore)
   if (typeof request.validAfter !== 'undefined')
     request_rpc.validAfter = Hex.fromNumber(request.validAfter)
+  if (request.nonceKey) request_rpc.nonceKey = Hex.fromNumber(request.nonceKey)
 
   if (
     request.calls ||

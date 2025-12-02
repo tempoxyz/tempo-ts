@@ -2,8 +2,9 @@ import * as Http from 'node:http'
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import { RpcRequest, RpcResponse, WebCryptoP256 } from 'ox'
 import { Account, Transaction } from 'tempo.ts/viem'
-import { http, parseGwei, publicActions, walletActions } from 'viem'
+import { publicActions, walletActions } from 'viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { defaultPrepareTransactionRequestParameters } from 'viem/actions'
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest'
 import { fetchOptions, rpcUrl } from '../../test/config.js'
 import {
@@ -11,6 +12,7 @@ import {
   client as client_,
   fundAddress,
   getClient,
+  http,
 } from '../../test/viem/config.js'
 import * as actions from './Actions/index.js'
 import { tempoActions } from './index.js'
@@ -45,6 +47,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceKey,
         signature,
         transactionIndex,
         ...transaction
@@ -60,6 +63,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(transaction).toMatchInlineSnapshot(`
@@ -78,7 +82,6 @@ describe('sendTransaction', () => {
           "feePayerSignature": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "maxFeePerBlobGas": undefined,
-          "nonceKey": 0n,
           "to": null,
           "type": "aa",
           "typeHex": "0x76",
@@ -120,6 +123,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceKey,
         signature,
         transactionIndex,
         ...transaction
@@ -136,6 +140,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(transaction).toMatchInlineSnapshot(`
@@ -147,7 +152,6 @@ describe('sendTransaction', () => {
           "feePayerSignature": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "maxFeePerBlobGas": undefined,
-          "nonceKey": 0n,
           "to": null,
           "type": "aa",
           "typeHex": "0x76",
@@ -184,6 +188,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceKey,
         signature,
         transactionIndex,
         ...transaction
@@ -200,6 +205,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(transaction).toMatchInlineSnapshot(`
@@ -217,7 +223,6 @@ describe('sendTransaction', () => {
           "data": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "maxFeePerBlobGas": undefined,
-          "nonceKey": 0n,
           "to": null,
           "type": "aa",
           "typeHex": "0x76",
@@ -297,6 +302,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceKey,
         signature,
         transactionIndex,
         ...transaction
@@ -314,6 +320,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(transaction).toMatchInlineSnapshot(`
@@ -332,7 +339,6 @@ describe('sendTransaction', () => {
           "feePayerSignature": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "maxFeePerBlobGas": undefined,
-          "nonceKey": 0n,
           "to": null,
           "type": "aa",
           "typeHex": "0x76",
@@ -380,6 +386,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceKey,
         signature,
         transactionIndex,
         ...transaction
@@ -398,6 +405,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(transaction).toMatchInlineSnapshot(`
@@ -409,7 +417,6 @@ describe('sendTransaction', () => {
           "feePayerSignature": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "maxFeePerBlobGas": undefined,
-          "nonceKey": 0n,
           "to": null,
           "type": "aa",
           "typeHex": "0x76",
@@ -449,6 +456,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceKey,
         signature,
         transactionIndex,
         ...transaction
@@ -465,6 +473,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(transaction).toMatchInlineSnapshot(`
@@ -482,7 +491,6 @@ describe('sendTransaction', () => {
           "data": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "maxFeePerBlobGas": undefined,
-          "nonceKey": 0n,
           "to": null,
           "type": "aa",
           "typeHex": "0x76",
@@ -578,6 +586,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceKey,
         signature,
         transactionIndex,
         ...transaction
@@ -594,6 +603,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(transaction).toMatchInlineSnapshot(`
@@ -613,7 +623,6 @@ describe('sendTransaction', () => {
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "gas": 29012n,
           "maxFeePerBlobGas": undefined,
-          "nonceKey": 0n,
           "to": null,
           "type": "aa",
           "typeHex": "0x76",
@@ -782,6 +791,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceKey,
         signature,
         transactionIndex,
         ...transaction
@@ -799,6 +809,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(transaction).toMatchInlineSnapshot(`
@@ -817,7 +828,6 @@ describe('sendTransaction', () => {
           "feePayerSignature": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "maxFeePerBlobGas": undefined,
-          "nonceKey": 0n,
           "to": null,
           "type": "aa",
           "typeHex": "0x76",
@@ -869,6 +879,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceKey,
         signature,
         transactionIndex,
         ...transaction
@@ -887,6 +898,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(transaction).toMatchInlineSnapshot(`
@@ -898,7 +910,6 @@ describe('sendTransaction', () => {
           "feePayerSignature": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "maxFeePerBlobGas": undefined,
-          "nonceKey": 0n,
           "to": null,
           "type": "aa",
           "typeHex": "0x76",
@@ -942,6 +953,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceKey,
         signature,
         transactionIndex,
         ...transaction
@@ -958,6 +970,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(transaction).toMatchInlineSnapshot(`
@@ -975,7 +988,6 @@ describe('sendTransaction', () => {
           "data": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "maxFeePerBlobGas": undefined,
-          "nonceKey": 0n,
           "to": null,
           "type": "aa",
           "typeHex": "0x76",
@@ -1022,6 +1034,30 @@ describe('sendTransaction', () => {
       }
     })
   })
+
+  test('behavior: 2d nonces', async () => {
+    const account = accounts[0]
+
+    // fund account
+    await fundAddress(client, { address: account.address })
+
+    const receipts = await Promise.all([
+      client.sendTransactionSync({
+        account,
+        nonceKey: 345n,
+        to: '0x0000000000000000000000000000000000000000',
+      }),
+      client.sendTransactionSync({
+        account,
+        nonceKey: 123n,
+        to: '0x0000000000000000000000000000000000000000',
+      }),
+    ])
+
+    expect(receipts[0].status).toBe('success')
+    expect(receipts[1].status).toBe('success')
+    expect(receipts[0].transactionHash).not.toBe(receipts[1].transactionHash)
+  })
 })
 
 describe('signTransaction', () => {
@@ -1036,6 +1072,7 @@ describe('signTransaction', () => {
       account,
       data: '0xdeadbeef',
       feePayer: true,
+      parameters: defaultPrepareTransactionRequestParameters,
       to: '0xcafebabecafebabecafebabecafebabecafebabe',
     })
     let transaction = await client.signTransaction(request as never)
@@ -1063,6 +1100,7 @@ describe('signTransaction', () => {
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
+      nonceKey,
       signature,
       transactionIndex,
       ...transaction2
@@ -1078,6 +1116,7 @@ describe('signTransaction', () => {
     expect(maxFeePerGas).toBeDefined()
     expect(maxPriorityFeePerGas).toBeDefined()
     expect(nonce).toBeDefined()
+    expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
     expect(transaction2).toMatchInlineSnapshot(`
@@ -1096,7 +1135,6 @@ describe('signTransaction', () => {
         "feeToken": "0x20c0000000000000000000000000000000000001",
         "gas": 24002n,
         "maxFeePerBlobGas": undefined,
-        "nonceKey": 0n,
         "to": null,
         "type": "aa",
         "typeHex": "0x76",
@@ -1112,11 +1150,7 @@ describe('signTransaction', () => {
 
 describe('relay', () => {
   const client = getClient({
-    transport: withFeePayer(
-      http(undefined, { fetchOptions }),
-      http('http://localhost:3050'),
-      { policy: 'sign-and-broadcast' },
-    ),
+    transport: withFeePayer(http(), http('http://localhost:3050')),
   })
     .extend(tempoActions())
     .extend(walletActions)
@@ -1213,7 +1247,6 @@ describe('relay', () => {
 
       const { receipt } = await client.fee.setUserTokenSync({
         account,
-        maxFeePerGas: parseGwei('20'),
         feePayer: true,
         token: 1n,
       })
@@ -1239,6 +1272,7 @@ describe('relay', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceKey,
         signature,
         transactionIndex,
         ...transaction
@@ -1255,6 +1289,7 @@ describe('relay', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(transaction).toMatchInlineSnapshot(`
@@ -1272,7 +1307,6 @@ describe('relay', () => {
           "data": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "maxFeePerBlobGas": undefined,
-          "nonceKey": 0n,
           "to": null,
           "type": "aa",
           "typeHex": "0x76",
@@ -1283,6 +1317,58 @@ describe('relay', () => {
           "yParity": undefined,
         }
       `)
+    })
+
+    test('behavior: 2d nonces', async () => {
+      const account = privateKeyToAccount(
+        // unfunded PK
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+
+      const receipts = await Promise.all([
+        client.sendTransactionSync({
+          account,
+          feePayer: true,
+          to: '0x0000000000000000000000000000000000000000',
+        }),
+        client.sendTransactionSync({
+          account,
+          feePayer: true,
+          to: '0x0000000000000000000000000000000000000001',
+        }),
+        client.sendTransactionSync({
+          account,
+          feePayer: true,
+          to: '0x0000000000000000000000000000000000000002',
+        }),
+      ])
+
+      expect(receipts.every((receipt) => receipt.status === 'success')).toBe(
+        true,
+      )
+    })
+
+    test('behavior: policy: sign-and-broadcast', async () => {
+      const client = getClient({
+        transport: withFeePayer(
+          http(undefined, { fetchOptions }),
+          http('http://localhost:3050'),
+          { policy: 'sign-and-broadcast' },
+        ),
+      }).extend(tempoActions())
+
+      // unfunded account that needs sponsorship
+      const account = privateKeyToAccount(
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+
+      const { receipt } = await client.fee.setUserTokenSync({
+        account,
+        feePayer: true,
+        token: 1n,
+      })
+
+      expect(receipt.status).toBe('success')
     })
   })
 
@@ -1319,6 +1405,7 @@ describe('relay', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceKey,
         signature,
         transactionIndex,
         ...transaction
@@ -1335,6 +1422,7 @@ describe('relay', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(transaction).toMatchInlineSnapshot(`
@@ -1352,7 +1440,6 @@ describe('relay', () => {
           "data": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "maxFeePerBlobGas": undefined,
-          "nonceKey": 0n,
           "to": null,
           "type": "aa",
           "typeHex": "0x76",
@@ -1430,6 +1517,7 @@ describe('relay', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceKey,
         signature,
         transactionIndex,
         ...transaction
@@ -1446,6 +1534,7 @@ describe('relay', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(transaction).toMatchInlineSnapshot(`
@@ -1463,7 +1552,6 @@ describe('relay', () => {
           "data": undefined,
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "maxFeePerBlobGas": undefined,
-          "nonceKey": 0n,
           "to": null,
           "type": "aa",
           "typeHex": "0x76",
@@ -1474,64 +1562,6 @@ describe('relay', () => {
           "yParity": undefined,
         }
       `)
-    })
-  })
-
-  describe('policy: sign-only', () => {
-    test('relay co-signs and transport auto-submits', async () => {
-      const signClient = getClient({
-        transport: withFeePayer(
-          http(undefined, { fetchOptions }),
-          http('http://localhost:3050'),
-          { policy: 'sign-only' },
-        ),
-      })
-        .extend(tempoActions())
-        .extend(walletActions)
-        .extend(publicActions)
-
-      // unfunded account that needs sponsorship
-      const account = privateKeyToAccount(
-        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
-      )
-
-      // With 'sign-only' policy, the relay co-signs and the transport auto-submits
-      const { user, token, receipt } = await signClient.fee.setUserTokenSync({
-        account,
-        feePayer: true,
-        token: 1n,
-      })
-
-      // Verify the action returned the expected values
-      expect(user).toBe(account.address)
-      expect(token).toBe('0x20C0000000000000000000000000000000000001')
-      expect(receipt).toBeDefined()
-
-      // Verify the transaction was successfully executed
-      const userToken = await signClient.fee.getUserToken({
-        account: account.address,
-      })
-      expect(userToken?.id).toBe(1n)
-
-      const {
-        feePayerSignature,
-        from,
-        gas,
-        gasPrice,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-        signature,
-      } = (await signClient.getTransaction({
-        hash: receipt.transactionHash,
-      })) as any
-
-      expect(feePayerSignature).toBeDefined()
-      expect(from).toBe(account.address.toLowerCase())
-      expect(gas).toBeDefined()
-      expect(gasPrice).toBeDefined()
-      expect(maxFeePerGas).toBeDefined()
-      expect(maxPriorityFeePerGas).toBeDefined()
-      expect(signature).toBeDefined()
     })
   })
 })

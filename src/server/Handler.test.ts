@@ -4,7 +4,6 @@ import { Hono } from 'hono'
 import type { RpcRequest } from 'ox'
 import * as Base64 from 'ox/Base64'
 import * as Hex from 'ox/Hex'
-import { http } from 'viem'
 import { sendTransaction, sendTransactionSync } from 'viem/actions'
 import {
   afterAll,
@@ -16,7 +15,7 @@ import {
   test,
 } from 'vitest'
 import { createServer, type Server } from '../../test/server/utils.js'
-import { accounts, getClient, transport } from '../../test/viem/config.js'
+import { accounts, getClient, http } from '../../test/viem/config.js'
 import { withFeePayer } from '../viem/Transport.js'
 import * as Handler from './Handler.js'
 import * as Kv from './Kv.js'
@@ -1003,7 +1002,7 @@ describe('feePayer', () => {
     test('behavior: eth_signRawTransaction', async () => {
       const client = getClient({
         account: userAccount,
-        transport: withFeePayer(transport, http(server.url)),
+        transport: withFeePayer(http(), http(server.url)),
       })
 
       await sendTransaction(client, {
@@ -1028,7 +1027,7 @@ describe('feePayer', () => {
     test('behavior: eth_sendRawTransaction', async () => {
       const client = getClient({
         account: userAccount,
-        transport: withFeePayer(transport, http(server.url), {
+        transport: withFeePayer(http(), http(server.url), {
           policy: 'sign-and-broadcast',
         }),
       })
@@ -1055,7 +1054,7 @@ describe('feePayer', () => {
     test('behavior: eth_sendRawTransactionSync', async () => {
       const client = getClient({
         account: userAccount,
-        transport: withFeePayer(transport, http(server.url), {
+        transport: withFeePayer(http(), http(server.url), {
           policy: 'sign-and-broadcast',
         }),
       })

@@ -14,9 +14,9 @@ import {
   type ClientConfig,
   createClient,
   type HttpTransportConfig,
-  http,
   parseUnits,
   type Transport,
+  http as viem_http,
 } from 'viem'
 import { english, generateMnemonic } from 'viem/accounts'
 import { sendTransactionSync } from 'viem/actions'
@@ -62,13 +62,33 @@ export const chainFn = (() => {
 })()
 export const chain = chainFn({ feeToken: 1n })
 
-export const transport = http(undefined, {
-  fetchOptions,
-  ...debugOptions({
-    enabled: import.meta.env.VITE_HTTP_LOG === 'true',
-    rpcUrl,
-  }),
-})
+export function debugOptions({
+  rpcUrl,
+}: {
+  rpcUrl: string
+}): HttpTransportConfig | undefined {
+  if (import.meta.env.VITE_HTTP_LOG !== 'true') return undefined
+  return {
+    async onFetchRequest(_, init) {
+      console.log(`curl \\
+${rpcUrl} \\
+-X POST \\
+-H "Content-Type: application/json" \\
+-d '${JSON.stringify(JSON.parse(init.body as string))}'`)
+    },
+    async onFetchResponse(response) {
+      console.log(`> ${JSON.stringify(await response.clone().json())}`)
+    },
+  }
+}
+
+export const http = (url?: string | undefined) =>
+  viem_http(url, {
+    fetchOptions,
+    ...debugOptions({
+      rpcUrl,
+    }),
+  })
 
 export function getClient<
   accountOrAddress extends Account | Address | undefined = undefined,
@@ -83,7 +103,7 @@ export function getClient<
   return createClient({
     pollingInterval: 100,
     chain,
-    transport,
+    transport: http(),
     ...parameters,
   })
 }
@@ -267,26 +287,4 @@ export async function setupOrders(
   await sendTransactionSync(client, { calls } as never)
 
   return { bases }
-}
-
-function debugOptions({
-  enabled,
-  rpcUrl,
-}: {
-  enabled: boolean
-  rpcUrl: string
-}): HttpTransportConfig | undefined {
-  if (!enabled) return undefined
-  return {
-    async onFetchRequest(_, init) {
-      console.log(`curl \\
-${rpcUrl} \\
--X POST \\
--H "Content-Type: application/json" \\
--d '${JSON.stringify(JSON.parse(init.body as string))}'`)
-    },
-    async onFetchResponse(response) {
-      console.log(`> ${JSON.stringify(await response.clone().json())}`)
-    },
-  }
 }

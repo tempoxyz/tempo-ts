@@ -99,6 +99,19 @@ export function formatTransactionRequest<chain extends Chain | undefined>(
       },
     ]
 
+  const nonceKey = (() => {
+    if (typeof request.nonceKey === 'bigint') return request.nonceKey
+    if (request.feePayer === true) return Hex.toBigInt(Hex.random(6))
+    return undefined
+  })()
+
+  const nonce = (() => {
+    if (typeof request.nonce === 'bigint') return request.nonce
+    // TODO: remove this line once `eth_fillTransaction` supports nonce keys.
+    if (typeof nonceKey === 'bigint') return 0n
+    return undefined
+  })()
+
   const rpc = ox_TransactionRequest.toRpc({
     ...request,
     authorizationList: request.authorizationList?.map((auth) => ({
@@ -108,11 +121,12 @@ export function formatTransactionRequest<chain extends Chain | undefined>(
       s: BigInt(auth.s!),
       yParity: Number(auth.yParity),
     })),
-    nonce: request.nonce ? BigInt(request.nonce) : undefined,
+    nonce,
+    nonceKey,
     type: 'aa',
   } as never)
 
-  if (action === 'estimateGas' || action === 'fillTransaction') {
+  if (action === 'estimateGas') {
     rpc.maxFeePerGas = undefined
     rpc.maxPriorityFeePerGas = undefined
   }

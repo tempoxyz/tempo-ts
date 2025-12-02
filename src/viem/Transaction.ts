@@ -119,6 +119,9 @@ export type TransactionRequestAA<
     calls?: readonly TxAA.Call<quantity>[] | undefined
     feePayer?: Account | true | undefined
     feeToken?: Address | bigint | undefined
+    nonceKey?: quantity | undefined
+    validBefore?: index | undefined
+    validAfter?: index | undefined
   }
 
 export type TransactionSerializable = OneOf<
@@ -159,6 +162,7 @@ export function getType(
     typeof transaction.calls !== 'undefined' ||
     typeof transaction.feePayer !== 'undefined' ||
     typeof transaction.feeToken !== 'undefined' ||
+    typeof transaction.nonceKey !== 'undefined' ||
     typeof transaction.signature !== 'undefined' ||
     typeof transaction.validBefore !== 'undefined' ||
     typeof transaction.validAfter !== 'undefined'
