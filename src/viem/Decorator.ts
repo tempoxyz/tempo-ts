@@ -304,9 +304,7 @@ export type Decorator<
      * @param parameters - Parameters.
      * @returns A function to unsubscribe from the event.
      */
-    watchBurn: (
-      parameters: ammActions.watchBurn.Parameters
-    ) => () => void
+    watchBurn: (parameters: ammActions.watchBurn.Parameters) => () => void
     /**
      * Watches for fee swap events.
      *
@@ -331,9 +329,7 @@ export type Decorator<
      * @param parameters - Parameters.
      * @returns A function to unsubscribe from the event.
      */
-    watchFeeSwap: (
-      parameters: ammActions.watchFeeSwap.Parameters
-    ) => () => void
+    watchFeeSwap: (parameters: ammActions.watchFeeSwap.Parameters) => () => void
     /**
      * Watches for liquidity mint events.
      *

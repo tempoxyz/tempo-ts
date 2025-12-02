@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.7.6
+
+### Patch Changes
+
+- [#96](https://github.com/tempoxyz/tempo-ts/pull/96) [`02c4885`](https://github.com/tempoxyz/tempo-ts/commit/02c48851cb11d664fc974157c31c2cb6fb478542) Thanks [@gorried](https://github.com/gorried)! - Adds FeeAMM decorators for burn, rebalanceSwap, and associated watch events
+
 ## 0.7.5
 
 ### Patch Changes
