@@ -1350,11 +1350,9 @@ describe('relay', () => {
 
     test('behavior: policy: sign-and-broadcast', async () => {
       const client = getClient({
-        transport: withFeePayer(
-          http(undefined, { fetchOptions }),
-          http('http://localhost:3050'),
-          { policy: 'sign-and-broadcast' },
-        ),
+        transport: withFeePayer(http(), http('http://localhost:3050'), {
+          policy: 'sign-and-broadcast',
+        }),
       }).extend(tempoActions())
 
       // unfunded account that needs sponsorship
