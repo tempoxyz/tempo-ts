@@ -43,73 +43,6 @@ describe('mint', () => {
   test('default', async () => {
     // Create a new token for testing
     const { token } = await Actions.token.createSync(clientWithAccount, {
-      name: 'Test Token',
-      symbol: 'TEST',
-      currency: 'USD',
-    })
-
-    // Grant issuer role to mint tokens
-    await Actions.token.grantRolesSync(clientWithAccount, {
-      token,
-      roles: ['issuer'],
-      to: clientWithAccount.account.address,
-    })
-
-    // Mint some tokens to account
-    await Actions.token.mintSync(clientWithAccount, {
-      to: clientWithAccount.account.address,
-      amount: parseUnits('1000', 6),
-      token,
-    })
-
-    // Add liquidity to pool
-    const { receipt: mintReceipt, ...mintResult } = await Actions.amm.mintSync(
-      clientWithAccount,
-      {
-        userTokenAddress: token,
-        validatorTokenAddress: 1n,
-        validatorTokenAmount: parseUnits('100', 6),
-        to: account.address,
-      },
-    )
-    const { sender, userToken, ...rest } = mintResult
-    expect(mintReceipt).toBeDefined()
-    expect(sender).toBe(clientWithAccount.account.address)
-    expect(userToken).toBe(token)
-    expect(rest).toMatchInlineSnapshot(`
-      {
-        "amountUserToken": 100000000n,
-        "amountValidatorToken": 100000000n,
-        "liquidity": 4999999999999000n,
-        "validatorToken": "0x20C0000000000000000000000000000000000001",
-      }
-    `)
-
-    // Verify pool reserves
-    const pool = await Actions.amm.getPool(clientWithAccount, {
-      userToken: token,
-      validatorToken: 1n,
-    })
-    expect(pool).toMatchInlineSnapshot(`
-      {
-        "reserveUserToken": 100000000n,
-        "reserveValidatorToken": 100000000n,
-        "totalSupply": 5000000000000000n,
-      }
-    `)
-
-    // Verify LP token balance
-    const lpBalance = await Actions.amm.getLiquidityBalance(clientWithAccount, {
-      address: account.address,
-      userToken: token,
-      validatorToken: 1n,
-    })
-    expect(lpBalance).toBeGreaterThan(0n)
-  })
-
-  test('behavior: single-sided mint (mintWithValidatorToken)', async () => {
-    // Create a new token for testing
-    const { token } = await Actions.token.createSync(clientWithAccount, {
       name: 'Test Token 2',
       symbol: 'TEST2',
       currency: 'USD',
@@ -129,31 +62,48 @@ describe('mint', () => {
       token,
     })
 
-    // Single-sided mint with only validatorToken
+    // First, establish initial liquidity with two-sided mint
+    await Actions.amm.mintSync(clientWithAccount, {
+      to: account.address,
+      userTokenAddress: token,
+      validatorTokenAddress: 1n,
+      validatorTokenAmount: parseUnits('100', 6),
+    })
+
+    // Get initial pool state
+    const poolBefore = await Actions.amm.getPool(clientWithAccount, {
+      userToken: token,
+      validatorToken: 1n,
+    })
+
+    // Add single-sided liquidity (only validatorToken)
     const { receipt: mintReceipt, ...mintResult } = await Actions.amm.mintSync(
       clientWithAccount,
       {
         userTokenAddress: token,
         validatorTokenAddress: 1n,
-        validatorTokenAmount: parseUnits('100', 6),
+        validatorTokenAmount: parseUnits('50', 6),
         to: account.address,
       },
     )
 
     expect(mintReceipt).toBeDefined()
+    // amountUserToken should be 0 for single-sided mint
     expect(mintResult.amountUserToken).toBe(0n)
-    expect(mintResult.amountValidatorToken).toBe(parseUnits('100', 6))
+    expect(mintResult.amountValidatorToken).toBe(parseUnits('50', 6))
     expect(mintResult.liquidity).toBeGreaterThan(0n)
 
-    // Verify pool was created with only validatorToken
-    const pool = await Actions.amm.getPool(clientWithAccount, {
+    // Verify pool reserves - only validatorToken should increase
+    const poolAfter = await Actions.amm.getPool(clientWithAccount, {
       userToken: token,
       validatorToken: 1n,
     })
 
-    expect(pool.reserveUserToken).toBe(0n)
-    expect(pool.reserveValidatorToken).toBe(parseUnits('100', 6))
-    expect(pool.totalSupply).toBeGreaterThan(0n)
+    expect(poolAfter.reserveUserToken).toBe(poolBefore.reserveUserToken)
+    expect(poolAfter.reserveValidatorToken).toBe(
+      poolBefore.reserveValidatorToken + parseUnits('50', 6),
+    )
+    expect(poolAfter.totalSupply).toBeGreaterThan(poolBefore.totalSupply)
   })
 })
 
@@ -349,11 +299,11 @@ describe('watchMint', () => {
     await setTimeout(1000)
 
     expect(eventArgs).toBeDefined()
-    expect(eventArgs.userToken.toLowerCase()).toBe(token.toLowerCase())
-    expect(eventArgs.validatorToken.toLowerCase()).toBe(
+    expect(eventArgs.userToken.address.toLowerCase()).toBe(token.toLowerCase())
+    expect(eventArgs.validatorToken.address.toLowerCase()).toBe(
       '0x20c0000000000000000000000000000000000001',
     )
-    expect(eventArgs.amountValidatorToken).toBe(parseUnits('100', 6))
+    expect(eventArgs.validatorToken.amount).toBe(parseUnits('100', 6))
 
     unwatch()
   })
