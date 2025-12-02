@@ -4,7 +4,7 @@ import { Hono } from 'hono'
 import type { RpcRequest } from 'ox'
 import * as Base64 from 'ox/Base64'
 import * as Hex from 'ox/Hex'
-import { sendTransaction, sendTransactionSync } from 'viem/actions'
+import { sendTransactionSync } from 'viem/actions'
 import {
   afterAll,
   afterEach,
@@ -1005,7 +1005,7 @@ describe('feePayer', () => {
         transport: withFeePayer(http(), http(server.url)),
       })
 
-      await sendTransaction(client, {
+      await sendTransactionSync(client, {
         feePayer: true,
         to: '0x0000000000000000000000000000000000000000',
       })
@@ -1017,7 +1017,7 @@ describe('feePayer', () => {
           [
             "eth_signRawTransaction",
             [
-              "0x76f871820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c0808080808000c0b841b907983eed3ef10ace951150a92d4281dc4879db229ec52da8dc1a85370f41255d414cc614dd25feab2b3c741006f6049c50bceb1f1f73cf2c574a956bd62b031c9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
+              "0x76f877820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c0869d43987ae88f8080808000c0b841beb10508837dd69f2544f3927f83629814e8008f86a76b7e344913c53ec3c228451353bd2f5ad95d547580d3a37777c313c0ae7e6c5d2aeebc9fefc8503fe31f1b9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
             ],
           ],
         ]
@@ -1032,7 +1032,7 @@ describe('feePayer', () => {
         }),
       })
 
-      await sendTransaction(client, {
+      await sendTransactionSync(client, {
         feePayer: true,
         to: '0x0000000000000000000000000000000000000000',
       })
@@ -1042,9 +1042,9 @@ describe('feePayer', () => {
       ).toMatchInlineSnapshot(`
         [
           [
-            "eth_sendRawTransaction",
+            "eth_sendRawTransactionSync",
             [
-              "0x76f871820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c0800180808000c0b841c5a62964b827e6d9b703beec996c496dec13afda19776b9aedce1125d75cf3220815c2d6466a8100d56e8a5e91e6fb15600143effc7cfb2d5f6f48352361cd711c9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
+              "0x76f877820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c0861a1057de33498080808000c0b84116a41080588995d453a58b4d9d67ae6852227fedd0cc3bb9a51a5571c73dd6c5467b19c1e71a73ab176a708d21cf77c0411bc795ce408bc5afc192a2897858641c9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
             ],
           ],
         ]
@@ -1071,7 +1071,7 @@ describe('feePayer', () => {
           [
             "eth_sendRawTransactionSync",
             [
-              "0x76f871820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c0800280808000c0b841f1b96061f66f044829e4237e881924e7d2efcff378df03212451831af5aedbe6262a8f2001ee0ffc4dab7211bc324c42298da463e01ce05402f5c16f884a608b1c9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
+              "0x76f877820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c086a3b01b0a84628080808000c0b841a5b3998cce03f61ca38f4cb7d5a01027c88ce10648d2a2bbf1ceb1288834378517a879d283940a9cabd99b751fd9fb3addc286c0e2dec5b6be2611cabff9300e1b9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
             ],
           ],
         ]

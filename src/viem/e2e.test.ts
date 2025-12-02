@@ -6,7 +6,7 @@ import { publicActions, walletActions } from 'viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { defaultPrepareTransactionRequestParameters } from 'viem/actions'
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest'
-import { fetchOptions, rpcUrl } from '../../test/config.js'
+import { rpcUrl } from '../../test/config.js'
 import {
   accounts,
   client as client_,
