@@ -1,25 +1,28 @@
 import { QueryClient } from '@tanstack/react-query'
-import { tempoAndantino, tempoLocal } from 'tempo.ts/chains'
+import { tempoDevnet, tempoLocal, tempoTestnet } from 'tempo.ts/chains'
 import { dangerous_secp256k1, KeyManager, webAuthn } from 'tempo.ts/wagmi'
 import { createConfig, http } from 'wagmi'
+
+const chain = (() => {
+  if (import.meta.env.VITE_NODE_ENV === 'localnet') return tempoLocal
+  if (import.meta.env.VITE_NODE_ENV === 'devnet') return tempoDevnet
+  return tempoTestnet
+})()
 
 export const config = createConfig({
   batch: {
     multicall: false,
   },
-  chains: [
-    import.meta.env.VITE_LOCAL !== 'true'
-      ? tempoAndantino({ feeToken: 1n })
-      : tempoLocal({ feeToken: 1n }),
-  ],
+  chains: [chain({ feeToken: 1n })],
   connectors: [
     webAuthn({
+      grantAccessKey: true,
       keyManager: KeyManager.localStorage(),
     }),
     dangerous_secp256k1(),
   ],
   transports: {
-    [tempoAndantino.id]: http(undefined, {
+    [chain.id]: http(undefined, {
       batch: true,
       fetchOptions: {
         headers: {
@@ -27,10 +30,7 @@ export const config = createConfig({
         },
       },
     }),
-    [tempoLocal.id]: http(undefined, {
-      batch: true,
-    }),
-  },
+  } as never,
 })
 
 export const queryClient = new QueryClient()

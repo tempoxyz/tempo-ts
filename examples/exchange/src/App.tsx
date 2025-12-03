@@ -9,7 +9,7 @@ import {
   useSendCallsSync,
   useWatchBlockNumber,
 } from 'wagmi'
-import { alphaUsd, betaUsd, linkingUsd } from './wagmi.config'
+import { alphaUsd, betaUsd, pathUsd } from './wagmi.config'
 
 export function App() {
   const account = useAccount()
@@ -48,7 +48,7 @@ export function Connect() {
     <div>
       <button
         onClick={() =>
-          connect.connect({ connector, capabilities: { createAccount: true } })
+          connect.connect({ connector, capabilities: { type: 'sign-up' } })
         }
         type="button"
       >
@@ -151,7 +151,7 @@ export function PlaceOrder() {
               Actions.token.approve.call({
                 spender: Addresses.stablecoinExchange,
                 amount,
-                token: linkingUsd,
+                token: pathUsd,
               }),
               Actions.dex.place.call({
                 amount,

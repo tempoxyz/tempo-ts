@@ -6,6 +6,7 @@ import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
 import * as ox_Transaction from 'ox/Transaction'
 import type { Compute, OneOf, UnionCompute } from '../internal/types.js'
+import * as KeyAuthorization from './KeyAuthorization.js'
 import * as SignatureEnvelope from './SignatureEnvelope.js'
 import type { Call } from './TransactionEnvelopeAA.js'
 
@@ -69,6 +70,10 @@ export type AA<
     feeToken: Address.Address
     /** Effective gas price paid by the sender in wei. */
     gasPrice?: bigintType | undefined
+    /** Key authorization for provisioning a new access key. */
+    keyAuthorization?:
+      | KeyAuthorization.KeyAuthorization<true, bigintType, numberType>
+      | undefined
     /** Total fee per gas in wei (gasPrice/baseFeePerGas + maxPriorityFeePerGas). */
     maxFeePerGas: bigintType
     /** Max priority fee per gas (in wei). */
@@ -90,7 +95,7 @@ export type AA<
 export type AARpc<pending extends boolean = false> = Compute<
   Omit<
     AA<pending, Hex.Hex, Hex.Hex, ToRpcType['aa']>,
-    'calls' | 'signature'
+    'calls' | 'keyAuthorization' | 'signature'
   > & {
     calls:
       | readonly {
@@ -99,6 +104,7 @@ export type AARpc<pending extends boolean = false> = Compute<
           value?: Hex.Hex | undefined
         }[]
       | undefined
+    keyAuthorization?: KeyAuthorization.Rpc | undefined
     signature: SignatureEnvelope.SignatureEnvelopeRpc
   }
 >
@@ -200,6 +206,10 @@ export function fromRpc<
     transaction_.validAfter = Number(transaction.validAfter)
   if (transaction.validBefore)
     transaction_.validBefore = Number(transaction.validBefore)
+  if (transaction.keyAuthorization)
+    transaction_.keyAuthorization = KeyAuthorization.fromRpc(
+      transaction.keyAuthorization,
+    )
   if (transaction.feePayerSignature) {
     transaction_.feePayerSignature = Signature.fromRpc(
       transaction.feePayerSignature,
@@ -282,6 +292,8 @@ export function toRpc<pending extends boolean = false>(
       data: call.data,
     }))
   if (transaction.feeToken) rpc.feeToken = transaction.feeToken
+  if (transaction.keyAuthorization)
+    rpc.keyAuthorization = KeyAuthorization.toRpc(transaction.keyAuthorization)
   if (transaction.feePayerSignature) {
     rpc.feePayerSignature = Signature.toRpc(
       transaction.feePayerSignature,

@@ -117,7 +117,7 @@ function Connect() {
                   connect.connect({
                     connector,
                     capabilities: {
-                      createAccount: { label: 'Tempo.ts Playground' },
+                      type: 'sign-up',
                     },
                   })
                 }}
@@ -182,7 +182,7 @@ function Balance() {
       if (!account.address) throw new Error('account.address not found')
       if (!client) throw new Error('client not found')
 
-      if (import.meta.env.VITE_LOCAL !== 'true') {
+      if (import.meta.env.VITE_NODE_ENV !== 'localnet') {
         await client.request<any>({
           method: 'tempo_fundAddress',
           params: [account.address],

@@ -66,6 +66,11 @@ export default defineConfig({
           ],
           name: 'viem',
           root: './src/viem',
+          environment: 'node',
+          include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)', '**/*.test-d.ts'],
+          typecheck: {
+            enabled: true,
+          },
           sequence: { groupOrder: 3 },
           setupFiles: [join(import.meta.dirname, './test/viem/setup.ts')],
         },

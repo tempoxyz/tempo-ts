@@ -51,7 +51,7 @@ export function Connect() {
         onClick={() =>
           connect.connect({
             connector: webAuthnConnector!,
-            capabilities: { createAccount: true },
+            capabilities: { type: 'sign-up' },
           })
         }
         type="button"

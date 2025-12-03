@@ -12,6 +12,7 @@ import { parseAccount } from 'viem/accounts'
 import type { UnionOmit } from '../internal/types.js'
 import * as ox_Transaction from '../ox/Transaction.js'
 import * as ox_TransactionRequest from '../ox/TransactionRequest.js'
+import type { Account } from './Account.js'
 import type { GetFeeTokenParameter } from './internal/types.js'
 import {
   isTempo,
@@ -77,6 +78,7 @@ export function formatTransactionRequest<chain extends Chain | undefined>(
   action?: string | undefined,
 ): TransactionRequestRpc {
   const request = r as Request<chain>
+  const account = request.account as Account | undefined
 
   // Convert EIP-1559 transactions to AA transactions.
   if (request.type === 'eip1559') (request as any).type = 'aa'
@@ -91,7 +93,7 @@ export function formatTransactionRequest<chain extends Chain | undefined>(
   if (action)
     request.calls = request.calls ?? [
       {
-        to: r.to || undefined,
+        to: r.to || '0x0000000000000000000000000000000000000000',
         value: r.value,
         data: r.data,
       },
@@ -106,11 +108,10 @@ export function formatTransactionRequest<chain extends Chain | undefined>(
       s: BigInt(auth.s!),
       yParity: Number(auth.yParity),
     })),
-    nonce: request.nonce ? BigInt(request.nonce) : undefined,
     type: 'aa',
   } as never)
 
-  if (action === 'estimateGas' || action === 'fillTransaction') {
+  if (action === 'estimateGas') {
     rpc.maxFeePerGas = undefined
     rpc.maxPriorityFeePerGas = undefined
   }
@@ -140,12 +141,12 @@ export function formatTransactionRequest<chain extends Chain | undefined>(
   }
 
   const [keyType, keyData] = (() => {
-    if (!r.account?.source) return [undefined, undefined]
-    if (r.account.source === 'webAuthn')
+    const type = account?.keyType || account?.source
+    if (!type) return [undefined, undefined]
+    if (type === 'webAuthn')
       // TODO: derive correct bytes size of key data based on webauthn create metadata.
       return ['webAuthn', `0x${'ff'.repeat(1400)}`]
-    if (['p256', 'secp256k1'].includes(r.account.source))
-      return [r.account.source, undefined]
+    if (['p256', 'secp256k1'].includes(type)) return [type, undefined]
     return [undefined, undefined]
   })()
 

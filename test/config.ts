@@ -1,4 +1,4 @@
-import { tempoAndantino, tempoDev, tempoLocal } from '../src/chains.js'
+import { tempoDevnet, tempoLocal, tempoTestnet } from '../src/chains.js'
 
 export const addresses = {
   alphaUsd: '0x20c0000000000000000000000000000000000001',
@@ -12,8 +12,8 @@ export const id =
 
 export const nodeEnv = import.meta.env.VITE_NODE_ENV || 'localnet'
 export const chainId = (() => {
-  if (nodeEnv === 'testnet') return tempoAndantino.id
-  if (nodeEnv === 'devnet') return tempoDev.id
+  if (nodeEnv === 'testnet') return tempoTestnet.id
+  if (nodeEnv === 'devnet') return tempoDevnet.id
   return tempoLocal.id
 })()
 
@@ -25,7 +25,7 @@ export const fetchOptions = {
 
 export const rpcUrl = (() => {
   const env = import.meta.env.VITE_NODE_ENV
-  if (env === 'testnet') return tempoAndantino({}).rpcUrls.default.http[0]
-  if (env === 'devnet') return tempoDev({}).rpcUrls.default.http[0]
+  if (env === 'testnet') return tempoTestnet({}).rpcUrls.default.http[0]
+  if (env === 'devnet') return tempoDevnet({}).rpcUrls.default.http[0]
   return `http://localhost:${import.meta.env.RPC_PORT ?? '8545'}/${id}`
 })()

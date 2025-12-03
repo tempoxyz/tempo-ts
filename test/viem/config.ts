@@ -1,5 +1,12 @@
 import type { FixedArray } from '@wagmi/core/internal'
-import { Actions, Addresses, Chain, Tick } from 'tempo.ts/viem'
+import * as Mnemonic from 'ox/Mnemonic'
+import {
+  Actions,
+  Addresses,
+  Chain,
+  Tick,
+  Account as tempo_Account,
+} from 'tempo.ts/viem'
 import {
   type Account,
   type Address,
@@ -7,14 +14,13 @@ import {
   type ClientConfig,
   createClient,
   type HttpTransportConfig,
-  http,
-  type LocalAccount,
   parseUnits,
   type Transport,
+  http as viem_http,
 } from 'viem'
-import { english, generateMnemonic, mnemonicToAccount } from 'viem/accounts'
+import { english, generateMnemonic } from 'viem/accounts'
 import { sendTransactionSync } from 'viem/actions'
-import { tempoAndantino, tempoDev } from '../../src/chains.js'
+import { tempoDevnet, tempoTestnet } from '../../src/chains.js'
 import type { TokenIdOrAddress } from '../../src/ox/TokenId.js'
 import { transferSync } from '../../src/viem/Actions/token.js'
 import { addresses, fetchOptions, nodeEnv, rpcUrl } from '../config.js'
@@ -25,11 +31,13 @@ const accountsMnemonic = (() => {
   return generateMnemonic(english)
 })()
 
-export const accounts = Array.from({ length: 20 }, (_, i) =>
-  mnemonicToAccount(accountsMnemonic, {
-    accountIndex: i,
-  }),
-) as unknown as FixedArray<LocalAccount, 20>
+export const accounts = Array.from({ length: 20 }, (_, i) => {
+  const privateKey = Mnemonic.toPrivateKey(accountsMnemonic, {
+    as: 'Hex',
+    path: Mnemonic.path({ account: i }),
+  })
+  return tempo_Account.fromSecp256k1(privateKey)
+}) as unknown as FixedArray<tempo_Account.RootAccount, 20>
 
 export const tempoTest = Chain.define({
   id: 1337,
@@ -48,19 +56,39 @@ export const tempoTest = Chain.define({
 
 export const chainFn = (() => {
   const env = import.meta.env.VITE_NODE_ENV
-  if (env === 'testnet') return tempoAndantino
-  if (env === 'devnet') return tempoDev
+  if (env === 'testnet') return tempoTestnet
+  if (env === 'devnet') return tempoDevnet
   return tempoTest
 })()
 export const chain = chainFn({ feeToken: 1n })
 
-export const transport = http(undefined, {
-  fetchOptions,
-  ...debugOptions({
-    enabled: import.meta.env.VITE_HTTP_LOG === 'true',
-    rpcUrl,
-  }),
-})
+export function debugOptions({
+  rpcUrl,
+}: {
+  rpcUrl: string
+}): HttpTransportConfig | undefined {
+  if (import.meta.env.VITE_HTTP_LOG !== 'true') return undefined
+  return {
+    async onFetchRequest(_, init) {
+      console.log(`curl \\
+${rpcUrl} \\
+-X POST \\
+-H "Content-Type: application/json" \\
+-d '${JSON.stringify(JSON.parse(init.body as string))}'`)
+    },
+    async onFetchResponse(response) {
+      console.log(`> ${JSON.stringify(await response.clone().json())}`)
+    },
+  }
+}
+
+export const http = (url?: string | undefined) =>
+  viem_http(url, {
+    fetchOptions,
+    ...debugOptions({
+      rpcUrl,
+    }),
+  })
 
 export function getClient<
   accountOrAddress extends Account | Address | undefined = undefined,
@@ -75,7 +103,7 @@ export function getClient<
   return createClient({
     pollingInterval: 100,
     chain,
-    transport,
+    transport: http(),
     ...parameters,
   })
 }
@@ -259,26 +287,4 @@ export async function setupOrders(
   await sendTransactionSync(client, { calls } as never)
 
   return { bases }
-}
-
-function debugOptions({
-  enabled,
-  rpcUrl,
-}: {
-  enabled: boolean
-  rpcUrl: string
-}): HttpTransportConfig | undefined {
-  if (!enabled) return undefined
-  return {
-    async onFetchRequest(_, init) {
-      console.log(`curl \\
-${rpcUrl} \\
--X POST \\
--H "Content-Type: application/json" \\
--d '${JSON.stringify(JSON.parse(init.body as string))}'`)
-    },
-    async onFetchResponse(response) {
-      console.log(`> ${JSON.stringify(await response.clone().json())}`)
-    },
-  }
 }

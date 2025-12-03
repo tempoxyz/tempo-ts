@@ -29,6 +29,7 @@ import {
   type TransactionType as viem_TransactionType,
 } from 'viem'
 import type { ExactPartial, OneOf, PartialBy } from '../internal/types.js'
+import type * as KeyAuthorization from '../ox/KeyAuthorization.js'
 import * as SignatureEnvelope from '../ox/SignatureEnvelope.js'
 import * as TxAA from '../ox/TransactionEnvelopeAA.js'
 import type * as ox_TransactionReceipt from '../ox/TransactionReceipt.js'
@@ -43,7 +44,11 @@ export type Transaction<
 >
 export type TransactionRpc<pending extends boolean = false> = OneOf<
   | viem_RpcTransaction<pending>
-  | (Omit<TransactionAA<Hex.Hex, Hex.Hex, pending, '0x76'>, 'signature'> & {
+  | (Omit<
+      TransactionAA<Hex.Hex, Hex.Hex, pending, '0x76'>,
+      'keyAuthorization' | 'signature'
+    > & {
+      keyAuthorization?: KeyAuthorization.Rpc | null | undefined
       signature: SignatureEnvelope.SignatureEnvelopeRpc
     })
 >
@@ -66,6 +71,7 @@ export type TransactionAA<
   chainId: index
   feeToken?: Address | undefined
   feePayerSignature?: viem_Signature | undefined
+  keyAuthorization?: KeyAuthorization.Signed<quantity, index> | null | undefined
   nonceKey?: quantity | undefined
   signature: SignatureEnvelope.SignatureEnvelope
   type: type
@@ -109,9 +115,13 @@ export type TransactionRequestAA<
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
     authorizationList?: AuthorizationList<index, boolean> | undefined
+    keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     calls?: readonly TxAA.Call<quantity>[] | undefined
     feePayer?: Account | true | undefined
     feeToken?: Address | bigint | undefined
+    nonceKey?: 'random' | quantity | undefined
+    validBefore?: index | undefined
+    validAfter?: index | undefined
   }
 
 export type TransactionSerializable = OneOf<
@@ -129,6 +139,7 @@ export type TransactionSerializableAA<
     chainId: number
     feeToken?: Address | bigint | undefined
     feePayerSignature?: viem_Signature | null | undefined
+    keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     nonceKey?: quantity | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
     validBefore?: index | undefined
@@ -151,6 +162,7 @@ export function getType(
     typeof transaction.calls !== 'undefined' ||
     typeof transaction.feePayer !== 'undefined' ||
     typeof transaction.feeToken !== 'undefined' ||
+    typeof transaction.nonceKey !== 'undefined' ||
     typeof transaction.signature !== 'undefined' ||
     typeof transaction.validBefore !== 'undefined' ||
     typeof transaction.validAfter !== 'undefined'
@@ -303,7 +315,7 @@ async function serializeAA(
       ? rest.calls
       : [
           {
-            to: rest.to || undefined,
+            to: rest.to || '0x0000000000000000000000000000000000000000',
             value: rest.value,
             data: rest.data,
           },

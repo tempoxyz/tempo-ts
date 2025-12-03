@@ -4,8 +4,7 @@ import { Hono } from 'hono'
 import type { RpcRequest } from 'ox'
 import * as Base64 from 'ox/Base64'
 import * as Hex from 'ox/Hex'
-import { http } from 'viem'
-import { sendTransaction, sendTransactionSync } from 'viem/actions'
+import { sendTransactionSync } from 'viem/actions'
 import {
   afterAll,
   afterEach,
@@ -16,7 +15,7 @@ import {
   test,
 } from 'vitest'
 import { createServer, type Server } from '../../test/server/utils.js'
-import { accounts, getClient, transport } from '../../test/viem/config.js'
+import { accounts, getClient, http } from '../../test/viem/config.js'
 import { withFeePayer } from '../viem/Transport.js'
 import * as Handler from './Handler.js'
 import * as Kv from './Kv.js'
@@ -1003,24 +1002,19 @@ describe('feePayer', () => {
     test('behavior: eth_signRawTransaction', async () => {
       const client = getClient({
         account: userAccount,
-        transport: withFeePayer(transport, http(server.url)),
+        transport: withFeePayer(http(), http(server.url)),
       })
 
-      await sendTransaction(client, {
+      const receipt = await sendTransactionSync(client, {
         feePayer: true,
         to: '0x0000000000000000000000000000000000000000',
       })
 
-      expect(
-        requests.map(({ method, params }) => [method, params]),
-      ).toMatchInlineSnapshot(`
+      expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+
+      expect(requests.map(({ method }) => method)).toMatchInlineSnapshot(`
         [
-          [
-            "eth_signRawTransaction",
-            [
-              "0x76f871820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c0808080808000c0b841b907983eed3ef10ace951150a92d4281dc4879db229ec52da8dc1a85370f41255d414cc614dd25feab2b3c741006f6049c50bceb1f1f73cf2c574a956bd62b031c9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
-            ],
-          ],
+          "eth_signRawTransaction",
         ]
       `)
     })
@@ -1028,26 +1022,21 @@ describe('feePayer', () => {
     test('behavior: eth_sendRawTransaction', async () => {
       const client = getClient({
         account: userAccount,
-        transport: withFeePayer(transport, http(server.url), {
+        transport: withFeePayer(http(), http(server.url), {
           policy: 'sign-and-broadcast',
         }),
       })
 
-      await sendTransaction(client, {
+      const receipt = await sendTransactionSync(client, {
         feePayer: true,
         to: '0x0000000000000000000000000000000000000000',
       })
 
-      expect(
-        requests.map(({ method, params }) => [method, params]),
-      ).toMatchInlineSnapshot(`
+      expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+
+      expect(requests.map(({ method }) => method)).toMatchInlineSnapshot(`
         [
-          [
-            "eth_sendRawTransaction",
-            [
-              "0x76f871820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c0800180808000c0b841c5a62964b827e6d9b703beec996c496dec13afda19776b9aedce1125d75cf3220815c2d6466a8100d56e8a5e91e6fb15600143effc7cfb2d5f6f48352361cd711c9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
-            ],
-          ],
+          "eth_sendRawTransactionSync",
         ]
       `)
     })
@@ -1055,26 +1044,21 @@ describe('feePayer', () => {
     test('behavior: eth_sendRawTransactionSync', async () => {
       const client = getClient({
         account: userAccount,
-        transport: withFeePayer(transport, http(server.url), {
+        transport: withFeePayer(http(), http(server.url), {
           policy: 'sign-and-broadcast',
         }),
       })
 
-      await sendTransactionSync(client, {
+      const receipt = await sendTransactionSync(client, {
         feePayer: true,
         to: '0x0000000000000000000000000000000000000000',
       })
 
-      expect(
-        requests.map(({ method, params }) => [method, params]),
-      ).toMatchInlineSnapshot(`
+      expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+
+      expect(requests.map(({ method }) => method)).toMatchInlineSnapshot(`
         [
-          [
-            "eth_sendRawTransactionSync",
-            [
-              "0x76f871820539808502cb417800825d82d8d79400000000000000000000000000000000000000008080c0800280808000c0b841f1b96061f66f044829e4237e881924e7d2efcff378df03212451831af5aedbe6262a8f2001ee0ffc4dab7211bc324c42298da463e01ce05402f5c16f884a608b1c9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64afeefeefeefee",
-            ],
-          ],
+          "eth_sendRawTransactionSync",
         ]
       `)
     })

@@ -14,6 +14,7 @@ import type {
   PartialBy,
   UnionPartialBy,
 } from '../internal/types.js'
+import * as KeyAuthorization from './KeyAuthorization.js'
 import * as SignatureEnvelope from './SignatureEnvelope.js'
 import * as TokenId from './TokenId.js'
 
@@ -57,6 +58,16 @@ export type TransactionEnvelopeAA<
       | undefined
     /** Fee token preference. Address or ID of the TIP-20 token. */
     feeToken?: TokenId.TokenIdOrAddress | undefined
+    /**
+     * Key authorization for provisioning a new access key.
+     *
+     * When present, this transaction will add the specified key to the AccountKeychain precompile,
+     * before verifying the transaction signature.
+     * The authorization must be signed with the root key, the tx can be signed by the Keychain signature.
+     */
+    keyAuthorization?:
+      | KeyAuthorization.Signed<bigintType, numberType>
+      | undefined
     /** Total fee per gas in wei (gasPrice/baseFeePerGas + maxPriorityFeePerGas). */
     maxFeePerGas?: bigintType | undefined
     /** Max priority fee per gas (in wei). */
@@ -216,10 +227,24 @@ export function deserialize(
     feeToken,
     feePayerSignatureOrSender,
     _authorizationList, // TODO: add
-    signature,
+    keyAuthorizationOrSignature,
+    maybeSignature,
   ] = transactionArray as readonly Hex.Hex[]
 
-  if (!(transactionArray.length === 13 || transactionArray.length === 14))
+  const keyAuthorization = Array.isArray(keyAuthorizationOrSignature)
+    ? keyAuthorizationOrSignature
+    : undefined
+  const signature = keyAuthorization
+    ? maybeSignature
+    : keyAuthorizationOrSignature
+
+  if (
+    !(
+      transactionArray.length === 13 ||
+      transactionArray.length === 14 ||
+      transactionArray.length === 15
+    )
+  )
     throw new TransactionEnvelope.InvalidSerializedError({
       attributes: {
         chainId,
@@ -228,6 +253,7 @@ export function deserialize(
         gas,
         calls,
         accessList,
+        keyAuthorization,
         nonceKey,
         nonce,
         validBefore,
@@ -295,6 +321,11 @@ export function deserialize(
         feePayerSignatureOrSender as never,
       )
   }
+
+  if (keyAuthorization)
+    transaction.keyAuthorization = KeyAuthorization.fromTuple(
+      keyAuthorization as never,
+    )
 
   const signatureEnvelope = signature
     ? SignatureEnvelope.deserialize(signature)
@@ -516,6 +547,7 @@ export function serialize(
     chainId,
     feeToken,
     gas,
+    keyAuthorization,
     nonce,
     nonceKey,
     maxFeePerGas,
@@ -562,7 +594,8 @@ export function serialize(
       ? TokenId.toAddress(feeToken)
       : '0x',
     feePayerSignatureOrSender,
-    [], // TODO: authlist
+    [], // TODO: authList
+    ...(keyAuthorization ? [KeyAuthorization.toTuple(keyAuthorization)] : []),
     ...(signature
       ? [SignatureEnvelope.serialize(SignatureEnvelope.from(signature))]
       : []),

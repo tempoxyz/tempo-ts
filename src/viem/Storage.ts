@@ -1,6 +1,8 @@
+import { createStore, del, get, set } from 'idb-keyval'
 import * as Json from 'ox/Json'
 
 import type { MaybePromise } from '../internal/types.js'
+import { normalizeValue } from './internal/utils.js'
 
 export type Storage<
   schema extends Record<string, unknown> = Record<string, unknown>,
@@ -31,6 +33,26 @@ export namespace from {
   export type Options = {
     key?: string | undefined
   }
+}
+
+export function idb<schema extends Record<string, unknown>>() {
+  const store =
+    typeof indexedDB !== 'undefined'
+      ? createStore('tempo.ts', 'store')
+      : undefined
+  return from<schema>({
+    async getItem(name) {
+      const value = await get(name, store)
+      if (value === null) return null
+      return value
+    },
+    async removeItem(name) {
+      await del(name, store)
+    },
+    async setItem(name, value) {
+      await set(name, normalizeValue(value), store)
+    },
+  })
 }
 
 export function localStorage<schema extends Record<string, unknown>>(

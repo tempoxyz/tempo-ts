@@ -7,10 +7,10 @@ import {
   WebCryptoP256,
 } from 'ox'
 import { getTransactionCount } from 'viem/actions'
-import { expect, test } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
 import { chainId } from '../../test/config.js'
 import { client, fundAddress } from '../../test/viem/config.js'
-import { SignatureEnvelope } from './index.js'
+import { KeyAuthorization, SignatureEnvelope } from './index.js'
 import * as Transaction from './Transaction.js'
 import * as TransactionEnvelopeAA from './TransactionEnvelopeAA.js'
 import * as TransactionReceipt from './TransactionReceipt.js'
@@ -75,7 +75,6 @@ test('behavior: default (secp256k1)', async () => {
       hash,
       feeToken: _,
       from,
-      // @ts-expect-error
       keyAuthorization: __,
       nonce,
       maxFeePerGas,
@@ -215,7 +214,6 @@ test('behavior: default (p256)', async () => {
       chainId,
       feeToken: _,
       from,
-      // @ts-expect-error
       keyAuthorization: __,
       hash,
       nonce,
@@ -501,7 +499,6 @@ test('behavior: default (webauthn)', async () => {
       chainId,
       feeToken: _,
       from,
-      // @ts-expect-error
       keyAuthorization: __,
       hash,
       nonce,
@@ -702,4 +699,614 @@ test('behavior: feePayerSignature (user → feePayer)', async () => {
 
   expect(feeToken).toBe('0x20c0000000000000000000000000000000000001')
   expect(from).toBe(senderAddress)
+})
+
+describe('behavior: keyAuthorization', () => {
+  const privateKey = Secp256k1.randomPrivateKey()
+  const address = Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }))
+  const root = {
+    address,
+    privateKey,
+  } as const
+
+  beforeEach(async () => {
+    await fundAddress(client, {
+      address,
+    })
+  })
+
+  test('behavior: secp256k1 access key', async () => {
+    const privateKey =
+      '0x06a952d58c24d287245276dd8b4272d82a921d27d90874a6c27a3bc19ff4bfde'
+    const publicKey = Secp256k1.getPublicKey({ privateKey })
+    const address = Address.fromPublicKey(publicKey)
+    const access = {
+      address,
+      publicKey,
+      privateKey,
+    } as const
+
+    const keyAuth = KeyAuthorization.from({
+      address: access.address,
+      type: 'secp256k1',
+    })
+
+    const keyAuth_signature = Secp256k1.sign({
+      payload: KeyAuthorization.getSignPayload(keyAuth),
+      privateKey: root.privateKey,
+    })
+
+    const keyAuth_signed = KeyAuthorization.from(keyAuth, {
+      signature: SignatureEnvelope.from(keyAuth_signature),
+    })
+
+    const nonce = await getTransactionCount(client, {
+      address: root.address,
+      blockTag: 'pending',
+    })
+
+    const transaction = TransactionEnvelopeAA.from({
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+        },
+      ],
+      chainId,
+      feeToken: '0x20c0000000000000000000000000000000000001',
+      keyAuthorization: keyAuth_signed,
+      nonce: BigInt(nonce),
+      gas: 100_000n,
+      maxFeePerGas: Value.fromGwei('20'),
+      maxPriorityFeePerGas: Value.fromGwei('10'),
+    })
+
+    const signature = Secp256k1.sign({
+      payload: TransactionEnvelopeAA.getSignPayload(transaction),
+      privateKey: access.privateKey,
+    })
+
+    const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
+      signature: SignatureEnvelope.from({
+        userAddress: root.address,
+        inner: SignatureEnvelope.from(signature),
+        type: 'keychain',
+      }),
+    })
+
+    const receipt = (await client
+      .request({
+        method: 'eth_sendRawTransactionSync',
+        params: [serialized_signed],
+      })
+      .then((tx) => TransactionReceipt.fromRpc(tx as any)))!
+
+    {
+      const response = await client
+        .request({
+          method: 'eth_getTransactionByHash',
+          params: [receipt.transactionHash],
+        })
+        .then((tx) => Transaction.fromRpc(tx as any))
+      if (!response) throw new Error()
+
+      const {
+        blockNumber,
+        blockHash,
+        chainId: _,
+        gasPrice,
+        hash,
+        from,
+        keyAuthorization,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        nonce,
+        signature,
+        transactionIndex,
+        ...rest
+      } = response
+
+      expect(blockNumber).toBeDefined()
+      expect(blockHash).toBeDefined()
+      expect(gasPrice).toBeDefined()
+      expect(maxFeePerGas).toBeDefined()
+      expect(maxPriorityFeePerGas).toBeDefined()
+      expect(nonce).toBeDefined()
+      expect(from).toBe(root.address)
+      expect(hash).toBe(receipt.transactionHash)
+      expect(keyAuthorization).toBeDefined()
+      expect(signature).toBeDefined()
+      expect(transactionIndex).toBeDefined()
+      expect(rest).toMatchInlineSnapshot(`
+        {
+          "aaAuthorizationList": [],
+          "accessList": [],
+          "calls": [
+            {
+              "data": "0x",
+              "to": "0x0000000000000000000000000000000000000000",
+              "value": 0n,
+            },
+          ],
+          "data": undefined,
+          "feePayerSignature": null,
+          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "gas": 100000n,
+          "nonceKey": 0n,
+          "type": "aa",
+          "validAfter": null,
+          "validBefore": null,
+          "value": 0n,
+        }
+      `)
+    }
+
+    const {
+      blockNumber,
+      blockHash,
+      feePayer,
+      feeToken,
+      from,
+      logs,
+      logsBloom,
+      transactionHash,
+      transactionIndex,
+      ...rest
+    } = receipt
+
+    expect(blockNumber).toBeDefined()
+    expect(blockHash).toBeDefined()
+    expect(feeToken).toBeDefined()
+    expect(feePayer).toBeDefined()
+    expect(from).toBeDefined()
+    expect(logs).toBeDefined()
+    expect(logsBloom).toBeDefined()
+    expect(transactionHash).toBe(receipt.transactionHash)
+    expect(transactionIndex).toBeDefined()
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "blobGasPrice": undefined,
+        "blobGasUsed": undefined,
+        "contractAddress": null,
+        "cumulativeGasUsed": 23600n,
+        "effectiveGasPrice": 20000000000n,
+        "gasUsed": 23600n,
+        "status": "success",
+        "to": "0x0000000000000000000000000000000000000000",
+        "type": "0x76",
+      }
+    `)
+
+    // Test a subsequent tx signed by access key with no keyAuthorization
+    {
+      const nonce = await getTransactionCount(client, {
+        address: root.address,
+        blockTag: 'pending',
+      })
+
+      const transaction = TransactionEnvelopeAA.from({
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+        chainId,
+        feeToken: '0x20c0000000000000000000000000000000000001',
+        nonce: BigInt(nonce),
+        gas: 100_000n,
+        maxFeePerGas: Value.fromGwei('20'),
+        maxPriorityFeePerGas: Value.fromGwei('10'),
+      })
+
+      const signature = Secp256k1.sign({
+        payload: TransactionEnvelopeAA.getSignPayload(transaction),
+        privateKey: access.privateKey,
+      })
+
+      const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
+        signature: SignatureEnvelope.from({
+          userAddress: root.address,
+          inner: SignatureEnvelope.from(signature),
+          type: 'keychain',
+        }),
+      })
+
+      const receipt = await client.request({
+        method: 'eth_sendRawTransactionSync',
+        params: [serialized_signed],
+      })
+
+      expect(receipt).toBeDefined()
+    }
+  })
+
+  test('behavior: p256 access key', async () => {
+    const privateKey =
+      '0x06a952d58c24d287245276dd8b4272d82a921d27d90874a6c27a3bc19ff4bfde'
+    const publicKey = P256.getPublicKey({ privateKey })
+    const address = Address.fromPublicKey(publicKey)
+    const access = {
+      address,
+      publicKey,
+      privateKey,
+    } as const
+
+    const keyAuth = KeyAuthorization.from({
+      address: access.address,
+      type: 'p256',
+    })
+
+    const keyAuth_signature = Secp256k1.sign({
+      payload: KeyAuthorization.getSignPayload(keyAuth),
+      privateKey: root.privateKey,
+    })
+
+    const keyAuth_signed = KeyAuthorization.from(keyAuth, {
+      signature: SignatureEnvelope.from(keyAuth_signature),
+    })
+
+    const nonce = await getTransactionCount(client, {
+      address: root.address,
+      blockTag: 'pending',
+    })
+
+    const transaction = TransactionEnvelopeAA.from({
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+        },
+      ],
+      chainId,
+      feeToken: '0x20c0000000000000000000000000000000000001',
+      keyAuthorization: keyAuth_signed,
+      nonce: BigInt(nonce),
+      gas: 100_000n,
+      maxFeePerGas: Value.fromGwei('20'),
+      maxPriorityFeePerGas: Value.fromGwei('10'),
+    })
+
+    const signature = P256.sign({
+      payload: TransactionEnvelopeAA.getSignPayload(transaction),
+      privateKey: access.privateKey,
+    })
+
+    const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
+      signature: SignatureEnvelope.from({
+        userAddress: root.address,
+        inner: SignatureEnvelope.from({
+          prehash: false,
+          publicKey: access.publicKey,
+          signature,
+          type: 'p256',
+        }),
+        type: 'keychain',
+      }),
+    })
+
+    const receipt = (await client
+      .request({
+        method: 'eth_sendRawTransactionSync',
+        params: [serialized_signed],
+      })
+      .then((tx) => TransactionReceipt.fromRpc(tx as any)))!
+    expect(receipt).toBeDefined()
+
+    {
+      const response = await client
+        .request({
+          method: 'eth_getTransactionByHash',
+          params: [receipt.transactionHash],
+        })
+        .then((tx) => Transaction.fromRpc(tx as any))
+      if (!response) throw new Error()
+
+      const {
+        blockNumber,
+        blockHash,
+        chainId: _,
+        gasPrice,
+        hash,
+        from,
+        keyAuthorization,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        nonce,
+        signature,
+        transactionIndex,
+        ...rest
+      } = response
+
+      expect(blockNumber).toBeDefined()
+      expect(blockHash).toBeDefined()
+      expect(gasPrice).toBeDefined()
+      expect(hash).toBe(receipt.transactionHash)
+      expect(from).toBe(root.address)
+      expect(keyAuthorization).toBeDefined()
+      expect(maxFeePerGas).toBeDefined()
+      expect(maxPriorityFeePerGas).toBeDefined()
+      expect(nonce).toBeDefined()
+      expect(signature).toBeDefined()
+      expect(transactionIndex).toBeDefined()
+      expect(rest).toMatchInlineSnapshot(`
+        {
+          "aaAuthorizationList": [],
+          "accessList": [],
+          "calls": [
+            {
+              "data": "0x",
+              "to": "0x0000000000000000000000000000000000000000",
+              "value": 0n,
+            },
+          ],
+          "data": undefined,
+          "feePayerSignature": null,
+          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "gas": 100000n,
+          "nonceKey": 0n,
+          "type": "aa",
+          "validAfter": null,
+          "validBefore": null,
+          "value": 0n,
+        }
+      `)
+    }
+
+    const {
+      blockNumber,
+      blockHash,
+      feePayer,
+      feeToken,
+      from,
+      logs,
+      logsBloom,
+      transactionHash,
+      transactionIndex,
+      ...rest
+    } = receipt
+
+    expect(blockNumber).toBeDefined()
+    expect(blockHash).toBeDefined()
+    expect(feePayer).toBeDefined()
+    expect(feeToken).toBeDefined()
+    expect(from).toBeDefined()
+    expect(logs).toBeDefined()
+    expect(logsBloom).toBeDefined()
+    expect(transactionHash).toBe(receipt.transactionHash)
+    expect(transactionIndex).toBeDefined()
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "blobGasPrice": undefined,
+        "blobGasUsed": undefined,
+        "contractAddress": null,
+        "cumulativeGasUsed": 28600n,
+        "effectiveGasPrice": 20000000000n,
+        "gasUsed": 28600n,
+        "status": "success",
+        "to": "0x0000000000000000000000000000000000000000",
+        "type": "0x76",
+      }
+    `)
+
+    // Test a subsequent tx signed by access key with no keyAuthorization
+    {
+      const nonce = await getTransactionCount(client, {
+        address: root.address,
+        blockTag: 'pending',
+      })
+
+      const transaction = TransactionEnvelopeAA.from({
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+        chainId,
+        feeToken: '0x20c0000000000000000000000000000000000001',
+        nonce: BigInt(nonce),
+        gas: 100_000n,
+        maxFeePerGas: Value.fromGwei('20'),
+        maxPriorityFeePerGas: Value.fromGwei('10'),
+      })
+
+      const signature = P256.sign({
+        payload: TransactionEnvelopeAA.getSignPayload(transaction),
+        privateKey: access.privateKey,
+      })
+
+      const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
+        signature: SignatureEnvelope.from({
+          userAddress: root.address,
+          inner: SignatureEnvelope.from({
+            prehash: false,
+            publicKey: access.publicKey,
+            signature,
+            type: 'p256',
+          }),
+          type: 'keychain',
+        }),
+      })
+
+      const receipt = await client.request({
+        method: 'eth_sendRawTransactionSync',
+        params: [serialized_signed],
+      })
+
+      expect(receipt).toBeDefined()
+    }
+  })
+
+  test('behavior: webcrypto access key', async () => {
+    const keyPair = await WebCryptoP256.createKeyPair()
+    const address = Address.fromPublicKey(keyPair.publicKey)
+    const access = {
+      address,
+      publicKey: keyPair.publicKey,
+      privateKey: keyPair.privateKey,
+    } as const
+
+    const keyAuth = KeyAuthorization.from({
+      address: access.address,
+      type: 'p256',
+    })
+
+    const keyAuth_signature = Secp256k1.sign({
+      payload: KeyAuthorization.getSignPayload(keyAuth),
+      privateKey: root.privateKey,
+    })
+
+    const keyAuth_signed = KeyAuthorization.from(keyAuth, {
+      signature: SignatureEnvelope.from(keyAuth_signature),
+    })
+
+    const nonce = await getTransactionCount(client, {
+      address: root.address,
+      blockTag: 'pending',
+    })
+
+    const transaction = TransactionEnvelopeAA.from({
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+        },
+      ],
+      chainId,
+      feeToken: '0x20c0000000000000000000000000000000000001',
+      keyAuthorization: keyAuth_signed,
+      nonce: BigInt(nonce),
+      gas: 100_000n,
+      maxFeePerGas: Value.fromGwei('20'),
+      maxPriorityFeePerGas: Value.fromGwei('10'),
+    })
+
+    const signature = await WebCryptoP256.sign({
+      payload: TransactionEnvelopeAA.getSignPayload(transaction),
+      privateKey: keyPair.privateKey,
+    })
+
+    const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
+      signature: SignatureEnvelope.from({
+        userAddress: root.address,
+        inner: SignatureEnvelope.from({
+          prehash: true,
+          publicKey: access.publicKey,
+          signature,
+          type: 'p256',
+        }),
+        type: 'keychain',
+      }),
+    })
+
+    const receipt = await client.request({
+      method: 'eth_sendRawTransactionSync',
+      params: [serialized_signed],
+    })
+
+    expect(receipt).toBeDefined()
+
+    {
+      const response = await client
+        .request({
+          method: 'eth_getTransactionByHash',
+          params: [receipt.transactionHash],
+        })
+        .then((tx) => Transaction.fromRpc(tx as any))
+      if (!response) throw new Error()
+
+      const {
+        blockNumber,
+        blockHash,
+        chainId: _,
+        gasPrice,
+        hash,
+        from,
+        keyAuthorization,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        nonce,
+        signature,
+        transactionIndex,
+        ...rest
+      } = response
+
+      expect(blockNumber).toBeDefined()
+      expect(blockHash).toBeDefined()
+      expect(gasPrice).toBeDefined()
+      expect(hash).toBe(receipt.transactionHash)
+      expect(from).toBe(root.address)
+      expect(keyAuthorization).toBeDefined()
+      expect(maxFeePerGas).toBeDefined()
+      expect(maxPriorityFeePerGas).toBeDefined()
+      expect(nonce).toBeDefined()
+      expect(signature).toBeDefined()
+      expect(transactionIndex).toBeDefined()
+      expect(rest).toMatchInlineSnapshot(`
+        {
+          "aaAuthorizationList": [],
+          "accessList": [],
+          "calls": [
+            {
+              "data": "0x",
+              "to": "0x0000000000000000000000000000000000000000",
+              "value": 0n,
+            },
+          ],
+          "data": undefined,
+          "feePayerSignature": null,
+          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "gas": 100000n,
+          "nonceKey": 0n,
+          "type": "aa",
+          "validAfter": null,
+          "validBefore": null,
+          "value": 0n,
+        }
+      `)
+    }
+
+    // Test a subsequent tx signed by access key with no keyAuthorization
+    {
+      const nonce = await getTransactionCount(client, {
+        address: root.address,
+        blockTag: 'pending',
+      })
+
+      const transaction = TransactionEnvelopeAA.from({
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+        chainId,
+        feeToken: '0x20c0000000000000000000000000000000000001',
+        nonce: BigInt(nonce),
+        gas: 100_000n,
+        maxFeePerGas: Value.fromGwei('20'),
+        maxPriorityFeePerGas: Value.fromGwei('10'),
+      })
+
+      const signature = await WebCryptoP256.sign({
+        payload: TransactionEnvelopeAA.getSignPayload(transaction),
+        privateKey: keyPair.privateKey,
+      })
+
+      const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
+        signature: SignatureEnvelope.from({
+          userAddress: root.address,
+          inner: SignatureEnvelope.from({
+            prehash: true,
+            publicKey: access.publicKey,
+            signature,
+            type: 'p256',
+          }),
+          type: 'keychain',
+        }),
+      })
+
+      const receipt = await client.request({
+        method: 'eth_sendRawTransactionSync',
+        params: [serialized_signed],
+      })
+
+      expect(receipt).toBeDefined()
+    }
+  })
 })

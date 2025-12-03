@@ -1,20 +1,7 @@
 import * as Chain from './viem/Chain.js'
 
-export const tempoAndantino = /*#__PURE__*/ Chain.define({
+export const tempoDevnet = /*#__PURE__*/ Chain.define({
   id: 42429,
-  name: 'Tempo Andantino',
-  nativeCurrency: {
-    name: 'USD',
-    symbol: 'USD',
-    decimals: 6,
-  },
-  rpcUrls: {
-    default: { http: ['https://rpc.testnet.tempo.xyz'] },
-  },
-})
-
-export const tempoDev = /*#__PURE__*/ Chain.define({
-  id: 42427,
   name: 'Tempo Devnet',
   nativeCurrency: {
     name: 'USD',
@@ -23,7 +10,7 @@ export const tempoDev = /*#__PURE__*/ Chain.define({
   },
   rpcUrls: {
     default: {
-      http: ['https://devnet.tempoxyz.dev'],
+      http: ['https://rpc.devnet.tempo.xyz'],
     },
   },
 })
@@ -41,5 +28,17 @@ export const tempoLocal = /*#__PURE__*/ Chain.define({
   },
 })
 
-export const tempo = /*#__PURE__*/ tempoAndantino
-export const tempoTestnet = /*#__PURE__*/ tempoAndantino
+export const tempoTestnet = /*#__PURE__*/ Chain.define({
+  id: 42429,
+  name: 'Tempo Testnet',
+  nativeCurrency: {
+    name: 'USD',
+    symbol: 'USD',
+    decimals: 6,
+  },
+  rpcUrls: {
+    default: { http: ['https://rpc.testnet.tempo.xyz'] },
+  },
+})
+
+export const tempo = /*#__PURE__*/ tempoTestnet

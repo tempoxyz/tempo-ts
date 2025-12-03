@@ -9,7 +9,7 @@ export default defineConfig({
     {
       name: 'tempo-node',
       async configureServer(_server) {
-        if (process.env.VITE_LOCAL !== 'true') return
+        if (process.env.VITE_NODE_ENV !== 'localnet') return
 
         const instance = Instance.tempo({
           dev: { blockTime: '500ms' },

@@ -22,7 +22,7 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
   const {
     builder,
     containerName = `tempo.${crypto.randomUUID()}`,
-    chain = path.resolve(import.meta.dirname, './internal/chain.json'),
+    chain = path.resolve(import.meta.dirname, './chain.json'),
     image = 'ghcr.io/tempoxyz/tempo',
     dev,
     log: log_,

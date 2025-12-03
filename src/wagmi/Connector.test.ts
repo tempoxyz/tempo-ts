@@ -40,10 +40,10 @@ test('connect', async (context) => {
   expect(result.current.useAccount.status).toEqual('disconnected')
 
   result.current.useConnect.connect({
+    capabilities: { type: 'sign-up', label: 'Test Account' },
     connector: webAuthn({
       keyManager: KeyManager.localStorage(),
     }),
-    capabilities: { createAccount: { label: 'Test Account' } },
   })
 
   await vi.waitFor(() =>

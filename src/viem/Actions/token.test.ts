@@ -349,7 +349,7 @@ describe('getMetadata', () => {
         "name": "Test USD",
         "paused": false,
         "quoteToken": "0x20C0000000000000000000000000000000000000",
-        "supplyCap": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
+        "supplyCap": 340282366920938463463374607431768211455n,
         "symbol": "TUSD",
         "totalSupply": 0n,
         "transferPolicyId": 1n,
@@ -360,15 +360,15 @@ describe('getMetadata', () => {
   test('behavior: quote token', async () => {
     {
       const metadata = await actions.token.getMetadata(clientWithAccount, {
-        token: TokenIds.linkingUsd,
+        token: TokenIds.pathUsd,
       })
 
       expect(metadata).toMatchInlineSnapshot(`
         {
           "currency": "USD",
           "decimals": 6,
-          "name": "linkingUSD",
-          "symbol": "linkingUSD",
+          "name": "pathUSD",
+          "symbol": "pathUSD",
           "totalSupply": 18446744073709551615n,
         }
       `)
@@ -376,15 +376,15 @@ describe('getMetadata', () => {
 
     {
       const metadata = await actions.token.getMetadata(clientWithAccount, {
-        token: Addresses.linkingUsd,
+        token: Addresses.pathUsd,
       })
 
       expect(metadata).toMatchInlineSnapshot(`
         {
           "currency": "USD",
           "decimals": 6,
-          "name": "linkingUSD",
-          "symbol": "linkingUSD",
+          "name": "pathUSD",
+          "symbol": "pathUSD",
           "totalSupply": 18446744073709551615n,
         }
       `)
@@ -409,7 +409,7 @@ describe('getMetadata', () => {
         "name": "Test USD",
         "paused": false,
         "quoteToken": "0x20C0000000000000000000000000000000000000",
-        "supplyCap": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
+        "supplyCap": 340282366920938463463374607431768211455n,
         "symbol": "TUSD",
         "totalSupply": 0n,
         "transferPolicyId": 1n,
