@@ -1592,6 +1592,60 @@ export type Decorator<
   }
   reward: {
     /**
+     * Claims accumulated rewards for a recipient.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.reward.claim({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    claim: (
+      parameters: rewardActions.claim.Parameters<chain, account>,
+    ) => Promise<rewardActions.claim.ReturnValue>
+    /**
+     * Claims accumulated rewards for a recipient and waits for confirmation.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const result = await client.reward.claimSync({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The amount claimed and transaction receipt.
+     */
+    claimSync: (
+      parameters: rewardActions.claimSync.Parameters<chain, account>,
+    ) => Promise<rewardActions.claimSync.ReturnValue>
+    /**
      * Gets the total reward per second rate for all active streams.
      *
      * @example
@@ -1616,6 +1670,32 @@ export type Decorator<
     getTotalPerSecond: (
       parameters: rewardActions.getTotalPerSecond.Parameters,
     ) => Promise<rewardActions.getTotalPerSecond.ReturnValue>
+    /**
+     * Gets the reward information for a specific account.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
+     *
+     * const client = createClient({
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const info = await client.reward.getUserRewardInfo({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     *   account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The user's reward information (recipient, rewardPerToken, rewardBalance).
+     */
+    getUserRewardInfo: (
+      parameters: rewardActions.getUserRewardInfo.Parameters,
+    ) => Promise<rewardActions.getUserRewardInfo.ReturnValue>
     /**
      * Sets or changes the reward recipient for a token holder.
      *
@@ -2986,8 +3066,12 @@ export function decorator() {
           policyActions.watchBlacklistUpdated(client, parameters),
       },
       reward: {
+        claim: (parameters) => rewardActions.claim(client, parameters),
+        claimSync: (parameters) => rewardActions.claimSync(client, parameters),
         getTotalPerSecond: (parameters) =>
           rewardActions.getTotalPerSecond(client, parameters),
+        getUserRewardInfo: (parameters) =>
+          rewardActions.getUserRewardInfo(client, parameters),
         setRecipient: (parameters) =>
           rewardActions.setRecipient(client, parameters),
         setRecipientSync: (parameters) =>
