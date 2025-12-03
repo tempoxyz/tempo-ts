@@ -35,7 +35,7 @@ jobs:
       matrix:
         tag: 
           - latest
-          # - https://rpc.testnet.tempo.xyz
+          - https://rpc.testnet.tempo.xyz
 
     steps:
       - name: Clone repository
@@ -83,7 +83,7 @@ jobs:
       matrix:
         node-env: 
           - devnet
-          # - testnet
+          - testnet
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
