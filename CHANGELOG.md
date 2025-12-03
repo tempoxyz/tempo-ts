@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.8.1
+
+### Patch Changes
+
+- [#100](https://github.com/tempoxyz/tempo-ts/pull/100) [`6df2c1a`](https://github.com/tempoxyz/tempo-ts/commit/6df2c1a34f6c8e40eebf0fa0392a21d527bccf58) Thanks [@gorried](https://github.com/gorried)! - Added `getUserRewardInfo` actions & hooks.
+
 ## 0.8.0
 
 ### Minor Changes
