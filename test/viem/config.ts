@@ -20,7 +20,7 @@ import {
 } from 'viem'
 import { english, generateMnemonic } from 'viem/accounts'
 import { sendTransactionSync } from 'viem/actions'
-import { tempoAndantino, tempoDev } from '../../src/chains.js'
+import { tempoDevnet, tempoTestnet } from '../../src/chains.js'
 import type { TokenIdOrAddress } from '../../src/ox/TokenId.js'
 import { transferSync } from '../../src/viem/Actions/token.js'
 import { addresses, fetchOptions, nodeEnv, rpcUrl } from '../config.js'
@@ -56,8 +56,8 @@ export const tempoTest = Chain.define({
 
 export const chainFn = (() => {
   const env = import.meta.env.VITE_NODE_ENV
-  if (env === 'testnet') return tempoAndantino
-  if (env === 'devnet') return tempoDev
+  if (env === 'testnet') return tempoTestnet
+  if (env === 'devnet') return tempoDevnet
   return tempoTest
 })()
 export const chain = chainFn({ feeToken: 1n })
