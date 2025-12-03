@@ -160,6 +160,51 @@ describe('getUserRewardInfo', () => {
     expect(info.rewardPerToken).toBe(0n)
     expect(info.rewardBalance).toBe(0n)
   })
+
+  test('behavior: with active rewards after distribution', async () => {
+    const { token } = await setupToken(clientWithAccount)
+
+    // Opt in to rewards
+    await actions.reward.setRecipientSync(clientWithAccount, {
+      recipient: account.address,
+      token,
+    })
+
+    // Mint reward tokens
+    const rewardAmount = parseUnits('100', 6)
+    await actions.token.mintSync(clientWithAccount, {
+      amount: rewardAmount,
+      to: account.address,
+      token,
+    })
+
+    // Start immediate reward to distribute rewards
+    await actions.reward.startSync(clientWithAccount, {
+      amount: rewardAmount,
+      token,
+    })
+
+    // Trigger reward accrual by transferring
+    await actions.token.transferSync(clientWithAccount, {
+      amount: 1n,
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+      token,
+    })
+
+    // Check reward info shows accumulated rewards
+    const info = await actions.reward.getUserRewardInfo(clientWithAccount, {
+      token,
+      account: account.address,
+    })
+
+    expect(info.rewardRecipient).toBe(account.address)
+    expect(info.rewardPerToken).toBeGreaterThan(0n)
+    expect(info.rewardBalance).toBeGreaterThan(0n)
+    // Should have approximately the full reward amount (minus the 1 token transferred)
+    expect(info.rewardBalance).toBeGreaterThanOrEqual(
+      rewardAmount - parseUnits('1', 6),
+    )
+  })
 })
 
 describe('setRecipientSync', () => {
