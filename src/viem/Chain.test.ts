@@ -1,10 +1,10 @@
-import { describe, expect, test, vi } from 'vitest'
-import { chain, client, clientWithAccount } from '../../test/viem/config.js'
 import {
   getTransaction,
   prepareTransactionRequest,
   sendTransactionSync,
 } from 'viem/actions'
+import { describe, expect, test, vi } from 'vitest'
+import { chain, client, clientWithAccount } from '../../test/viem/config.js'
 
 describe('chain.prepareTransactionRequest', () => {
   test('behavior: sequential nonce keys for feePayer transactions', async () => {

@@ -1,3 +1,4 @@
+import * as Hex from 'ox/Hex'
 import {
   defineTransaction,
   defineTransactionReceipt,
@@ -9,7 +10,6 @@ import type { IsUndefined } from '../internal/types.js'
 import type * as TokenId from '../ox/TokenId.js'
 import * as Formatters from './Formatters.js'
 import * as Transaction from './Transaction.js'
-import * as Hex from 'ox/Hex'
 
 export type Chain<
   feeToken extends TokenId.TokenIdOrAddress | null | undefined =
