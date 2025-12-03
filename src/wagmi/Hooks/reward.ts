@@ -1,6 +1,7 @@
 import type { DefaultError } from '@tanstack/query-core'
 import type { UseMutationResult } from '@tanstack/react-query'
 import type { Config, ResolvedRegister } from '@wagmi/core'
+import { useEffect } from 'react'
 import { useChainId, useConfig } from 'wagmi'
 import type { ConfigParameter, QueryParameter } from 'wagmi/internal'
 import {
@@ -9,7 +10,7 @@ import {
   useMutation,
   useQuery,
 } from 'wagmi/query'
-import type { ExactPartial } from '../../internal/types.js'
+import type { ExactPartial, UnionCompute } from '../../internal/types.js'
 import * as Actions from '../Actions/reward.js'
 
 /**
@@ -540,5 +541,105 @@ export declare namespace useStartSync {
     Actions.startSync.ErrorType,
     Actions.startSync.Parameters<config>,
     context
+  >
+}
+
+/**
+ * Hook for watching reward scheduled events.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   Hooks.reward.useWatchRewardScheduled({
+ *     token: '0x20c0000000000000000000000000000000000001',
+ *     onRewardScheduled(args) {
+ *       console.log('Reward scheduled:', args)
+ *     },
+ *   })
+ *
+ *   return <div>Watching for reward scheduled events...</div>
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ */
+export function useWatchRewardScheduled<
+  config extends Config = ResolvedRegister['config'],
+>(parameters: useWatchRewardScheduled.Parameters<config> = {}) {
+  const { enabled = true, onRewardScheduled, token, ...rest } = parameters
+
+  const config = useConfig({ config: parameters.config })
+  const configChainId = useChainId({ config })
+  const chainId = parameters.chainId ?? configChainId
+
+  useEffect(() => {
+    if (!enabled) return
+    if (!onRewardScheduled) return
+    if (!token) return
+    return Actions.watchRewardScheduled(config, {
+      ...rest,
+      chainId,
+      onRewardScheduled,
+      token,
+    })
+  }, [config, enabled, onRewardScheduled, rest, chainId, token])
+}
+
+export declare namespace useWatchRewardScheduled {
+  type Parameters<config extends Config = Config> = UnionCompute<
+    ExactPartial<Actions.watchRewardScheduled.Parameters<config>> &
+      ConfigParameter<config> & { enabled?: boolean | undefined }
+  >
+}
+
+/**
+ * Hook for watching reward recipient set events.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   Hooks.reward.useWatchRewardRecipientSet({
+ *     token: '0x20c0000000000000000000000000000000000001',
+ *     onRewardRecipientSet(args) {
+ *       console.log('Reward recipient set:', args)
+ *     },
+ *   })
+ *
+ *   return <div>Watching for reward recipient set events...</div>
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ */
+export function useWatchRewardRecipientSet<
+  config extends Config = ResolvedRegister['config'],
+>(parameters: useWatchRewardRecipientSet.Parameters<config> = {}) {
+  const { enabled = true, onRewardRecipientSet, token, ...rest } = parameters
+
+  const config = useConfig({ config: parameters.config })
+  const configChainId = useChainId({ config })
+  const chainId = parameters.chainId ?? configChainId
+
+  useEffect(() => {
+    if (!enabled) return
+    if (!onRewardRecipientSet) return
+    if (!token) return
+    return Actions.watchRewardRecipientSet(config, {
+      ...rest,
+      chainId,
+      onRewardRecipientSet,
+      token,
+    })
+  }, [config, enabled, onRewardRecipientSet, rest, chainId, token])
+}
+
+export declare namespace useWatchRewardRecipientSet {
+  type Parameters<config extends Config = Config> = UnionCompute<
+    ExactPartial<Actions.watchRewardRecipientSet.Parameters<config>> &
+      ConfigParameter<config> & { enabled?: boolean | undefined }
   >
 }

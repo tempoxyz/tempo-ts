@@ -1810,6 +1810,62 @@ export type Decorator<
     startSync: (
       parameters: rewardActions.startSync.Parameters<chain, account>,
     ) => Promise<rewardActions.startSync.ReturnValue>
+    /**
+     * Watches for reward recipient set events.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
+     *
+     * const client = createClient({
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.reward.watchRewardRecipientSet({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     *   onRewardRecipientSet: (args, log) => {
+     *     console.log('Reward recipient set:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchRewardRecipientSet: (
+      parameters: rewardActions.watchRewardRecipientSet.Parameters,
+    ) => () => void
+    /**
+     * Watches for reward scheduled events.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
+     *
+     * const client = createClient({
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.reward.watchRewardScheduled({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     *   onRewardScheduled: (args, log) => {
+     *     console.log('Reward scheduled:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchRewardScheduled: (
+      parameters: rewardActions.watchRewardScheduled.Parameters,
+    ) => () => void
   }
   token: {
     /**
@@ -3078,6 +3134,10 @@ export function decorator() {
           rewardActions.setRecipientSync(client, parameters),
         start: (parameters) => rewardActions.start(client, parameters),
         startSync: (parameters) => rewardActions.startSync(client, parameters),
+        watchRewardRecipientSet: (parameters) =>
+          rewardActions.watchRewardRecipientSet(client, parameters),
+        watchRewardScheduled: (parameters) =>
+          rewardActions.watchRewardScheduled(client, parameters),
       },
       token: {
         approve: (parameters) => tokenActions.approve(client, parameters),

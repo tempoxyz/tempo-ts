@@ -524,3 +524,87 @@ export declare namespace startSync {
 
   export type ErrorType = viem_Actions.startSync.ErrorType
 }
+
+/**
+ * Watches for reward scheduled events.
+ *
+ * @example
+ * ```ts
+ * import { createConfig, http } from '@wagmi/core'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/wagmi'
+ *
+ * const config = createConfig({
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   transports: {
+ *     [tempo.id]: http(),
+ *   },
+ * })
+ *
+ * const unwatch = Actions.reward.watchRewardScheduled(config, {
+ *   token: '0x20c0000000000000000000000000000000000001',
+ *   onRewardScheduled: (args, log) => {
+ *     console.log('Reward scheduled:', args)
+ *   },
+ * })
+ * ```
+ *
+ * @param config - Config.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchRewardScheduled<config extends Config>(
+  config: config,
+  parameters: watchRewardScheduled.Parameters<config>,
+) {
+  const { chainId, ...rest } = parameters
+  const client = config.getClient({ chainId })
+  return viem_Actions.watchRewardScheduled(client, rest)
+}
+
+export declare namespace watchRewardScheduled {
+  export type Parameters<config extends Config> = ChainIdParameter<config> &
+    viem_Actions.watchRewardScheduled.Parameters
+}
+
+/**
+ * Watches for reward recipient set events.
+ *
+ * @example
+ * ```ts
+ * import { createConfig, http } from '@wagmi/core'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/wagmi'
+ *
+ * const config = createConfig({
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   transports: {
+ *     [tempo.id]: http(),
+ *   },
+ * })
+ *
+ * const unwatch = Actions.reward.watchRewardRecipientSet(config, {
+ *   token: '0x20c0000000000000000000000000000000000001',
+ *   onRewardRecipientSet: (args, log) => {
+ *     console.log('Reward recipient set:', args)
+ *   },
+ * })
+ * ```
+ *
+ * @param config - Config.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchRewardRecipientSet<config extends Config>(
+  config: config,
+  parameters: watchRewardRecipientSet.Parameters<config>,
+) {
+  const { chainId, ...rest } = parameters
+  const client = config.getClient({ chainId })
+  return viem_Actions.watchRewardRecipientSet(client, rest)
+}
+
+export declare namespace watchRewardRecipientSet {
+  export type Parameters<config extends Config> = ChainIdParameter<config> &
+    viem_Actions.watchRewardRecipientSet.Parameters
+}

@@ -349,3 +349,86 @@ describe('startSync', () => {
     expect(totalRate).toBe(0n)
   })
 })
+
+describe('watchRewardScheduled', () => {
+  test('default', async () => {
+    const { token } = await setupToken(clientWithAccount)
+
+    // Opt in to rewards
+    await actions.reward.setRecipientSync(clientWithAccount, {
+      recipient: account.address,
+      token,
+    })
+
+    // Mint reward tokens
+    const rewardAmount = parseUnits('100', 6)
+    await actions.token.mintSync(clientWithAccount, {
+      amount: rewardAmount,
+      to: account.address,
+      token,
+    })
+
+    const events: Array<{
+      args: actions.reward.watchRewardScheduled.Args
+      log: actions.reward.watchRewardScheduled.Log
+    }> = []
+
+    const unwatch = actions.reward.watchRewardScheduled(clientWithAccount, {
+      token,
+      onRewardScheduled: (args, log) => {
+        events.push({ args, log })
+      },
+    })
+
+    try {
+      await actions.reward.startSync(clientWithAccount, {
+        amount: rewardAmount,
+        token,
+      })
+
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      expect(events.length).toBeGreaterThan(0)
+      expect(events[0]?.args.amount).toBe(rewardAmount)
+      expect(events[0]?.args.funder).toBe(account.address)
+      expect(events[0]?.args.durationSeconds).toBe(0)
+      expect(events[0]?.log).toBeDefined()
+    } finally {
+      if (unwatch) unwatch()
+    }
+  })
+})
+
+describe('watchRewardRecipientSet', () => {
+  test('default', async () => {
+    const { token } = await setupToken(clientWithAccount)
+
+    const events: Array<{
+      args: actions.reward.watchRewardRecipientSet.Args
+      log: actions.reward.watchRewardRecipientSet.Log
+    }> = []
+
+    const unwatch = actions.reward.watchRewardRecipientSet(clientWithAccount, {
+      token,
+      onRewardRecipientSet: (args, log) => {
+        events.push({ args, log })
+      },
+    })
+
+    try {
+      await actions.reward.setRecipientSync(clientWithAccount, {
+        recipient: account.address,
+        token,
+      })
+
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      expect(events.length).toBeGreaterThan(0)
+      expect(events[0]?.args.holder).toBe(account.address)
+      expect(events[0]?.args.recipient).toBe(account.address)
+      expect(events[0]?.log).toBeDefined()
+    } finally {
+      if (unwatch) unwatch()
+    }
+  })
+})
