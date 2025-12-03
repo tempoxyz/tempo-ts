@@ -1,5 +1,31 @@
 # tempo.ts
 
+## 0.8.0
+
+### Minor Changes
+
+- [#84](https://github.com/tempoxyz/tempo-ts/pull/84) [`4524445`](https://github.com/tempoxyz/tempo-ts/commit/45244456dda69c590c912a1ea914abcdf02b2f61) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `tempoDev` chain to `tempoDevnet`.
+
+- [#84](https://github.com/tempoxyz/tempo-ts/pull/84) [`4524445`](https://github.com/tempoxyz/tempo-ts/commit/45244456dda69c590c912a1ea914abcdf02b2f61) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `linkingUsd` to `pathUsd`.
+
+- [#84](https://github.com/tempoxyz/tempo-ts/pull/84) [`4524445`](https://github.com/tempoxyz/tempo-ts/commit/45244456dda69c590c912a1ea914abcdf02b2f61) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `createAccount` capability from `webAuthn` connector. Use `type: 'sign-up'` instead.
+
+- [#84](https://github.com/tempoxyz/tempo-ts/pull/84) [`4524445`](https://github.com/tempoxyz/tempo-ts/commit/45244456dda69c590c912a1ea914abcdf02b2f61) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `tempoAndantino` chain. Use `tempoTestnet` instead.
+
+### Patch Changes
+
+- [#84](https://github.com/tempoxyz/tempo-ts/pull/84) [`4524445`](https://github.com/tempoxyz/tempo-ts/commit/45244456dda69c590c912a1ea914abcdf02b2f61) Thanks [@jxom](https://github.com/jxom)! - `tempo.ts/ox`: Added `keychain` type to `SignatureEnvelope`.
+
+- [#84](https://github.com/tempoxyz/tempo-ts/pull/84) [`4524445`](https://github.com/tempoxyz/tempo-ts/commit/45244456dda69c590c912a1ea914abcdf02b2f61) Thanks [@jxom](https://github.com/jxom)! - `tempo.ts/ox`: Added `KeyAuthorization` module.
+
+- [#84](https://github.com/tempoxyz/tempo-ts/pull/84) [`4524445`](https://github.com/tempoxyz/tempo-ts/commit/45244456dda69c590c912a1ea914abcdf02b2f61) Thanks [@jxom](https://github.com/jxom)! - `tempo.ts/viem`: Added `signKeyAuthorization` function to the `Account` to sign over key authorizations.
+
+- [#84](https://github.com/tempoxyz/tempo-ts/pull/84) [`4524445`](https://github.com/tempoxyz/tempo-ts/commit/45244456dda69c590c912a1ea914abcdf02b2f61) Thanks [@jxom](https://github.com/jxom)! - `tempo.ts/viem`: Added `access` attribute to `Account` to indicate if the account is an "access key" variant.
+
+- [#84](https://github.com/tempoxyz/tempo-ts/pull/84) [`4524445`](https://github.com/tempoxyz/tempo-ts/commit/45244456dda69c590c912a1ea914abcdf02b2f61) Thanks [@jxom](https://github.com/jxom)! - `tempo.ts/ox`: Added `keyAuthorization` attribute to `Transaction` & `TransactionEnvelopeAA`.
+
+- [#84](https://github.com/tempoxyz/tempo-ts/pull/84) [`4524445`](https://github.com/tempoxyz/tempo-ts/commit/45244456dda69c590c912a1ea914abcdf02b2f61) Thanks [@jxom](https://github.com/jxom)! - `tempo.ts/wagmi`: Added `grantAccessKey` attribute to the `webAuthn` connector.
+
 ## 0.7.6
 
 ### Patch Changes
