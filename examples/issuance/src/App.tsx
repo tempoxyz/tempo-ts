@@ -231,6 +231,10 @@ export function GrantTokenRoles(props: {
           <CreateTokenPolicy token={token} />
           <PauseUnpauseTransfers token={token} />
           <RevokeTokenRoles token={token} roles={roles} />
+          <h1>FeeAMM Management</h1>
+          <CheckFeeAmmPool token={token} />
+          <MintFeeAmmLiquidity token={token} />
+          <BurnFeeAmmLiquidity token={token} />
         </>
       )}
     </div>
@@ -700,6 +704,177 @@ export function BurnTokenBlocked(props: { token: Address }) {
           </div>
         )}
       </form>
+    </div>
+  )
+}
+
+export function MintFeeAmmLiquidity(props: { token: Address }) {
+  const { token } = props
+  const { address } = useAccount()
+
+  const mintFeeLiquidity = Hooks.amm.useMintSync()
+
+  return (
+    <div>
+      <h2>Mint Fee AMM Liquidity</h2>
+
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          const formData = new FormData(event.target as HTMLFormElement)
+          const amount = formData.get('amount') as string
+
+          if (!amount) throw new Error('Amount is required')
+
+          mintFeeLiquidity.mutate({
+            userTokenAddress: token,
+            validatorTokenAddress: alphaUsd,
+            validatorTokenAmount: parseUnits(amount, 6),
+            to: address,
+            feeToken: alphaUsd,
+          })
+        }}
+      >
+        <label htmlFor="amount">Amount of validator token (AlphaUSD)</label>
+        <input type="text" name="amount" placeholder="100" defaultValue="100" />
+
+        <button disabled={!address || mintFeeLiquidity.isPending} type="submit">
+          {mintFeeLiquidity.isPending ? 'Adding Liquidity...' : 'Add Liquidity'}
+        </button>
+
+        {mintFeeLiquidity.data && (
+          <div>
+            <a
+              href={`https://explore.tempo.xyz/tx/${mintFeeLiquidity.data.receipt.transactionHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View receipt
+            </a>
+          </div>
+        )}
+      </form>
+    </div>
+  )
+}
+
+export function CheckFeeAmmPool(props: { token: Address }) {
+  const { token } = props
+  const { address } = useAccount()
+
+  const { data: pool } = Hooks.amm.usePool({
+    userToken: token,
+    alphaUsd,
+  })
+
+  const { data: lpBalance } = Hooks.amm.useLiquidityBalance({
+    address,
+    userToken: token,
+    alphaUsd,
+  })
+
+  const { data: metadata } = Hooks.token.useGetMetadata({
+    token,
+  })
+
+  const { data: validatorMetadata } = Hooks.token.useGetMetadata({
+    token: alphaUsd,
+  })
+
+  return (
+    <div>
+      <h2>Check Fee AMM Pool</h2>
+
+      {address && pool && lpBalance !== undefined ? (
+        <div>
+          <div>
+            <strong>Your LP Balance:</strong>{' '}
+            {formatUnits(lpBalance, validatorMetadata?.decimals || 6)} LP tokens
+          </div>
+          <div>
+            <strong>Validator Token Reserves:</strong>{' '}
+            {formatUnits(
+              pool.reserveValidatorToken,
+              validatorMetadata?.decimals || 6,
+            )}{' '}
+            AlphaUSD
+          </div>
+          <div>
+            <strong>User Token Reserves:</strong>{' '}
+            {formatUnits(pool.reserveUserToken, metadata?.decimals || 6)}{' '}
+            {metadata?.symbol || ''}
+          </div>
+        </div>
+      ) : (
+        <div>Loading pool information...</div>
+      )}
+    </div>
+  )
+}
+
+export function BurnFeeAmmLiquidity(props: { token: Address }) {
+  const { token } = props
+  const { address } = useAccount()
+
+  const { data: lpBalance } = Hooks.amm.useLiquidityBalance({
+    address,
+    userToken: token,
+    validatorToken: alphaUsd,
+  })
+
+  const { data: validatorMetadata } = Hooks.token.useGetMetadata({
+    token: alphaUsd,
+  })
+
+  const burnLiquidity = Hooks.amm.useBurnSync()
+
+  return (
+    <div>
+      <h2>Burn Fee AMM Liquidity</h2>
+
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          const formData = new FormData(event.target as HTMLFormElement)
+          const amount = formData.get('amount') as string
+
+          if (!amount) throw new Error('Amount is required')
+
+          burnLiquidity.mutate({
+            userToken: token,
+            validatorToken: alphaUsd,
+            liquidity: parseUnits(amount, validatorMetadata?.decimals || 6),
+            to: address,
+            feeToken: alphaUsd,
+          })
+        }}
+      >
+        <label htmlFor="amount">Amount of LP tokens to burn</label>
+        <input type="text" name="amount" placeholder="10" defaultValue="10" />
+
+        <button disabled={!address || burnLiquidity.isPending} type="submit">
+          {burnLiquidity.isPending ? 'Burning Liquidity...' : 'Burn Liquidity'}
+        </button>
+
+        {burnLiquidity.data && (
+          <div>
+            <a
+              href={`https://explore.tempo.xyz/tx/${burnLiquidity.data.receipt.transactionHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View receipt
+            </a>
+          </div>
+        )}
+      </form>
+
+      {lpBalance !== undefined && (
+        <div>
+          <strong>Available LP Balance:</strong>{' '}
+          {formatUnits(lpBalance, validatorMetadata?.decimals || 6)} LP tokens
+        </div>
+      )}
     </div>
   )
 }
