@@ -89,6 +89,42 @@ describe('getTotalPerSecond', () => {
   })
 })
 
+describe('getUserRewardInfo', () => {
+  test('default', async () => {
+    const { token } = await setupToken()
+
+    const account = getAccount(config)
+
+    const info = await actions.getUserRewardInfo(config, {
+      token,
+      account: account.address!,
+    })
+
+    expect(info.rewardRecipient).toBeDefined()
+    expect(info.rewardPerToken).toBeDefined()
+    expect(info.rewardBalance).toBeDefined()
+  })
+
+  describe('queryOptions', () => {
+    test('default', async () => {
+      const { token } = await setupToken()
+
+      const account = getAccount(config)
+
+      const options = actions.getUserRewardInfo.queryOptions(config, {
+        token,
+        account: account.address!,
+      })
+
+      const info = await queryClient.fetchQuery(options)
+
+      expect(info.rewardRecipient).toBeDefined()
+      expect(info.rewardPerToken).toBeDefined()
+      expect(info.rewardBalance).toBeDefined()
+    })
+  })
+})
+
 describe('setRecipientSync', () => {
   test('default', async () => {
     const { token } = await setupToken()

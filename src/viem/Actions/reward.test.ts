@@ -123,6 +123,45 @@ describe('getTotalPerSecond', () => {
   })
 })
 
+describe('getUserRewardInfo', () => {
+  test('default', async () => {
+    const { token } = await setupToken(clientWithAccount)
+
+    const info = await actions.reward.getUserRewardInfo(clientWithAccount, {
+      token,
+      account: account.address,
+    })
+
+    expect(info.rewardRecipient).toBeDefined()
+    expect(info.rewardPerToken).toBeDefined()
+    expect(info.rewardBalance).toBeDefined()
+    expect(info.rewardRecipient).toBe(
+      '0x0000000000000000000000000000000000000000',
+    )
+    expect(info.rewardPerToken).toBe(0n)
+    expect(info.rewardBalance).toBe(0n)
+  })
+
+  test('behavior: after opting in', async () => {
+    const { token } = await setupToken(clientWithAccount)
+
+    // Opt in to rewards
+    await actions.reward.setRecipientSync(clientWithAccount, {
+      recipient: account.address,
+      token,
+    })
+
+    const info = await actions.reward.getUserRewardInfo(clientWithAccount, {
+      token,
+      account: account.address,
+    })
+
+    expect(info.rewardRecipient).toBe(account.address)
+    expect(info.rewardPerToken).toBe(0n)
+    expect(info.rewardBalance).toBe(0n)
+  })
+})
+
 describe('setRecipientSync', () => {
   test('default', async () => {
     const { token } = await setupToken(clientWithAccount)

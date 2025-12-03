@@ -206,6 +206,97 @@ export namespace getTotalPerSecond {
 }
 
 /**
+ * Gets the reward information for a specific account.
+ *
+ * @example
+ * ```ts
+ * import { createConfig, http } from '@wagmi/core'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/wagmi'
+ *
+ * const config = createConfig({
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   transports: {
+ *     [tempo.id]: http(),
+ *   },
+ * })
+ *
+ * const info = await Actions.reward.getUserRewardInfo(config, {
+ *   token: '0x20c0000000000000000000000000000000000001',
+ *   account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+ * })
+ * ```
+ *
+ * @param config - Config.
+ * @param parameters - Parameters.
+ * @returns The user's reward information (recipient, rewardPerToken, rewardBalance).
+ */
+export function getUserRewardInfo<config extends Config>(
+  config: config,
+  parameters: getUserRewardInfo.Parameters<config>,
+) {
+  const { chainId, ...rest } = parameters
+  const client = config.getClient({ chainId })
+  return viem_Actions.getUserRewardInfo(client, rest)
+}
+
+export namespace getUserRewardInfo {
+  export type Parameters<config extends Config> = ChainIdParameter<config> &
+    viem_Actions.getUserRewardInfo.Parameters
+
+  export type ReturnValue = viem_Actions.getUserRewardInfo.ReturnValue
+
+  export function queryKey<config extends Config>(
+    parameters: Parameters<config>,
+  ) {
+    return ['getUserRewardInfo', parameters] as const
+  }
+
+  export type QueryKey<config extends Config> = ReturnType<
+    typeof queryKey<config>
+  >
+
+  export function queryOptions<config extends Config, selectData = ReturnValue>(
+    config: Config,
+    parameters: queryOptions.Parameters<config, selectData>,
+  ): queryOptions.ReturnValue<config, selectData> {
+    const { query, ...rest } = parameters
+    return {
+      ...query,
+      queryKey: queryKey(rest),
+      async queryFn({ queryKey }) {
+        const [, parameters] = queryKey
+        return await getUserRewardInfo(config, parameters)
+      },
+    }
+  }
+
+  export declare namespace queryOptions {
+    export type Parameters<
+      config extends Config,
+      selectData = getUserRewardInfo.ReturnValue,
+    > = getUserRewardInfo.Parameters<config> & {
+      query?:
+        | Omit<ReturnValue<config, selectData>, 'queryKey' | 'queryFn'>
+        | undefined
+    }
+
+    export type ReturnValue<
+      config extends Config,
+      selectData = getUserRewardInfo.ReturnValue,
+    > = RequiredBy<
+      Query.QueryOptions<
+        getUserRewardInfo.ReturnValue,
+        Query.DefaultError,
+        selectData,
+        getUserRewardInfo.QueryKey<config>
+      >,
+      'queryKey' | 'queryFn'
+    >
+  }
+}
+
+/**
  * Sets or changes the reward recipient for a token holder.
  *
  * @example

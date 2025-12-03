@@ -277,6 +277,79 @@ export namespace getTotalPerSecond {
 }
 
 /**
+ * Gets the reward information for a specific account.
+ *
+ * Returns the reward recipient address, reward per token value, and accumulated reward balance for the specified account.
+ * This information includes:
+ * - `rewardRecipient`: The address designated to receive rewards (zero address if opted out)
+ * - `rewardPerToken`: The reward per token value for this account
+ * - `rewardBalance`: The accumulated reward balance waiting to be claimed
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/viem'
+ *
+ * const client = createClient({
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   transport: http(),
+ * })
+ *
+ * const info = await Actions.reward.getUserRewardInfo(client, {
+ *   token: '0x20c0000000000000000000000000000000000001',
+ *   account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The user's reward information (recipient, rewardPerToken, rewardBalance).
+ */
+export async function getUserRewardInfo<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getUserRewardInfo.Parameters,
+): Promise<getUserRewardInfo.ReturnValue> {
+  return readContract(client, {
+    ...parameters,
+    ...getUserRewardInfo.call(parameters),
+  })
+}
+
+export namespace getUserRewardInfo {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** The account address to query reward info for */
+    account: Address
+    /** The TIP20 token address */
+    token: Address
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.tip20,
+    'userRewardInfo',
+    never
+  >
+
+  /**
+   * Defines a call to the `userRewardInfo` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { account, token } = args
+    return defineCall({
+      address: token,
+      abi: Abis.tip20,
+      args: [account],
+      functionName: 'userRewardInfo',
+    })
+  }
+}
+
+/**
  * Sets or changes the reward recipient for a token holder.
  *
  * This function allows a token holder to designate who should receive their share of rewards:

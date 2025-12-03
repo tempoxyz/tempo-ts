@@ -206,6 +206,74 @@ export declare namespace useGetTotalPerSecond {
 }
 
 /**
+ * Hook for getting the reward information for a specific account.
+ *
+ * @example
+ * ```tsx
+ * import { Hooks } from 'tempo.ts/wagmi'
+ *
+ * function App() {
+ *   const { data, isLoading } = Hooks.reward.useUserRewardInfo({
+ *     token: '0x20c0000000000000000000000000000000000001',
+ *     account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+ *   })
+ *
+ *   if (isLoading) return <div>Loading...</div>
+ *   return (
+ *     <div>
+ *       <div>Recipient: {data?.rewardRecipient}</div>
+ *       <div>Reward per token: {data?.rewardPerToken.toString()}</div>
+ *       <div>Reward balance: {data?.rewardBalance.toString()}</div>
+ *     </div>
+ *   )
+ * }
+ * ```
+ *
+ * @param parameters - Parameters.
+ * @returns Query result with reward information (recipient, rewardPerToken, rewardBalance).
+ */
+export function useUserRewardInfo<
+  config extends Config = ResolvedRegister['config'],
+  selectData = Actions.getUserRewardInfo.ReturnValue,
+>(parameters: useUserRewardInfo.Parameters<config, selectData> = {}) {
+  const { account, query = {}, token } = parameters
+
+  const config = useConfig(parameters)
+  const chainId = useChainId({ config })
+
+  const options = Actions.getUserRewardInfo.queryOptions(config, {
+    ...parameters,
+    chainId: parameters.chainId ?? chainId,
+    query: undefined,
+  } as never)
+  const enabled = Boolean(token && account && (query.enabled ?? true))
+
+  return useQuery({ ...query, ...options, enabled })
+}
+
+export declare namespace useUserRewardInfo {
+  export type Parameters<
+    config extends Config = ResolvedRegister['config'],
+    selectData = Actions.getUserRewardInfo.ReturnValue,
+  > = ConfigParameter<config> &
+    QueryParameter<
+      Actions.getUserRewardInfo.ReturnValue,
+      DefaultError,
+      selectData,
+      Actions.getUserRewardInfo.QueryKey<config>
+    > &
+    ExactPartial<
+      Omit<
+        Actions.getUserRewardInfo.queryOptions.Parameters<config, selectData>,
+        'query'
+      >
+    >
+
+  export type ReturnValue<selectData = Actions.getUserRewardInfo.ReturnValue> =
+    UseQueryReturnType<selectData, Error>
+}
+
+/**
  * Hook for setting the reward recipient for a token holder.
  *
  * @example
