@@ -9,6 +9,7 @@ import type { IsUndefined } from '../internal/types.js'
 import type * as TokenId from '../ox/TokenId.js'
 import * as Formatters from './Formatters.js'
 import * as Transaction from './Transaction.js'
+import * as Hex from 'ox/Hex'
 
 export type Chain<
   feeToken extends TokenId.TokenIdOrAddress | null | undefined =
@@ -25,6 +26,25 @@ export type Chain<
       })
 
 function config<const chain extends Chain>(chain: chain) {
+  const nonceKeyManager = {
+    counter: 0,
+    resetScheduled: false,
+    reset() {
+      this.counter = 0
+      this.resetScheduled = false
+    },
+    get() {
+      if (!this.resetScheduled) {
+        this.resetScheduled = true
+        queueMicrotask(() => this.reset())
+      }
+      const count = this.counter
+      this.counter++
+      if (count === 0) return 0n
+      return Hex.toBigInt(Hex.random(6))
+    },
+  }
+
   return {
     blockTime: 1_000,
     contracts: {
@@ -66,6 +86,22 @@ function config<const chain extends Chain>(chain: chain) {
           ),
       }),
     },
+    async prepareTransactionRequest(r) {
+      const request = r as Transaction.TransactionRequest
+      const nonceKey = (() => {
+        if (typeof request.nonceKey !== 'undefined') return request.nonceKey
+        return nonceKeyManager.get()
+      })()
+
+      const nonce = (() => {
+        if (typeof request.nonce === 'number') return request.nonce
+        // TODO: remove this line once `eth_fillTransaction` supports nonce keys.
+        if (nonceKey) return 0
+        return undefined
+      })()
+
+      return { ...request, nonce, nonceKey } as unknown as typeof r
+    },
     serializers: {
       // TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
       transaction: ((transaction, signature) =>
@@ -88,7 +124,7 @@ function config<const chain extends Chain>(chain: chain) {
         )) as SerializeTransactionFn,
     },
     ...chain,
-  } as const
+  } as const satisfies viem_Chain
 }
 
 export function define<const chain extends viem_Chain>(

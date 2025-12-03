@@ -1058,6 +1058,38 @@ describe('sendTransaction', () => {
     expect(receipts[1].status).toBe('success')
     expect(receipts[0].transactionHash).not.toBe(receipts[1].transactionHash)
   })
+
+  test('behavior: 2d nonces (implicit)', async () => {
+    const account = accounts[0]
+
+    // fund account
+    await fundAddress(client, { address: account.address })
+
+    const receipts = await Promise.all([
+      client.sendTransactionSync({
+        account,
+        to: '0x0000000000000000000000000000000000000000',
+      }),
+      client.sendTransactionSync({
+        account,
+        to: '0x0000000000000000000000000000000000000000',
+      }),
+      client.sendTransactionSync({
+        account,
+        to: '0x0000000000000000000000000000000000000000',
+      }),
+    ])
+
+    const transactions = await Promise.all([
+      client.getTransaction({ hash: receipts[0].transactionHash }),
+      client.getTransaction({ hash: receipts[1].transactionHash }),
+      client.getTransaction({ hash: receipts[2].transactionHash }),
+    ])
+
+    expect(transactions[0].nonceKey).toBe(0n)
+    expect(transactions[1].nonceKey).toBeGreaterThan(0n)
+    expect(transactions[2].nonceKey).toBeGreaterThan(0n)
+  })
 })
 
 describe('signTransaction', () => {

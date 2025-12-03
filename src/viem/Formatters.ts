@@ -99,19 +99,6 @@ export function formatTransactionRequest<chain extends Chain | undefined>(
       },
     ]
 
-  const nonceKey = (() => {
-    if (typeof request.nonceKey !== 'undefined') return request.nonceKey
-    if (request.feePayer === true) return 'random'
-    return undefined
-  })()
-
-  const nonce = (() => {
-    if (typeof request.nonce === 'bigint') return request.nonce
-    // TODO: remove this line once `eth_fillTransaction` supports nonce keys.
-    if (typeof nonceKey !== 'undefined') return 0n
-    return undefined
-  })()
-
   const rpc = ox_TransactionRequest.toRpc({
     ...request,
     authorizationList: request.authorizationList?.map((auth) => ({
@@ -121,8 +108,6 @@ export function formatTransactionRequest<chain extends Chain | undefined>(
       s: BigInt(auth.s!),
       yParity: Number(auth.yParity),
     })),
-    nonce,
-    nonceKey,
     type: 'aa',
   } as never)
 
