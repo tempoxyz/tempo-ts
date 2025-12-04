@@ -8,7 +8,7 @@ import * as ox_Transaction from 'ox/Transaction'
 import type { Compute, OneOf, UnionCompute } from '../internal/types.js'
 import * as KeyAuthorization from './KeyAuthorization.js'
 import * as SignatureEnvelope from './SignatureEnvelope.js'
-import type { Call } from './TransactionEnvelopeAA.js'
+import type { Call } from './TransactionEnvelopeTempo.js'
 
 /**
  * A Transaction as defined in the [Execution API specification](https://github.com/ethereum/execution-apis/blob/main/src/schemas/transaction.yaml).
@@ -19,7 +19,7 @@ export type Transaction<
   numberType = number,
 > = UnionCompute<
   OneOf<
-    | AA<pending, bigintType, numberType>
+    | Tempo<pending, bigintType, numberType>
     | ox_Transaction.Transaction<pending, bigintType, numberType>
   >
 >
@@ -28,21 +28,21 @@ export type Transaction<
  * An RPC Transaction as defined in the [Execution API specification](https://github.com/ethereum/execution-apis/blob/main/src/schemas/transaction.yaml).
  */
 export type Rpc<pending extends boolean = false> = UnionCompute<
-  OneOf<AARpc<pending> | ox_Transaction.Rpc<pending>>
+  OneOf<TempoRpc<pending> | ox_Transaction.Rpc<pending>>
 >
 
 /**
  * Native account abstraction transaction.
  */
-export type AA<
+export type Tempo<
   pending extends boolean = false,
   bigintType = bigint,
   numberType = number,
-  type extends string = 'aa',
+  type extends string = 'tempo',
 > = Compute<
   Omit<
     ox_Transaction.Base<type, pending, bigintType, numberType>,
-    // AA transactions don't have these properties.
+    // Tempo transactions don't have these properties.
     'input' | 'to' | 'value' | 'v' | 'r' | 's' | 'yParity'
   > & {
     /** EIP-2930 Access List. */
@@ -92,9 +92,9 @@ export type AA<
 /**
  * Native account abstraction transaction in RPC format.
  */
-export type AARpc<pending extends boolean = false> = Compute<
+export type TempoRpc<pending extends boolean = false> = Compute<
   Omit<
-    AA<pending, Hex.Hex, Hex.Hex, ToRpcType['aa']>,
+    Tempo<pending, Hex.Hex, Hex.Hex, ToRpcType['tempo']>,
     'calls' | 'keyAuthorization' | 'signature'
   > & {
     calls:
@@ -112,7 +112,7 @@ export type AARpc<pending extends boolean = false> = Compute<
 /** Type to RPC Type mapping. */
 export const toRpcType = {
   ...ox_Transaction.toRpcType,
-  aa: '0x76',
+  tempo: '0x76',
 } as const
 
 /** Type to RPC Type mapping. */
@@ -123,7 +123,7 @@ export type ToRpcType = typeof toRpcType & {
 /** RPC Type to Type mapping. */
 export const fromRpcType = {
   ...ox_Transaction.fromRpcType,
-  '0x76': 'aa',
+  '0x76': 'tempo',
 } as const
 
 /** RPC Type to Type mapping. */
@@ -268,7 +268,7 @@ export declare namespace fromRpc {
  *     type: 'secp256k1',
  *   },
  *   transactionIndex: 2,
- *   type: 'aa',
+ *   type: 'tempo',
  * })
  * ```
  *

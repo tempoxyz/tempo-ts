@@ -12,7 +12,7 @@ import { chainId } from '../../test/config.js'
 import { client, fundAddress } from '../../test/viem/config.js'
 import { KeyAuthorization, SignatureEnvelope } from './index.js'
 import * as Transaction from './Transaction.js'
-import * as TransactionEnvelopeAA from './TransactionEnvelopeAA.js'
+import * as TransactionEnvelopeTempo from './TransactionEnvelopeTempo.js'
 import * as TransactionReceipt from './TransactionReceipt.js'
 
 test('behavior: default (secp256k1)', async () => {
@@ -28,7 +28,7 @@ test('behavior: default (secp256k1)', async () => {
     blockTag: 'pending',
   })
 
-  const transaction = TransactionEnvelopeAA.from({
+  const transaction = TransactionEnvelopeTempo.from({
     calls: [
       {
         to: '0x0000000000000000000000000000000000000000',
@@ -43,11 +43,11 @@ test('behavior: default (secp256k1)', async () => {
   })
 
   const signature = Secp256k1.sign({
-    payload: TransactionEnvelopeAA.getSignPayload(transaction),
+    payload: TransactionEnvelopeTempo.getSignPayload(transaction),
     privateKey,
   })
 
-  const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
+  const serialized_signed = TransactionEnvelopeTempo.serialize(transaction, {
     signature: SignatureEnvelope.from(signature),
   })
 
@@ -110,7 +110,7 @@ test('behavior: default (secp256k1)', async () => {
         "gas": 100000n,
         "gasPrice": 20000000000n,
         "nonceKey": 0n,
-        "type": "aa",
+        "type": "tempo",
         "validAfter": null,
         "validBefore": null,
         "value": 0n,
@@ -163,7 +163,7 @@ test('behavior: default (p256)', async () => {
     address,
   })
 
-  const transaction = TransactionEnvelopeAA.from({
+  const transaction = TransactionEnvelopeTempo.from({
     calls: [
       {
         to: '0x0000000000000000000000000000000000000000',
@@ -177,12 +177,12 @@ test('behavior: default (p256)', async () => {
   })
 
   const signature = P256.sign({
-    payload: TransactionEnvelopeAA.getSignPayload(transaction),
+    payload: TransactionEnvelopeTempo.getSignPayload(transaction),
     privateKey,
     hash: false,
   })
 
-  const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
+  const serialized_signed = TransactionEnvelopeTempo.serialize(transaction, {
     signature: SignatureEnvelope.from({
       signature,
       publicKey,
@@ -250,7 +250,7 @@ test('behavior: default (p256)', async () => {
         "gas": 100000n,
         "gasPrice": 20000000000n,
         "nonceKey": 0n,
-        "type": "aa",
+        "type": "tempo",
         "validAfter": null,
         "validBefore": null,
         "value": 0n,
@@ -302,7 +302,7 @@ test('behavior: default (p256 - webcrypto)', async () => {
     address,
   })
 
-  const transaction = TransactionEnvelopeAA.from({
+  const transaction = TransactionEnvelopeTempo.from({
     calls: [
       {
         to: '0x0000000000000000000000000000000000000000',
@@ -316,11 +316,11 @@ test('behavior: default (p256 - webcrypto)', async () => {
   })
 
   const signature = await WebCryptoP256.sign({
-    payload: TransactionEnvelopeAA.getSignPayload(transaction),
+    payload: TransactionEnvelopeTempo.getSignPayload(transaction),
     privateKey: keyPair.privateKey,
   })
 
-  const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
+  const serialized_signed = TransactionEnvelopeTempo.serialize(transaction, {
     signature: SignatureEnvelope.from({
       signature,
       publicKey: keyPair.publicKey,
@@ -389,7 +389,7 @@ test('behavior: default (p256 - webcrypto)', async () => {
         "gas": 100000n,
         "gasPrice": 20000000000n,
         "nonceKey": 0n,
-        "type": "aa",
+        "type": "tempo",
         "validAfter": null,
         "validBefore": null,
         "value": 0n,
@@ -442,7 +442,7 @@ test('behavior: default (webauthn)', async () => {
     address,
   })
 
-  const transaction = TransactionEnvelopeAA.from({
+  const transaction = TransactionEnvelopeTempo.from({
     calls: [
       {
         to: '0x0000000000000000000000000000000000000000',
@@ -456,7 +456,7 @@ test('behavior: default (webauthn)', async () => {
   })
 
   const { metadata, payload } = WebAuthnP256.getSignPayload({
-    challenge: TransactionEnvelopeAA.getSignPayload(transaction),
+    challenge: TransactionEnvelopeTempo.getSignPayload(transaction),
     rpId: 'localhost',
     origin: 'http://localhost',
   })
@@ -467,7 +467,7 @@ test('behavior: default (webauthn)', async () => {
     hash: true,
   })
 
-  const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
+  const serialized_signed = TransactionEnvelopeTempo.serialize(transaction, {
     signature: SignatureEnvelope.from({
       signature,
       publicKey,
@@ -535,7 +535,7 @@ test('behavior: default (webauthn)', async () => {
         "gas": 100000n,
         "gasPrice": 20000000000n,
         "nonceKey": 0n,
-        "type": "aa",
+        "type": "tempo",
         "validAfter": null,
         "validBefore": null,
         "value": 0n,
@@ -603,7 +603,7 @@ test('behavior: feePayerSignature (user → feePayer)', async () => {
   //////////////////////////////////////////////////////////////////
   // Sender flow
 
-  const transaction = TransactionEnvelopeAA.from({
+  const transaction = TransactionEnvelopeTempo.from({
     calls: [{ to: '0x0000000000000000000000000000000000000000', value: 0n }],
     chainId,
     feePayerSignature: null,
@@ -614,32 +614,32 @@ test('behavior: feePayerSignature (user → feePayer)', async () => {
   })
 
   const signature = Secp256k1.sign({
-    payload: TransactionEnvelopeAA.getSignPayload(transaction),
+    payload: TransactionEnvelopeTempo.getSignPayload(transaction),
     // unfunded PK
     privateKey: senderPrivateKey,
   })
 
-  const transaction_signed = TransactionEnvelopeAA.from(transaction, {
+  const transaction_signed = TransactionEnvelopeTempo.from(transaction, {
     signature: SignatureEnvelope.from(signature),
   })
 
   //////////////////////////////////////////////////////////////////
   // Fee payer flow
 
-  const transaction_feePayer = TransactionEnvelopeAA.from({
+  const transaction_feePayer = TransactionEnvelopeTempo.from({
     ...transaction_signed,
     feeToken: '0x20c0000000000000000000000000000000000001',
   })
 
   const feePayerSignature = Secp256k1.sign({
-    payload: TransactionEnvelopeAA.getFeePayerSignPayload(
+    payload: TransactionEnvelopeTempo.getFeePayerSignPayload(
       transaction_feePayer,
       { sender: senderAddress },
     ),
     privateKey: feePayerPrivateKey,
   })
 
-  const serialized_signed = TransactionEnvelopeAA.serialize(
+  const serialized_signed = TransactionEnvelopeTempo.serialize(
     transaction_feePayer,
     {
       feePayerSignature,
@@ -745,7 +745,7 @@ describe('behavior: keyAuthorization', () => {
       blockTag: 'pending',
     })
 
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       calls: [
         {
           to: '0x0000000000000000000000000000000000000000',
@@ -761,11 +761,11 @@ describe('behavior: keyAuthorization', () => {
     })
 
     const signature = Secp256k1.sign({
-      payload: TransactionEnvelopeAA.getSignPayload(transaction),
+      payload: TransactionEnvelopeTempo.getSignPayload(transaction),
       privateKey: access.privateKey,
     })
 
-    const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
+    const serialized_signed = TransactionEnvelopeTempo.serialize(transaction, {
       signature: SignatureEnvelope.from({
         userAddress: root.address,
         inner: SignatureEnvelope.from(signature),
@@ -832,7 +832,7 @@ describe('behavior: keyAuthorization', () => {
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "gas": 100000n,
           "nonceKey": 0n,
-          "type": "aa",
+          "type": "tempo",
           "validAfter": null,
           "validBefore": null,
           "value": 0n,
@@ -883,7 +883,7 @@ describe('behavior: keyAuthorization', () => {
         blockTag: 'pending',
       })
 
-      const transaction = TransactionEnvelopeAA.from({
+      const transaction = TransactionEnvelopeTempo.from({
         calls: [
           {
             to: '0x0000000000000000000000000000000000000000',
@@ -898,17 +898,20 @@ describe('behavior: keyAuthorization', () => {
       })
 
       const signature = Secp256k1.sign({
-        payload: TransactionEnvelopeAA.getSignPayload(transaction),
+        payload: TransactionEnvelopeTempo.getSignPayload(transaction),
         privateKey: access.privateKey,
       })
 
-      const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
-        signature: SignatureEnvelope.from({
-          userAddress: root.address,
-          inner: SignatureEnvelope.from(signature),
-          type: 'keychain',
-        }),
-      })
+      const serialized_signed = TransactionEnvelopeTempo.serialize(
+        transaction,
+        {
+          signature: SignatureEnvelope.from({
+            userAddress: root.address,
+            inner: SignatureEnvelope.from(signature),
+            type: 'keychain',
+          }),
+        },
+      )
 
       const receipt = await client.request({
         method: 'eth_sendRawTransactionSync',
@@ -949,7 +952,7 @@ describe('behavior: keyAuthorization', () => {
       blockTag: 'pending',
     })
 
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       calls: [
         {
           to: '0x0000000000000000000000000000000000000000',
@@ -965,11 +968,11 @@ describe('behavior: keyAuthorization', () => {
     })
 
     const signature = P256.sign({
-      payload: TransactionEnvelopeAA.getSignPayload(transaction),
+      payload: TransactionEnvelopeTempo.getSignPayload(transaction),
       privateKey: access.privateKey,
     })
 
-    const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
+    const serialized_signed = TransactionEnvelopeTempo.serialize(transaction, {
       signature: SignatureEnvelope.from({
         userAddress: root.address,
         inner: SignatureEnvelope.from({
@@ -1042,7 +1045,7 @@ describe('behavior: keyAuthorization', () => {
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "gas": 100000n,
           "nonceKey": 0n,
-          "type": "aa",
+          "type": "tempo",
           "validAfter": null,
           "validBefore": null,
           "value": 0n,
@@ -1093,7 +1096,7 @@ describe('behavior: keyAuthorization', () => {
         blockTag: 'pending',
       })
 
-      const transaction = TransactionEnvelopeAA.from({
+      const transaction = TransactionEnvelopeTempo.from({
         calls: [
           {
             to: '0x0000000000000000000000000000000000000000',
@@ -1108,22 +1111,25 @@ describe('behavior: keyAuthorization', () => {
       })
 
       const signature = P256.sign({
-        payload: TransactionEnvelopeAA.getSignPayload(transaction),
+        payload: TransactionEnvelopeTempo.getSignPayload(transaction),
         privateKey: access.privateKey,
       })
 
-      const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
-        signature: SignatureEnvelope.from({
-          userAddress: root.address,
-          inner: SignatureEnvelope.from({
-            prehash: false,
-            publicKey: access.publicKey,
-            signature,
-            type: 'p256',
+      const serialized_signed = TransactionEnvelopeTempo.serialize(
+        transaction,
+        {
+          signature: SignatureEnvelope.from({
+            userAddress: root.address,
+            inner: SignatureEnvelope.from({
+              prehash: false,
+              publicKey: access.publicKey,
+              signature,
+              type: 'p256',
+            }),
+            type: 'keychain',
           }),
-          type: 'keychain',
-        }),
-      })
+        },
+      )
 
       const receipt = await client.request({
         method: 'eth_sendRawTransactionSync',
@@ -1162,7 +1168,7 @@ describe('behavior: keyAuthorization', () => {
       blockTag: 'pending',
     })
 
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       calls: [
         {
           to: '0x0000000000000000000000000000000000000000',
@@ -1178,11 +1184,11 @@ describe('behavior: keyAuthorization', () => {
     })
 
     const signature = await WebCryptoP256.sign({
-      payload: TransactionEnvelopeAA.getSignPayload(transaction),
+      payload: TransactionEnvelopeTempo.getSignPayload(transaction),
       privateKey: keyPair.privateKey,
     })
 
-    const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
+    const serialized_signed = TransactionEnvelopeTempo.serialize(transaction, {
       signature: SignatureEnvelope.from({
         userAddress: root.address,
         inner: SignatureEnvelope.from({
@@ -1254,7 +1260,7 @@ describe('behavior: keyAuthorization', () => {
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "gas": 100000n,
           "nonceKey": 0n,
-          "type": "aa",
+          "type": "tempo",
           "validAfter": null,
           "validBefore": null,
           "value": 0n,
@@ -1269,7 +1275,7 @@ describe('behavior: keyAuthorization', () => {
         blockTag: 'pending',
       })
 
-      const transaction = TransactionEnvelopeAA.from({
+      const transaction = TransactionEnvelopeTempo.from({
         calls: [
           {
             to: '0x0000000000000000000000000000000000000000',
@@ -1284,22 +1290,25 @@ describe('behavior: keyAuthorization', () => {
       })
 
       const signature = await WebCryptoP256.sign({
-        payload: TransactionEnvelopeAA.getSignPayload(transaction),
+        payload: TransactionEnvelopeTempo.getSignPayload(transaction),
         privateKey: keyPair.privateKey,
       })
 
-      const serialized_signed = TransactionEnvelopeAA.serialize(transaction, {
-        signature: SignatureEnvelope.from({
-          userAddress: root.address,
-          inner: SignatureEnvelope.from({
-            prehash: true,
-            publicKey: access.publicKey,
-            signature,
-            type: 'p256',
+      const serialized_signed = TransactionEnvelopeTempo.serialize(
+        transaction,
+        {
+          signature: SignatureEnvelope.from({
+            userAddress: root.address,
+            inner: SignatureEnvelope.from({
+              prehash: true,
+              publicKey: access.publicKey,
+              signature,
+              type: 'p256',
+            }),
+            type: 'keychain',
           }),
-          type: 'keychain',
-        }),
-      })
+        },
+      )
 
       const receipt = await client.request({
         method: 'eth_sendRawTransactionSync',

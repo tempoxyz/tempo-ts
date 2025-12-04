@@ -65,7 +65,7 @@ describe('fromRpc', () => {
           "type": "secp256k1",
         },
         "transactionIndex": 2,
-        "type": "aa",
+        "type": "tempo",
         "value": 0n,
       }
     `)
@@ -147,7 +147,7 @@ describe('fromRpc', () => {
           "type": "secp256k1",
         },
         "transactionIndex": 2,
-        "type": "aa",
+        "type": "tempo",
         "value": 0n,
       }
     `)
@@ -254,7 +254,7 @@ describe('fromRpc', () => {
           "type": "secp256k1",
         },
         "transactionIndex": 2,
-        "type": "aa",
+        "type": "tempo",
         "value": 0n,
       }
     `)
@@ -294,7 +294,7 @@ describe('toRpc', () => {
         type: 'secp256k1',
       },
       transactionIndex: 2,
-      type: 'aa',
+      type: 'tempo',
     })
     expect(transaction).toMatchInlineSnapshot(`
       {
@@ -370,7 +370,7 @@ describe('toRpc', () => {
         type: 'secp256k1',
       },
       transactionIndex: 2,
-      type: 'aa',
+      type: 'tempo',
     })
     expect(transaction).toMatchInlineSnapshot(`
       {
@@ -465,7 +465,7 @@ describe('toRpc', () => {
         type: 'secp256k1',
       },
       transactionIndex: 2,
-      type: 'aa',
+      type: 'tempo',
     })
     expect(transaction).toMatchInlineSnapshot(`
       {

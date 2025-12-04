@@ -11,7 +11,7 @@ const defaultExpiry = 0xffffffffffff
 /**
  * Key authorization for provisioning access keys.
  *
- * Used in TransactionEnvelopeAA to add a new key to the keychain precompile.
+ * Used in TransactionEnvelopeTempo to add a new key to the keychain precompile.
  * The transaction must be signed by the root key to authorize adding this access key.
  */
 export type KeyAuthorization<
@@ -501,8 +501,8 @@ export declare namespace toRpc {
  * // @log: ]
  * ```
  *
- * @param authorization - The {@link ox#AuthorizationAA.AuthorizationAA}.
- * @returns An [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) AA Authorization tuple.
+ * @param authorization - The {@link ox#KeyAuthorization.KeyAuthorization}.
+ * @returns A Tempo Key Authorization tuple.
  */
 export function toTuple<const authorization extends KeyAuthorization>(
   authorization: authorization,

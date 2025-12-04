@@ -11,7 +11,7 @@ import type {
   UnionPick,
 } from '../../internal/types.js'
 import type * as TokenId from '../../ox/TokenId.js'
-import type { TransactionRequestAA } from '../Transaction.js'
+import type { TransactionRequestTempo } from '../Transaction.js'
 
 export type GetAccountParameter<
   account extends Account | undefined = Account | undefined,
@@ -63,4 +63,4 @@ export type WriteParameters<
   | 'throwOnReceiptRevert'
 > &
   GetFeeTokenParameter<chain> &
-  UnionPick<TransactionRequestAA, 'feePayer'>
+  UnionPick<TransactionRequestTempo, 'feePayer'>

@@ -19,7 +19,7 @@ import * as SignatureEnvelope from './SignatureEnvelope.js'
 import * as TokenId from './TokenId.js'
 
 /**
- * Represents a single call within an AA transaction.
+ * Represents a single call within a Tempo transaction.
  */
 export type Call<bigintType = bigint> = {
   /** Call data. */
@@ -30,7 +30,7 @@ export type Call<bigintType = bigint> = {
   value?: bigintType | undefined
 }
 
-export type TransactionEnvelopeAA<
+export type TransactionEnvelopeTempo<
   signed extends boolean = boolean,
   bigintType = bigint,
   numberType = number,
@@ -93,7 +93,7 @@ export type TransactionEnvelopeAA<
       })
 >
 
-export type Rpc<signed extends boolean = boolean> = TransactionEnvelopeAA<
+export type Rpc<signed extends boolean = boolean> = TransactionEnvelopeTempo<
   signed,
   Hex.Hex,
   Hex.Hex,
@@ -105,22 +105,22 @@ export type FeePayerMagic = typeof feePayerMagic
 
 export type Serialized = `${SerializedType}${string}`
 
-export type Signed = TransactionEnvelopeAA<true>
+export type Signed = TransactionEnvelopeTempo<true>
 
 export const serializedType = '0x76' as const
 export type SerializedType = typeof serializedType
 
-export const type = 'aa' as const
+export const type = 'tempo' as const
 export type Type = typeof type
 
 /**
- * Asserts a {@link ox#TransactionEnvelopeAA.TransactionEnvelopeAA} is valid.
+ * Asserts a {@link ox#TransactionEnvelopeTempo.TransactionEnvelopeTempo} is valid.
  *
  * @example
  * ```ts twoslash
- * import { TransactionEnvelopeAA } from 'ox/tempo'
+ * import { TransactionEnvelopeTempo } from 'ox/tempo'
  *
- * TransactionEnvelopeAA.assert({
+ * TransactionEnvelopeTempo.assert({
  *   calls: [{ to: '0x0000000000000000000000000000000000000000', value: 0n }],
  *   chainId: 1,
  *   maxFeePerGas: 1000000000n,
@@ -129,7 +129,7 @@ export type Type = typeof type
  *
  * @param envelope - The transaction envelope to assert.
  */
-export function assert(envelope: PartialBy<TransactionEnvelopeAA, 'type'>) {
+export function assert(envelope: PartialBy<TransactionEnvelopeTempo, 'type'>) {
   const {
     calls,
     chainId,
@@ -189,15 +189,15 @@ export declare namespace assert {
 }
 
 /**
- * Deserializes a {@link ox#TransactionEnvelopeAA.TransactionEnvelopeAA} from its serialized form.
+ * Deserializes a {@link ox#TransactionEnvelopeTempo.TransactionEnvelopeTempo} from its serialized form.
  *
  * @example
  * ```ts twoslash
- * import { TransactionEnvelopeAA } from 'ox/tempo'
+ * import { TransactionEnvelopeTempo } from 'ox/tempo'
  *
- * const envelope = TransactionEnvelopeAA.deserialize('0x76f84a0182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0808080')
+ * const envelope = TransactionEnvelopeTempo.deserialize('0x76f84a0182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0808080')
  * // @log: {
- * // @log:   type: 'aa',
+ * // @log:   type: 'tempo',
  * // @log:   nonce: 785n,
  * // @log:   maxFeePerGas: 2000000000n,
  * // @log:   gas: 1000000n,
@@ -210,7 +210,7 @@ export declare namespace assert {
  */
 export function deserialize(
   serialized: Serialized,
-): Compute<TransactionEnvelopeAA> {
+): Compute<TransactionEnvelopeTempo> {
   const transactionArray = Rlp.toHex(Hex.slice(serialized, 1))
 
   const [
@@ -273,7 +273,7 @@ export function deserialize(
   let transaction = {
     chainId: Number(chainId),
     type,
-  } as TransactionEnvelopeAA
+  } as TransactionEnvelopeTempo
 
   if (Hex.validate(gas) && gas !== '0x') transaction.gas = BigInt(gas)
   if (Hex.validate(nonce))
@@ -346,14 +346,14 @@ export declare namespace deserialize {
 }
 
 /**
- * Converts an arbitrary transaction object into an AA Transaction Envelope.
+ * Converts an arbitrary transaction object into a Tempo Transaction Envelope.
  *
  * @example
  * ```ts twoslash
  * import { Value } from 'ox'
- * import { TransactionEnvelopeAA } from 'ox/tempo'
+ * import { TransactionEnvelopeTempo } from 'ox/tempo'
  *
- * const envelope = TransactionEnvelopeAA.from({ // [!code focus]
+ * const envelope = TransactionEnvelopeTempo.from({ // [!code focus]
  *   chainId: 1, // [!code focus]
  *   calls: [{ to: '0x0000000000000000000000000000000000000000', value: Value.fromEther('1') }], // [!code focus]
  *   maxFeePerGas: Value.fromGwei('10'), // [!code focus]
@@ -369,9 +369,9 @@ export declare namespace deserialize {
  * ```ts twoslash
  * // @noErrors
  * import { Secp256k1, Value } from 'ox'
- * import { TransactionEnvelopeAA } from 'ox/tempo'
+ * import { TransactionEnvelopeTempo } from 'ox/tempo'
  *
- * const envelope = TransactionEnvelopeAA.from({
+ * const envelope = TransactionEnvelopeTempo.from({
  *   chainId: 1,
  *   calls: [{ to: '0x0000000000000000000000000000000000000000', value: Value.fromEther('1') }],
  *   maxFeePerGas: Value.fromGwei('10'),
@@ -379,11 +379,11 @@ export declare namespace deserialize {
  * })
  *
  * const signature = Secp256k1.sign({
- *   payload: TransactionEnvelopeAA.getSignPayload(envelope),
+ *   payload: TransactionEnvelopeTempo.getSignPayload(envelope),
  *   privateKey: '0x...',
  * })
  *
- * const envelope_signed = TransactionEnvelopeAA.from(envelope, { // [!code focus]
+ * const envelope_signed = TransactionEnvelopeTempo.from(envelope, { // [!code focus]
  *   signature, // [!code focus]
  * }) // [!code focus]
  * // @log: {
@@ -391,7 +391,7 @@ export declare namespace deserialize {
  * // @log:   calls: [{ to: '0x0000000000000000000000000000000000000000', value: 1000000000000000000n }],
  * // @log:   maxFeePerGas: 10000000000n,
  * // @log:   maxPriorityFeePerGas: 1000000000n,
- * // @log:   type: 'aa',
+ * // @log:   type: 'tempo',
  * // @log:   r: 125...n,
  * // @log:   s: 642...n,
  * // @log:   yParity: 0,
@@ -401,27 +401,27 @@ export declare namespace deserialize {
  * @example
  * ### From Serialized
  *
- * It is possible to instantiate an AA Transaction Envelope from a {@link ox#TransactionEnvelopeAA.Serialized} value.
+ * It is possible to instantiate a Tempo Transaction Envelope from a {@link ox#TransactionEnvelopeTempo.Serialized} value.
  *
  * ```ts twoslash
- * import { TransactionEnvelopeAA } from 'ox/tempo'
+ * import { TransactionEnvelopeTempo } from 'ox/tempo'
  *
- * const envelope = TransactionEnvelopeAA.from('0x76f84a0182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0808080')
+ * const envelope = TransactionEnvelopeTempo.from('0x76f84a0182031184773594008477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0808080')
  * // @log: {
  * // @log:   chainId: 1,
  * // @log:   calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', value: 1000000000000000000n }],
  * // @log:   maxFeePerGas: 10000000000n,
- * // @log:   type: 'aa',
+ * // @log:   type: 'tempo',
  * // @log: }
  * ```
  *
  * @param envelope - The transaction object to convert.
  * @param options - Options.
- * @returns An AA Transaction Envelope.
+ * @returns A Tempo Transaction Envelope.
  */
 export function from<
   const envelope extends
-    | UnionPartialBy<TransactionEnvelopeAA, 'type'>
+    | UnionPartialBy<TransactionEnvelopeTempo, 'type'>
     | Serialized,
   const signature extends
     | SignatureEnvelope.SignatureEnvelope
@@ -429,7 +429,7 @@ export function from<
 >(
   envelope:
     | envelope
-    | UnionPartialBy<TransactionEnvelopeAA, 'type'>
+    | UnionPartialBy<TransactionEnvelopeTempo, 'type'>
     | Serialized,
   options: from.Options<signature> = {},
 ): from.ReturnValue<envelope, signature> {
@@ -437,7 +437,7 @@ export function from<
 
   const envelope_ = (
     typeof envelope === 'string' ? deserialize(envelope) : envelope
-  ) as TransactionEnvelopeAA
+  ) as TransactionEnvelopeTempo
 
   assert(envelope_)
 
@@ -447,7 +447,7 @@ export function from<
     ...(feePayerSignature
       ? { feePayerSignature: Signature.from(feePayerSignature) }
       : {}),
-    type: 'aa',
+    type: 'tempo',
   } as never
 }
 
@@ -462,21 +462,21 @@ export declare namespace from {
   }
 
   type ReturnValue<
-    envelope extends UnionPartialBy<TransactionEnvelopeAA, 'type'> | Hex.Hex =
-      | TransactionEnvelopeAA
-      | Hex.Hex,
+    envelope extends
+      | UnionPartialBy<TransactionEnvelopeTempo, 'type'>
+      | Hex.Hex = TransactionEnvelopeTempo | Hex.Hex,
     signature extends
       | SignatureEnvelope.SignatureEnvelope
       | undefined = undefined,
   > = Compute<
     envelope extends Hex.Hex
-      ? TransactionEnvelopeAA
+      ? TransactionEnvelopeTempo
       : Assign<
           envelope,
           (signature extends SignatureEnvelope.SignatureEnvelope
             ? { signature: SignatureEnvelope.from.ReturnValue<signature> }
             : {}) & {
-            readonly type: 'aa'
+            readonly type: 'tempo'
           }
         >
   >
@@ -488,21 +488,21 @@ export declare namespace from {
 }
 
 /**
- * Serializes a {@link ox#TransactionEnvelopeAA.TransactionEnvelopeAA}.
+ * Serializes a {@link ox#TransactionEnvelopeTempo.TransactionEnvelopeTempo}.
  *
  * @example
  * ```ts twoslash
  * // @noErrors
  * import { Value } from 'ox'
- * import { TransactionEnvelopeAA } from 'ox/tempo'
+ * import { TransactionEnvelopeTempo } from 'ox/tempo'
  *
- * const envelope = TransactionEnvelopeAA.from({
+ * const envelope = TransactionEnvelopeTempo.from({
  *   chainId: 1,
  *   calls: [{ to: '0x0000000000000000000000000000000000000000', value: Value.fromEther('1') }],
  *   maxFeePerGas: Value.fromGwei('10'),
  * })
  *
- * const serialized = TransactionEnvelopeAA.serialize(envelope) // [!code focus]
+ * const serialized = TransactionEnvelopeTempo.serialize(envelope) // [!code focus]
  * ```
  *
  * @example
@@ -513,20 +513,20 @@ export declare namespace from {
  * ```ts twoslash
  * // @noErrors
  * import { Secp256k1, Value } from 'ox'
- * import { TransactionEnvelopeAA } from 'ox/tempo'
+ * import { TransactionEnvelopeTempo } from 'ox/tempo'
  *
- * const envelope = TransactionEnvelopeAA.from({
+ * const envelope = TransactionEnvelopeTempo.from({
  *   chainId: 1,
  *   calls: [{ to: '0x0000000000000000000000000000000000000000', value: Value.fromEther('1') }],
  *   maxFeePerGas: Value.fromGwei('10'),
  * })
  *
  * const signature = Secp256k1.sign({
- *   payload: TransactionEnvelopeAA.getSignPayload(envelope),
+ *   payload: TransactionEnvelopeTempo.getSignPayload(envelope),
  *   privateKey: '0x...',
  * })
  *
- * const serialized = TransactionEnvelopeAA.serialize(envelope, { // [!code focus]
+ * const serialized = TransactionEnvelopeTempo.serialize(envelope, { // [!code focus]
  *   signature, // [!code focus]
  * }) // [!code focus]
  *
@@ -538,7 +538,7 @@ export declare namespace from {
  * @returns The serialized Transaction Envelope.
  */
 export function serialize(
-  envelope: PartialBy<TransactionEnvelopeAA, 'type'>,
+  envelope: PartialBy<TransactionEnvelopeTempo, 'type'>,
   options: serialize.Options = {},
 ): Serialized {
   const {
@@ -649,7 +649,7 @@ export declare namespace serialize {
 }
 
 /**
- * Returns the payload to sign for a {@link ox#TransactionEnvelopeAA.TransactionEnvelopeAA}.
+ * Returns the payload to sign for a {@link ox#TransactionEnvelopeTempo.TransactionEnvelopeTempo}.
  *
  * @example
  * The example below demonstrates how to compute the sign payload which can be used
@@ -658,9 +658,9 @@ export declare namespace serialize {
  * ```ts twoslash
  * // @noErrors
  * import { Secp256k1 } from 'ox'
- * import { TransactionEnvelopeAA } from 'ox/tempo'
+ * import { TransactionEnvelopeTempo } from 'ox/tempo'
  *
- * const envelope = TransactionEnvelopeAA.from({
+ * const envelope = TransactionEnvelopeTempo.from({
  *   chainId: 1,
  *   calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', value: 1000000000000000000n }],
  *   nonce: 0n,
@@ -668,7 +668,7 @@ export declare namespace serialize {
  *   gas: 21000n,
  * })
  *
- * const payload = TransactionEnvelopeAA.getSignPayload(envelope) // [!code focus]
+ * const payload = TransactionEnvelopeTempo.getSignPayload(envelope) // [!code focus]
  * // @log: '0x...'
  *
  * const signature = Secp256k1.sign({ payload, privateKey: '0x...' })
@@ -678,7 +678,7 @@ export declare namespace serialize {
  * @returns The sign payload.
  */
 export function getSignPayload(
-  envelope: TransactionEnvelopeAA,
+  envelope: TransactionEnvelopeTempo,
 ): getSignPayload.ReturnValue {
   return hash(envelope, { presign: true })
 }
@@ -690,15 +690,15 @@ export declare namespace getSignPayload {
 }
 
 /**
- * Hashes a {@link ox#TransactionEnvelopeAA.TransactionEnvelopeAA}. This is the "transaction hash".
+ * Hashes a {@link ox#TransactionEnvelopeTempo.TransactionEnvelopeTempo}. This is the "transaction hash".
  *
  * @example
  * ```ts twoslash
  * // @noErrors
  * import { Secp256k1 } from 'ox'
- * import { TransactionEnvelopeAA } from 'ox/tempo'
+ * import { TransactionEnvelopeTempo } from 'ox/tempo'
  *
- * const envelope = TransactionEnvelopeAA.from({
+ * const envelope = TransactionEnvelopeTempo.from({
  *   chainId: 1,
  *   calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', value: 1000000000000000000n }],
  *   nonce: 0n,
@@ -707,21 +707,21 @@ export declare namespace getSignPayload {
  * })
  *
  * const signature = Secp256k1.sign({
- *   payload: TransactionEnvelopeAA.getSignPayload(envelope),
+ *   payload: TransactionEnvelopeTempo.getSignPayload(envelope),
  *   privateKey: '0x...'
  * })
  *
- * const envelope_signed = TransactionEnvelopeAA.from(envelope, { signature })
+ * const envelope_signed = TransactionEnvelopeTempo.from(envelope, { signature })
  *
- * const hash = TransactionEnvelopeAA.hash(envelope_signed) // [!code focus]
+ * const hash = TransactionEnvelopeTempo.hash(envelope_signed) // [!code focus]
  * ```
  *
- * @param envelope - The AA Transaction Envelope to hash.
+ * @param envelope - The Tempo Transaction Envelope to hash.
  * @param options - Options.
  * @returns The hash of the transaction envelope.
  */
 export function hash<presign extends boolean = false>(
-  envelope: TransactionEnvelopeAA<presign extends true ? false : true>,
+  envelope: TransactionEnvelopeTempo<presign extends true ? false : true>,
   options: hash.Options<presign> = {},
 ): hash.ReturnValue {
   const serialized = serialize({
@@ -754,15 +754,15 @@ export declare namespace hash {
 }
 
 /**
- * Returns the fee payer payload to sign for a {@link ox#TransactionEnvelopeAA.TransactionEnvelopeAA}.
+ * Returns the fee payer payload to sign for a {@link ox#TransactionEnvelopeTempo.TransactionEnvelopeTempo}.
  *
  * @example
  * ```ts twoslash
  * // @noErrors
  * import { Secp256k1 } from 'ox'
- * import { TransactionEnvelopeAA } from 'ox/tempo'
+ * import { TransactionEnvelopeTempo } from 'ox/tempo'
  *
- * const envelope = TransactionEnvelopeAA.from({
+ * const envelope = TransactionEnvelopeTempo.from({
  *   chainId: 1,
  *   calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', value: 1000000000000000000n }],
  *   nonce: 0n,
@@ -770,7 +770,7 @@ export declare namespace hash {
  *   gas: 21000n,
  * })
  *
- * const payload = TransactionEnvelopeAA.getFeePayerSignPayload(envelope, {
+ * const payload = TransactionEnvelopeTempo.getFeePayerSignPayload(envelope, {
  *   sender: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'
  * }) // [!code focus]
  * // @log: '0x...'
@@ -783,7 +783,7 @@ export declare namespace hash {
  * @returns The fee payer sign payload.
  */
 export function getFeePayerSignPayload(
-  envelope: TransactionEnvelopeAA,
+  envelope: TransactionEnvelopeTempo,
   options: getFeePayerSignPayload.Options,
 ): getFeePayerSignPayload.ReturnValue {
   const { sender } = options
@@ -811,13 +811,13 @@ export declare namespace getFeePayerSignPayload {
 }
 
 /**
- * Validates a {@link ox#TransactionEnvelopeAA.TransactionEnvelopeAA}. Returns `true` if the envelope is valid, `false` otherwise.
+ * Validates a {@link ox#TransactionEnvelopeTempo.TransactionEnvelopeTempo}. Returns `true` if the envelope is valid, `false` otherwise.
  *
  * @example
  * ```ts twoslash
- * import { TransactionEnvelopeAA } from 'ox/tempo'
+ * import { TransactionEnvelopeTempo } from 'ox/tempo'
  *
- * const valid = TransactionEnvelopeAA.validate({
+ * const valid = TransactionEnvelopeTempo.validate({
  *   calls: [{ to: '0x0000000000000000000000000000000000000000', value: 0n }],
  *   chainId: 1,
  *   maxFeePerGas: 1000000000n,
@@ -827,7 +827,9 @@ export declare namespace getFeePayerSignPayload {
  *
  * @param envelope - The transaction envelope to validate.
  */
-export function validate(envelope: PartialBy<TransactionEnvelopeAA, 'type'>) {
+export function validate(
+  envelope: PartialBy<TransactionEnvelopeTempo, 'type'>,
+) {
   try {
     assert(envelope)
     return true
@@ -845,17 +847,17 @@ export declare namespace validate {
  *
  * @example
  * ```ts twoslash
- * import { TransactionEnvelopeAA } from 'ox/tempo'
+ * import { TransactionEnvelopeTempo } from 'ox/tempo'
  *
- * TransactionEnvelopeAA.assert({
+ * TransactionEnvelopeTempo.assert({
  *   calls: [],
  *   chainId: 1,
  * })
- * // @error: TransactionEnvelopeAA.CallsEmptyError: Calls list cannot be empty.
+ * // @error: TransactionEnvelopeTempo.CallsEmptyError: Calls list cannot be empty.
  * ```
  */
 export class CallsEmptyError extends Errors.BaseError {
-  override readonly name = 'TransactionEnvelopeAA.CallsEmptyError'
+  override readonly name = 'TransactionEnvelopeTempo.CallsEmptyError'
   constructor() {
     super('Calls list cannot be empty.')
   }
@@ -866,19 +868,19 @@ export class CallsEmptyError extends Errors.BaseError {
  *
  * @example
  * ```ts twoslash
- * import { TransactionEnvelopeAA } from 'ox/tempo'
+ * import { TransactionEnvelopeTempo } from 'ox/tempo'
  *
- * TransactionEnvelopeAA.assert({
+ * TransactionEnvelopeTempo.assert({
  *   calls: [{ to: '0x0000000000000000000000000000000000000000' }],
  *   chainId: 1,
  *   validBefore: 100n,
  *   validAfter: 200n,
  * })
- * // @error: TransactionEnvelopeAA.InvalidValidityWindowError: validBefore (100) must be greater than validAfter (200).
+ * // @error: TransactionEnvelopeTempo.InvalidValidityWindowError: validBefore (100) must be greater than validAfter (200).
  * ```
  */
 export class InvalidValidityWindowError extends Errors.BaseError {
-  override readonly name = 'TransactionEnvelopeAA.InvalidValidityWindowError'
+  override readonly name = 'TransactionEnvelopeTempo.InvalidValidityWindowError'
   constructor({
     validBefore,
     validAfter,

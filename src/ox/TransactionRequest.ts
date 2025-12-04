@@ -6,7 +6,7 @@ import type { Compute } from '../internal/types.js'
 import * as KeyAuthorization from './KeyAuthorization.js'
 import * as TokenId from './TokenId.js'
 import * as Transaction from './Transaction.js'
-import type { Call } from './TransactionEnvelopeAA.js'
+import type { Call } from './TransactionEnvelopeTempo.js'
 
 type KeyType = 'secp256k1' | 'p256' | 'webAuthn'
 
@@ -113,9 +113,9 @@ export function toRpc(request: TransactionRequest): Rpc {
     typeof request.feeToken !== 'undefined' ||
     typeof request.validBefore !== 'undefined' ||
     typeof request.validAfter !== 'undefined' ||
-    request.type === 'aa'
+    request.type === 'tempo'
   ) {
-    request_rpc.type = Transaction.toRpcType.aa
+    request_rpc.type = Transaction.toRpcType.tempo
     delete request_rpc.data
     delete request_rpc.input
     delete request_rpc.to

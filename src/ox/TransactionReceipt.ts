@@ -29,7 +29,7 @@ export type Rpc = TransactionReceipt<
   Hex.Hex
 >
 
-export type Type = 'aa' | ox_TransactionReceipt.Type
+export type Type = 'tempo' | ox_TransactionReceipt.Type
 
 export type RpcType = '0x76' | ox_TransactionReceipt.RpcType
 
@@ -40,13 +40,13 @@ export type RpcStatus = ox_TransactionReceipt.RpcStatus
 /** RPC type to type mapping. */
 export const fromRpcType = {
   ...ox_TransactionReceipt.fromRpcType,
-  '0x76': 'aa',
+  '0x76': 'tempo',
 } as const
 
 /** Type to RPC type mapping. */
 export const toRpcType = {
   ...ox_TransactionReceipt.toRpcType,
-  aa: '0x76',
+  tempo: '0x76',
 } as const
 
 /**

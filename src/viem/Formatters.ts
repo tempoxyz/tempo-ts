@@ -34,7 +34,7 @@ export function formatTransaction(
     gasPrice: _,
     nonce,
     ...tx
-  } = ox_Transaction.fromRpc(transaction as never) as ox_Transaction.AA
+  } = ox_Transaction.fromRpc(transaction as never) as ox_Transaction.Tempo
 
   return {
     ...tx,
@@ -58,7 +58,7 @@ export function formatTransaction(
       ox_Transaction.toRpcType[
         tx.type as keyof typeof ox_Transaction.toRpcType
       ],
-    type: tx.type as 'aa',
+    type: tx.type as 'tempo',
   }
 }
 
@@ -84,8 +84,8 @@ export function formatTransactionRequest<chain extends Chain | undefined>(
     ? parseAccount<Account | viem_Account | Address>(request.account)
     : undefined
 
-  // Convert EIP-1559 transactions to AA transactions.
-  if (request.type === 'eip1559') (request as any).type = 'aa'
+  // Convert EIP-1559 transactions to Tempo transactions.
+  if (request.type === 'eip1559') (request as any).type = 'tempo'
 
   // If the request is not a Tempo transaction, route to Viem formatter.
   if (!isTempo(request))
@@ -112,7 +112,7 @@ export function formatTransactionRequest<chain extends Chain | undefined>(
       s: BigInt(auth.s!),
       yParity: Number(auth.yParity),
     })),
-    type: 'aa',
+    type: 'tempo',
   } as never)
 
   if (action === 'estimateGas') {
@@ -134,7 +134,7 @@ export function formatTransactionRequest<chain extends Chain | undefined>(
     rpc.type = undefined
   }
 
-  // We rely on `calls` for AA transactions.
+  // We rely on `calls` for Tempo transactions.
   // However, `calls` may not be supported by JSON-RPC accounts (wallets) yet,
   // so we will not remove the `data`, `to`, and `value` fields to make it
   // compatible with the base transaction structure.

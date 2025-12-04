@@ -2,7 +2,7 @@ import { Hex, P256, Rlp, Secp256k1, Value, WebAuthnP256 } from 'ox'
 import { describe, expect, test } from 'vitest'
 import { SignatureEnvelope } from './index.js'
 import * as KeyAuthorization from './KeyAuthorization.js'
-import * as TransactionEnvelopeAA from './TransactionEnvelopeAA.js'
+import * as TransactionEnvelopeTempo from './TransactionEnvelopeTempo.js'
 
 const privateKey =
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
@@ -10,54 +10,54 @@ const privateKey =
 describe('assert', () => {
   test('empty calls list', () => {
     expect(() =>
-      TransactionEnvelopeAA.assert({
+      TransactionEnvelopeTempo.assert({
         calls: [],
         chainId: 1,
       }),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[TransactionEnvelopeAA.CallsEmptyError: Calls list cannot be empty.]`,
+      `[TransactionEnvelopeTempo.CallsEmptyError: Calls list cannot be empty.]`,
     )
   })
 
   test('missing calls', () => {
     expect(() =>
-      TransactionEnvelopeAA.assert({
+      TransactionEnvelopeTempo.assert({
         chainId: 1,
       } as any),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[TransactionEnvelopeAA.CallsEmptyError: Calls list cannot be empty.]`,
+      `[TransactionEnvelopeTempo.CallsEmptyError: Calls list cannot be empty.]`,
     )
   })
 
   test('invalid validity window', () => {
     expect(() =>
-      TransactionEnvelopeAA.assert({
+      TransactionEnvelopeTempo.assert({
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         chainId: 1,
         validBefore: 100,
         validAfter: 200,
       }),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[TransactionEnvelopeAA.InvalidValidityWindowError: validBefore (100) must be greater than validAfter (200).]`,
+      `[TransactionEnvelopeTempo.InvalidValidityWindowError: validBefore (100) must be greater than validAfter (200).]`,
     )
   })
 
   test('invalid validity window (equal)', () => {
     expect(() =>
-      TransactionEnvelopeAA.assert({
+      TransactionEnvelopeTempo.assert({
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         chainId: 1,
         validBefore: 100,
         validAfter: 100,
       }),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[TransactionEnvelopeAA.InvalidValidityWindowError: validBefore (100) must be greater than validAfter (100).]`,
+      `[TransactionEnvelopeTempo.InvalidValidityWindowError: validBefore (100) must be greater than validAfter (100).]`,
     )
   })
 
   test('invalid call address', () => {
     expect(() =>
-      TransactionEnvelopeAA.assert({
+      TransactionEnvelopeTempo.assert({
         calls: [{ to: '0x000000000000000000000000000000000000000z' }],
         chainId: 1,
       }),
@@ -72,7 +72,7 @@ describe('assert', () => {
 
   test('fee cap too high', () => {
     expect(() =>
-      TransactionEnvelopeAA.assert({
+      TransactionEnvelopeTempo.assert({
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         maxFeePerGas: 2n ** 256n - 1n + 1n,
         chainId: 1,
@@ -84,7 +84,7 @@ describe('assert', () => {
 
   test('tip above fee cap', () => {
     expect(() =>
-      TransactionEnvelopeAA.assert({
+      TransactionEnvelopeTempo.assert({
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         chainId: 1,
         maxFeePerGas: 10n,
@@ -97,7 +97,7 @@ describe('assert', () => {
 
   test('invalid chain id', () => {
     expect(() =>
-      TransactionEnvelopeAA.assert({
+      TransactionEnvelopeTempo.assert({
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         chainId: 0,
       }),
@@ -108,7 +108,7 @@ describe('assert', () => {
 })
 
 describe('deserialize', () => {
-  const transaction = TransactionEnvelopeAA.from({
+  const transaction = TransactionEnvelopeTempo.from({
     chainId: 1,
     calls: [
       {
@@ -122,24 +122,26 @@ describe('deserialize', () => {
   })
 
   test('default', () => {
-    const serialized = TransactionEnvelopeAA.serialize(transaction)
-    const deserialized = TransactionEnvelopeAA.deserialize(serialized)
+    const serialized = TransactionEnvelopeTempo.serialize(transaction)
+    const deserialized = TransactionEnvelopeTempo.deserialize(serialized)
     expect(deserialized).toEqual(transaction)
   })
 
   test('minimal', () => {
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       chainId: 1,
       calls: [{}],
       nonce: 0n,
       nonceKey: 0n,
     })
-    const serialized = TransactionEnvelopeAA.serialize(transaction)
-    expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual(transaction)
+    const serialized = TransactionEnvelopeTempo.serialize(transaction)
+    expect(TransactionEnvelopeTempo.deserialize(serialized)).toEqual(
+      transaction,
+    )
   })
 
   test('multiple calls', () => {
-    const transaction_multiCall = TransactionEnvelopeAA.from({
+    const transaction_multiCall = TransactionEnvelopeTempo.from({
       ...transaction,
       calls: [
         {
@@ -152,25 +154,25 @@ describe('deserialize', () => {
         },
       ],
     })
-    const serialized = TransactionEnvelopeAA.serialize(transaction_multiCall)
-    expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual(
+    const serialized = TransactionEnvelopeTempo.serialize(transaction_multiCall)
+    expect(TransactionEnvelopeTempo.deserialize(serialized)).toEqual(
       transaction_multiCall,
     )
   })
 
   test('gas', () => {
-    const transaction_gas = TransactionEnvelopeAA.from({
+    const transaction_gas = TransactionEnvelopeTempo.from({
       ...transaction,
       gas: 21001n,
     })
-    const serialized = TransactionEnvelopeAA.serialize(transaction_gas)
-    expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual(
+    const serialized = TransactionEnvelopeTempo.serialize(transaction_gas)
+    expect(TransactionEnvelopeTempo.deserialize(serialized)).toEqual(
       transaction_gas,
     )
   })
 
   test('accessList', () => {
-    const transaction_accessList = TransactionEnvelopeAA.from({
+    const transaction_accessList = TransactionEnvelopeTempo.from({
       ...transaction,
       accessList: [
         {
@@ -182,75 +184,81 @@ describe('deserialize', () => {
         },
       ],
     })
-    const serialized = TransactionEnvelopeAA.serialize(transaction_accessList)
-    expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual(
+    const serialized = TransactionEnvelopeTempo.serialize(
+      transaction_accessList,
+    )
+    expect(TransactionEnvelopeTempo.deserialize(serialized)).toEqual(
       transaction_accessList,
     )
   })
 
   test('nonce', () => {
-    const transaction_nonce = TransactionEnvelopeAA.from({
+    const transaction_nonce = TransactionEnvelopeTempo.from({
       ...transaction,
       nonce: 0n,
     })
-    const serialized = TransactionEnvelopeAA.serialize(transaction_nonce)
-    expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual(
+    const serialized = TransactionEnvelopeTempo.serialize(transaction_nonce)
+    expect(TransactionEnvelopeTempo.deserialize(serialized)).toEqual(
       transaction_nonce,
     )
   })
 
   test('nonceKey', () => {
-    const transaction_nonceKey = TransactionEnvelopeAA.from({
+    const transaction_nonceKey = TransactionEnvelopeTempo.from({
       ...transaction,
       nonceKey: 0n,
     })
-    const serialized = TransactionEnvelopeAA.serialize(transaction_nonceKey)
-    expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual(
+    const serialized = TransactionEnvelopeTempo.serialize(transaction_nonceKey)
+    expect(TransactionEnvelopeTempo.deserialize(serialized)).toEqual(
       transaction_nonceKey,
     )
   })
 
   test('validBefore', () => {
-    const transaction_validBefore = TransactionEnvelopeAA.from({
+    const transaction_validBefore = TransactionEnvelopeTempo.from({
       ...transaction,
       validBefore: 1000000,
     })
-    const serialized = TransactionEnvelopeAA.serialize(transaction_validBefore)
-    expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual(
+    const serialized = TransactionEnvelopeTempo.serialize(
+      transaction_validBefore,
+    )
+    expect(TransactionEnvelopeTempo.deserialize(serialized)).toEqual(
       transaction_validBefore,
     )
   })
 
   test('validAfter', () => {
-    const transaction_validAfter = TransactionEnvelopeAA.from({
+    const transaction_validAfter = TransactionEnvelopeTempo.from({
       ...transaction,
       validAfter: 500000,
     })
-    const serialized = TransactionEnvelopeAA.serialize(transaction_validAfter)
-    expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual(
+    const serialized = TransactionEnvelopeTempo.serialize(
+      transaction_validAfter,
+    )
+    expect(TransactionEnvelopeTempo.deserialize(serialized)).toEqual(
       transaction_validAfter,
     )
   })
 
   test('validBefore and validAfter', () => {
-    const transaction_validity = TransactionEnvelopeAA.from({
+    const transaction_validity = TransactionEnvelopeTempo.from({
       ...transaction,
       validBefore: 1000000,
       validAfter: 500000,
     })
-    const serialized = TransactionEnvelopeAA.serialize(transaction_validity)
-    expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual(
+    const serialized = TransactionEnvelopeTempo.serialize(transaction_validity)
+    expect(TransactionEnvelopeTempo.deserialize(serialized)).toEqual(
       transaction_validity,
     )
   })
 
   test('feeToken', () => {
-    const transaction_feeToken = TransactionEnvelopeAA.from({
+    const transaction_feeToken = TransactionEnvelopeTempo.from({
       ...transaction,
       feeToken: '0x20c0000000000000000000000000000000000000',
     })
-    const serialized = TransactionEnvelopeAA.serialize(transaction_feeToken)
-    expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual(
+    const serialized = TransactionEnvelopeTempo.serialize(transaction_feeToken)
+    expect(TransactionEnvelopeTempo.deserialize(serialized)).toEqual(
       transaction_feeToken,
     )
   })
@@ -273,15 +281,15 @@ describe('deserialize', () => {
       }),
     })
 
-    const transaction_keyAuthorization = TransactionEnvelopeAA.from({
+    const transaction_keyAuthorization = TransactionEnvelopeTempo.from({
       ...transaction,
       keyAuthorization,
     })
 
-    const serialized = TransactionEnvelopeAA.serialize(
+    const serialized = TransactionEnvelopeTempo.serialize(
       transaction_keyAuthorization,
     )
-    expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual(
+    expect(TransactionEnvelopeTempo.deserialize(serialized)).toEqual(
       transaction_keyAuthorization,
     )
   })
@@ -289,13 +297,13 @@ describe('deserialize', () => {
   describe('signature', () => {
     test('secp256k1', () => {
       const signature = Secp256k1.sign({
-        payload: TransactionEnvelopeAA.getSignPayload(transaction),
+        payload: TransactionEnvelopeTempo.getSignPayload(transaction),
         privateKey,
       })
-      const serialized = TransactionEnvelopeAA.serialize(transaction, {
+      const serialized = TransactionEnvelopeTempo.serialize(transaction, {
         signature: SignatureEnvelope.from(signature),
       })
-      expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual({
+      expect(TransactionEnvelopeTempo.deserialize(serialized)).toEqual({
         ...transaction,
         signature: { signature, type: 'secp256k1' },
       })
@@ -305,10 +313,10 @@ describe('deserialize', () => {
       const privateKey = P256.randomPrivateKey()
       const publicKey = P256.getPublicKey({ privateKey })
       const signature = P256.sign({
-        payload: TransactionEnvelopeAA.getSignPayload(transaction),
+        payload: TransactionEnvelopeTempo.getSignPayload(transaction),
         privateKey,
       })
-      const serialized = TransactionEnvelopeAA.serialize(transaction, {
+      const serialized = TransactionEnvelopeTempo.serialize(transaction, {
         signature: SignatureEnvelope.from({
           signature,
           publicKey,
@@ -318,7 +326,7 @@ describe('deserialize', () => {
       // biome-ignore lint/suspicious/noTsIgnore: _
       // @ts-ignore
       delete signature.yParity
-      expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual({
+      expect(TransactionEnvelopeTempo.deserialize(serialized)).toEqual({
         ...transaction,
         signature: { prehash: true, publicKey, signature, type: 'p256' },
       })
@@ -326,12 +334,12 @@ describe('deserialize', () => {
   })
 
   test('feePayerSignature null', () => {
-    const transaction_feePayer = TransactionEnvelopeAA.from({
+    const transaction_feePayer = TransactionEnvelopeTempo.from({
       ...transaction,
       feePayerSignature: null,
     })
-    const serialized = TransactionEnvelopeAA.serialize(transaction_feePayer)
-    expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual(
+    const serialized = TransactionEnvelopeTempo.serialize(transaction_feePayer)
+    expect(TransactionEnvelopeTempo.deserialize(serialized)).toEqual(
       transaction_feePayer,
     )
   })
@@ -358,7 +366,7 @@ describe('deserialize', () => {
       '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // feePayerSignatureOrSender (address)
       [], // authorizationList
     ]).slice(2)}` as const
-    const deserialized = TransactionEnvelopeAA.deserialize(serialized)
+    const deserialized = TransactionEnvelopeTempo.deserialize(serialized)
     expect(deserialized.feePayerSignature).toBe(null)
   })
 
@@ -384,7 +392,7 @@ describe('deserialize', () => {
       [Hex.fromNumber(0), Hex.fromNumber(1), Hex.fromNumber(2)], // feePayerSignatureOrSender (signature tuple)
       [], // authorizationList
     ]).slice(2)}` as const
-    const deserialized = TransactionEnvelopeAA.deserialize(serialized)
+    const deserialized = TransactionEnvelopeTempo.deserialize(serialized)
     expect(deserialized.feePayerSignature).toEqual({
       yParity: 0,
       r: 1n,
@@ -416,7 +424,7 @@ describe('deserialize', () => {
         [], // authorizationList
       ]).slice(2)}` as const
       expect(
-        TransactionEnvelopeAA.deserialize(serialized),
+        TransactionEnvelopeTempo.deserialize(serialized),
       ).toMatchInlineSnapshot(`
         {
           "calls": [
@@ -431,7 +439,7 @@ describe('deserialize', () => {
           "maxPriorityFeePerGas": 1n,
           "nonce": 0n,
           "nonceKey": 0n,
-          "type": "aa",
+          "type": "tempo",
         }
       `)
     })
@@ -459,7 +467,7 @@ describe('deserialize', () => {
         [], // authorizationList
       ]).slice(2)}` as const
       expect(
-        TransactionEnvelopeAA.deserialize(serialized),
+        TransactionEnvelopeTempo.deserialize(serialized),
       ).toMatchInlineSnapshot(`
         {
           "calls": [
@@ -474,7 +482,7 @@ describe('deserialize', () => {
           "maxPriorityFeePerGas": 1n,
           "nonce": 0n,
           "nonceKey": 0n,
-          "type": "aa",
+          "type": "tempo",
         }
       `)
     })
@@ -483,9 +491,9 @@ describe('deserialize', () => {
   describe('errors', () => {
     test('invalid transaction (all missing)', () => {
       expect(() =>
-        TransactionEnvelopeAA.deserialize(`0x76${Rlp.fromHex([]).slice(2)}`),
+        TransactionEnvelopeTempo.deserialize(`0x76${Rlp.fromHex([]).slice(2)}`),
       ).toThrowErrorMatchingInlineSnapshot(`
-        [TransactionEnvelope.InvalidSerializedError: Invalid serialized transaction of type "aa" was provided.
+        [TransactionEnvelope.InvalidSerializedError: Invalid serialized transaction of type "tempo" was provided.
 
         Serialized Transaction: "0x76c0"
         Missing Attributes: chainId, maxPriorityFeePerGas, maxFeePerGas, gas, calls, accessList, keyAuthorization, nonceKey, nonce, validBefore, validAfter, feeToken, feePayerSignatureOrSender]
@@ -494,11 +502,11 @@ describe('deserialize', () => {
 
     test('invalid transaction (some missing)', () => {
       expect(() =>
-        TransactionEnvelopeAA.deserialize(
+        TransactionEnvelopeTempo.deserialize(
           `0x76${Rlp.fromHex(['0x00', '0x01']).slice(2)}`,
         ),
       ).toThrowErrorMatchingInlineSnapshot(`
-        [TransactionEnvelope.InvalidSerializedError: Invalid serialized transaction of type "aa" was provided.
+        [TransactionEnvelope.InvalidSerializedError: Invalid serialized transaction of type "tempo" was provided.
 
         Serialized Transaction: "0x76c20001"
         Missing Attributes: maxFeePerGas, gas, calls, accessList, keyAuthorization, nonceKey, nonce, validBefore, validAfter, feeToken, feePayerSignatureOrSender]
@@ -507,7 +515,7 @@ describe('deserialize', () => {
 
     test('invalid transaction (empty calls)', () => {
       expect(() =>
-        TransactionEnvelopeAA.deserialize(
+        TransactionEnvelopeTempo.deserialize(
           `0x76${Rlp.fromHex([
             Hex.fromNumber(1), // chainId
             Hex.fromNumber(1), // maxPriorityFeePerGas
@@ -525,13 +533,13 @@ describe('deserialize', () => {
           ]).slice(2)}`,
         ),
       ).toThrowErrorMatchingInlineSnapshot(
-        `[TransactionEnvelopeAA.CallsEmptyError: Calls list cannot be empty.]`,
+        `[TransactionEnvelopeTempo.CallsEmptyError: Calls list cannot be empty.]`,
       )
     })
 
     test('invalid transaction (too many fields with signature)', () => {
       expect(() =>
-        TransactionEnvelopeAA.deserialize(
+        TransactionEnvelopeTempo.deserialize(
           `0x76${Rlp.fromHex([
             Hex.fromNumber(1), // chainId
             Hex.fromNumber(1), // maxPriorityFeePerGas
@@ -558,7 +566,7 @@ describe('deserialize', () => {
           ]).slice(2)}`,
         ),
       ).toThrowErrorMatchingInlineSnapshot(`
-        [TransactionEnvelope.InvalidSerializedError: Invalid serialized transaction of type "aa" was provided.
+        [TransactionEnvelope.InvalidSerializedError: Invalid serialized transaction of type "tempo" was provided.
 
         Serialized Transaction: "0x76ec01010101d8d7940000000000000000000000000000000000000000008080000080808080c0c0821234825678"]
       `)
@@ -569,7 +577,7 @@ describe('deserialize', () => {
 describe('from', () => {
   test('default', () => {
     {
-      const envelope = TransactionEnvelopeAA.from({
+      const envelope = TransactionEnvelopeTempo.from({
         chainId: 1,
         calls: [{}],
         nonce: 0n,
@@ -583,16 +591,16 @@ describe('from', () => {
           "chainId": 1,
           "nonce": 0n,
           "nonceKey": 0n,
-          "type": "aa",
+          "type": "tempo",
         }
       `)
-      const serialized = TransactionEnvelopeAA.serialize(envelope)
-      const envelope2 = TransactionEnvelopeAA.from(serialized)
+      const serialized = TransactionEnvelopeTempo.serialize(envelope)
+      const envelope2 = TransactionEnvelopeTempo.from(serialized)
       expect(envelope2).toEqual(envelope)
     }
 
     {
-      const envelope = TransactionEnvelopeAA.from({
+      const envelope = TransactionEnvelopeTempo.from({
         chainId: 1,
         calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
         nonce: 0n,
@@ -621,11 +629,11 @@ describe('from', () => {
             },
             "type": "secp256k1",
           },
-          "type": "aa",
+          "type": "tempo",
         }
       `)
-      const serialized = TransactionEnvelopeAA.serialize(envelope)
-      const envelope2 = TransactionEnvelopeAA.from(serialized)
+      const serialized = TransactionEnvelopeTempo.serialize(envelope)
+      const envelope2 = TransactionEnvelopeTempo.from(serialized)
       expect(envelope2).toEqual({
         ...envelope,
         signature: { ...envelope.signature, type: 'secp256k1' },
@@ -634,7 +642,7 @@ describe('from', () => {
   })
 
   test('options: signature', () => {
-    const envelope = TransactionEnvelopeAA.from(
+    const envelope = TransactionEnvelopeTempo.from(
       {
         chainId: 1,
         calls: [{}],
@@ -665,16 +673,16 @@ describe('from', () => {
           },
           "type": "secp256k1",
         },
-        "type": "aa",
+        "type": "tempo",
       }
     `)
-    const serialized = TransactionEnvelopeAA.serialize(envelope)
-    const envelope2 = TransactionEnvelopeAA.from(serialized)
+    const serialized = TransactionEnvelopeTempo.serialize(envelope)
+    const envelope2 = TransactionEnvelopeTempo.from(serialized)
     expect(envelope2).toEqual(envelope)
   })
 
   test('options: feePayerSignature', () => {
-    const envelope = TransactionEnvelopeAA.from(
+    const envelope = TransactionEnvelopeTempo.from(
       {
         chainId: 1,
         calls: [{}],
@@ -705,14 +713,14 @@ describe('from', () => {
         "nonce": 0n,
         "r": 1n,
         "s": 2n,
-        "type": "aa",
+        "type": "tempo",
         "yParity": 0,
       }
     `)
   })
 
   test('options: feePayerSignature (null)', () => {
-    const envelope = TransactionEnvelopeAA.from(
+    const envelope = TransactionEnvelopeTempo.from(
       {
         chainId: 1,
         calls: [{}],
@@ -729,7 +737,7 @@ describe('from', () => {
         ],
         "chainId": 1,
         "nonce": 0n,
-        "type": "aa",
+        "type": "tempo",
       }
     `)
   })
@@ -737,7 +745,7 @@ describe('from', () => {
 
 describe('serialize', () => {
   test('default', () => {
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       chainId: 1,
       calls: [
         {
@@ -748,37 +756,39 @@ describe('serialize', () => {
       maxFeePerGas: Value.fromGwei('2'),
       maxPriorityFeePerGas: Value.fromGwei('2'),
     })
-    expect(TransactionEnvelopeAA.serialize(transaction)).toMatchInlineSnapshot(
+    expect(
+      TransactionEnvelopeTempo.serialize(transaction),
+    ).toMatchInlineSnapshot(
       `"0x76ef018477359400847735940080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c08082031180808080c0"`,
     )
   })
 
   test('minimal', () => {
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       chainId: 1,
       calls: [{}],
       nonce: 0n,
     })
-    expect(TransactionEnvelopeAA.serialize(transaction)).toMatchInlineSnapshot(
-      `"0x76d101808080c4c3808080c0808080808080c0"`,
-    )
+    expect(
+      TransactionEnvelopeTempo.serialize(transaction),
+    ).toMatchInlineSnapshot(`"0x76d101808080c4c3808080c0808080808080c0"`)
   })
 
   test('undefined nonceKey', () => {
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       chainId: 1,
       calls: [{}],
       nonce: 0n,
       nonceKey: undefined,
     })
-    const serialized = TransactionEnvelopeAA.serialize(transaction)
+    const serialized = TransactionEnvelopeTempo.serialize(transaction)
     expect(serialized).toMatchInlineSnapshot(
       `"0x76d101808080c4c3808080c0808080808080c0"`,
     )
   })
 
   test('multiple calls', () => {
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       chainId: 1,
       calls: [
         {
@@ -792,7 +802,9 @@ describe('serialize', () => {
       ],
       nonce: 0n,
     })
-    expect(TransactionEnvelopeAA.serialize(transaction)).toMatchInlineSnapshot(
+    expect(
+      TransactionEnvelopeTempo.serialize(transaction),
+    ).toMatchInlineSnapshot(
       `"0x76f84101808080f4d79470997970c51812dc3a010c7d01b50e0d17dc79c88080db943c44cdddb6a900fa2b585dd299e03d12fa4293bc8207d0821234c0808080808080c0"`,
     )
   })
@@ -815,19 +827,19 @@ describe('serialize', () => {
       }),
     })
 
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       chainId: 1,
       calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
       nonce: 0n,
       keyAuthorization,
     })
 
-    const serialized = TransactionEnvelopeAA.serialize(transaction)
+    const serialized = TransactionEnvelopeTempo.serialize(transaction)
     expect(serialized).toMatchInlineSnapshot(
       `"0x76f8a201808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c0808080808080c0f87bf7808094be95c3f554e9fc85ec51be69a3d807a0d55bcf2c84499602d2dad99420c000000000000000000000000000000000000183989680b841635dc2033e60185bb36709c29c75d64ea51dfbd91c32ef4be198e4ceb169fb4d50c2667ac4c771072746acfdcf1f1483336dcca8bd2df47cd83175dbe60f05401b"`,
     )
 
-    const deserialized = TransactionEnvelopeAA.deserialize(serialized)
+    const deserialized = TransactionEnvelopeTempo.deserialize(serialized)
     expect(deserialized.keyAuthorization).toEqual(keyAuthorization)
   })
 
@@ -856,19 +868,19 @@ describe('serialize', () => {
       }),
     })
 
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       chainId: 1,
       calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
       nonce: 0n,
       keyAuthorization,
     })
 
-    const serialized = TransactionEnvelopeAA.serialize(transaction)
+    const serialized = TransactionEnvelopeTempo.serialize(transaction)
     expect(serialized).toMatchInlineSnapshot(
       `"0x76f8e301808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c0808080808080c0f8bcf7800194be95c3f554e9fc85ec51be69a3d807a0d55bcf2c84499602d2dad99420c000000000000000000000000000000000000183989680b88201ccbb3485d4726235f13cb15ef394fb7158179fb7b1925eccec0147671090c52e77c3c53373cc1e3b05e7c23f609deb17cea8fe097300c45411237e9fe4166b35ad8ac16e167d6992c3e120d7f17d2376bc1cbcf30c46ba6dd00ce07303e742f511edf6ce1c32de66846f56afa7be1cbd729bc35750b6d0cdcf3ec9d75461aba001"`,
     )
 
-    const deserialized = TransactionEnvelopeAA.deserialize(serialized)
+    const deserialized = TransactionEnvelopeTempo.deserialize(serialized)
     expect(deserialized.keyAuthorization).toEqual(keyAuthorization)
   })
 
@@ -907,36 +919,36 @@ describe('serialize', () => {
       }),
     })
 
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       chainId: 1,
       calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
       nonce: 0n,
       keyAuthorization,
     })
 
-    const serialized = TransactionEnvelopeAA.serialize(transaction)
+    const serialized = TransactionEnvelopeTempo.serialize(transaction)
     expect(serialized).toMatchInlineSnapshot(
       `"0x76f9016501808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c0808080808080c0f9013df7800294be95c3f554e9fc85ec51be69a3d807a0d55bcf2c84499602d2dad99420c000000000000000000000000000000000000183989680b901020249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a223371322d3777222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657dccbb3485d4726235f13cb15ef394fb7158179fb7b1925eccec0147671090c52e77c3c53373cc1e3b05e7c23f609deb17cea8fe097300c45411237e9fe4166b35ad8ac16e167d6992c3e120d7f17d2376bc1cbcf30c46ba6dd00ce07303e742f511edf6ce1c32de66846f56afa7be1cbd729bc35750b6d0cdcf3ec9d75461aba0"`,
     )
 
     // Verify roundtrip
-    const deserialized = TransactionEnvelopeAA.deserialize(serialized)
+    const deserialized = TransactionEnvelopeTempo.deserialize(serialized)
     expect(deserialized.keyAuthorization).toEqual(keyAuthorization)
   })
 
   describe('with signature', () => {
     test('secp256k1', () => {
-      const transaction = TransactionEnvelopeAA.from({
+      const transaction = TransactionEnvelopeTempo.from({
         chainId: 1,
         calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
         nonce: 0n,
       })
       const signature = Secp256k1.sign({
-        payload: TransactionEnvelopeAA.getSignPayload(transaction),
+        payload: TransactionEnvelopeTempo.getSignPayload(transaction),
         privateKey,
       })
       expect(
-        TransactionEnvelopeAA.serialize(transaction, {
+        TransactionEnvelopeTempo.serialize(transaction, {
           signature: SignatureEnvelope.from(signature),
         }),
       ).toMatchInlineSnapshot(
@@ -945,7 +957,7 @@ describe('serialize', () => {
     })
 
     test('p256', () => {
-      const transaction = TransactionEnvelopeAA.from({
+      const transaction = TransactionEnvelopeTempo.from({
         chainId: 1,
         calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
         nonce: 0n,
@@ -953,10 +965,10 @@ describe('serialize', () => {
       const privateKey = P256.randomPrivateKey()
       const publicKey = P256.getPublicKey({ privateKey })
       const signature = P256.sign({
-        payload: TransactionEnvelopeAA.getSignPayload(transaction),
+        payload: TransactionEnvelopeTempo.getSignPayload(transaction),
         privateKey,
       })
-      const serialized = TransactionEnvelopeAA.serialize(transaction, {
+      const serialized = TransactionEnvelopeTempo.serialize(transaction, {
         signature: SignatureEnvelope.from({
           signature,
           publicKey,
@@ -966,7 +978,7 @@ describe('serialize', () => {
       // biome-ignore lint/suspicious/noTsIgnore: _
       // @ts-ignore
       delete signature.yParity
-      expect(TransactionEnvelopeAA.deserialize(serialized)).toEqual({
+      expect(TransactionEnvelopeTempo.deserialize(serialized)).toEqual({
         ...transaction,
         nonceKey: 0n,
         signature: { prehash: true, publicKey, signature, type: 'p256' },
@@ -975,13 +987,13 @@ describe('serialize', () => {
   })
 
   test('with feePayerSignature', () => {
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       chainId: 1,
       calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
       nonce: 0n,
     })
     expect(
-      TransactionEnvelopeAA.serialize(transaction, {
+      TransactionEnvelopeTempo.serialize(transaction, {
         feePayerSignature: {
           r: 1n,
           s: 2n,
@@ -994,13 +1006,13 @@ describe('serialize', () => {
   })
 
   test('with feePayerSignature (null)', () => {
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       chainId: 1,
       calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
       nonce: 0n,
     })
     expect(
-      TransactionEnvelopeAA.serialize(transaction, {
+      TransactionEnvelopeTempo.serialize(transaction, {
         feePayerSignature: null,
       }),
     ).toMatchInlineSnapshot(
@@ -1009,13 +1021,13 @@ describe('serialize', () => {
   })
 
   test('format: feePayer', () => {
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       chainId: 1,
       calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
       nonce: 0n,
     })
     expect(
-      TransactionEnvelopeAA.serialize(transaction, {
+      TransactionEnvelopeTempo.serialize(transaction, {
         sender: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
         format: 'feePayer',
       }),
@@ -1028,7 +1040,7 @@ describe('serialize', () => {
 describe('hash', () => {
   describe('default', () => {
     test('secp256k1', () => {
-      const transaction = TransactionEnvelopeAA.from({
+      const transaction = TransactionEnvelopeTempo.from({
         chainId: 1,
         calls: [
           {
@@ -1038,20 +1050,20 @@ describe('hash', () => {
         nonce: 0n,
       })
       const signature = Secp256k1.sign({
-        payload: TransactionEnvelopeAA.getSignPayload(transaction),
+        payload: TransactionEnvelopeTempo.getSignPayload(transaction),
         privateKey,
       })
-      const signed = TransactionEnvelopeAA.from(transaction, {
+      const signed = TransactionEnvelopeTempo.from(transaction, {
         signature: SignatureEnvelope.from(signature),
       })
-      expect(TransactionEnvelopeAA.hash(signed)).toMatchInlineSnapshot(
+      expect(TransactionEnvelopeTempo.hash(signed)).toMatchInlineSnapshot(
         `"0x04ad27d1607bc3fc37445724d8864b0843f88008bafd818814474e5ee94647eb"`,
       )
     })
   })
 
   test('presign', () => {
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       chainId: 1,
       calls: [
         {
@@ -1061,7 +1073,7 @@ describe('hash', () => {
       nonce: 0n,
     })
     expect(
-      TransactionEnvelopeAA.hash(transaction, { presign: true }),
+      TransactionEnvelopeTempo.hash(transaction, { presign: true }),
     ).toMatchInlineSnapshot(
       `"0xe1222a45806457acbe3a13940aae4c34f3180659fa16613b5a45dc183adae07c"`,
     )
@@ -1070,7 +1082,7 @@ describe('hash', () => {
 
 describe('getSignPayload', () => {
   test('default', () => {
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       chainId: 1,
       calls: [
         {
@@ -1080,7 +1092,7 @@ describe('getSignPayload', () => {
       nonce: 0n,
     })
     expect(
-      TransactionEnvelopeAA.getSignPayload(transaction),
+      TransactionEnvelopeTempo.getSignPayload(transaction),
     ).toMatchInlineSnapshot(
       `"0xe1222a45806457acbe3a13940aae4c34f3180659fa16613b5a45dc183adae07c"`,
     )
@@ -1089,7 +1101,7 @@ describe('getSignPayload', () => {
 
 describe('getFeePayerSignPayload', () => {
   test('default', () => {
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       chainId: 1,
       calls: [
         {
@@ -1099,7 +1111,7 @@ describe('getFeePayerSignPayload', () => {
       nonce: 0n,
     })
     expect(
-      TransactionEnvelopeAA.getFeePayerSignPayload(transaction, {
+      TransactionEnvelopeTempo.getFeePayerSignPayload(transaction, {
         sender: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
       }),
     ).toMatchInlineSnapshot(
@@ -1108,7 +1120,7 @@ describe('getFeePayerSignPayload', () => {
   })
 
   test('with feeToken', () => {
-    const transaction = TransactionEnvelopeAA.from({
+    const transaction = TransactionEnvelopeTempo.from({
       chainId: 1,
       calls: [
         {
@@ -1118,18 +1130,21 @@ describe('getFeePayerSignPayload', () => {
       nonce: 0n,
       feeToken: '0x20c0000000000000000000000000000000000000',
     })
-    const hash1 = TransactionEnvelopeAA.getFeePayerSignPayload(transaction, {
+    const hash1 = TransactionEnvelopeTempo.getFeePayerSignPayload(transaction, {
       sender: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
     })
 
     // Change feeToken - hash should be different
-    const transaction2 = TransactionEnvelopeAA.from({
+    const transaction2 = TransactionEnvelopeTempo.from({
       ...transaction,
       feeToken: '0x20c0000000000000000000000000000000000001',
     })
-    const hash2 = TransactionEnvelopeAA.getFeePayerSignPayload(transaction2, {
-      sender: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-    })
+    const hash2 = TransactionEnvelopeTempo.getFeePayerSignPayload(
+      transaction2,
+      {
+        sender: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      },
+    )
 
     expect(hash1).not.toBe(hash2)
   })
@@ -1138,7 +1153,7 @@ describe('getFeePayerSignPayload', () => {
 describe('validate', () => {
   test('valid', () => {
     expect(
-      TransactionEnvelopeAA.validate({
+      TransactionEnvelopeTempo.validate({
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         chainId: 1,
       }),
@@ -1147,7 +1162,7 @@ describe('validate', () => {
 
   test('invalid (empty calls)', () => {
     expect(
-      TransactionEnvelopeAA.validate({
+      TransactionEnvelopeTempo.validate({
         calls: [],
         chainId: 1,
       }),
@@ -1156,7 +1171,7 @@ describe('validate', () => {
 
   test('invalid (validity window)', () => {
     expect(
-      TransactionEnvelopeAA.validate({
+      TransactionEnvelopeTempo.validate({
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         chainId: 1,
         validBefore: 100,
