@@ -1,5 +1,5 @@
 ---
-"tempo.ts": major
+"tempo.ts": minor
 ---
 
 **Breaking:** Renamed all "AA" references to "Tempo".
