@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.8.3
+
+### Patch Changes
+
+- [`c092cfa`](https://github.com/tempoxyz/tempo-ts/commit/c092cfad47898d10f621da8bad5e414a624dd05e) Thanks [@jxom](https://github.com/jxom)! - `tempo.ts/viem`: Fixed `account` type on transaction requests.
+
 ## 0.8.2
 
 ### Patch Changes
