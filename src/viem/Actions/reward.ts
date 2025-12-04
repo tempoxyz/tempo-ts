@@ -4,13 +4,24 @@ import {
   type BaseErrorType,
   type Chain,
   type Client,
+  type ExtractAbiItem,
+  type GetEventArgs,
   type Log,
   parseEventLogs,
   type ReadContractReturnType,
   type Transport,
+  type Log as viem_Log,
+  type WatchContractEventParameters,
+  type WatchContractEventReturnType,
   type WriteContractReturnType,
 } from 'viem'
-import { readContract, writeContract, writeContractSync } from 'viem/actions'
+import {
+  readContract,
+  watchContractEvent,
+  writeContract,
+  writeContractSync,
+} from 'viem/actions'
+import type { UnionOmit } from '../../internal/types.js'
 import * as Abis from '../Abis.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
@@ -782,4 +793,152 @@ export declare namespace startSync {
   }
 
   export type ErrorType = start.ErrorType
+}
+
+/**
+ * Watches for reward scheduled events.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/viem'
+ *
+ * const client = createClient({
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   transport: http(),
+ * })
+ *
+ * const unwatch = Actions.reward.watchRewardScheduled(client, {
+ *   token: '0x20c0000000000000000000000000000000000001',
+ *   onRewardScheduled: (args, log) => {
+ *     console.log('Reward scheduled:', args)
+ *   },
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchRewardScheduled<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: watchRewardScheduled.Parameters,
+) {
+  const { onRewardScheduled, token, ...rest } = parameters
+  return watchContractEvent(client, {
+    ...rest,
+    address: token,
+    abi: Abis.tip20,
+    eventName: 'RewardScheduled',
+    onLogs: (logs) => {
+      for (const log of logs) onRewardScheduled(log.args, log)
+    },
+    strict: true,
+  })
+}
+
+export declare namespace watchRewardScheduled {
+  export type Args = GetEventArgs<
+    typeof Abis.tip20,
+    'RewardScheduled',
+    { IndexedOnly: false; Required: true }
+  >
+
+  export type Log = viem_Log<
+    bigint,
+    number,
+    false,
+    ExtractAbiItem<typeof Abis.tip20, 'RewardScheduled'>,
+    true
+  >
+
+  export type Parameters = UnionOmit<
+    WatchContractEventParameters<typeof Abis.tip20, 'RewardScheduled', true>,
+    'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
+  > & {
+    /** Callback to invoke when rewards are scheduled. */
+    onRewardScheduled: (args: Args, log: Log) => void
+    /** The TIP20 token address */
+    token: Address
+  }
+
+  export type ReturnValue = WatchContractEventReturnType
+}
+
+/**
+ * Watches for reward recipient set events.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/viem'
+ *
+ * const client = createClient({
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   transport: http(),
+ * })
+ *
+ * const unwatch = Actions.reward.watchRewardRecipientSet(client, {
+ *   token: '0x20c0000000000000000000000000000000000001',
+ *   onRewardRecipientSet: (args, log) => {
+ *     console.log('Reward recipient set:', args)
+ *   },
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchRewardRecipientSet<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: watchRewardRecipientSet.Parameters,
+) {
+  const { onRewardRecipientSet, token, ...rest } = parameters
+  return watchContractEvent(client, {
+    ...rest,
+    address: token,
+    abi: Abis.tip20,
+    eventName: 'RewardRecipientSet',
+    onLogs: (logs) => {
+      for (const log of logs) onRewardRecipientSet(log.args, log)
+    },
+    strict: true,
+  })
+}
+
+export declare namespace watchRewardRecipientSet {
+  export type Args = GetEventArgs<
+    typeof Abis.tip20,
+    'RewardRecipientSet',
+    { IndexedOnly: false; Required: true }
+  >
+
+  export type Log = viem_Log<
+    bigint,
+    number,
+    false,
+    ExtractAbiItem<typeof Abis.tip20, 'RewardRecipientSet'>,
+    true
+  >
+
+  export type Parameters = UnionOmit<
+    WatchContractEventParameters<typeof Abis.tip20, 'RewardRecipientSet', true>,
+    'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
+  > & {
+    /** Callback to invoke when a reward recipient is set. */
+    onRewardRecipientSet: (args: Args, log: Log) => void
+    /** The TIP20 token address */
+    token: Address
+  }
+
+  export type ReturnValue = WatchContractEventReturnType
 }

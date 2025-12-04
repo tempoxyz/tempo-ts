@@ -145,3 +145,72 @@ describe('setRecipientSync', () => {
     expect(recipient).toBe(account.address)
   })
 })
+
+describe('watchRewardScheduled', () => {
+  test('default', async () => {
+    const { token } = await setupToken()
+
+    const account = getAccount(config)
+
+    // Setup rewards
+    await actions.setRecipientSync(config, {
+      recipient: account.address!,
+      token,
+    })
+
+    const rewardAmount = parseUnits('100', 6)
+    await tokenActions.mintSync(config, {
+      amount: rewardAmount,
+      to: account.address!,
+      token,
+    })
+
+    const events: any[] = []
+    const unwatch = actions.watchRewardScheduled(config, {
+      token,
+      onRewardScheduled: (args) => {
+        events.push(args)
+      },
+    })
+
+    await actions.startSync(config, {
+      amount: rewardAmount,
+      token,
+    })
+
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    expect(events.length).toBeGreaterThan(0)
+    expect(events[0]?.amount).toBe(rewardAmount)
+    expect(events[0]?.funder).toBe(account.address)
+    unwatch()
+  })
+})
+
+describe('watchRewardRecipientSet', () => {
+  test('default', async () => {
+    const { token } = await setupToken()
+
+    const account = getAccount(config)
+
+    const events: any[] = []
+    const unwatch = actions.watchRewardRecipientSet(config, {
+      token,
+      onRewardRecipientSet: (args) => {
+        events.push(args)
+      },
+    })
+
+    await actions.setRecipientSync(config, {
+      recipient: account.address!,
+      token,
+    })
+
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    expect(events.length).toBeGreaterThan(0)
+    expect(events[0]?.holder).toBe(account.address)
+    expect(events[0]?.recipient).toBe(account.address)
+    unwatch()
+  })
+})

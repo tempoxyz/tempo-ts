@@ -1,9 +1,11 @@
 import { getAccount } from '@wagmi/core'
 import type { Address } from 'viem'
+import { parseUnits } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
 import { config, renderHook, setupToken } from '../../../test/wagmi/config.js'
 import * as hooks from './reward.js'
+import * as tokenHooks from './token.js'
 
 describe('useGetTotalPerSecond', () => {
   test('default', async () => {
@@ -146,5 +148,102 @@ describe('useSetRecipientSync', () => {
     await vi.waitFor(() =>
       expect(result.current.setRecipient.isSuccess).toBeTruthy(),
     )
+  })
+})
+
+describe('useWatchRewardScheduled', () => {
+  test('default', async () => {
+    const { result: connectResult } = await renderHook(() => ({
+      connect: useConnect(),
+      grantRolesSync: tokenHooks.useGrantRolesSync(),
+      mintSync: tokenHooks.useMintSync(),
+      setRecipientSync: hooks.useSetRecipientSync(),
+      startSync: hooks.useStartSync(),
+    }))
+
+    await connectResult.current.connect.connectAsync({
+      connector: config.connectors[0]!,
+    })
+
+    const { token: tokenAddr } = await setupToken()
+
+    const account = getAccount(config).address
+
+    await connectResult.current.grantRolesSync.mutateAsync({
+      token: tokenAddr,
+      roles: ['issuer'],
+      to: account!,
+    })
+
+    const rewardAmount = parseUnits('100', 6)
+    await connectResult.current.mintSync.mutateAsync({
+      token: tokenAddr,
+      to: account!,
+      amount: rewardAmount,
+    })
+
+    await connectResult.current.setRecipientSync.mutateAsync({
+      token: tokenAddr,
+      recipient: account!,
+    })
+
+    const events: any[] = []
+    await renderHook(() =>
+      hooks.useWatchRewardScheduled({
+        token: tokenAddr,
+        onRewardScheduled(args) {
+          events.push(args)
+        },
+      }),
+    )
+
+    await connectResult.current.startSync.mutateAsync({
+      token: tokenAddr,
+      amount: rewardAmount,
+    })
+
+    await vi.waitUntil(() => events.length >= 1)
+
+    expect(events.length).toBeGreaterThanOrEqual(1)
+    expect(events[0]?.amount).toBe(rewardAmount)
+    expect(events[0]?.funder).toBe(account)
+  })
+})
+
+describe('useWatchRewardRecipientSet', () => {
+  test('default', async () => {
+    const { result: connectResult } = await renderHook(() => ({
+      connect: useConnect(),
+      setRecipientSync: hooks.useSetRecipientSync(),
+    }))
+
+    await connectResult.current.connect.connectAsync({
+      connector: config.connectors[0]!,
+    })
+
+    const { token: tokenAddr } = await setupToken()
+
+    const account = getAccount(config).address
+
+    const events: any[] = []
+    await renderHook(() =>
+      hooks.useWatchRewardRecipientSet({
+        token: tokenAddr,
+        onRewardRecipientSet(args) {
+          events.push(args)
+        },
+      }),
+    )
+
+    await connectResult.current.setRecipientSync.mutateAsync({
+      token: tokenAddr,
+      recipient: account!,
+    })
+
+    await vi.waitUntil(() => events.length >= 1)
+
+    expect(events.length).toBeGreaterThanOrEqual(1)
+    expect(events[0]?.holder).toBe(account)
+    expect(events[0]?.recipient).toBe(account)
   })
 })
