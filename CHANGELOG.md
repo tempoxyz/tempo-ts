@@ -1,5 +1,24 @@
 # tempo.ts
 
+## 0.9.0
+
+### Minor Changes
+
+- [#105](https://github.com/tempoxyz/tempo-ts/pull/105) [`c6a57d8`](https://github.com/tempoxyz/tempo-ts/commit/c6a57d82f2c736596553857190edbe675181dfec) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed all "AA" references to "Tempo".
+
+  ### `tempo.ts/ox`
+  - `TransactionEnvelopeAA` → `TransactionEnvelopeTempo`
+  - `Transaction.AA` → `Transaction.Tempo`
+  - `Transaction.AARpc` → `Transaction.TempoRpc`
+  - `type: 'aa'` → `type: 'tempo'`
+
+  ### `tempo.ts/viem`
+  - `TransactionAA` → `TransactionTempo`
+  - `TransactionRequestAA` → `TransactionRequestTempo`
+  - `TransactionSerializableAA` → `TransactionSerializableTempo`
+  - `TransactionSerializedAA` → `TransactionSerializedTempo`
+  - `type: 'aa'` → `type: 'tempo'`
+
 ## 0.8.3
 
 ### Patch Changes
