@@ -7,7 +7,7 @@ import type { Compute, Mutable } from '../internal/types.js'
 import * as SignatureEnvelope from './SignatureEnvelope.js'
 
 /** Root type for an AA Authorization. */
-export type AuthorizationAA<
+export type AuthorizationTempo<
   signed extends boolean = boolean,
   bigintType = bigint,
   numberType = number,
@@ -28,20 +28,20 @@ export type AuthorizationAA<
       })
 >
 
-/** RPC representation of an {@link ox#AuthorizationAA.AuthorizationAA}. */
+/** RPC representation of an {@link ox#AuthorizationTempo.AuthorizationTempo}. */
 export type Rpc = Omit<
-  AuthorizationAA<false, Hex.Hex, Hex.Hex>,
+  AuthorizationTempo<false, Hex.Hex, Hex.Hex>,
   'signature'
 > & {
   signature: SignatureEnvelope.SignatureEnvelopeRpc
 }
 
-/** List of {@link ox#AuthorizationAA.AuthorizationAA}. */
+/** List of {@link ox#AuthorizationTempo.AuthorizationTempo}. */
 export type List<
   signed extends boolean = boolean,
   bigintType = bigint,
   numberType = number,
-> = Compute<readonly AuthorizationAA<signed, bigintType, numberType>[]>
+> = Compute<readonly AuthorizationTempo<signed, bigintType, numberType>[]>
 
 /** RPC representation of a list of AA Authorizations. */
 export type ListRpc = readonly Rpc[]
@@ -54,11 +54,10 @@ export type ListSigned<bigintType = bigint, numberType = number> = List<
 >
 
 /** Signed representation of an AA Authorization. */
-export type Signed<bigintType = bigint, numberType = number> = AuthorizationAA<
-  true,
-  bigintType,
-  numberType
->
+export type Signed<
+  bigintType = bigint,
+  numberType = number,
+> = AuthorizationTempo<true, bigintType, numberType>
 
 /** Tuple representation of an AA Authorization. */
 export type Tuple<signed extends boolean = boolean> = signed extends true
@@ -70,26 +69,26 @@ export type Tuple<signed extends boolean = boolean> = signed extends true
     ]
   : readonly [chainId: Hex.Hex, address: Hex.Hex, nonce: Hex.Hex]
 
-/** Tuple representation of a signed {@link ox#AuthorizationAA.AuthorizationAA}. */
+/** Tuple representation of a signed {@link ox#AuthorizationTempo.AuthorizationTempo}. */
 export type TupleSigned = Tuple<true>
 
-/** Tuple representation of a list of {@link ox#AuthorizationAA.AuthorizationAA}. */
+/** Tuple representation of a list of {@link ox#AuthorizationTempo.AuthorizationTempo}. */
 export type TupleList<signed extends boolean = boolean> =
   readonly Tuple<signed>[]
 
-/** Tuple representation of a list of signed {@link ox#AuthorizationAA.AuthorizationAA}. */
+/** Tuple representation of a list of signed {@link ox#AuthorizationTempo.AuthorizationTempo}. */
 export type TupleListSigned = TupleList<true>
 
 /**
- * Converts an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) AA Authorization object into a typed {@link ox#AuthorizationAA.AuthorizationAA}.
+ * Converts an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) AA Authorization object into a typed {@link ox#AuthorizationTempo.AuthorizationTempo}.
  *
  * @example
  * An AA Authorization can be instantiated from an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) AA Authorization tuple in object format.
  *
  * ```ts twoslash
- * import { AuthorizationAA } from 'ox'
+ * import { AuthorizationTempo } from 'ox'
  *
- * const authorization = AuthorizationAA.from({
+ * const authorization = AuthorizationTempo.from({
  *   address: '0x1234567890abcdef1234567890abcdef12345678',
  *   chainId: 1,
  *   nonce: 69n,
@@ -103,33 +102,33 @@ export type TupleListSigned = TupleList<true>
  * an AA Authorization with {@link ox#Secp256k1.(sign:function)}.
  *
  * ```ts twoslash
- * import { AuthorizationAA, Secp256k1 } from 'ox'
+ * import { AuthorizationTempo, Secp256k1 } from 'ox'
  *
- * const authorization = AuthorizationAA.from({
+ * const authorization = AuthorizationTempo.from({
  *   address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
  *   chainId: 1,
  *   nonce: 40n,
  * })
  *
  * const signature = Secp256k1.sign({
- *   payload: AuthorizationAA.getSignPayload(authorization),
+ *   payload: AuthorizationTempo.getSignPayload(authorization),
  *   privateKey: '0x...',
  * })
  *
- * const authorization_signed = AuthorizationAA.from(authorization, { signature }) // [!code focus]
+ * const authorization_signed = AuthorizationTempo.from(authorization, { signature }) // [!code focus]
  * ```
  *
  * @param authorization - An [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) AA Authorization tuple in object format.
  * @param options - AA Authorization options.
- * @returns The {@link ox#AuthorizationAA.AuthorizationAA}.
+ * @returns The {@link ox#AuthorizationTempo.AuthorizationTempo}.
  */
 export function from<
-  const authorization extends AuthorizationAA | Rpc,
+  const authorization extends AuthorizationTempo | Rpc,
   const signature extends
     | SignatureEnvelope.SignatureEnvelope
     | undefined = undefined,
 >(
-  authorization: authorization | AuthorizationAA,
+  authorization: authorization | AuthorizationTempo,
   options: from.Options<signature> = {},
 ): from.ReturnType<authorization, signature> {
   if (typeof authorization.chainId === 'string')
@@ -151,7 +150,7 @@ export declare namespace from {
   }
 
   type ReturnType<
-    authorization extends AuthorizationAA | Rpc = AuthorizationAA,
+    authorization extends AuthorizationTempo | Rpc = AuthorizationTempo,
     signature extends SignatureEnvelope.SignatureEnvelope | undefined =
       | SignatureEnvelope.SignatureEnvelope
       | undefined,
@@ -168,13 +167,13 @@ export declare namespace from {
 }
 
 /**
- * Converts an {@link ox#AuthorizationAA.Rpc} to an {@link ox#AuthorizationAA.AuthorizationAA}.
+ * Converts an {@link ox#AuthorizationTempo.Rpc} to an {@link ox#AuthorizationTempo.AuthorizationTempo}.
  *
  * @example
  * ```ts twoslash
- * import { AuthorizationAA } from 'ox'
+ * import { AuthorizationTempo } from 'ox'
  *
- * const authorization = AuthorizationAA.fromRpc({
+ * const authorization = AuthorizationTempo.fromRpc({
  *   address: '0x0000000000000000000000000000000000000000',
  *   chainId: '0x1',
  *   nonce: '0x1',
@@ -187,7 +186,7 @@ export declare namespace from {
  * ```
  *
  * @param authorization - The RPC-formatted AA Authorization.
- * @returns A signed {@link ox#AuthorizationAA.AuthorizationAA}.
+ * @returns A signed {@link ox#AuthorizationTempo.AuthorizationTempo}.
  */
 export function fromRpc(authorization: Rpc): Signed {
   const { address, chainId, nonce } = authorization
@@ -205,13 +204,13 @@ export declare namespace fromRpc {
 }
 
 /**
- * Converts an {@link ox#AuthorizationAA.ListRpc} to an {@link ox#AuthorizationAA.List}.
+ * Converts an {@link ox#AuthorizationTempo.ListRpc} to an {@link ox#AuthorizationTempo.List}.
  *
  * @example
  * ```ts twoslash
- * import { AuthorizationAA } from 'ox'
+ * import { AuthorizationTempo } from 'ox'
  *
- * const authorizationList = AuthorizationAA.fromRpcList([{
+ * const authorizationList = AuthorizationTempo.fromRpcList([{
  *   address: '0x0000000000000000000000000000000000000000',
  *   chainId: '0x1',
  *   nonce: '0x1',
@@ -224,7 +223,7 @@ export declare namespace fromRpc {
  * ```
  *
  * @param authorizationList - The RPC-formatted AA Authorization list.
- * @returns A signed {@link ox#AuthorizationAA.List}.
+ * @returns A signed {@link ox#AuthorizationTempo.List}.
  */
 export function fromRpcList(authorizationList: ListRpc): ListSigned {
   return authorizationList.map((x) => fromRpc(x as unknown as Rpc))
@@ -235,13 +234,13 @@ export declare namespace fromRpcList {
 }
 
 /**
- * Converts an {@link ox#AuthorizationAA.Tuple} to an {@link ox#AuthorizationAA.AuthorizationAA}.
+ * Converts an {@link ox#AuthorizationTempo.Tuple} to an {@link ox#AuthorizationTempo.AuthorizationTempo}.
  *
  * @example
  * ```ts twoslash
- * import { AuthorizationAA } from 'ox'
+ * import { AuthorizationTempo } from 'ox'
  *
- * const authorization = AuthorizationAA.fromTuple([
+ * const authorization = AuthorizationTempo.fromTuple([
  *   '0x1',
  *   '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
  *   '0x3'
@@ -257,9 +256,9 @@ export declare namespace fromRpcList {
  * It is also possible to append a serialized SignatureEnvelope to the end of an AA Authorization tuple.
  *
  * ```ts twoslash
- * import { AuthorizationAA } from 'ox'
+ * import { AuthorizationTempo } from 'ox'
  *
- * const authorization = AuthorizationAA.fromTuple([
+ * const authorization = AuthorizationTempo.fromTuple([
  *   '0x1',
  *   '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
  *   '0x3',
@@ -278,13 +277,13 @@ export declare namespace fromRpcList {
  * ```
  *
  * @param tuple - The [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) AA Authorization tuple.
- * @returns The {@link ox#AuthorizationAA.AuthorizationAA}.
+ * @returns The {@link ox#AuthorizationTempo.AuthorizationTempo}.
  */
 export function fromTuple<const tuple extends Tuple>(
   tuple: tuple,
 ): fromTuple.ReturnType<tuple> {
   const [chainId, address, nonce, signatureSerialized] = tuple
-  const args: AuthorizationAA = {
+  const args: AuthorizationTempo = {
     address,
     chainId: chainId === '0x' ? 0 : Number(chainId),
     nonce: nonce === '0x' ? 0n : BigInt(nonce),
@@ -296,20 +295,20 @@ export function fromTuple<const tuple extends Tuple>(
 
 export declare namespace fromTuple {
   type ReturnType<authorization extends Tuple = Tuple> = Compute<
-    AuthorizationAA<authorization extends Tuple<true> ? true : false>
+    AuthorizationTempo<authorization extends Tuple<true> ? true : false>
   >
 
   type ErrorType = Errors.GlobalErrorType
 }
 
 /**
- * Converts an {@link ox#AuthorizationAA.TupleList} to an {@link ox#AuthorizationAA.List}.
+ * Converts an {@link ox#AuthorizationTempo.TupleList} to an {@link ox#AuthorizationTempo.List}.
  *
  * @example
  * ```ts twoslash
- * import { AuthorizationAA } from 'ox'
+ * import { AuthorizationTempo } from 'ox'
  *
- * const authorizationList = AuthorizationAA.fromTupleList([
+ * const authorizationList = AuthorizationTempo.fromTupleList([
  *   ['0x1', '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c', '0x3'],
  *   ['0x3', '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c', '0x14'],
  * ])
@@ -331,9 +330,9 @@ export declare namespace fromTuple {
  * It is also possible to append a serialized SignatureEnvelope to the end of an AA Authorization tuple.
  *
  * ```ts twoslash
- * import { AuthorizationAA } from 'ox'
+ * import { AuthorizationTempo } from 'ox'
  *
- * const authorizationList = AuthorizationAA.fromTupleList([
+ * const authorizationList = AuthorizationTempo.fromTupleList([
  *   ['0x1', '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c', '0x3', '0x01a068a020a209d3d56c46f38cc50a33f704f4a9a10a59377f8dd762ac66910e9b907e865ad05c4035ab5792787d4a0297a43617ae897930a6fe4d822b8faea52064'],
  *   ['0x3', '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c', '0x14', '0x01a068a020a209d3d56c46f38cc50a33f704f4a9a10a59377f8dd762ac66910e9b907e865ad05c4035ab5792787d4a0297a43617ae897930a6fe4d822b8faea52064'],
  * ])
@@ -362,7 +361,7 @@ export declare namespace fromTuple {
  * ```
  *
  * @param tupleList - The [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) AA Authorization tuple list.
- * @returns An {@link ox#AuthorizationAA.List}.
+ * @returns An {@link ox#AuthorizationTempo.List}.
  */
 export function fromTupleList<const tupleList extends TupleList>(
   tupleList: tupleList,
@@ -381,22 +380,22 @@ export declare namespace fromTupleList {
 }
 
 /**
- * Computes the sign payload for an {@link ox#AuthorizationAA.AuthorizationAA} in [EIP-7702 format](https://eips.ethereum.org/EIPS/eip-7702): `keccak256('0x05' || rlp([chain_id, address, nonce]))`.
+ * Computes the sign payload for an {@link ox#AuthorizationTempo.AuthorizationTempo} in [EIP-7702 format](https://eips.ethereum.org/EIPS/eip-7702): `keccak256('0x05' || rlp([chain_id, address, nonce]))`.
  *
  * @example
- * The example below demonstrates computing the sign payload for an {@link ox#AuthorizationAA.AuthorizationAA}. This payload
+ * The example below demonstrates computing the sign payload for an {@link ox#AuthorizationTempo.AuthorizationTempo}. This payload
  * can then be passed to signing functions like {@link ox#Secp256k1.(sign:function)}.
  *
  * ```ts twoslash
- * import { AuthorizationAA, Secp256k1 } from 'ox'
+ * import { AuthorizationTempo, Secp256k1 } from 'ox'
  *
- * const authorization = AuthorizationAA.from({
+ * const authorization = AuthorizationTempo.from({
  *   address: '0x1234567890abcdef1234567890abcdef12345678',
  *   chainId: 1,
  *   nonce: 69n,
  * })
  *
- * const payload = AuthorizationAA.getSignPayload(authorization) // [!code focus]
+ * const payload = AuthorizationTempo.getSignPayload(authorization) // [!code focus]
  *
  * const signature = Secp256k1.sign({
  *   payload,
@@ -404,10 +403,10 @@ export declare namespace fromTupleList {
  * })
  * ```
  *
- * @param authorization - The {@link ox#AuthorizationAA.AuthorizationAA}.
+ * @param authorization - The {@link ox#AuthorizationTempo.AuthorizationTempo}.
  * @returns The sign payload.
  */
-export function getSignPayload(authorization: AuthorizationAA): Hex.Hex {
+export function getSignPayload(authorization: AuthorizationTempo): Hex.Hex {
   return hash(authorization, { presign: true })
 }
 
@@ -416,26 +415,26 @@ export declare namespace getSignPayload {
 }
 
 /**
- * Computes the hash for an {@link ox#AuthorizationAA.AuthorizationAA} in [EIP-7702 format](https://eips.ethereum.org/EIPS/eip-7702): `keccak256('0x05' || rlp([chain_id, address, nonce]))`.
+ * Computes the hash for an {@link ox#AuthorizationTempo.AuthorizationTempo} in [EIP-7702 format](https://eips.ethereum.org/EIPS/eip-7702): `keccak256('0x05' || rlp([chain_id, address, nonce]))`.
  *
  * @example
  * ```ts twoslash
- * import { AuthorizationAA } from 'ox'
+ * import { AuthorizationTempo } from 'ox'
  *
- * const authorization = AuthorizationAA.from({
+ * const authorization = AuthorizationTempo.from({
  *   address: '0x1234567890abcdef1234567890abcdef12345678',
  *   chainId: 1,
  *   nonce: 69n,
  * })
  *
- * const hash = AuthorizationAA.hash(authorization) // [!code focus]
+ * const hash = AuthorizationTempo.hash(authorization) // [!code focus]
  * ```
  *
- * @param authorization - The {@link ox#AuthorizationAA.AuthorizationAA}.
+ * @param authorization - The {@link ox#AuthorizationTempo.AuthorizationTempo}.
  * @returns The hash.
  */
 export function hash(
-  authorization: AuthorizationAA,
+  authorization: AuthorizationTempo,
   options: hash.Options = {},
 ): Hex.Hex {
   const { presign } = options
@@ -472,13 +471,13 @@ export declare namespace hash {
 }
 
 /**
- * Converts an {@link ox#AuthorizationAA.AuthorizationAA} to an {@link ox#AuthorizationAA.Rpc}.
+ * Converts an {@link ox#AuthorizationTempo.AuthorizationTempo} to an {@link ox#AuthorizationTempo.Rpc}.
  *
  * @example
  * ```ts twoslash
- * import { AuthorizationAA } from 'ox'
+ * import { AuthorizationTempo } from 'ox'
  *
- * const authorization = AuthorizationAA.toRpc({
+ * const authorization = AuthorizationTempo.toRpc({
  *   address: '0x0000000000000000000000000000000000000000',
  *   chainId: 1,
  *   nonce: 1n,
@@ -509,13 +508,13 @@ export declare namespace toRpc {
 }
 
 /**
- * Converts an {@link ox#AuthorizationAA.List} to an {@link ox#AuthorizationAA.ListRpc}.
+ * Converts an {@link ox#AuthorizationTempo.List} to an {@link ox#AuthorizationTempo.ListRpc}.
  *
  * @example
  * ```ts twoslash
- * import { AuthorizationAA } from 'ox'
+ * import { AuthorizationTempo } from 'ox'
  *
- * const authorization = AuthorizationAA.toRpcList([{
+ * const authorization = AuthorizationTempo.toRpcList([{
  *   address: '0x0000000000000000000000000000000000000000',
  *   chainId: 1,
  *   nonce: 1n,
@@ -539,19 +538,19 @@ export declare namespace toRpcList {
 }
 
 /**
- * Converts an {@link ox#AuthorizationAA.AuthorizationAA} to an {@link ox#AuthorizationAA.Tuple}.
+ * Converts an {@link ox#AuthorizationTempo.AuthorizationTempo} to an {@link ox#AuthorizationTempo.Tuple}.
  *
  * @example
  * ```ts twoslash
- * import { AuthorizationAA } from 'ox'
+ * import { AuthorizationTempo } from 'ox'
  *
- * const authorization = AuthorizationAA.from({
+ * const authorization = AuthorizationTempo.from({
  *   address: '0x1234567890abcdef1234567890abcdef12345678',
  *   chainId: 1,
  *   nonce: 69n,
  * })
  *
- * const tuple = AuthorizationAA.toTuple(authorization) // [!code focus]
+ * const tuple = AuthorizationTempo.toTuple(authorization) // [!code focus]
  * // @log: [
  * // @log:   address: '0x1234567890abcdef1234567890abcdef12345678',
  * // @log:   chainId: 1,
@@ -559,10 +558,10 @@ export declare namespace toRpcList {
  * // @log: ]
  * ```
  *
- * @param authorization - The {@link ox#AuthorizationAA.AuthorizationAA}.
+ * @param authorization - The {@link ox#AuthorizationTempo.AuthorizationTempo}.
  * @returns An [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) AA Authorization tuple.
  */
-export function toTuple<const authorization extends AuthorizationAA>(
+export function toTuple<const authorization extends AuthorizationTempo>(
   authorization: authorization,
 ): toTuple.ReturnType<authorization> {
   const { address, chainId, nonce } = authorization
@@ -578,31 +577,34 @@ export function toTuple<const authorization extends AuthorizationAA>(
 }
 
 export declare namespace toTuple {
-  type ReturnType<authorization extends AuthorizationAA = AuthorizationAA> =
-    Compute<Tuple<authorization extends AuthorizationAA<true> ? true : false>>
+  type ReturnType<
+    authorization extends AuthorizationTempo = AuthorizationTempo,
+  > = Compute<
+    Tuple<authorization extends AuthorizationTempo<true> ? true : false>
+  >
 
   type ErrorType = Errors.GlobalErrorType
 }
 
 /**
- * Converts an {@link ox#AuthorizationAA.List} to an {@link ox#AuthorizationAA.TupleList}.
+ * Converts an {@link ox#AuthorizationTempo.List} to an {@link ox#AuthorizationTempo.TupleList}.
  *
  * @example
  * ```ts twoslash
- * import { AuthorizationAA } from 'ox'
+ * import { AuthorizationTempo } from 'ox'
  *
- * const authorization_1 = AuthorizationAA.from({
+ * const authorization_1 = AuthorizationTempo.from({
  *   address: '0x1234567890abcdef1234567890abcdef12345678',
  *   chainId: 1,
  *   nonce: 69n,
  * })
- * const authorization_2 = AuthorizationAA.from({
+ * const authorization_2 = AuthorizationTempo.from({
  *   address: '0x1234567890abcdef1234567890abcdef12345678',
  *   chainId: 3,
  *   nonce: 20n,
  * })
  *
- * const tuple = AuthorizationAA.toTupleList([authorization_1, authorization_2]) // [!code focus]
+ * const tuple = AuthorizationTempo.toTupleList([authorization_1, authorization_2]) // [!code focus]
  * // @log: [
  * // @log:   [
  * // @log:     address: '0x1234567890abcdef1234567890abcdef12345678',
@@ -617,13 +619,13 @@ export declare namespace toTuple {
  * // @log: ]
  * ```
  *
- * @param list - An {@link ox#AuthorizationAA.List}.
+ * @param list - An {@link ox#AuthorizationTempo.List}.
  * @returns An [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) AA Authorization tuple list.
  */
 export function toTupleList<
   const list extends
-    | readonly AuthorizationAA<true>[]
-    | readonly AuthorizationAA<false>[],
+    | readonly AuthorizationTempo<true>[]
+    | readonly AuthorizationTempo<false>[],
 >(list?: list | undefined): toTupleList.ReturnType<list> {
   if (!list || list.length === 0) return []
 
@@ -636,10 +638,10 @@ export function toTupleList<
 export declare namespace toTupleList {
   type ReturnType<
     list extends
-      | readonly AuthorizationAA<true>[]
-      | readonly AuthorizationAA<false>[],
+      | readonly AuthorizationTempo<true>[]
+      | readonly AuthorizationTempo<false>[],
   > = Compute<
-    TupleList<list extends readonly AuthorizationAA<true>[] ? true : false>
+    TupleList<list extends readonly AuthorizationTempo<true>[] ? true : false>
   >
 
   type ErrorType = Errors.GlobalErrorType

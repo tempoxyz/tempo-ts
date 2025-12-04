@@ -1,5 +1,6 @@
 import {
   Address,
+  Hex,
   P256,
   Secp256k1,
   Value,
@@ -10,7 +11,11 @@ import { getTransactionCount } from 'viem/actions'
 import { beforeEach, describe, expect, test } from 'vitest'
 import { chainId } from '../../test/config.js'
 import { client, fundAddress } from '../../test/viem/config.js'
-import { KeyAuthorization, SignatureEnvelope } from './index.js'
+import {
+  AuthorizationTempo,
+  KeyAuthorization,
+  SignatureEnvelope,
+} from './index.js'
 import * as Transaction from './Transaction.js'
 import * as TransactionEnvelopeTempo from './TransactionEnvelopeTempo.js'
 import * as TransactionReceipt from './TransactionReceipt.js'
@@ -152,6 +157,73 @@ test('behavior: default (secp256k1)', async () => {
       "type": "0x76",
     }
   `)
+})
+
+test('behavior: authorizationList (secp256k1)', async () => {
+  const privateKey = Secp256k1.randomPrivateKey()
+  const address = Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }))
+
+  await fundAddress(client, {
+    address,
+  })
+
+  const nonce = await getTransactionCount(client, {
+    address,
+    blockTag: 'pending',
+  })
+
+  const authorization = AuthorizationTempo.from({
+    address: '0x0000000000000000000000000000000000000001',
+    chainId: 0,
+    nonce: BigInt(nonce + 1),
+  })
+
+  const authorizationSigned = AuthorizationTempo.from(authorization, {
+    signature: SignatureEnvelope.from(
+      Secp256k1.sign({
+        payload: AuthorizationTempo.getSignPayload(authorization),
+        privateKey,
+      }),
+    ),
+  })
+
+  const transaction = TransactionEnvelopeTempo.from({
+    authorizationList: [authorizationSigned],
+    calls: [
+      {
+        to: '0x0000000000000000000000000000000000000000',
+      },
+    ],
+    chainId,
+    feeToken: '0x20c0000000000000000000000000000000000001',
+    nonce: BigInt(nonce),
+    gas: 100_000n,
+    maxFeePerGas: Value.fromGwei('20'),
+    maxPriorityFeePerGas: Value.fromGwei('10'),
+  })
+
+  const signature = Secp256k1.sign({
+    payload: TransactionEnvelopeTempo.getSignPayload(transaction),
+    privateKey,
+  })
+
+  const serialized_signed = TransactionEnvelopeTempo.serialize(transaction, {
+    signature: SignatureEnvelope.from(signature),
+  })
+
+  const receipt = (await client
+    .request({
+      method: 'eth_sendRawTransactionSync',
+      params: [serialized_signed],
+    })
+    .then((tx) => TransactionReceipt.fromRpc(tx as any)))!
+  expect(receipt).toBeDefined()
+
+  const code = await client.request({
+    method: 'eth_getCode',
+    params: [address, 'latest'],
+  })
+  expect(Hex.slice(code, 3)).toBe('0x0000000000000000000000000000000000000001')
 })
 
 test('behavior: default (p256)', async () => {

@@ -1,6 +1,5 @@
 import type * as AccessList from 'ox/AccessList'
 import type * as Address from 'ox/Address'
-import type * as Authorization from 'ox/Authorization'
 import type * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
@@ -9,6 +8,7 @@ import type { Compute, OneOf, UnionCompute } from '../internal/types.js'
 import * as KeyAuthorization from './KeyAuthorization.js'
 import * as SignatureEnvelope from './SignatureEnvelope.js'
 import type { Call } from './TransactionEnvelopeTempo.js'
+import type * as AuthorizationTempo from './AuthorizationTempo.js'
 
 /**
  * A Transaction as defined in the [Execution API specification](https://github.com/ethereum/execution-apis/blob/main/src/schemas/transaction.yaml).
@@ -49,7 +49,7 @@ export type Tempo<
     accessList: AccessList.AccessList
     /** EIP-7702 Authorization list for the transaction. */
     authorizationList?:
-      | Authorization.ListSigned<bigintType, numberType>
+      | AuthorizationTempo.ListSigned<bigintType, numberType>
       | undefined
     /** Array of calls to execute. */
     calls: readonly Call<bigintType>[]

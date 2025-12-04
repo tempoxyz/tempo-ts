@@ -1,5 +1,6 @@
 import { Hex, P256, Rlp, Secp256k1, Value, WebAuthnP256 } from 'ox'
 import { describe, expect, test } from 'vitest'
+import * as AuthorizationTempo from './AuthorizationTempo.js'
 import { SignatureEnvelope } from './index.js'
 import * as KeyAuthorization from './KeyAuthorization.js'
 import * as TransactionEnvelopeTempo from './TransactionEnvelopeTempo.js'
@@ -294,6 +295,58 @@ describe('deserialize', () => {
     )
   })
 
+  test('authorizationList', () => {
+    const authorizationList = [
+      AuthorizationTempo.from({
+        address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
+        chainId: 1,
+        nonce: 40n,
+        signature: SignatureEnvelope.from({
+          r: 49782753348462494199823712700004552394425719014458918871452329774910450607807n,
+          s: 33726695977844476214676913201140481102225469284307016937915595756355928419768n,
+          yParity: 0,
+        }),
+      }),
+      AuthorizationTempo.from({
+        address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+        chainId: 1,
+        nonce: 55n,
+        signature: SignatureEnvelope.from({
+          r: 12345678901234567890n,
+          s: 98765432109876543210n,
+          yParity: 1,
+        }),
+      }),
+    ] as const
+
+    const transaction_authorizationList = TransactionEnvelopeTempo.from({
+      ...transaction,
+      authorizationList,
+    })
+
+    const serialized = TransactionEnvelopeTempo.serialize(
+      transaction_authorizationList,
+    )
+    expect(TransactionEnvelopeTempo.deserialize(serialized)).toEqual(
+      transaction_authorizationList,
+    )
+  })
+
+  test('authorizationList (empty)', () => {
+    const transaction_authorizationList = TransactionEnvelopeTempo.from({
+      ...transaction,
+      authorizationList: [],
+    })
+
+    const serialized = TransactionEnvelopeTempo.serialize(
+      transaction_authorizationList,
+    )
+    const deserialized = TransactionEnvelopeTempo.deserialize(serialized)
+
+    // Empty authorizationList should be undefined after deserialization
+    expect(deserialized.authorizationList).toBeUndefined()
+  })
+
   describe('signature', () => {
     test('secp256k1', () => {
       const signature = Secp256k1.sign({
@@ -496,7 +549,7 @@ describe('deserialize', () => {
         [TransactionEnvelope.InvalidSerializedError: Invalid serialized transaction of type "tempo" was provided.
 
         Serialized Transaction: "0x76c0"
-        Missing Attributes: chainId, maxPriorityFeePerGas, maxFeePerGas, gas, calls, accessList, keyAuthorization, nonceKey, nonce, validBefore, validAfter, feeToken, feePayerSignatureOrSender]
+        Missing Attributes: authorizationList, chainId, maxPriorityFeePerGas, maxFeePerGas, gas, calls, accessList, keyAuthorization, nonceKey, nonce, validBefore, validAfter, feeToken, feePayerSignatureOrSender]
       `)
     })
 
@@ -509,7 +562,7 @@ describe('deserialize', () => {
         [TransactionEnvelope.InvalidSerializedError: Invalid serialized transaction of type "tempo" was provided.
 
         Serialized Transaction: "0x76c20001"
-        Missing Attributes: maxFeePerGas, gas, calls, accessList, keyAuthorization, nonceKey, nonce, validBefore, validAfter, feeToken, feePayerSignatureOrSender]
+        Missing Attributes: authorizationList, maxFeePerGas, gas, calls, accessList, keyAuthorization, nonceKey, nonce, validBefore, validAfter, feeToken, feePayerSignatureOrSender]
       `)
     })
 
@@ -934,6 +987,123 @@ describe('serialize', () => {
     // Verify roundtrip
     const deserialized = TransactionEnvelopeTempo.deserialize(serialized)
     expect(deserialized.keyAuthorization).toEqual(keyAuthorization)
+  })
+
+  test('authorizationList (secp256k1)', () => {
+    const authorizationList = [
+      AuthorizationTempo.from({
+        address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
+        chainId: 1,
+        nonce: 40n,
+        signature: SignatureEnvelope.from({
+          r: 49782753348462494199823712700004552394425719014458918871452329774910450607807n,
+          s: 33726695977844476214676913201140481102225469284307016937915595756355928419768n,
+          yParity: 0,
+        }),
+      }),
+      AuthorizationTempo.from({
+        address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+        chainId: 1,
+        nonce: 55n,
+        signature: SignatureEnvelope.from({
+          r: 12345678901234567890n,
+          s: 98765432109876543210n,
+          yParity: 1,
+        }),
+      }),
+    ] as const
+
+    const transaction = TransactionEnvelopeTempo.from({
+      chainId: 1,
+      calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+      nonce: 0n,
+      authorizationList,
+    })
+
+    const serialized = TransactionEnvelopeTempo.serialize(transaction)
+    expect(serialized).toMatchInlineSnapshot(
+      `"0x76f8de01808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c0808080808080f8b8f85a0194be95c3f554e9fc85ec51be69a3d807a0d55bcf2c28b8416e100a352ec6ad1b70802290e18aeed190704973570f3b8ed42cb9808e2ea6bf4a90a229a244495b41890987806fcbd2d5d23fc0dbe5f5256c2613c039d76db81bf85a019470997970c51812dc3a010c7d01b50e0d17dc79c837b841000000000000000000000000000000000000000000000000ab54a98ceb1f0ad20000000000000000000000000000000000000000000000055aa54d38e5267eea1c"`,
+    )
+
+    const deserialized = TransactionEnvelopeTempo.deserialize(serialized)
+    expect(deserialized.authorizationList).toEqual(authorizationList)
+  })
+
+  test('authorizationList (multiple types)', () => {
+    const privateKey = P256.randomPrivateKey()
+    const publicKey = P256.getPublicKey({ privateKey })
+
+    const authorization1 = AuthorizationTempo.from({
+      address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
+      chainId: 1,
+      nonce: 40n,
+    })
+    const secp256k1Signature = Secp256k1.sign({
+      payload: AuthorizationTempo.getSignPayload(authorization1),
+      privateKey,
+    })
+
+    const authorization2 = AuthorizationTempo.from({
+      address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      chainId: 1,
+      nonce: 55n,
+    })
+    const p256Signature = P256.sign({
+      payload: AuthorizationTempo.getSignPayload(authorization2),
+      privateKey,
+    })
+
+    const authorizationList = [
+      AuthorizationTempo.from(authorization1, {
+        signature: SignatureEnvelope.from({ signature: secp256k1Signature }),
+      }),
+      AuthorizationTempo.from(authorization2, {
+        signature: SignatureEnvelope.from({
+          signature: p256Signature,
+          publicKey,
+          prehash: true,
+        }),
+      }),
+    ]
+
+    const transaction = TransactionEnvelopeTempo.from({
+      chainId: 1,
+      calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+      nonce: 0n,
+      authorizationList,
+    })
+
+    const serialized = TransactionEnvelopeTempo.serialize(transaction)
+    const deserialized = TransactionEnvelopeTempo.deserialize(serialized)
+
+    expect(deserialized.authorizationList).toHaveLength(2)
+    expect(deserialized.authorizationList?.[0]?.address).toBe(
+      '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
+    )
+    expect(deserialized.authorizationList?.[0]?.signature?.type).toBe(
+      'secp256k1',
+    )
+    expect(deserialized.authorizationList?.[1]?.address).toBe(
+      '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    )
+    expect(deserialized.authorizationList?.[1]?.signature?.type).toBe('p256')
+  })
+
+  test('authorizationList (empty)', () => {
+    const transaction = TransactionEnvelopeTempo.from({
+      chainId: 1,
+      calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+      nonce: 0n,
+      authorizationList: [],
+    })
+
+    const serialized = TransactionEnvelopeTempo.serialize(transaction)
+    expect(serialized).toMatchInlineSnapshot(
+      `"0x76e501808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c0808080808080c0"`,
+    )
+
+    const deserialized = TransactionEnvelopeTempo.deserialize(serialized)
+    expect(deserialized.authorizationList).toBeUndefined()
   })
 
   describe('with signature', () => {

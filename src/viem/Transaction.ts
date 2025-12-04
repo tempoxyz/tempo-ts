@@ -7,10 +7,8 @@ import {
   type AccessList,
   type Account,
   type Address,
-  type AuthorizationList,
   type FeeValuesEIP1559,
   type ParseTransactionReturnType,
-  type SignedAuthorizationList,
   type TransactionBase,
   type TransactionRequestBase,
   type TransactionSerializableBase,
@@ -33,6 +31,7 @@ import type * as KeyAuthorization from '../ox/KeyAuthorization.js'
 import * as SignatureEnvelope from '../ox/SignatureEnvelope.js'
 import * as TxTempo from '../ox/TransactionEnvelopeTempo.js'
 import type * as ox_TransactionReceipt from '../ox/TransactionReceipt.js'
+import type * as AuthorizationTempo from '../ox/AuthorizationTempo.js'
 
 export type Transaction<
   bigintType = bigint,
@@ -46,8 +45,9 @@ export type TransactionRpc<pending extends boolean = false> = OneOf<
   | viem_RpcTransaction<pending>
   | (Omit<
       TransactionTempo<Hex.Hex, Hex.Hex, pending, '0x76'>,
-      'keyAuthorization' | 'signature'
+      'authorizationList' | 'keyAuthorization' | 'signature'
     > & {
+      authorizationList?: AuthorizationTempo.ListRpc | undefined
       keyAuthorization?: KeyAuthorization.Rpc | null | undefined
       signature: SignatureEnvelope.SignatureEnvelopeRpc
     })
@@ -66,7 +66,7 @@ export type TransactionTempo<
   'r' | 's' | 'v' | 'yParity'
 > & {
   accessList: AccessList
-  authorizationList?: SignedAuthorizationList | undefined
+  authorizationList?: AuthorizationTempo.ListSigned<quantity, index> | undefined
   calls: readonly TxTempo.Call<quantity>[]
   chainId: index
   feeToken?: Address | undefined
@@ -114,7 +114,6 @@ export type TransactionRequestTempo<
 > = TransactionRequestBase<quantity, index, type> &
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
-    authorizationList?: AuthorizationList<index, boolean> | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     calls?: readonly TxTempo.Call<quantity>[] | undefined
     feePayer?: Account | true | undefined
@@ -134,7 +133,6 @@ export type TransactionSerializableTempo<
 > = TransactionSerializableBase<quantity, index> &
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
-    authorizationList?: SignedAuthorizationList | undefined
     calls: readonly TxTempo.Call<quantity>[]
     chainId: number
     feeToken?: Address | bigint | undefined
@@ -252,16 +250,11 @@ export async function serialize(
 function deserializeTempo(
   serializedTransaction: TransactionSerializedTempo,
 ): TransactionSerializableTempo {
-  const { authorizationList, feePayerSignature, nonce, ...tx } =
-    TxTempo.deserialize(serializedTransaction)
+  const { feePayerSignature, nonce, ...tx } = TxTempo.deserialize(
+    serializedTransaction,
+  )
   return {
     ...tx,
-    authorizationList: authorizationList?.map((auth) => ({
-      ...auth,
-      nonce: Number(auth.nonce ?? 0n),
-      r: Hex.fromNumber(auth.r, { size: 32 }),
-      s: Hex.fromNumber(auth.s, { size: 32 }),
-    })),
     nonce: Number(nonce ?? 0n),
     feePayerSignature: feePayerSignature
       ? {
@@ -293,24 +286,10 @@ async function serializeTempo(
     return undefined
   })()
 
-  const {
-    authorizationList,
-    chainId,
-    feePayer,
-    feePayerSignature,
-    nonce,
-    ...rest
-  } = transaction
+  const { chainId, feePayer, feePayerSignature, nonce, ...rest } = transaction
 
   const transaction_ox = {
     ...rest,
-    authorizationList: authorizationList?.map((auth) => ({
-      ...auth,
-      nonce: BigInt(auth.nonce),
-      r: BigInt(auth.r!),
-      s: BigInt(auth.s!),
-      yParity: Number(auth.yParity),
-    })),
     calls: rest.calls?.length
       ? rest.calls
       : [

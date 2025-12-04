@@ -1,6 +1,6 @@
 import { P256, Secp256k1 } from 'ox'
 import { describe, expect, expectTypeOf, test } from 'vitest'
-import * as AuthorizationAA from './AuthorizationAA.js'
+import * as AuthorizationTempo from './AuthorizationTempo.js'
 import * as SignatureEnvelope from './SignatureEnvelope.js'
 
 // Use a fixed private key for testing signatures
@@ -10,7 +10,7 @@ const testPrivateKey =
 describe('from', () => {
   test('default', () => {
     {
-      const authorization = AuthorizationAA.from({
+      const authorization = AuthorizationTempo.from({
         address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
         chainId: 1,
         nonce: 40n,
@@ -21,7 +21,7 @@ describe('from', () => {
         readonly nonce: 40n
       }>()
       expectTypeOf(authorization).toExtend<
-        AuthorizationAA.AuthorizationAA<false>
+        AuthorizationTempo.AuthorizationTempo<false>
       >()
       expect(authorization).toMatchInlineSnapshot(
         `
@@ -35,7 +35,7 @@ describe('from', () => {
     }
 
     {
-      const authorization = AuthorizationAA.from({
+      const authorization = AuthorizationTempo.from({
         address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
         chainId: 1,
         nonce: 40n,
@@ -62,7 +62,7 @@ describe('from', () => {
         }
       }>()
       expectTypeOf(authorization).toExtend<
-        AuthorizationAA.AuthorizationAA<true>
+        AuthorizationTempo.AuthorizationTempo<true>
       >()
       expect(authorization).toMatchInlineSnapshot(
         `
@@ -85,20 +85,20 @@ describe('from', () => {
   })
 
   test('options: signature (secp256k1)', () => {
-    const authorization = AuthorizationAA.from({
+    const authorization = AuthorizationTempo.from({
       address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
       chainId: 1,
       nonce: 40n,
     })
     const signature = Secp256k1.sign({
-      payload: AuthorizationAA.getSignPayload(authorization),
+      payload: AuthorizationTempo.getSignPayload(authorization),
       privateKey: testPrivateKey,
     })
     const signatureEnvelope = SignatureEnvelope.from({
       signature,
       type: 'secp256k1',
     })
-    const authorization_signed = AuthorizationAA.from(authorization, {
+    const authorization_signed = AuthorizationTempo.from(authorization, {
       signature: signatureEnvelope,
     })
     expectTypeOf(authorization_signed).toExtend<{
@@ -107,7 +107,7 @@ describe('from', () => {
       readonly nonce: 40n
     }>()
     expectTypeOf(authorization_signed).toExtend<
-      AuthorizationAA.AuthorizationAA<true>
+      AuthorizationTempo.AuthorizationTempo<true>
     >()
     expect(authorization_signed).toMatchInlineSnapshot(
       `
@@ -129,7 +129,7 @@ describe('from', () => {
   })
 
   test('options: signature (p256)', () => {
-    const authorization = AuthorizationAA.from({
+    const authorization = AuthorizationTempo.from({
       address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
       chainId: 1,
       nonce: 40n,
@@ -137,7 +137,7 @@ describe('from', () => {
 
     const privateKey = P256.randomPrivateKey()
     const publicKey = P256.getPublicKey({ privateKey })
-    const payload = AuthorizationAA.getSignPayload(authorization)
+    const payload = AuthorizationTempo.getSignPayload(authorization)
     const signature = P256.sign({ payload, privateKey })
 
     const signatureEnvelope: SignatureEnvelope.P256 = {
@@ -147,12 +147,12 @@ describe('from', () => {
       type: 'p256',
     }
 
-    const authorization_signed = AuthorizationAA.from(authorization, {
+    const authorization_signed = AuthorizationTempo.from(authorization, {
       signature: signatureEnvelope,
     })
 
     expectTypeOf(authorization_signed).toExtend<
-      AuthorizationAA.AuthorizationAA<true>
+      AuthorizationTempo.AuthorizationTempo<true>
     >()
     expect(authorization_signed.signature.type).toBe('p256')
     expect(authorization_signed.signature.prehash).toBe(true)
@@ -160,7 +160,7 @@ describe('from', () => {
   })
 
   test('options: signature (webAuthn)', () => {
-    const authorization = AuthorizationAA.from({
+    const authorization = AuthorizationTempo.from({
       address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
       chainId: 1,
       nonce: 40n,
@@ -178,12 +178,12 @@ describe('from', () => {
       type: 'webAuthn',
     })
 
-    const authorization_signed = AuthorizationAA.from(authorization, {
+    const authorization_signed = AuthorizationTempo.from(authorization, {
       signature: signatureEnvelope,
     })
 
     expectTypeOf(authorization_signed).toExtend<
-      AuthorizationAA.AuthorizationAA<true>
+      AuthorizationTempo.AuthorizationTempo<true>
     >()
     expect(authorization_signed.signature.type).toBe('webAuthn')
     expect(authorization_signed.signature.metadata).toBeDefined()
@@ -194,7 +194,7 @@ describe('from', () => {
 
   test('behavior: rpc', () => {
     {
-      const authorization = AuthorizationAA.from({
+      const authorization = AuthorizationTempo.from({
         address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
         chainId: '0x1',
         nonce: '0x1',
@@ -205,7 +205,9 @@ describe('from', () => {
           type: 'secp256k1',
         },
       })
-      expectTypeOf(authorization).toExtend<AuthorizationAA.AuthorizationAA>()
+      expectTypeOf(
+        authorization,
+      ).toExtend<AuthorizationTempo.AuthorizationTempo>()
       expect(authorization).toMatchInlineSnapshot(
         `
       {
@@ -230,7 +232,7 @@ describe('from', () => {
 describe('fromRpc', () => {
   test('secp256k1', () => {
     expect(
-      AuthorizationAA.fromRpc({
+      AuthorizationTempo.fromRpc({
         address: '0x0000000000000000000000000000000000000000',
         chainId: '0x1',
         nonce: '0x1',
@@ -259,7 +261,7 @@ describe('fromRpc', () => {
   })
 
   test('p256', () => {
-    const result = AuthorizationAA.fromRpc({
+    const result = AuthorizationTempo.fromRpc({
       address: '0x0000000000000000000000000000000000000000',
       chainId: '0x1',
       nonce: '0x1',
@@ -280,7 +282,7 @@ describe('fromRpc', () => {
   })
 
   test('webAuthn', () => {
-    const result = AuthorizationAA.fromRpc({
+    const result = AuthorizationTempo.fromRpc({
       address: '0x0000000000000000000000000000000000000000',
       chainId: '0x1',
       nonce: '0x1',
@@ -305,7 +307,7 @@ describe('fromRpc', () => {
 describe('fromRpcList', () => {
   test('secp256k1', () => {
     expect(
-      AuthorizationAA.fromRpcList([
+      AuthorizationTempo.fromRpcList([
         {
           address: '0x0000000000000000000000000000000000000000',
           chainId: '0x1',
@@ -363,7 +365,7 @@ describe('fromRpcList', () => {
 
   test('p256', () => {
     expect(
-      AuthorizationAA.fromRpcList([
+      AuthorizationTempo.fromRpcList([
         {
           address: '0x0000000000000000000000000000000000000000',
           chainId: '0x1',
@@ -439,7 +441,7 @@ describe('fromRpcList', () => {
 
   test('webAuthn', () => {
     expect(
-      AuthorizationAA.fromRpcList([
+      AuthorizationTempo.fromRpcList([
         {
           address: '0x0000000000000000000000000000000000000000',
           chainId: '0x1',
@@ -523,7 +525,7 @@ describe('fromRpcList', () => {
 
   test('mixed signature types', () => {
     expect(
-      AuthorizationAA.fromRpcList([
+      AuthorizationTempo.fromRpcList([
         {
           address: '0x0000000000000000000000000000000000000000',
           chainId: '0x1',
@@ -632,8 +634,8 @@ describe('fromTuple', () => {
       '0x1',
       '0x0000000000000000000000000000000000000000',
       '0x3',
-    ] as const satisfies AuthorizationAA.Tuple
-    const authorization = AuthorizationAA.fromTuple(tuple)
+    ] as const satisfies AuthorizationTempo.Tuple
+    const authorization = AuthorizationTempo.fromTuple(tuple)
     expect(authorization).toMatchInlineSnapshot(`
     {
       "address": "0x0000000000000000000000000000000000000000",
@@ -648,8 +650,8 @@ describe('fromTuple', () => {
       '0x',
       '0x0000000000000000000000000000000000000000',
       '0x',
-    ] as const satisfies AuthorizationAA.Tuple
-    const authorization = AuthorizationAA.fromTuple(tuple)
+    ] as const satisfies AuthorizationTempo.Tuple
+    const authorization = AuthorizationTempo.fromTuple(tuple)
     expect(authorization).toMatchInlineSnapshot(`
       {
         "address": "0x0000000000000000000000000000000000000000",
@@ -671,8 +673,8 @@ describe('fromTuple', () => {
       '0x0000000000000000000000000000000000000000',
       '0x3',
       serialized,
-    ] as const satisfies AuthorizationAA.Tuple
-    const authorization = AuthorizationAA.fromTuple(tuple)
+    ] as const satisfies AuthorizationTempo.Tuple
+    const authorization = AuthorizationTempo.fromTuple(tuple)
     expect(authorization).toMatchInlineSnapshot(`
     {
       "address": "0x0000000000000000000000000000000000000000",
@@ -704,8 +706,8 @@ describe('fromTuple', () => {
       '0x0000000000000000000000000000000000000000',
       '0x3',
       serialized,
-    ] as const satisfies AuthorizationAA.Tuple
-    const authorization = AuthorizationAA.fromTuple(tuple)
+    ] as const satisfies AuthorizationTempo.Tuple
+    const authorization = AuthorizationTempo.fromTuple(tuple)
     expect(authorization.signature?.type).toBe('p256')
   })
 })
@@ -715,8 +717,8 @@ describe('fromTupleList', () => {
     const tupleList = [
       ['0x01', '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c', '0x28'],
       ['0x03', '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c', '0x14'],
-    ] as const satisfies AuthorizationAA.TupleList
-    const authorization = AuthorizationAA.fromTupleList(tupleList)
+    ] as const satisfies AuthorizationTempo.TupleList
+    const authorization = AuthorizationTempo.fromTupleList(tupleList)
     expect(authorization).toMatchInlineSnapshot(`
     [
       {
@@ -743,7 +745,7 @@ describe('fromTupleList', () => {
       type: 'secp256k1',
     })
 
-    const authorization = AuthorizationAA.fromTupleList([
+    const authorization = AuthorizationTempo.fromTupleList([
       [
         '0x05',
         '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
@@ -793,7 +795,7 @@ describe('fromTupleList', () => {
 describe('getSignPayload', () => {
   test('default', () => {
     expect(
-      AuthorizationAA.getSignPayload({
+      AuthorizationTempo.getSignPayload({
         address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
         chainId: 1,
         nonce: 40n,
@@ -803,7 +805,7 @@ describe('getSignPayload', () => {
     )
 
     expect(
-      AuthorizationAA.getSignPayload({
+      AuthorizationTempo.getSignPayload({
         address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
         chainId: 69,
         nonce: 420n,
@@ -817,7 +819,7 @@ describe('getSignPayload', () => {
 describe('hash', () => {
   test('default', () => {
     expect(
-      AuthorizationAA.hash({
+      AuthorizationTempo.hash({
         address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
         chainId: 1,
         nonce: 40n,
@@ -827,7 +829,7 @@ describe('hash', () => {
     )
 
     expect(
-      AuthorizationAA.hash({
+      AuthorizationTempo.hash({
         address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
         chainId: 69,
         nonce: 420n,
@@ -843,8 +845,10 @@ describe('hash', () => {
       chainId: 1,
       nonce: 40n,
     } as const
-    const payload = AuthorizationAA.getSignPayload(authorization)
-    const hash_presign = AuthorizationAA.hash(authorization, { presign: true })
+    const payload = AuthorizationTempo.getSignPayload(authorization)
+    const hash_presign = AuthorizationTempo.hash(authorization, {
+      presign: true,
+    })
     expect(hash_presign).toEqual(payload)
   })
 })
@@ -852,7 +856,7 @@ describe('hash', () => {
 describe('toRpc', () => {
   test('secp256k1', () => {
     expect(
-      AuthorizationAA.toRpc({
+      AuthorizationTempo.toRpc({
         address: '0x0000000000000000000000000000000000000000',
         chainId: 1,
         nonce: 1n,
@@ -881,7 +885,7 @@ describe('toRpc', () => {
   })
 
   test('p256', () => {
-    const result = AuthorizationAA.toRpc({
+    const result = AuthorizationTempo.toRpc({
       address: '0x0000000000000000000000000000000000000000',
       chainId: 1,
       nonce: 1n,
@@ -899,7 +903,7 @@ describe('toRpc', () => {
   })
 
   test('webAuthn', () => {
-    const result = AuthorizationAA.toRpc({
+    const result = AuthorizationTempo.toRpc({
       address: '0x0000000000000000000000000000000000000000',
       chainId: 1,
       nonce: 1n,
@@ -923,7 +927,7 @@ describe('toRpc', () => {
 describe('toRpcList', () => {
   test('default', () => {
     expect(
-      AuthorizationAA.toRpcList([
+      AuthorizationTempo.toRpcList([
         {
           address: '0x0000000000000000000000000000000000000000',
           chainId: 1,
@@ -959,12 +963,12 @@ describe('toRpcList', () => {
 describe('toTuple', () => {
   test('default', () => {
     {
-      const authorization = AuthorizationAA.from({
+      const authorization = AuthorizationTempo.from({
         address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
         chainId: 1,
         nonce: 40n,
       })
-      const tuple = AuthorizationAA.toTuple(authorization)
+      const tuple = AuthorizationTempo.toTuple(authorization)
       expect(tuple).toMatchInlineSnapshot(`
         [
           "0x1",
@@ -979,13 +983,13 @@ describe('toTuple', () => {
         signature: { r: 1n, s: 2n, yParity: 0 },
         type: 'secp256k1',
       }
-      const authorization = AuthorizationAA.from({
+      const authorization = AuthorizationTempo.from({
         address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
         chainId: 1,
         nonce: 40n,
         signature: signatureEnvelope,
       })
-      const tuple = AuthorizationAA.toTuple(authorization)
+      const tuple = AuthorizationTempo.toTuple(authorization)
       expect(tuple).toMatchInlineSnapshot(`
         [
           "0x1",
@@ -997,12 +1001,12 @@ describe('toTuple', () => {
     }
 
     {
-      const authorization = AuthorizationAA.from({
+      const authorization = AuthorizationTempo.from({
         address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
         chainId: 0,
         nonce: 0n,
       })
-      const tuple = AuthorizationAA.toTuple(authorization)
+      const tuple = AuthorizationTempo.toTuple(authorization)
       expect(tuple).toMatchInlineSnapshot(`
       [
         "0x",
@@ -1017,22 +1021,22 @@ describe('toTuple', () => {
 describe('toTupleList', () => {
   test('default', () => {
     {
-      const tuple = AuthorizationAA.toTupleList([])
+      const tuple = AuthorizationTempo.toTupleList([])
       expect(tuple).toMatchInlineSnapshot('[]')
     }
 
     {
-      const authorization_1 = AuthorizationAA.from({
+      const authorization_1 = AuthorizationTempo.from({
         address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
         chainId: 1,
         nonce: 40n,
       })
-      const authorization_2 = AuthorizationAA.from({
+      const authorization_2 = AuthorizationTempo.from({
         address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
         chainId: 3,
         nonce: 20n,
       })
-      const tuple = AuthorizationAA.toTupleList([
+      const tuple = AuthorizationTempo.toTupleList([
         authorization_1,
         authorization_2,
       ])
@@ -1061,19 +1065,19 @@ describe('toTupleList', () => {
         signature: { r: 4n, s: 5n, yParity: 0 },
         type: 'secp256k1',
       })
-      const authorization_3 = AuthorizationAA.from({
+      const authorization_3 = AuthorizationTempo.from({
         address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
         chainId: 5,
         nonce: 42n,
         signature: signatureEnvelope1,
       })
-      const authorization_4 = AuthorizationAA.from({
+      const authorization_4 = AuthorizationTempo.from({
         address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
         chainId: 2,
         nonce: 43n,
         signature: signatureEnvelope2,
       })
-      const tuple = AuthorizationAA.toTupleList([
+      const tuple = AuthorizationTempo.toTupleList([
         authorization_3,
         authorization_4,
       ])
@@ -1097,21 +1101,21 @@ describe('toTupleList', () => {
   })
 
   test('behavior: undefined input returns empty', () => {
-    const tuple = AuthorizationAA.toTupleList()
+    const tuple = AuthorizationTempo.toTupleList()
     expect(tuple).toMatchInlineSnapshot('[]')
   })
 })
 
 describe('signature type interoperability', () => {
   test('secp256k1 signature round trip', () => {
-    const authorization = AuthorizationAA.from({
+    const authorization = AuthorizationTempo.from({
       address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
       chainId: 1,
       nonce: 40n,
     })
 
     const signature = Secp256k1.sign({
-      payload: AuthorizationAA.getSignPayload(authorization),
+      payload: AuthorizationTempo.getSignPayload(authorization),
       privateKey: testPrivateKey,
     })
     const signatureEnvelope = SignatureEnvelope.from({
@@ -1119,17 +1123,17 @@ describe('signature type interoperability', () => {
       type: 'secp256k1',
     })
 
-    const signed = AuthorizationAA.from(authorization, {
+    const signed = AuthorizationTempo.from(authorization, {
       signature: signatureEnvelope,
     })
-    const rpc = AuthorizationAA.toRpc(signed)
-    const restored = AuthorizationAA.fromRpc(rpc)
+    const rpc = AuthorizationTempo.toRpc(signed)
+    const restored = AuthorizationTempo.fromRpc(rpc)
 
     expect(restored).toEqual(signed)
   })
 
   test('p256 signature round trip', () => {
-    const authorization = AuthorizationAA.from({
+    const authorization = AuthorizationTempo.from({
       address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
       chainId: 1,
       nonce: 40n,
@@ -1137,7 +1141,7 @@ describe('signature type interoperability', () => {
 
     const privateKey = P256.randomPrivateKey()
     const publicKey = P256.getPublicKey({ privateKey })
-    const payload = AuthorizationAA.getSignPayload(authorization)
+    const payload = AuthorizationTempo.getSignPayload(authorization)
     const signature = P256.sign({ payload, privateKey })
 
     const signatureEnvelope = SignatureEnvelope.from({
@@ -1147,11 +1151,11 @@ describe('signature type interoperability', () => {
       type: 'p256',
     })
 
-    const signed = AuthorizationAA.from(authorization, {
+    const signed = AuthorizationTempo.from(authorization, {
       signature: signatureEnvelope,
     })
-    const rpc = AuthorizationAA.toRpc(signed)
-    const restored = AuthorizationAA.fromRpc(rpc)
+    const rpc = AuthorizationTempo.toRpc(signed)
+    const restored = AuthorizationTempo.fromRpc(rpc)
 
     expect(restored.signature.type).toBe('p256')
     expect(restored.address).toEqual(signed.address)
@@ -1160,12 +1164,16 @@ describe('signature type interoperability', () => {
     expect(restored.signature.type).toEqual(signed.signature.type)
     expect(restored.signature.prehash).toEqual(signed.signature.prehash)
     expect(restored.signature.publicKey).toEqual(signed.signature.publicKey)
-    expect(restored.signature.signature.r).toEqual(signed.signature.signature.r)
-    expect(restored.signature.signature.s).toEqual(signed.signature.signature.s)
+    expect(restored.signature.signature?.r).toEqual(
+      signed.signature.signature?.r,
+    )
+    expect(restored.signature.signature?.s).toEqual(
+      signed.signature.signature?.s,
+    )
   })
 
   test('webAuthn signature round trip', () => {
-    const authorization = AuthorizationAA.from({
+    const authorization = AuthorizationTempo.from({
       address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
       chainId: 1,
       nonce: 40n,
@@ -1186,11 +1194,11 @@ describe('signature type interoperability', () => {
       type: 'webAuthn',
     })
 
-    const signed = AuthorizationAA.from(authorization, {
+    const signed = AuthorizationTempo.from(authorization, {
       signature: signatureEnvelope,
     })
-    const rpc = AuthorizationAA.toRpc(signed)
-    const restored = AuthorizationAA.fromRpc(rpc)
+    const rpc = AuthorizationTempo.toRpc(signed)
+    const restored = AuthorizationTempo.fromRpc(rpc)
 
     expect(restored.signature.type).toBe('webAuthn')
     expect(restored.address).toEqual(signed.address)
@@ -1199,8 +1207,12 @@ describe('signature type interoperability', () => {
     expect(restored.signature.type).toEqual(signed.signature.type)
     expect(restored.signature.metadata).toEqual(signed.signature.metadata)
     expect(restored.signature.publicKey).toEqual(signed.signature.publicKey)
-    expect(restored.signature.signature.r).toEqual(signed.signature.signature.r)
-    expect(restored.signature.signature.s).toEqual(signed.signature.signature.s)
+    expect(restored.signature.signature?.r).toEqual(
+      signed.signature.signature?.r,
+    )
+    expect(restored.signature.signature?.s).toEqual(
+      signed.signature.signature?.s,
+    )
   })
 
   test('tuple serialization preserves signature type', () => {
@@ -1211,22 +1223,22 @@ describe('signature type interoperability', () => {
       type: 'p256',
     })
 
-    const authorization = AuthorizationAA.from({
+    const authorization = AuthorizationTempo.from({
       address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
       chainId: 1,
       nonce: 40n,
       signature: signatureEnvelope,
     })
 
-    const tuple = AuthorizationAA.toTuple(authorization)
-    const restored = AuthorizationAA.fromTuple(tuple)
+    const tuple = AuthorizationTempo.toTuple(authorization)
+    const restored = AuthorizationTempo.fromTuple(tuple)
 
     expect(restored.signature?.type).toBe('p256')
   })
 })
 
 test('exports', () => {
-  expect(Object.keys(AuthorizationAA)).toMatchInlineSnapshot(`
+  expect(Object.keys(AuthorizationTempo)).toMatchInlineSnapshot(`
     [
       "from",
       "fromRpc",

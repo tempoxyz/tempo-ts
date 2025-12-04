@@ -39,12 +39,6 @@ export function formatTransaction(
   return {
     ...tx,
     accessList: tx.accessList!,
-    authorizationList: tx.authorizationList?.map((auth) => ({
-      ...auth,
-      nonce: Number(auth.nonce),
-      r: Hex.fromNumber(auth.r, { size: 32 }),
-      s: Hex.fromNumber(auth.s, { size: 32 }),
-    })),
     feePayerSignature: feePayerSignature
       ? {
           r: Hex.fromNumber(feePayerSignature.r, { size: 32 }),
@@ -105,13 +99,6 @@ export function formatTransactionRequest<chain extends Chain | undefined>(
 
   const rpc = ox_TransactionRequest.toRpc({
     ...request,
-    authorizationList: request.authorizationList?.map((auth) => ({
-      ...auth,
-      nonce: BigInt(auth.nonce),
-      r: BigInt(auth.r!),
-      s: BigInt(auth.s!),
-      yParity: Number(auth.yParity),
-    })),
     type: 'tempo',
   } as never)
 

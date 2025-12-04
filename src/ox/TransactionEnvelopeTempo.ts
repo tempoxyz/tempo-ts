@@ -1,6 +1,5 @@
 import * as AccessList from 'ox/AccessList'
 import * as Address from 'ox/Address'
-import type * as Authorization from 'ox/Authorization'
 import * as Errors from 'ox/Errors'
 import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
@@ -14,6 +13,7 @@ import type {
   PartialBy,
   UnionPartialBy,
 } from '../internal/types.js'
+import * as AuthorizationTempo from './AuthorizationTempo.js'
 import * as KeyAuthorization from './KeyAuthorization.js'
 import * as SignatureEnvelope from './SignatureEnvelope.js'
 import * as TokenId from './TokenId.js'
@@ -39,9 +39,9 @@ export type TransactionEnvelopeTempo<
   {
     /** EIP-2930 Access List. */
     accessList?: AccessList.AccessList | undefined
-    /** EIP-7702 Authorization list for the transaction. */
+    /** EIP-7702 (Tempo) Authorization list for the transaction. */
     authorizationList?:
-      | Authorization.ListSigned<bigintType, numberType>
+      | AuthorizationTempo.ListSigned<bigintType, numberType>
       | undefined
     /** Array of calls to execute. */
     calls: readonly Call<bigintType>[]
@@ -226,7 +226,7 @@ export function deserialize(
     validAfter,
     feeToken,
     feePayerSignatureOrSender,
-    _authorizationList, // TODO: add
+    authorizationList,
     keyAuthorizationOrSignature,
     maybeSignature,
   ] = transactionArray as readonly Hex.Hex[]
@@ -247,6 +247,7 @@ export function deserialize(
   )
     throw new TransactionEnvelope.InvalidSerializedError({
       attributes: {
+        authorizationList,
         chainId,
         maxPriorityFeePerGas,
         maxFeePerGas,
@@ -306,6 +307,11 @@ export function deserialize(
 
   if (accessList?.length !== 0 && accessList !== '0x')
     transaction.accessList = AccessList.fromTupleList(accessList as never)
+
+  if (authorizationList?.length !== 0 && authorizationList !== '0x')
+    transaction.authorizationList = AuthorizationTempo.fromTupleList(
+      authorizationList as never,
+    )
 
   if (
     feePayerSignatureOrSender !== '0x' &&
@@ -543,6 +549,7 @@ export function serialize(
 ): Serialized {
   const {
     accessList,
+    authorizationList,
     calls,
     chainId,
     feeToken,
@@ -560,6 +567,9 @@ export function serialize(
 
   const accessTupleList = AccessList.toTupleList(accessList)
   const signature = options.signature || envelope.signature
+
+  const authorizationTupleList =
+    AuthorizationTempo.toTupleList(authorizationList)
 
   // Encode calls as RLP list of [to, value, data] tuples
   const callsTupleList = calls.map((call) => [
@@ -594,7 +604,7 @@ export function serialize(
       ? TokenId.toAddress(feeToken)
       : '0x',
     feePayerSignatureOrSender,
-    [], // TODO: authList
+    authorizationTupleList,
     ...(keyAuthorization ? [KeyAuthorization.toTuple(keyAuthorization)] : []),
     ...(signature
       ? [SignatureEnvelope.serialize(SignatureEnvelope.from(signature))]
