@@ -1,124 +1,11 @@
-import { type Address, parseUnits } from 'viem'
+import { getAccount } from '@wagmi/core'
+import type { Address } from 'viem'
+import { parseUnits } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
 import { config, renderHook, setupToken } from '../../../test/wagmi/config.js'
 import * as hooks from './reward.js'
-
-describe('useCancelSync', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() => ({
-      cancel: hooks.useCancelSync(),
-      connect: useConnect(),
-      start: hooks.useStartSync(),
-    }))
-
-    await result.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    const { token } = await setupToken()
-
-    // Start a reward stream
-    const { id: streamId } = await result.current.start.mutateAsync({
-      amount: parseUnits('100', 6),
-      seconds: 3600,
-      token,
-    })
-
-    // Cancel the stream
-    await result.current.cancel.mutateAsync({
-      id: streamId,
-      token,
-    })
-
-    await vi.waitFor(() => expect(result.current.cancel.isSuccess).toBeTruthy())
-  })
-})
-
-describe('useGetStream', () => {
-  test('default', async () => {
-    const { result } = await renderHook(() => ({
-      connect: useConnect(),
-      getStream: hooks.useGetStream(),
-      startSync: hooks.useStartSync(),
-    }))
-
-    await result.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    const { token } = await setupToken()
-
-    const { id: streamId } = await result.current.startSync.mutateAsync({
-      amount: parseUnits('100', 6),
-      seconds: 10,
-      token,
-    })
-
-    // Update the hook to query the stream
-    const { result: streamResult } = await renderHook(() =>
-      hooks.useGetStream({
-        id: streamId,
-        token,
-      }),
-    )
-
-    await vi.waitFor(() => expect(streamResult.current.isSuccess).toBeTruthy())
-
-    expect(streamResult.current.data?.funder).toBeDefined()
-    expect(streamResult.current.data?.amountTotal).toBe(parseUnits('100', 6))
-  })
-
-  test('reactivity: id and token parameters', async () => {
-    const { result: setupResult } = await renderHook(() => ({
-      connect: useConnect(),
-      startSync: hooks.useStartSync(),
-    }))
-
-    await setupResult.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    const { token } = await setupToken()
-
-    const { id } = await setupResult.current.startSync.mutateAsync({
-      amount: parseUnits('100', 6),
-      seconds: 10,
-      token,
-    })
-
-    const { result, rerender } = await renderHook(
-      (props) =>
-        hooks.useGetStream({
-          id: props?.id,
-          token: props?.token,
-        }),
-      {
-        initialProps: {
-          id: undefined as bigint | undefined,
-          token: undefined as Address | undefined,
-        },
-      },
-    )
-
-    await vi.waitFor(() => result.current.fetchStatus === 'idle')
-
-    // Should be disabled when parameters are undefined
-    expect(result.current.data).toBeUndefined()
-    expect(result.current.isPending).toBe(true)
-    expect(result.current.isEnabled).toBe(false)
-
-    // Set parameters
-    rerender({ id, token })
-
-    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
-
-    // Should now be enabled and have data
-    expect(result.current.isEnabled).toBe(true)
-    expect(result.current.data).toBeDefined()
-    expect(result.current.data?.amountTotal).toBe(parseUnits('100', 6))
-  })
-})
+import * as tokenHooks from './token.js'
 
 describe('useGetTotalPerSecond', () => {
   test('default', async () => {
@@ -169,6 +56,77 @@ describe('useGetTotalPerSecond', () => {
   })
 })
 
+describe('useUserRewardInfo', () => {
+  test('default', async () => {
+    const { token } = await setupToken()
+
+    const account = getAccount(config).address
+
+    const { result } = await renderHook(() =>
+      hooks.useUserRewardInfo({
+        token,
+        account,
+      }),
+    )
+
+    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
+
+    expect(result.current.data?.rewardRecipient).toBeDefined()
+    expect(result.current.data?.rewardPerToken).toBeDefined()
+    expect(result.current.data?.rewardBalance).toBeDefined()
+  })
+
+  test('reactivity: account and token parameters', async () => {
+    const { result, rerender } = await renderHook(
+      (props) =>
+        hooks.useUserRewardInfo({
+          token: props?.token,
+          account: props?.account,
+        }),
+      {
+        initialProps: {
+          token: undefined as Address | undefined,
+          account: undefined as Address | undefined,
+        },
+      },
+    )
+
+    await vi.waitFor(() => result.current.fetchStatus === 'idle')
+
+    // Should be disabled when both token and account are undefined
+    expect(result.current.data).toBeUndefined()
+    expect(result.current.isPending).toBe(true)
+    expect(result.current.isEnabled).toBe(false)
+
+    // Setup token (this also connects the account)
+    const { token } = await setupToken()
+
+    // Set token only (account still undefined)
+    rerender({ token, account: undefined })
+
+    await vi.waitFor(() => result.current.fetchStatus === 'idle')
+
+    // Should still be disabled when account is undefined
+    expect(result.current.data).toBeUndefined()
+    expect(result.current.isPending).toBe(true)
+    expect(result.current.isEnabled).toBe(false)
+
+    // Get account from config (already connected by setupToken)
+    const account = getAccount(config).address
+
+    // Set both token and account
+    rerender({ token, account })
+
+    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy())
+
+    // Should now be enabled and have data
+    expect(result.current.isEnabled).toBe(true)
+    expect(result.current.data?.rewardRecipient).toBeDefined()
+    expect(result.current.data?.rewardPerToken).toBeDefined()
+    expect(result.current.data?.rewardBalance).toBeDefined()
+  })
+})
+
 describe('useSetRecipientSync', () => {
   test('default', async () => {
     const { result } = await renderHook(() => ({
@@ -193,27 +151,99 @@ describe('useSetRecipientSync', () => {
   })
 })
 
-describe('useStartSync', () => {
+describe('useWatchRewardScheduled', () => {
   test('default', async () => {
-    const { result } = await renderHook(() => ({
+    const { result: connectResult } = await renderHook(() => ({
       connect: useConnect(),
-      start: hooks.useStartSync(),
+      grantRolesSync: tokenHooks.useGrantRolesSync(),
+      mintSync: tokenHooks.useMintSync(),
+      setRecipientSync: hooks.useSetRecipientSync(),
+      startSync: hooks.useStartSync(),
     }))
 
-    await result.current.connect.connectAsync({
+    await connectResult.current.connect.connectAsync({
       connector: config.connectors[0]!,
     })
 
-    const { token } = await setupToken()
+    const { token: tokenAddr } = await setupToken()
 
-    const { id } = await result.current.start.mutateAsync({
-      amount: parseUnits('100', 6),
-      seconds: 10,
-      token,
+    const account = getAccount(config).address
+
+    await connectResult.current.grantRolesSync.mutateAsync({
+      token: tokenAddr,
+      roles: ['issuer'],
+      to: account!,
     })
 
-    expect(id).toBeGreaterThan(0n)
+    const rewardAmount = parseUnits('100', 6)
+    await connectResult.current.mintSync.mutateAsync({
+      token: tokenAddr,
+      to: account!,
+      amount: rewardAmount,
+    })
 
-    await vi.waitFor(() => expect(result.current.start.isSuccess).toBeTruthy())
+    await connectResult.current.setRecipientSync.mutateAsync({
+      token: tokenAddr,
+      recipient: account!,
+    })
+
+    const events: any[] = []
+    await renderHook(() =>
+      hooks.useWatchRewardScheduled({
+        token: tokenAddr,
+        onRewardScheduled(args) {
+          events.push(args)
+        },
+      }),
+    )
+
+    await connectResult.current.startSync.mutateAsync({
+      token: tokenAddr,
+      amount: rewardAmount,
+    })
+
+    await vi.waitUntil(() => events.length >= 1)
+
+    expect(events.length).toBeGreaterThanOrEqual(1)
+    expect(events[0]?.amount).toBe(rewardAmount)
+    expect(events[0]?.funder).toBe(account)
+  })
+})
+
+describe('useWatchRewardRecipientSet', () => {
+  test('default', async () => {
+    const { result: connectResult } = await renderHook(() => ({
+      connect: useConnect(),
+      setRecipientSync: hooks.useSetRecipientSync(),
+    }))
+
+    await connectResult.current.connect.connectAsync({
+      connector: config.connectors[0]!,
+    })
+
+    const { token: tokenAddr } = await setupToken()
+
+    const account = getAccount(config).address
+
+    const events: any[] = []
+    await renderHook(() =>
+      hooks.useWatchRewardRecipientSet({
+        token: tokenAddr,
+        onRewardRecipientSet(args) {
+          events.push(args)
+        },
+      }),
+    )
+
+    await connectResult.current.setRecipientSync.mutateAsync({
+      token: tokenAddr,
+      recipient: account!,
+    })
+
+    await vi.waitUntil(() => events.length >= 1)
+
+    expect(events.length).toBeGreaterThanOrEqual(1)
+    expect(events[0]?.holder).toBe(account)
+    expect(events[0]?.recipient).toBe(account)
   })
 })

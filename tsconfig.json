@@ -3,7 +3,8 @@
 	"references": [
 		{ "path": "./playground/tsconfig.json" },
 		{ "path": "./scripts/tsconfig.json" },
-		{ "path": "./src/tsconfig.json" }
+		{ "path": "./src/tsconfig.json" },
+		{ "path": "./test/tsconfig.json" }
 	],
 	"compilerOptions": {
 		"module": "nodenext",

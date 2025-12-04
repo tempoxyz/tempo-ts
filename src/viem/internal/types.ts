@@ -10,7 +10,8 @@ import type {
   MaybeRequired,
   UnionPick,
 } from '../../internal/types.js'
-import type { TransactionRequestAA } from '../Transaction.js'
+import type * as TokenId from '../../ox/TokenId.js'
+import type { TransactionRequestTempo } from '../Transaction.js'
 
 export type GetAccountParameter<
   account extends Account | undefined = Account | undefined,
@@ -33,6 +34,14 @@ export type GetAccountParameter<
     : false
 >
 
+export type GetFeeTokenParameter<
+  chain extends Chain | undefined = Chain | undefined,
+> = chain extends { feeToken: infer feeToken }
+  ? IsUndefined<feeToken> extends true
+    ? { feeToken: TokenId.TokenIdOrAddress | null }
+    : { feeToken?: TokenId.TokenIdOrAddress | null | undefined }
+  : { feeToken: TokenId.TokenIdOrAddress | null }
+
 export type ReadParameters = Pick<
   viem_ReadContractParameters<never, never, never>,
   'account' | 'blockNumber' | 'blockOverrides' | 'blockTag' | 'stateOverride'
@@ -53,4 +62,5 @@ export type WriteParameters<
   | 'nonce'
   | 'throwOnReceiptRevert'
 > &
-  UnionPick<TransactionRequestAA, 'feePayer' | 'feeToken'>
+  GetFeeTokenParameter<chain> &
+  UnionPick<TransactionRequestTempo, 'feePayer'>

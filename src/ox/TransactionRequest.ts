@@ -3,9 +3,10 @@ import type * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 import * as ox_TransactionRequest from 'ox/TransactionRequest'
 import type { Compute } from '../internal/types.js'
+import * as KeyAuthorization from './KeyAuthorization.js'
 import * as TokenId from './TokenId.js'
 import * as Transaction from './Transaction.js'
-import type { Call } from './TransactionEnvelopeAA.js'
+import type { Call } from './TransactionEnvelopeTempo.js'
 
 type KeyType = 'secp256k1' | 'p256' | 'webAuthn'
 
@@ -17,16 +18,24 @@ export type TransactionRequest<
 > = Compute<
   ox_TransactionRequest.TransactionRequest<bigintType, numberType, type> & {
     calls?: readonly Call<bigintType>[] | undefined
+    keyAuthorization?: KeyAuthorization.KeyAuthorization<true> | undefined
     keyData?: Hex.Hex | undefined
     keyType?: KeyType | undefined
     feeToken?: TokenId.TokenIdOrAddress | undefined
+    nonceKey?: 'random' | bigintType | undefined
     validBefore?: numberType | undefined
     validAfter?: numberType | undefined
   }
 >
 
 /** RPC representation of a {@link ox#TransactionRequest.TransactionRequest}. */
-export type Rpc = TransactionRequest<Hex.Hex, Hex.Hex, string>
+export type Rpc = Omit<
+  TransactionRequest<Hex.Hex, Hex.Hex, string>,
+  'keyAuthorization'
+> & {
+  keyAuthorization?: KeyAuthorization.Rpc | undefined
+  nonceKey?: Hex.Hex | undefined
+}
 
 /**
  * Converts a {@link ox#TransactionRequest.TransactionRequest} to a {@link ox#TransactionRequest.Rpc}.
@@ -82,19 +91,31 @@ export function toRpc(request: TransactionRequest): Rpc {
     }))
   if (typeof request.feeToken !== 'undefined')
     request_rpc.feeToken = TokenId.toAddress(request.feeToken)
+  if (request.keyAuthorization)
+    request_rpc.keyAuthorization = KeyAuthorization.toRpc(
+      request.keyAuthorization,
+    )
   if (typeof request.validBefore !== 'undefined')
     request_rpc.validBefore = Hex.fromNumber(request.validBefore)
   if (typeof request.validAfter !== 'undefined')
     request_rpc.validAfter = Hex.fromNumber(request.validAfter)
+
+  const nonceKey = (() => {
+    if (request.nonceKey === 'random') return Hex.random(6)
+    if (typeof request.nonceKey === 'bigint')
+      return Hex.fromNumber(request.nonceKey)
+    return undefined
+  })()
+  if (nonceKey) request_rpc.nonceKey = nonceKey
 
   if (
     request.calls ||
     typeof request.feeToken !== 'undefined' ||
     typeof request.validBefore !== 'undefined' ||
     typeof request.validAfter !== 'undefined' ||
-    request.type === 'aa'
+    request.type === 'tempo'
   ) {
-    request_rpc.type = Transaction.toRpcType.aa
+    request_rpc.type = Transaction.toRpcType.tempo
     delete request_rpc.data
     delete request_rpc.input
     delete request_rpc.to

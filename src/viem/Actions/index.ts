@@ -1,5 +1,7 @@
+export { verifyHash } from './account.js'
 export * as amm from './amm.js'
 export * as dex from './dex.js'
+export * as faucet from './faucet.js'
 export * as fee from './fee.js'
 export * as policy from './policy.js'
 export * as reward from './reward.js'

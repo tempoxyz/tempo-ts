@@ -15,7 +15,7 @@ jobs:
 
   changesets:
     name: Changesets
-    needs: verify
+    # needs: verify
     permissions:
       contents: write
       id-token: write

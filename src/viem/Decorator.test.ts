@@ -5,7 +5,7 @@ import { describe, expect, test } from 'vitest'
 
 describe('decorator', () => {
   const client2 = createClient({
-    chain: tempoLocal,
+    chain: tempoLocal({ feeToken: 1n }),
     transport: http(),
   }).extend(tempoActions())
 
@@ -25,8 +25,10 @@ describe('decorator', () => {
         "type",
         "uid",
         "extend",
+        "verifyHash",
         "amm",
         "dex",
+        "faucet",
         "fee",
         "policy",
         "reward",

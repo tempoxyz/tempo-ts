@@ -1,6 +1,7 @@
 import { setTimeout } from 'node:timers/promises'
 import { beforeAll, describe, expect, test } from 'vitest'
-import { accounts, client, rpcUrl } from '../../../test/viem/config.js'
+import { rpcUrl } from '../../../test/config.js'
+import { accounts, clientWithAccount } from '../../../test/viem/config.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
@@ -10,9 +11,12 @@ const account3 = accounts[2]
 describe('create', () => {
   test('default', async () => {
     // create whitelist policy
-    const { receipt, ...result } = await actions.policy.createSync(client, {
-      type: 'whitelist',
-    })
+    const { receipt, ...result } = await actions.policy.createSync(
+      clientWithAccount,
+      {
+        type: 'whitelist',
+      },
+    )
     expect(receipt).toBeDefined()
     expect(result).toMatchInlineSnapshot(`
       {
@@ -25,7 +29,7 @@ describe('create', () => {
     const { policyId } = result
 
     // verify policy was created
-    const data = await actions.policy.getData(client, {
+    const data = await actions.policy.getData(clientWithAccount, {
       policyId,
     })
     expect(data.admin).toBe(account.address)
@@ -35,7 +39,7 @@ describe('create', () => {
   test('behavior: blacklist', async () => {
     // create blacklist policy
     const { receipt: blacklistReceipt, ...blacklistResult } =
-      await actions.policy.createSync(client, {
+      await actions.policy.createSync(clientWithAccount, {
         type: 'blacklist',
       })
     expect(blacklistReceipt).toBeDefined()
@@ -50,7 +54,7 @@ describe('create', () => {
     const { policyId } = blacklistResult
 
     // verify policy was created
-    const data = await actions.policy.getData(client, {
+    const data = await actions.policy.getData(clientWithAccount, {
       policyId,
     })
     expect(data.admin).toBe(account.address)
@@ -59,26 +63,26 @@ describe('create', () => {
 
   test.skip('behavior: with initial addresses', async () => {
     // create policy with initial addresses
-    const { policyId } = await actions.policy.createSync(client, {
+    const { policyId } = await actions.policy.createSync(clientWithAccount, {
       type: 'whitelist',
       addresses: [account2.address, account3.address],
     })
 
     // verify addresses are whitelisted
-    const isAuthorized2 = await actions.policy.isAuthorized(client, {
+    const isAuthorized2 = await actions.policy.isAuthorized(clientWithAccount, {
       policyId,
       user: account2.address,
     })
     expect(isAuthorized2).toBe(true)
 
-    const isAuthorized3 = await actions.policy.isAuthorized(client, {
+    const isAuthorized3 = await actions.policy.isAuthorized(clientWithAccount, {
       policyId,
       user: account3.address,
     })
     expect(isAuthorized3).toBe(true)
 
     // verify other address is not whitelisted
-    const isAuthorized = await actions.policy.isAuthorized(client, {
+    const isAuthorized = await actions.policy.isAuthorized(clientWithAccount, {
       policyId,
       user: account.address,
     })
@@ -89,13 +93,13 @@ describe('create', () => {
 describe('setAdmin', () => {
   test('default', async () => {
     // create policy
-    const { policyId } = await actions.policy.createSync(client, {
+    const { policyId } = await actions.policy.createSync(clientWithAccount, {
       type: 'whitelist',
     })
 
     // set new admin
     const { receipt: setAdminReceipt, ...setAdminResult } =
-      await actions.policy.setAdminSync(client, {
+      await actions.policy.setAdminSync(clientWithAccount, {
         policyId,
         admin: account2.address,
       })
@@ -110,7 +114,7 @@ describe('setAdmin', () => {
 
     {
       // verify new admin
-      const data = await actions.policy.getData(client, {
+      const data = await actions.policy.getData(clientWithAccount, {
         policyId,
       })
       expect(data.admin).toBe(account2.address)
@@ -121,22 +125,25 @@ describe('setAdmin', () => {
 describe('modifyWhitelist', () => {
   test('default', async () => {
     // create whitelist policy
-    const { policyId } = await actions.policy.createSync(client, {
+    const { policyId } = await actions.policy.createSync(clientWithAccount, {
       type: 'whitelist',
     })
 
     {
       // verify account2 is not authorized
-      const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId,
-        user: account2.address,
-      })
+      const isAuthorized = await actions.policy.isAuthorized(
+        clientWithAccount,
+        {
+          policyId,
+          user: account2.address,
+        },
+      )
       expect(isAuthorized).toBe(false)
     }
 
     // add account2 to whitelist
     const { receipt: addReceipt, ...addResult } =
-      await actions.policy.modifyWhitelistSync(client, {
+      await actions.policy.modifyWhitelistSync(clientWithAccount, {
         policyId,
         address: account2.address,
         allowed: true,
@@ -153,16 +160,19 @@ describe('modifyWhitelist', () => {
 
     {
       // verify account2 is authorized
-      const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId,
-        user: account2.address,
-      })
+      const isAuthorized = await actions.policy.isAuthorized(
+        clientWithAccount,
+        {
+          policyId,
+          user: account2.address,
+        },
+      )
       expect(isAuthorized).toBe(true)
     }
 
     // remove account2 from whitelist
     const { receipt: removeReceipt, ...removeResult } =
-      await actions.policy.modifyWhitelistSync(client, {
+      await actions.policy.modifyWhitelistSync(clientWithAccount, {
         policyId,
         address: account2.address,
         allowed: false,
@@ -179,10 +189,13 @@ describe('modifyWhitelist', () => {
 
     {
       // verify account2 is no longer authorized
-      const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId,
-        user: account2.address,
-      })
+      const isAuthorized = await actions.policy.isAuthorized(
+        clientWithAccount,
+        {
+          policyId,
+          user: account2.address,
+        },
+      )
       expect(isAuthorized).toBe(false)
     }
   })
@@ -191,22 +204,25 @@ describe('modifyWhitelist', () => {
 describe('modifyBlacklist', () => {
   test('default', async () => {
     // create blacklist policy
-    const { policyId } = await actions.policy.createSync(client, {
+    const { policyId } = await actions.policy.createSync(clientWithAccount, {
       type: 'blacklist',
     })
 
     {
       // verify account2 is authorized (not blacklisted)
-      const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId,
-        user: account2.address,
-      })
+      const isAuthorized = await actions.policy.isAuthorized(
+        clientWithAccount,
+        {
+          policyId,
+          user: account2.address,
+        },
+      )
       expect(isAuthorized).toBe(true)
     }
 
     // add account2 to blacklist
     const { receipt: addBlacklistReceipt, ...addBlacklistResult } =
-      await actions.policy.modifyBlacklistSync(client, {
+      await actions.policy.modifyBlacklistSync(clientWithAccount, {
         policyId,
         address: account2.address,
         restricted: true,
@@ -223,16 +239,19 @@ describe('modifyBlacklist', () => {
 
     {
       // verify account2 is not authorized (blacklisted)
-      const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId,
-        user: account2.address,
-      })
+      const isAuthorized = await actions.policy.isAuthorized(
+        clientWithAccount,
+        {
+          policyId,
+          user: account2.address,
+        },
+      )
       expect(isAuthorized).toBe(false)
     }
 
     // remove account2 from blacklist
     const { receipt: removeBlacklistReceipt, ...removeBlacklistResult } =
-      await actions.policy.modifyBlacklistSync(client, {
+      await actions.policy.modifyBlacklistSync(clientWithAccount, {
         policyId,
         address: account2.address,
         restricted: false,
@@ -249,10 +268,13 @@ describe('modifyBlacklist', () => {
 
     {
       // verify account2 is authorized again
-      const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId,
-        user: account2.address,
-      })
+      const isAuthorized = await actions.policy.isAuthorized(
+        clientWithAccount,
+        {
+          policyId,
+          user: account2.address,
+        },
+      )
       expect(isAuthorized).toBe(true)
     }
   })
@@ -261,13 +283,13 @@ describe('modifyBlacklist', () => {
 describe('getData', () => {
   test('default', async () => {
     // create policy
-    const { policyId } = await actions.policy.createSync(client, {
+    const { policyId } = await actions.policy.createSync(clientWithAccount, {
       type: 'whitelist',
     })
 
     {
       // get policy data
-      const data = await actions.policy.getData(client, {
+      const data = await actions.policy.getData(clientWithAccount, {
         policyId,
       })
       expect(data.admin).toBe(account.address)
@@ -277,13 +299,13 @@ describe('getData', () => {
 
   test('behavior: blacklist', async () => {
     // create blacklist policy
-    const { policyId } = await actions.policy.createSync(client, {
+    const { policyId } = await actions.policy.createSync(clientWithAccount, {
       type: 'blacklist',
     })
 
     {
       // get policy data
-      const data = await actions.policy.getData(client, {
+      const data = await actions.policy.getData(clientWithAccount, {
         policyId,
       })
       expect(data.admin).toBe(account.address)
@@ -294,7 +316,7 @@ describe('getData', () => {
 
 describe('isAuthorized', () => {
   test('special policy: always-reject (policyId 0)', async () => {
-    const isAuthorized = await actions.policy.isAuthorized(client, {
+    const isAuthorized = await actions.policy.isAuthorized(clientWithAccount, {
       policyId: 0n,
       user: account.address,
     })
@@ -302,7 +324,7 @@ describe('isAuthorized', () => {
   })
 
   test('special policy: always-allow (policyId 1)', async () => {
-    const isAuthorized = await actions.policy.isAuthorized(client, {
+    const isAuthorized = await actions.policy.isAuthorized(clientWithAccount, {
       policyId: 1n,
       user: account.address,
     })
@@ -311,52 +333,64 @@ describe('isAuthorized', () => {
 
   test.skip('whitelist policy', async () => {
     // create whitelist policy
-    const { policyId } = await actions.policy.createSync(client, {
+    const { policyId } = await actions.policy.createSync(clientWithAccount, {
       type: 'whitelist',
       addresses: [account2.address],
     })
 
     {
       // verify whitelisted address is authorized
-      const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId,
-        user: account2.address,
-      })
+      const isAuthorized = await actions.policy.isAuthorized(
+        clientWithAccount,
+        {
+          policyId,
+          user: account2.address,
+        },
+      )
       expect(isAuthorized).toBe(true)
     }
 
     {
       // verify non-whitelisted address is not authorized
-      const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId,
-        user: account.address,
-      })
+      const isAuthorized = await actions.policy.isAuthorized(
+        clientWithAccount,
+        {
+          policyId,
+          user: account.address,
+        },
+      )
       expect(isAuthorized).toBe(false)
     }
   })
 
   test.skip('blacklist policy', async () => {
     // create blacklist policy
-    const { policyId } = await actions.policy.createSync(client, {
+    const { policyId } = await actions.policy.createSync(clientWithAccount, {
       type: 'blacklist',
       addresses: [account2.address],
     })
 
     {
       // verify blacklisted address is not authorized
-      const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId,
-        user: account2.address,
-      })
+      const isAuthorized = await actions.policy.isAuthorized(
+        clientWithAccount,
+        {
+          policyId,
+          user: account2.address,
+        },
+      )
       expect(isAuthorized).toBe(false)
     }
 
     {
       // verify non-blacklisted address is authorized
-      const isAuthorized = await actions.policy.isAuthorized(client, {
-        policyId,
-        user: account.address,
-      })
+      const isAuthorized = await actions.policy.isAuthorized(
+        clientWithAccount,
+        {
+          policyId,
+          user: account.address,
+        },
+      )
       expect(isAuthorized).toBe(true)
     }
   })
@@ -365,14 +399,14 @@ describe('isAuthorized', () => {
 describe('watchCreate', () => {
   test('default', async () => {
     const logs: any[] = []
-    const unwatch = actions.policy.watchCreate(client, {
+    const unwatch = actions.policy.watchCreate(clientWithAccount, {
       onPolicyCreated: (args, log) => {
         logs.push({ args, log })
       },
     })
 
     // create policy
-    await actions.policy.createSync(client, {
+    await actions.policy.createSync(clientWithAccount, {
       type: 'whitelist',
     })
 
@@ -393,19 +427,19 @@ describe('watchAdminUpdated', () => {
 
   test('default', async () => {
     // create policy
-    const { policyId } = await actions.policy.createSync(client, {
+    const { policyId } = await actions.policy.createSync(clientWithAccount, {
       type: 'whitelist',
     })
 
     const logs: any[] = []
-    const unwatch = actions.policy.watchAdminUpdated(client, {
+    const unwatch = actions.policy.watchAdminUpdated(clientWithAccount, {
       onAdminUpdated: (args, log) => {
         logs.push({ args, log })
       },
     })
 
     // set new admin
-    await actions.policy.setAdminSync(client, {
+    await actions.policy.setAdminSync(clientWithAccount, {
       policyId,
       admin: account2.address,
     })
@@ -422,26 +456,26 @@ describe('watchAdminUpdated', () => {
 describe('watchWhitelistUpdated', () => {
   test('default', async () => {
     // create whitelist policy
-    const { policyId } = await actions.policy.createSync(client, {
+    const { policyId } = await actions.policy.createSync(clientWithAccount, {
       type: 'whitelist',
     })
 
     const logs: any[] = []
-    const unwatch = actions.policy.watchWhitelistUpdated(client, {
+    const unwatch = actions.policy.watchWhitelistUpdated(clientWithAccount, {
       onWhitelistUpdated: (args, log) => {
         logs.push({ args, log })
       },
     })
 
     // add address to whitelist
-    await actions.policy.modifyWhitelistSync(client, {
+    await actions.policy.modifyWhitelistSync(clientWithAccount, {
       policyId,
       address: account2.address,
       allowed: true,
     })
 
     // remove address from whitelist
-    await actions.policy.modifyWhitelistSync(client, {
+    await actions.policy.modifyWhitelistSync(clientWithAccount, {
       policyId,
       address: account2.address,
       allowed: false,
@@ -462,26 +496,26 @@ describe('watchWhitelistUpdated', () => {
 describe('watchBlacklistUpdated', () => {
   test('default', async () => {
     // create blacklist policy
-    const { policyId } = await actions.policy.createSync(client, {
+    const { policyId } = await actions.policy.createSync(clientWithAccount, {
       type: 'blacklist',
     })
 
     const logs: any[] = []
-    const unwatch = actions.policy.watchBlacklistUpdated(client, {
+    const unwatch = actions.policy.watchBlacklistUpdated(clientWithAccount, {
       onBlacklistUpdated: (args, log) => {
         logs.push({ args, log })
       },
     })
 
     // add address to blacklist
-    await actions.policy.modifyBlacklistSync(client, {
+    await actions.policy.modifyBlacklistSync(clientWithAccount, {
       policyId,
       address: account2.address,
       restricted: true,
     })
 
     // remove address from blacklist
-    await actions.policy.modifyBlacklistSync(client, {
+    await actions.policy.modifyBlacklistSync(clientWithAccount, {
       policyId,
       address: account2.address,
       restricted: false,

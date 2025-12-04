@@ -2,7 +2,7 @@ import type * as Query from '@tanstack/query-core'
 import { type Config, getConnectorClient } from '@wagmi/core'
 import type { ChainIdParameter, ConnectorParameter } from '@wagmi/core/internal'
 import type { Account } from 'viem'
-import type { RequiredBy } from '../../internal/types.js'
+import type { RequiredBy, UnionOmit } from '../../internal/types.js'
 import * as viem_Actions from '../../viem/Actions/token.js'
 
 /**
@@ -15,7 +15,7 @@ import * as viem_Actions from '../../viem/Actions/token.js'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -44,16 +44,16 @@ export async function approve<config extends Config>(
     connector,
   })
 
-  return viem_Actions.approve(
-    client,
-    parameters as viem_Actions.approve.Parameters,
-  )
+  return viem_Actions.approve(client, parameters as never)
 }
 
 export declare namespace approve {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.approve.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.approve.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.approve.ReturnValue
 
@@ -73,7 +73,7 @@ export declare namespace approve {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -102,16 +102,16 @@ export async function approveSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.approveSync(
-    client,
-    parameters as viem_Actions.approveSync.Parameters,
-  )
+  return viem_Actions.approveSync(client, parameters as never)
 }
 
 export declare namespace approveSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.approveSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.approveSync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.approveSync.ReturnValue
 
@@ -128,7 +128,7 @@ export declare namespace approveSync {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -157,13 +157,16 @@ export async function burn<config extends Config>(
     connector,
   })
 
-  return viem_Actions.burn(client, parameters as viem_Actions.burn.Parameters)
+  return viem_Actions.burn(client, parameters as never)
 }
 
 export declare namespace burn {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.burn.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.burn.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.burn.ReturnValue
 
@@ -180,7 +183,7 @@ export declare namespace burn {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -210,16 +213,16 @@ export async function burnBlocked<config extends Config>(
     connector,
   })
 
-  return await viem_Actions.burnBlocked(
-    client,
-    parameters as viem_Actions.burnBlocked.Parameters,
-  )
+  return await viem_Actions.burnBlocked(client, parameters as never)
 }
 
 export declare namespace burnBlocked {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.burnBlocked.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.burnBlocked.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.burnBlocked.ReturnValue
 
@@ -239,7 +242,7 @@ export declare namespace burnBlocked {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -269,16 +272,19 @@ export async function burnBlockedSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.burnBlockedSync(
-    client,
-    parameters as viem_Actions.burnBlockedSync.Parameters,
-  )
+  return viem_Actions.burnBlockedSync(client, parameters as never)
 }
 
 export declare namespace burnBlockedSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.burnBlockedSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.burnBlockedSync.Parameters<
+        config['chains'][number],
+        Account
+      >,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.burnBlockedSync.ReturnValue
 
@@ -298,7 +304,7 @@ export declare namespace burnBlockedSync {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -327,16 +333,16 @@ export async function burnSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.burnSync(
-    client,
-    parameters as viem_Actions.burnSync.Parameters,
-  )
+  return viem_Actions.burnSync(client, parameters as never)
 }
 
 export declare namespace burnSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.burnSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.burnSync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.burnSync.ReturnValue
 
@@ -353,7 +359,7 @@ export declare namespace burnSync {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -382,17 +388,17 @@ export async function changeTransferPolicy<config extends Config>(
     connector,
   })
 
-  return viem_Actions.changeTransferPolicy(
-    client,
-    parameters as viem_Actions.changeTransferPolicy.Parameters,
-  )
+  return viem_Actions.changeTransferPolicy(client, parameters as never)
 }
 
 export declare namespace changeTransferPolicy {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<
-      viem_Actions.changeTransferPolicy.Parameters<undefined, Account>,
+    UnionOmit<
+      viem_Actions.changeTransferPolicy.Parameters<
+        config['chains'][number],
+        Account
+      >,
       'chain'
     >
 
@@ -414,7 +420,7 @@ export declare namespace changeTransferPolicy {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -443,17 +449,17 @@ export async function changeTransferPolicySync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.changeTransferPolicySync(
-    client,
-    parameters as viem_Actions.changeTransferPolicySync.Parameters,
-  )
+  return viem_Actions.changeTransferPolicySync(client, parameters as never)
 }
 
 export declare namespace changeTransferPolicySync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<
-      viem_Actions.changeTransferPolicySync.Parameters<undefined, Account>,
+    UnionOmit<
+      viem_Actions.changeTransferPolicySync.Parameters<
+        config['chains'][number],
+        Account
+      >,
       'chain'
     >
 
@@ -472,7 +478,7 @@ export declare namespace changeTransferPolicySync {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -502,16 +508,16 @@ export async function create<config extends Config>(
     connector,
   })
 
-  return viem_Actions.create(
-    client,
-    parameters as viem_Actions.create.Parameters,
-  )
+  return viem_Actions.create(client, parameters as never)
 }
 
 export declare namespace create {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.create.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.create.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.create.ReturnValue
 
@@ -531,7 +537,7 @@ export declare namespace create {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -561,16 +567,16 @@ export async function createSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.createSync(
-    client,
-    parameters as viem_Actions.createSync.Parameters,
-  )
+  return viem_Actions.createSync(client, parameters as never)
 }
 
 export declare namespace createSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.createSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.createSync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.createSync.ReturnValue
 
@@ -587,7 +593,7 @@ export declare namespace createSync {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -615,16 +621,19 @@ export async function updateQuoteToken<config extends Config>(
     connector,
   })
 
-  return viem_Actions.updateQuoteToken(
-    client,
-    parameters as viem_Actions.updateQuoteToken.Parameters,
-  )
+  return viem_Actions.updateQuoteToken(client, parameters as never)
 }
 
 export declare namespace updateQuoteToken {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.updateQuoteToken.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.updateQuoteToken.Parameters<
+        config['chains'][number],
+        Account
+      >,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.updateQuoteToken.ReturnValue
 
@@ -644,7 +653,7 @@ export declare namespace updateQuoteToken {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -672,17 +681,17 @@ export async function updateQuoteTokenSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.updateQuoteTokenSync(
-    client,
-    parameters as viem_Actions.updateQuoteTokenSync.Parameters,
-  )
+  return viem_Actions.updateQuoteTokenSync(client, parameters as never)
 }
 
 export declare namespace updateQuoteTokenSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<
-      viem_Actions.updateQuoteTokenSync.Parameters<undefined, Account>,
+    UnionOmit<
+      viem_Actions.updateQuoteTokenSync.Parameters<
+        config['chains'][number],
+        Account
+      >,
       'chain'
     >
 
@@ -701,7 +710,7 @@ export declare namespace updateQuoteTokenSync {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -763,7 +772,7 @@ export namespace getAllowance {
       selectData = getAllowance.ReturnValue,
     > = getAllowance.Parameters<config> & {
       query?:
-        | Omit<ReturnValue<config, selectData>, 'queryKey' | 'queryFn'>
+        | UnionOmit<ReturnValue<config, selectData>, 'queryKey' | 'queryFn'>
         | undefined
     }
 
@@ -792,7 +801,7 @@ export namespace getAllowance {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -842,7 +851,7 @@ export namespace getBalance {
       queryKey: queryKey(rest),
       async queryFn({ queryKey }) {
         const [, parameters] = queryKey
-        return await getBalance(config, parameters)
+        return (await getBalance(config, parameters)) ?? null
       },
     }
   }
@@ -853,7 +862,7 @@ export namespace getBalance {
       selectData = getBalance.ReturnValue,
     > = getBalance.Parameters<config> & {
       query?:
-        | Omit<ReturnValue<config, selectData>, 'queryKey' | 'queryFn'>
+        | UnionOmit<ReturnValue<config, selectData>, 'queryKey' | 'queryFn'>
         | undefined
     }
 
@@ -882,7 +891,7 @@ export namespace getBalance {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -899,7 +908,7 @@ export namespace getBalance {
  */
 export function getMetadata<config extends Config>(
   config: config,
-  parameters: getMetadata.Parameters<config> = {},
+  parameters: getMetadata.Parameters<config>,
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
@@ -943,7 +952,7 @@ export namespace getMetadata {
       selectData = getMetadata.ReturnValue,
     > = getMetadata.Parameters<config> & {
       query?:
-        | Omit<ReturnValue<config, selectData>, 'queryKey' | 'queryFn'>
+        | UnionOmit<ReturnValue<config, selectData>, 'queryKey' | 'queryFn'>
         | undefined
     }
 
@@ -972,14 +981,14 @@ export namespace getMetadata {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
  * })
  *
  * const adminRole = await Actions.token.getRoleAdmin(config, {
- *   role: 'minter',
+ *   role: 'issuer',
  *   token: '0x...',
  * })
  * ```
@@ -1034,7 +1043,7 @@ export namespace getRoleAdmin {
       selectData = getRoleAdmin.ReturnValue,
     > = getRoleAdmin.Parameters<config> & {
       query?:
-        | Omit<ReturnValue<config, selectData>, 'queryKey' | 'queryFn'>
+        | UnionOmit<ReturnValue<config, selectData>, 'queryKey' | 'queryFn'>
         | undefined
     }
 
@@ -1063,7 +1072,7 @@ export namespace getRoleAdmin {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -1093,16 +1102,16 @@ export async function grantRoles<config extends Config>(
     connector,
   })
 
-  return viem_Actions.grantRoles(
-    client,
-    parameters as viem_Actions.grantRoles.Parameters,
-  )
+  return viem_Actions.grantRoles(client, parameters as never)
 }
 
 export declare namespace grantRoles {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.grantRoles.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.grantRoles.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.grantRoles.ReturnValue
 
@@ -1122,7 +1131,7 @@ export declare namespace grantRoles {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -1152,16 +1161,16 @@ export async function grantRolesSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.grantRolesSync(
-    client,
-    parameters as viem_Actions.grantRolesSync.Parameters,
-  )
+  return viem_Actions.grantRolesSync(client, parameters as never)
 }
 
 export declare namespace grantRolesSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.grantRolesSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.grantRolesSync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.grantRolesSync.ReturnValue
 
@@ -1178,7 +1187,7 @@ export declare namespace grantRolesSync {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -1241,7 +1250,7 @@ export namespace hasRole {
       selectData = hasRole.ReturnValue,
     > = hasRole.Parameters<config> & {
       query?:
-        | Omit<ReturnValue<config, selectData>, 'queryKey' | 'queryFn'>
+        | UnionOmit<ReturnValue<config, selectData>, 'queryKey' | 'queryFn'>
         | undefined
     }
 
@@ -1270,7 +1279,7 @@ export namespace hasRole {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -1300,13 +1309,16 @@ export async function mint<config extends Config>(
     connector,
   })
 
-  return viem_Actions.mint(client, parameters as viem_Actions.mint.Parameters)
+  return viem_Actions.mint(client, parameters as never)
 }
 
 export declare namespace mint {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.mint.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.mint.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.mint.ReturnValue
 
@@ -1326,7 +1338,7 @@ export declare namespace mint {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -1356,16 +1368,16 @@ export async function mintSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.mintSync(
-    client,
-    parameters as viem_Actions.mintSync.Parameters,
-  )
+  return viem_Actions.mintSync(client, parameters as never)
 }
 
 export declare namespace mintSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.mintSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.mintSync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.mintSync.ReturnValue
 
@@ -1382,7 +1394,7 @@ export declare namespace mintSync {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -1410,13 +1422,16 @@ export async function pause<config extends Config>(
     connector,
   })
 
-  return viem_Actions.pause(client, parameters as viem_Actions.pause.Parameters)
+  return viem_Actions.pause(client, parameters as never)
 }
 
 export declare namespace pause {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.pause.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.pause.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.pause.ReturnValue
 
@@ -1436,7 +1451,7 @@ export declare namespace pause {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -1464,16 +1479,16 @@ export async function pauseSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.pauseSync(
-    client,
-    parameters as viem_Actions.pauseSync.Parameters,
-  )
+  return viem_Actions.pauseSync(client, parameters as never)
 }
 
 export declare namespace pauseSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.pauseSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.pauseSync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.pauseSync.ReturnValue
 
@@ -1490,7 +1505,7 @@ export declare namespace pauseSync {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -1519,16 +1534,16 @@ export async function renounceRoles<config extends Config>(
     connector,
   })
 
-  return viem_Actions.renounceRoles(
-    client,
-    parameters as viem_Actions.renounceRoles.Parameters,
-  )
+  return viem_Actions.renounceRoles(client, parameters as never)
 }
 
 export declare namespace renounceRoles {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.renounceRoles.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.renounceRoles.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.renounceRoles.ReturnValue
 
@@ -1548,7 +1563,7 @@ export declare namespace renounceRoles {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -1577,16 +1592,19 @@ export async function renounceRolesSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.renounceRolesSync(
-    client,
-    parameters as viem_Actions.renounceRolesSync.Parameters,
-  )
+  return viem_Actions.renounceRolesSync(client, parameters as never)
 }
 
 export declare namespace renounceRolesSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.renounceRolesSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.renounceRolesSync.Parameters<
+        config['chains'][number],
+        Account
+      >,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.renounceRolesSync.ReturnValue
 
@@ -1603,7 +1621,7 @@ export declare namespace renounceRolesSync {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -1633,16 +1651,16 @@ export async function revokeRoles<config extends Config>(
     connector,
   })
 
-  return viem_Actions.revokeRoles(
-    client,
-    parameters as viem_Actions.revokeRoles.Parameters,
-  )
+  return viem_Actions.revokeRoles(client, parameters as never)
 }
 
 export declare namespace revokeRoles {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.revokeRoles.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.revokeRoles.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.revokeRoles.ReturnValue
 
@@ -1662,7 +1680,7 @@ export declare namespace revokeRoles {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -1692,16 +1710,19 @@ export async function revokeRolesSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.revokeRolesSync(
-    client,
-    parameters as viem_Actions.revokeRolesSync.Parameters,
-  )
+  return viem_Actions.revokeRolesSync(client, parameters as never)
 }
 
 export declare namespace revokeRolesSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.revokeRolesSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.revokeRolesSync.Parameters<
+        config['chains'][number],
+        Account
+      >,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.revokeRolesSync.ReturnValue
 
@@ -1718,7 +1739,7 @@ export declare namespace revokeRolesSync {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -1748,16 +1769,16 @@ export async function setRoleAdmin<config extends Config>(
     connector,
   })
 
-  return viem_Actions.setRoleAdmin(
-    client,
-    parameters as viem_Actions.setRoleAdmin.Parameters,
-  )
+  return viem_Actions.setRoleAdmin(client, parameters as never)
 }
 
 export declare namespace setRoleAdmin {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.setRoleAdmin.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.setRoleAdmin.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.setRoleAdmin.ReturnValue
 
@@ -1777,7 +1798,7 @@ export declare namespace setRoleAdmin {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -1807,16 +1828,19 @@ export async function setRoleAdminSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.setRoleAdminSync(
-    client,
-    parameters as viem_Actions.setRoleAdminSync.Parameters,
-  )
+  return viem_Actions.setRoleAdminSync(client, parameters as never)
 }
 
 export declare namespace setRoleAdminSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.setRoleAdminSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.setRoleAdminSync.Parameters<
+        config['chains'][number],
+        Account
+      >,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.setRoleAdminSync.ReturnValue
 
@@ -1833,7 +1857,7 @@ export declare namespace setRoleAdminSync {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -1862,16 +1886,16 @@ export async function setSupplyCap<config extends Config>(
     connector,
   })
 
-  return viem_Actions.setSupplyCap(
-    client,
-    parameters as viem_Actions.setSupplyCap.Parameters,
-  )
+  return viem_Actions.setSupplyCap(client, parameters as never)
 }
 
 export declare namespace setSupplyCap {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.setSupplyCap.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.setSupplyCap.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.setSupplyCap.ReturnValue
 
@@ -1891,7 +1915,7 @@ export declare namespace setSupplyCap {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -1920,16 +1944,19 @@ export async function setSupplyCapSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.setSupplyCapSync(
-    client,
-    parameters as viem_Actions.setSupplyCapSync.Parameters,
-  )
+  return viem_Actions.setSupplyCapSync(client, parameters as never)
 }
 
 export declare namespace setSupplyCapSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.setSupplyCapSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.setSupplyCapSync.Parameters<
+        config['chains'][number],
+        Account
+      >,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.setSupplyCapSync.ReturnValue
 
@@ -1946,7 +1973,7 @@ export declare namespace setSupplyCapSync {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -1975,16 +2002,16 @@ export async function transfer<config extends Config>(
     connector,
   })
 
-  return viem_Actions.transfer(
-    client,
-    parameters as viem_Actions.transfer.Parameters,
-  )
+  return viem_Actions.transfer(client, parameters as never)
 }
 
 export declare namespace transfer {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.transfer.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.transfer.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.transfer.ReturnValue
 
@@ -2004,7 +2031,7 @@ export declare namespace transfer {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -2033,16 +2060,16 @@ export async function transferSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.transferSync(
-    client,
-    parameters as viem_Actions.transferSync.Parameters,
-  )
+  return viem_Actions.transferSync(client, parameters as never)
 }
 
 export declare namespace transferSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.transferSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.transferSync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.transferSync.ReturnValue
 
@@ -2059,7 +2086,7 @@ export declare namespace transferSync {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -2087,16 +2114,16 @@ export async function unpause<config extends Config>(
     connector,
   })
 
-  return viem_Actions.unpause(
-    client,
-    parameters as viem_Actions.unpause.Parameters,
-  )
+  return viem_Actions.unpause(client, parameters as never)
 }
 
 export declare namespace unpause {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.unpause.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.unpause.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.unpause.ReturnValue
 
@@ -2116,7 +2143,7 @@ export declare namespace unpause {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -2144,16 +2171,16 @@ export async function unpauseSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.unpauseSync(
-    client,
-    parameters as viem_Actions.unpauseSync.Parameters,
-  )
+  return viem_Actions.unpauseSync(client, parameters as never)
 }
 
 export declare namespace unpauseSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.unpauseSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.unpauseSync.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.unpauseSync.ReturnValue
 
@@ -2170,7 +2197,7 @@ export declare namespace unpauseSync {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -2199,17 +2226,17 @@ export async function prepareUpdateQuoteToken<config extends Config>(
     connector,
   })
 
-  return viem_Actions.prepareUpdateQuoteToken(
-    client,
-    parameters as viem_Actions.prepareUpdateQuoteToken.Parameters,
-  )
+  return viem_Actions.prepareUpdateQuoteToken(client, parameters as never)
 }
 
 export declare namespace prepareUpdateQuoteToken {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<
-      viem_Actions.prepareUpdateQuoteToken.Parameters<undefined, Account>,
+    UnionOmit<
+      viem_Actions.prepareUpdateQuoteToken.Parameters<
+        config['chains'][number],
+        Account
+      >,
       'chain'
     >
 
@@ -2231,7 +2258,7 @@ export declare namespace prepareUpdateQuoteToken {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -2260,17 +2287,17 @@ export async function prepareUpdateQuoteTokenSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.prepareUpdateQuoteTokenSync(
-    client,
-    parameters as viem_Actions.prepareUpdateQuoteTokenSync.Parameters,
-  )
+  return viem_Actions.prepareUpdateQuoteTokenSync(client, parameters as never)
 }
 
 export declare namespace prepareUpdateQuoteTokenSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<
-      viem_Actions.prepareUpdateQuoteTokenSync.Parameters<undefined, Account>,
+    UnionOmit<
+      viem_Actions.prepareUpdateQuoteTokenSync.Parameters<
+        config['chains'][number],
+        Account
+      >,
       'chain'
     >
 
@@ -2289,7 +2316,7 @@ export declare namespace prepareUpdateQuoteTokenSync {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -2330,7 +2357,7 @@ export declare namespace watchAdminRole {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -2371,7 +2398,7 @@ export declare namespace watchApprove {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -2412,7 +2439,7 @@ export declare namespace watchBurn {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -2453,7 +2480,7 @@ export declare namespace watchCreate {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -2496,7 +2523,7 @@ export declare namespace watchMint {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -2537,7 +2564,7 @@ export declare namespace watchRole {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -2578,7 +2605,7 @@ export declare namespace watchTransfer {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },

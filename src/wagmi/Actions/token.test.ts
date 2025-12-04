@@ -1,6 +1,7 @@
 import { connect } from '@wagmi/core'
 import { parseUnits } from 'viem'
 import { describe, expect, test } from 'vitest'
+import { addresses } from '../../../test/config.js'
 import { accounts } from '../../../test/viem/config.js'
 import { config, queryClient } from '../../../test/wagmi/config.js'
 import * as token from './token.js'
@@ -13,6 +14,7 @@ describe('getAllowance', () => {
     const allowance = await token.getAllowance(config, {
       account: account.address,
       spender: account2.address,
+      token: addresses.alphaUsd,
     })
     expect(allowance).toBeDefined()
     expect(typeof allowance).toBe('bigint')
@@ -23,6 +25,7 @@ describe('getAllowance', () => {
       const options = token.getAllowance.queryOptions(config, {
         account: account.address,
         spender: account2.address,
+        token: addresses.alphaUsd,
       })
       const allowance = await queryClient.fetchQuery(options)
       expect(allowance).toBeDefined()
@@ -35,6 +38,7 @@ describe('getBalance', () => {
   test('default', async () => {
     const balance = await token.getBalance(config, {
       account: account.address,
+      token: addresses.alphaUsd,
     })
     expect(balance).toBeDefined()
     expect(typeof balance).toBe('bigint')
@@ -45,6 +49,7 @@ describe('getBalance', () => {
     test('default', async () => {
       const options = token.getBalance.queryOptions(config, {
         account: account.address,
+        token: addresses.alphaUsd,
       })
       const balance = await queryClient.fetchQuery(options)
       expect(balance).toBeDefined()
@@ -56,7 +61,9 @@ describe('getBalance', () => {
 
 describe('getMetadata', () => {
   test('default', async () => {
-    const metadata = await token.getMetadata(config)
+    const metadata = await token.getMetadata(config, {
+      token: addresses.alphaUsd,
+    })
     expect(metadata).toBeDefined()
     expect(metadata).toMatchInlineSnapshot(`
       {
@@ -75,7 +82,9 @@ describe('getMetadata', () => {
 
   describe('queryOptions', () => {
     test('default', async () => {
-      const options = token.getMetadata.queryOptions(config, {})
+      const options = token.getMetadata.queryOptions(config, {
+        token: addresses.alphaUsd,
+      })
       const metadata = await queryClient.fetchQuery(options)
       expect(metadata).toBeDefined()
       expect(metadata).toMatchInlineSnapshot(`
@@ -201,8 +210,9 @@ describe('approve', () => {
       connector: config.connectors[0]!,
     })
     const hash = await token.approve(config, {
-      spender: account2.address,
       amount: parseUnits('100', 6),
+      spender: account2.address,
+      token: addresses.alphaUsd,
     })
     expect(hash).toBeDefined()
     expect(typeof hash).toBe('string')
@@ -215,8 +225,9 @@ describe('approveSync', () => {
       connector: config.connectors[0]!,
     })
     const { receipt, ...result } = await token.approveSync(config, {
-      spender: account2.address,
       amount: parseUnits('100', 6),
+      spender: account2.address,
+      token: addresses.alphaUsd,
     })
     expect(receipt).toBeDefined()
     expect(result).toMatchInlineSnapshot(`
@@ -235,8 +246,9 @@ describe('transfer', () => {
       connector: config.connectors[0]!,
     })
     const hash = await token.transfer(config, {
-      to: account2.address,
       amount: parseUnits('1', 6),
+      to: account2.address,
+      token: addresses.alphaUsd,
     })
     expect(hash).toBeDefined()
     expect(typeof hash).toBe('string')
@@ -249,8 +261,9 @@ describe('transferSync', () => {
       connector: config.connectors[0]!,
     })
     const { receipt, ...result } = await token.transferSync(config, {
-      to: account2.address,
       amount: parseUnits('1', 6),
+      to: account2.address,
+      token: addresses.alphaUsd,
     })
     expect(receipt).toBeDefined()
     expect(result).toMatchInlineSnapshot(`
@@ -1077,12 +1090,14 @@ describe('watchApprove', () => {
       onApproval: (args) => {
         events.push(args)
       },
+      token: addresses.alphaUsd,
     })
 
     // Trigger approval event
     await token.approveSync(config, {
-      spender: account2.address,
       amount: parseUnits('50', 6),
+      spender: account2.address,
+      token: addresses.alphaUsd,
     })
 
     // Wait a bit for the event to be processed
@@ -1269,6 +1284,7 @@ describe('watchTransfer', () => {
 
     const events: any[] = []
     const unwatch = token.watchTransfer(config, {
+      token: addresses.alphaUsd,
       onTransfer: (args) => {
         events.push(args)
       },
@@ -1276,8 +1292,9 @@ describe('watchTransfer', () => {
 
     // Trigger transfer event
     await token.transferSync(config, {
-      to: account2.address,
       amount: parseUnits('5', 6),
+      to: account2.address,
+      token: addresses.alphaUsd,
     })
 
     // Wait a bit for the event to be processed

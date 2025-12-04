@@ -38,14 +38,14 @@ Example:
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
- * const poolId = await actions.amm.getPoolId(client, {
+ * const poolId = await Actions.amm.getPoolId(client, {
  *   userToken: '0x...',
  *   validatorToken: '0x...',
  * })
@@ -182,10 +182,10 @@ export type ErrorType = BaseErrorType
  * ```ts
  * import { createClient, http, walletActions } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * }).extend(walletActions)
  *
@@ -308,7 +308,7 @@ Organize tests by action name with a default test case and behavior-specific tes
 describe('actionName', () => {
   test('default', async () => {
     // Test the primary/happy path scenario
-    const { receipt, ...result } = await actions.namespace.actionSync(client, {
+    const { receipt, ...result } = await Actions.namespace.actionSync(client, {
       param1: value1,
       param2: value2,
     })
@@ -369,7 +369,7 @@ Example:
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },

@@ -1,11 +1,7 @@
-import { createServer } from 'prool'
-import { Instance } from 'tempo.ts/prool'
+import { nodeEnv } from '../config.js'
+import { setupServer } from '../prool.js'
 
 export default async function () {
-  const server = createServer({
-    instance: Instance.tempo({ dev: { blockTime: '2ms' }, port: 8545 }),
-    port: 8545,
-  })
-  await server.start()
-  return async () => await server.stop()
+  if (nodeEnv !== 'localnet') return undefined
+  return await setupServer({ port: 8545 })
 }

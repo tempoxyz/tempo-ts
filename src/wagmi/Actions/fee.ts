@@ -2,7 +2,7 @@ import type * as Query from '@tanstack/query-core'
 import { type Config, getConnectorClient } from '@wagmi/core'
 import type { ChainIdParameter, ConnectorParameter } from '@wagmi/core/internal'
 import type { Account } from 'viem'
-import type { PartialBy, RequiredBy } from '../../internal/types.js'
+import type { PartialBy, RequiredBy, UnionOmit } from '../../internal/types.js'
 import * as viem_Actions from '../../viem/Actions/fee.js'
 
 /**
@@ -15,7 +15,7 @@ import * as viem_Actions from '../../viem/Actions/fee.js'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -106,7 +106,7 @@ export namespace getUserToken {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -134,16 +134,16 @@ export async function setUserToken<config extends Config>(
     connector,
   })
 
-  return viem_Actions.setUserToken(
-    client,
-    parameters as viem_Actions.setUserToken.Parameters,
-  )
+  return viem_Actions.setUserToken(client, parameters as never)
 }
 
 export declare namespace setUserToken {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.setUserToken.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.setUserToken.Parameters<config['chains'][number], Account>,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.setUserToken.ReturnValue
 
@@ -163,7 +163,7 @@ export declare namespace setUserToken {
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo],
+ *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -191,16 +191,19 @@ export async function setUserTokenSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.setUserTokenSync(
-    client,
-    parameters as viem_Actions.setUserTokenSync.Parameters,
-  )
+  return viem_Actions.setUserTokenSync(client, parameters as never)
 }
 
 export declare namespace setUserTokenSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Omit<viem_Actions.setUserTokenSync.Parameters<undefined, Account>, 'chain'>
+    UnionOmit<
+      viem_Actions.setUserTokenSync.Parameters<
+        config['chains'][number],
+        Account
+      >,
+      'chain'
+    >
 
   export type ReturnValue = viem_Actions.setUserTokenSync.ReturnValue
 

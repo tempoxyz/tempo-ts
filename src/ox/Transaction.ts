@@ -3,13 +3,12 @@ import type * as Address from 'ox/Address'
 import type * as Authorization from 'ox/Authorization'
 import type * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
-import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
 import * as ox_Transaction from 'ox/Transaction'
 import type { Compute, OneOf, UnionCompute } from '../internal/types.js'
+import * as KeyAuthorization from './KeyAuthorization.js'
 import * as SignatureEnvelope from './SignatureEnvelope.js'
-import type { Call } from './TransactionEnvelopeAA.js'
-import * as TransactionEnvelopeAA from './TransactionEnvelopeAA.js'
+import type { Call } from './TransactionEnvelopeTempo.js'
 
 /**
  * A Transaction as defined in the [Execution API specification](https://github.com/ethereum/execution-apis/blob/main/src/schemas/transaction.yaml).
@@ -20,7 +19,7 @@ export type Transaction<
   numberType = number,
 > = UnionCompute<
   OneOf<
-    | AA<pending, bigintType, numberType>
+    | Tempo<pending, bigintType, numberType>
     | ox_Transaction.Transaction<pending, bigintType, numberType>
   >
 >
@@ -29,21 +28,21 @@ export type Transaction<
  * An RPC Transaction as defined in the [Execution API specification](https://github.com/ethereum/execution-apis/blob/main/src/schemas/transaction.yaml).
  */
 export type Rpc<pending extends boolean = false> = UnionCompute<
-  OneOf<AARpc<pending> | ox_Transaction.Rpc<pending>>
+  OneOf<TempoRpc<pending> | ox_Transaction.Rpc<pending>>
 >
 
 /**
  * Native account abstraction transaction.
  */
-export type AA<
+export type Tempo<
   pending extends boolean = false,
   bigintType = bigint,
   numberType = number,
-  type extends string = 'aa',
+  type extends string = 'tempo',
 > = Compute<
   Omit<
     ox_Transaction.Base<type, pending, bigintType, numberType>,
-    // AA transactions don't have these properties.
+    // Tempo transactions don't have these properties.
     'input' | 'to' | 'value' | 'v' | 'r' | 's' | 'yParity'
   > & {
     /** EIP-2930 Access List. */
@@ -54,8 +53,6 @@ export type AA<
       | undefined
     /** Array of calls to execute. */
     calls: readonly Call<bigintType>[]
-    /** Fee payer address. */
-    feePayer?: Address.Address | undefined
     /** Fee payer signature. */
     feePayerSignature?:
       | {
@@ -73,6 +70,10 @@ export type AA<
     feeToken: Address.Address
     /** Effective gas price paid by the sender in wei. */
     gasPrice?: bigintType | undefined
+    /** Key authorization for provisioning a new access key. */
+    keyAuthorization?:
+      | KeyAuthorization.KeyAuthorization<true, bigintType, numberType>
+      | undefined
     /** Total fee per gas in wei (gasPrice/baseFeePerGas + maxPriorityFeePerGas). */
     maxFeePerGas: bigintType
     /** Max priority fee per gas (in wei). */
@@ -91,10 +92,10 @@ export type AA<
 /**
  * Native account abstraction transaction in RPC format.
  */
-export type AARpc<pending extends boolean = false> = Compute<
+export type TempoRpc<pending extends boolean = false> = Compute<
   Omit<
-    AA<pending, Hex.Hex, Hex.Hex, ToRpcType['aa']>,
-    'calls' | 'signature'
+    Tempo<pending, Hex.Hex, Hex.Hex, ToRpcType['tempo']>,
+    'calls' | 'keyAuthorization' | 'signature'
   > & {
     calls:
       | readonly {
@@ -103,6 +104,7 @@ export type AARpc<pending extends boolean = false> = Compute<
           value?: Hex.Hex | undefined
         }[]
       | undefined
+    keyAuthorization?: KeyAuthorization.Rpc | undefined
     signature: SignatureEnvelope.SignatureEnvelopeRpc
   }
 >
@@ -110,7 +112,7 @@ export type AARpc<pending extends boolean = false> = Compute<
 /** Type to RPC Type mapping. */
 export const toRpcType = {
   ...ox_Transaction.toRpcType,
-  aa: '0x76',
+  tempo: '0x76',
 } as const
 
 /** Type to RPC Type mapping. */
@@ -121,7 +123,7 @@ export type ToRpcType = typeof toRpcType & {
 /** RPC Type to Type mapping. */
 export const fromRpcType = {
   ...ox_Transaction.fromRpcType,
-  '0x76': 'aa',
+  '0x76': 'tempo',
 } as const
 
 /** RPC Type to Type mapping. */
@@ -192,7 +194,7 @@ export function fromRpc<
   if (transaction.calls)
     transaction_.calls = transaction.calls.map((call) => ({
       to: call.to,
-      value: call.value ? BigInt(call.value) : undefined,
+      value: call.value && call.value !== '0x' ? BigInt(call.value) : undefined,
       // @ts-expect-error
       data: call.input || call.data || '0x',
     }))
@@ -204,6 +206,10 @@ export function fromRpc<
     transaction_.validAfter = Number(transaction.validAfter)
   if (transaction.validBefore)
     transaction_.validBefore = Number(transaction.validBefore)
+  if (transaction.keyAuthorization)
+    transaction_.keyAuthorization = KeyAuthorization.fromRpc(
+      transaction.keyAuthorization,
+    )
   if (transaction.feePayerSignature) {
     transaction_.feePayerSignature = Signature.fromRpc(
       transaction.feePayerSignature,
@@ -211,15 +217,6 @@ export function fromRpc<
     ;(transaction_.feePayerSignature as any).v = Signature.yParityToV(
       transaction_.feePayerSignature.yParity,
     )
-
-    // TODO: remove once `feePayer` returned on `eth_getTxBy*`.
-    transaction_.feePayer = Secp256k1.recoverAddress({
-      payload: TransactionEnvelopeAA.getFeePayerSignPayload(
-        transaction_ as never,
-        { sender: transaction.from },
-      ),
-      signature: transaction_.feePayerSignature,
-    })
   }
 
   return transaction_ as never
@@ -271,7 +268,7 @@ export declare namespace fromRpc {
  *     type: 'secp256k1',
  *   },
  *   transactionIndex: 2,
- *   type: 'aa',
+ *   type: 'tempo',
  * })
  * ```
  *
@@ -295,6 +292,8 @@ export function toRpc<pending extends boolean = false>(
       data: call.data,
     }))
   if (transaction.feeToken) rpc.feeToken = transaction.feeToken
+  if (transaction.keyAuthorization)
+    rpc.keyAuthorization = KeyAuthorization.toRpc(transaction.keyAuthorization)
   if (transaction.feePayerSignature) {
     rpc.feePayerSignature = Signature.toRpc(
       transaction.feePayerSignature,
@@ -302,7 +301,6 @@ export function toRpc<pending extends boolean = false>(
     ;(rpc.feePayerSignature as any).v = Hex.fromNumber(
       Signature.yParityToV(transaction.feePayerSignature?.yParity),
     )
-    rpc.feePayer = transaction.feePayer
   }
   if (transaction.signature)
     rpc.signature = SignatureEnvelope.toRpc(transaction.signature)

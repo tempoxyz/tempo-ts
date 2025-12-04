@@ -64,6 +64,16 @@ for (const solMatch of content.matchAll(solBlockRegex)) {
       cleanBody = cleanBody.replace(enumDef, '')
     }
 
+    // Helper function to replace enum types with uint8
+    const replaceEnumTypes = (definition: string): string => {
+      let result = definition
+      for (const enumType of enumTypes) {
+        // Replace enum type with uint8 in function parameters and return types
+        result = result.replace(new RegExp(`\\b${enumType}\\b`, 'g'), 'uint8')
+      }
+      return result
+    }
+
     // Extract structs
     const structRegex = /struct\s+(\w+)\s*\{([^}]+)\}/g
     const structDefinitions = new Set<string>()
@@ -84,7 +94,9 @@ for (const solMatch of content.matchAll(solBlockRegex)) {
         .filter(Boolean)
 
       if (fields.length > 0) {
-        const structDef = `struct ${structName} { ${fields.join('; ')}; }`
+        let structDef = `struct ${structName} { ${fields.join('; ')}; }`
+        // Replace enum types with uint8
+        structDef = replaceEnumTypes(structDef)
         items.push(structDef)
         structDefinitions.add(fullMatch)
       }
@@ -102,16 +114,6 @@ for (const solMatch of content.matchAll(solBlockRegex)) {
       .map((line) => line.trim())
       .filter((line) => line && !line.startsWith('//'))
       .join(' ')
-
-    // Helper function to replace enum types with uint8
-    const replaceEnumTypes = (definition: string): string => {
-      let result = definition
-      for (const enumType of enumTypes) {
-        // Replace enum type with uint8 in function parameters and return types
-        result = result.replace(new RegExp(`\\b${enumType}\\b`, 'g'), 'uint8')
-      }
-      return result
-    }
 
     // Extract all functions (including multi-line ones)
     const functionRegex = /function\s+[^;]+;/g
@@ -223,6 +225,8 @@ for (const [interfaceName, interfaceData] of interfaces.entries()) {
   const items = allItems.map((item) => {
     return item.replace('external bool', 'external returns (bool)')
   })
+
+  console.log(items)
 
   Fs.appendFileSync(
     out,

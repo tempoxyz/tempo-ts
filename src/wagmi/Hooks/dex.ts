@@ -26,8 +26,8 @@ import {
   getOrder,
   getOrderbook,
   getOrders,
-  getPriceLevel,
   getSellQuote,
+  getTickLevel,
   place,
   placeFlip,
   placeFlipSync,
@@ -82,10 +82,10 @@ export function useBuy<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return buy(config, variables)
+      return buy(config, variables as never)
     },
     mutationKey: ['buy'],
-  })
+  }) as never
 }
 
 export declare namespace useBuy {
@@ -157,10 +157,10 @@ export function useBuySync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return buySync(config, variables)
+      return buySync(config, variables as never)
     },
     mutationKey: ['buySync'],
-  })
+  }) as never
 }
 
 export declare namespace useBuySync {
@@ -224,10 +224,10 @@ export function useCancel<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return cancel(config, variables)
+      return cancel(config, variables as never)
     },
     mutationKey: ['cancel'],
-  })
+  }) as never
 }
 
 export declare namespace useCancel {
@@ -294,10 +294,10 @@ export function useCancelSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return cancelSync(config, variables)
+      return cancelSync(config, variables as never)
     },
     mutationKey: ['cancelSync'],
-  })
+  }) as never
 }
 
 export declare namespace useCancelSync {
@@ -361,10 +361,10 @@ export function useCreatePair<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return createPair(config, variables)
+      return createPair(config, variables as never)
     },
     mutationKey: ['createPair'],
-  })
+  }) as never
 }
 
 export declare namespace useCreatePair {
@@ -431,10 +431,10 @@ export function useCreatePairSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return createPairSync(config, variables)
+      return createPairSync(config, variables as never)
     },
     mutationKey: ['createPairSync'],
-  })
+  }) as never
 }
 
 export declare namespace useCreatePairSync {
@@ -808,14 +808,14 @@ export declare namespace useOrderbook {
  */
 export function usePriceLevel<
   config extends Config = ResolvedRegister['config'],
-  selectData = getPriceLevel.ReturnValue,
+  selectData = getTickLevel.ReturnValue,
 >(parameters: usePriceLevel.Parameters<config, selectData>) {
   const { query = {} } = parameters
 
   const config = useConfig(parameters)
   const chainId = useChainId({ config })
 
-  const options = getPriceLevel.queryOptions(config, {
+  const options = getTickLevel.queryOptions(config, {
     ...parameters,
     chainId: parameters.chainId ?? chainId,
     query: undefined,
@@ -833,17 +833,17 @@ export function usePriceLevel<
 export declare namespace usePriceLevel {
   export type Parameters<
     config extends Config = ResolvedRegister['config'],
-    selectData = getPriceLevel.ReturnValue,
+    selectData = getTickLevel.ReturnValue,
   > = ConfigParameter<config> &
     QueryParameter<
-      getPriceLevel.ReturnValue,
+      getTickLevel.ReturnValue,
       DefaultError,
       selectData,
-      getPriceLevel.QueryKey<config>
+      getTickLevel.QueryKey<config>
     > &
-    Omit<getPriceLevel.queryOptions.Parameters<config, selectData>, 'query'>
+    Omit<getTickLevel.queryOptions.Parameters<config, selectData>, 'query'>
 
-  export type ReturnValue<selectData = getPriceLevel.ReturnValue> =
+  export type ReturnValue<selectData = getTickLevel.ReturnValue> =
     UseQueryReturnType<selectData, Error>
 }
 
@@ -950,10 +950,10 @@ export function usePlace<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return place(config, variables)
+      return place(config, variables as never)
     },
     mutationKey: ['place'],
-  })
+  }) as never
 }
 
 export declare namespace usePlace {
@@ -1023,10 +1023,10 @@ export function usePlaceFlip<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return placeFlip(config, variables)
+      return placeFlip(config, variables as never)
     },
     mutationKey: ['placeFlip'],
-  })
+  }) as never
 }
 
 export declare namespace usePlaceFlip {
@@ -1099,10 +1099,10 @@ export function usePlaceFlipSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return placeFlipSync(config, variables)
+      return placeFlipSync(config, variables as never)
     },
     mutationKey: ['placeFlipSync'],
-  })
+  }) as never
 }
 
 export declare namespace usePlaceFlipSync {
@@ -1174,10 +1174,10 @@ export function usePlaceSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return placeSync(config, variables)
+      return placeSync(config, variables as never)
     },
     mutationKey: ['placeSync'],
-  })
+  }) as never
 }
 
 export declare namespace usePlaceSync {
@@ -1246,10 +1246,10 @@ export function useSell<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return sell(config, variables)
+      return sell(config, variables as never)
     },
     mutationKey: ['sell'],
-  })
+  }) as never
 }
 
 export declare namespace useSell {
@@ -1321,10 +1321,10 @@ export function useSellSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return sellSync(config, variables)
+      return sellSync(config, variables as never)
     },
     mutationKey: ['sellSync'],
-  })
+  }) as never
 }
 
 export declare namespace useSellSync {
@@ -1391,10 +1391,10 @@ export function useWithdraw<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return withdraw(config, variables)
+      return withdraw(config, variables as never)
     },
     mutationKey: ['withdraw'],
-  })
+  }) as never
 }
 
 export declare namespace useWithdraw {
@@ -1464,10 +1464,10 @@ export function useWithdrawSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return withdrawSync(config, variables)
+      return withdrawSync(config, variables as never)
     },
     mutationKey: ['withdrawSync'],
-  })
+  }) as never
 }
 
 export declare namespace useWithdrawSync {

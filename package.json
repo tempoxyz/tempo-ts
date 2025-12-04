@@ -1,30 +1,86 @@
 {
-	"name": "tempo.ts",
-	"type": "module",
-	"version": "0.1.5",
 	"scripts": {
-		"build": "zile --project ./tsconfig.build.json",
-		"changeset:publish": "pnpm build && changeset publish",
+		"build": "zile --project ./tsconfig.build.json && cp ./src/prool/chain.json ./dist/prool/chain.json",
+		"changeset:prepublish": "pnpm build && node ./scripts/prepublish.ts",
+		"changeset:publish": "pnpm changeset:prepublish && changeset publish",
 		"changeset:version": "changeset version && pnpm check",
 		"check": "biome check . --write --unsafe",
-		"check:types": "tsc -b",
+		"check:types": "tsgo -b",
+		"check:types:examples": "pnpm --filter *-example check:types",
 		"gen:abis": "node scripts/gen:abis.ts && pnpm check",
 		"playground": "pnpm preconstruct && pnpm --filter playground dev",
 		"postinstall": "git submodule update --init --recursive",
 		"preconstruct": "zile dev --project ./tsconfig.build.json && pnpm check",
 		"submodules:pull": "git submodule foreach git pull origin main && pnpm gen:abis",
 		"test": "vitest",
-		"test:install": "cd test/tempo && cargo install --path bin/tempo && cargo run --bin tempo-xtask generate-genesis --accounts 1 --output ../../src/prool/internal/chain.json"
+		"test:install": "cd test/tempo && cargo install --path bin/tempo && cargo run --bin tempo-xtask generate-genesis --accounts 1 --output ../../src/prool/chain.json"
 	},
+	"packageManager": "pnpm@10.18.3",
+	"devEngines": {
+		"runtime": {
+			"name": "node",
+			"version": "^24.5.1",
+			"onFail": "download"
+		}
+	},
+	"devDependencies": {
+		"@ark/attest": "^0.51.0",
+		"@biomejs/biome": "^2.2.4",
+		"@changesets/changelog-github": "^0.5.0",
+		"@changesets/cli": "^2.27.7",
+		"@remix-run/node-fetch-server": "^0.10.0",
+		"@tanstack/query-core": "^5.90.5",
+		"@tanstack/react-query": "catalog:default",
+		"@types/express": "^5.0.5",
+		"@types/node": "^24.10.0",
+		"@types/react": "catalog:default",
+		"@types/react-dom": "catalog:default",
+		"@typescript/native-preview": "7.0.0-dev.20251110.1",
+		"@vitejs/plugin-react": "catalog:default",
+		"@vitest/browser": "^4.0.13",
+		"@vitest/browser-playwright": "^4.0.13",
+		"@vitest/coverage-v8": "^4.0.13",
+		"@wagmi/core": "catalog:default",
+		"elysia": "^1.4.16",
+		"express": "^5.1.0",
+		"hono": "^4.10.6",
+		"playwright": "^1.56.1",
+		"prool": "catalog:default",
+		"react": "catalog:default",
+		"react-dom": "catalog:default",
+		"simple-git-hooks": "^2.13.1",
+		"typescript": "catalog:default",
+		"viem": "catalog:default",
+		"vitest": "^4.0.13",
+		"vitest-browser-react": "^2.0.2",
+		"wagmi": "catalog:default",
+		"zile": "^0.0.13"
+	},
+	"simple-git-hooks": {
+		"pre-commit": "pnpm check"
+	},
+	"pnpm": {
+		"overrides": {
+			"ox": "~0.9.17",
+			"tempo.ts": "workspace:*",
+			"viem": "catalog:default"
+		}
+	},
+	"[!start-pkg]": "",
+	"name": "tempo.ts",
+	"type": "module",
+	"version": "0.9.0",
 	"dependencies": {
-		"ox": "~0.9.9"
+		"@remix-run/fetch-router": "~0.12.0",
+		"idb-keyval": "^6.2.2",
+		"ox": "~0.9.17"
 	},
 	"peerDependencies": {
 		"@tanstack/query-core": ">=5.0.0",
 		"@tanstack/react-query": ">=5.0.0",
 		"@wagmi/core": ">=2.18",
 		"prool": "^0",
-		"viem": ">=2.38.4",
+		"viem": ">=2.41.2",
 		"wagmi": ">=2.19"
 	},
 	"peerDependenciesMeta": {
@@ -47,47 +103,12 @@
 			"optional": true
 		}
 	},
-	"packageManager": "pnpm@10.18.3",
-	"devEngines": {
-		"runtime": {
-			"name": "node",
-			"version": "^24.5.1",
-			"onFail": "download"
-		}
-	},
 	"author": "jxom <j@wevm.dev>",
 	"license": "MIT",
-	"devDependencies": {
-		"@ark/attest": "^0.51.0",
-		"@biomejs/biome": "^2.2.4",
-		"@changesets/changelog-github": "^0.5.0",
-		"@changesets/cli": "^2.27.7",
-		"@remix-run/node-fetch-server": "^0.10.0",
-		"@tanstack/query-core": "^5.90.5",
-		"@tanstack/react-query": "catalog:default",
-		"@types/node": "latest",
-		"@types/react": "catalog:default",
-		"@types/react-dom": "catalog:default",
-		"@vitejs/plugin-react": "catalog:default",
-		"@vitest/browser": "^4.0.5",
-		"@vitest/browser-playwright": "^4.0.5",
-		"@vitest/coverage-v8": "^4.0.5",
-		"@wagmi/core": "catalog:default",
-		"playwright": "^1.56.1",
-		"prool": "catalog:default",
-		"react": "catalog:default",
-		"react-dom": "catalog:default",
-		"simple-git-hooks": "^2.13.1",
-		"typescript": "catalog:default",
-		"viem": "catalog:default",
-		"vitest": "^4.0.5",
-		"vitest-browser-react": "^2.0.0",
-		"wagmi": "catalog:default",
-		"zile": "^0.0.5"
-	},
 	"files": [
 		"dist",
-		"src"
+		"src",
+		"CHANGELOG.md"
 	],
 	"sideEffects": false,
 	"main": "./dist/index.js",
@@ -114,6 +135,11 @@
 			"types": "./dist/prool/index.d.ts",
 			"default": "./dist/prool/index.js"
 		},
+		"./server": {
+			"src": "./src/server/index.ts",
+			"types": "./dist/server/index.d.ts",
+			"default": "./dist/server/index.js"
+		},
 		"./viem": {
 			"src": "./src/viem/index.ts",
 			"types": "./dist/viem/index.d.ts",
@@ -123,14 +149,6 @@
 			"src": "./src/wagmi/index.ts",
 			"types": "./dist/wagmi/index.d.ts",
 			"default": "./dist/wagmi/index.js"
-		}
-	},
-	"simple-git-hooks": {
-		"pre-commit": "pnpm check"
-	},
-	"pnpm": {
-		"overrides": {
-			"viem": "catalog:default"
 		}
 	}
 }

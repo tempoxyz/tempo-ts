@@ -1,5 +1,122 @@
 // Generated with `pnpm gen:abis`. Do not modify manually.
 
+export const accountKeychain = [
+  {
+    name: 'authorizeKey',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      { type: 'uint8', name: 'signatureType' },
+      { type: 'uint64', name: 'expiry' },
+      { type: 'bool', name: 'enforceLimits' },
+      {
+        type: 'tuple[]',
+        name: 'limits',
+        components: [
+          { type: 'address', name: 'token' },
+          { type: 'uint256', name: 'amount' },
+        ],
+      },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'revokeKey',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'address', name: 'keyId' }],
+    outputs: [],
+  },
+  {
+    name: 'updateSpendingLimit',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      { type: 'address', name: 'token' },
+      { type: 'uint256', name: 'newLimit' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'getKey',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'keyId' },
+    ],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'uint8', name: 'signatureType' },
+          { type: 'address', name: 'keyId' },
+          { type: 'uint64', name: 'expiry' },
+          { type: 'bool', name: 'enforceLimits' },
+          { type: 'bool', name: 'isRevoked' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'getRemainingLimit',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'keyId' },
+      { type: 'address', name: 'token' },
+    ],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'getTransactionKey',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'KeyAuthorized',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bytes32', name: 'publicKey', indexed: true },
+      { type: 'uint8', name: 'signatureType' },
+      { type: 'uint64', name: 'expiry' },
+    ],
+  },
+  {
+    name: 'KeyRevoked',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bytes32', name: 'publicKey', indexed: true },
+    ],
+  },
+  {
+    name: 'SpendingLimitUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bytes32', name: 'publicKey', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'uint256', name: 'newLimit' },
+    ],
+  },
+  { name: 'UnauthorizedCaller', type: 'error', inputs: [] },
+  { name: 'KeyAlreadyExists', type: 'error', inputs: [] },
+  { name: 'KeyNotFound', type: 'error', inputs: [] },
+  { name: 'KeyExpired', type: 'error', inputs: [] },
+  { name: 'SpendingLimitExceeded', type: 'error', inputs: [] },
+  { name: 'InvalidSignatureType', type: 'error', inputs: [] },
+  { name: 'ZeroPublicKey', type: 'error', inputs: [] },
+  { name: 'ExpiryInPast', type: 'error', inputs: [] },
+  { name: 'KeyAlreadyRevoked', type: 'error', inputs: [] },
+] as const
+
 export const nonce = [
   {
     name: 'getNonce',
@@ -38,6 +155,23 @@ export const nonce = [
   { name: 'ProtocolNonceNotSupported', type: 'error', inputs: [] },
   { name: 'InvalidNonceKey', type: 'error', inputs: [] },
   { name: 'NonceOverflow', type: 'error', inputs: [] },
+] as const
+
+export const pathUsd = [
+  {
+    name: 'TRANSFER_ROLE',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
+    name: 'RECEIVE_WITH_MEMO_ROLE',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bytes32' }],
+  },
 ] as const
 
 export const stablecoinExchange = [
@@ -178,7 +312,7 @@ export const stablecoinExchange = [
     ],
   },
   {
-    name: 'getPriceLevel',
+    name: 'getTickLevel',
     type: 'function',
     stateMutability: 'view',
     inputs: [
@@ -187,20 +321,15 @@ export const stablecoinExchange = [
       { type: 'bool', name: 'isBid' },
     ],
     outputs: [
-      {
-        type: 'tuple',
-        components: [
-          { type: 'uint128', name: 'head' },
-          { type: 'uint128', name: 'tail' },
-          { type: 'uint128', name: 'totalLiquidity' },
-        ],
-      },
+      { type: 'uint128', name: 'head' },
+      { type: 'uint128', name: 'tail' },
+      { type: 'uint128', name: 'totalLiquidity' },
     ],
   },
   {
     name: 'pairKey',
     type: 'function',
-    stateMutability: 'view',
+    stateMutability: 'pure',
     inputs: [
       { type: 'address', name: 'tokenA' },
       { type: 'address', name: 'tokenB' },
@@ -237,6 +366,62 @@ export const stablecoinExchange = [
         ],
       },
     ],
+  },
+  {
+    name: 'MIN_TICK',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'int16' }],
+  },
+  {
+    name: 'MAX_TICK',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'int16' }],
+  },
+  {
+    name: 'TICK_SPACING',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'int16' }],
+  },
+  {
+    name: 'PRICE_SCALE',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'uint32' }],
+  },
+  {
+    name: 'MIN_PRICE',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'uint32' }],
+  },
+  {
+    name: 'MAX_PRICE',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'uint32' }],
+  },
+  {
+    name: 'tickToPrice',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [{ type: 'int16', name: 'tick' }],
+    outputs: [{ type: 'uint32', name: 'price' }],
+  },
+  {
+    name: 'priceToTick',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [{ type: 'uint32', name: 'price' }],
+    outputs: [{ type: 'int16', name: 'tick' }],
   },
   {
     name: 'PairCreated',
@@ -283,6 +468,17 @@ export const stablecoinExchange = [
     ],
   },
   {
+    name: 'OrderFilled',
+    type: 'event',
+    inputs: [
+      { type: 'uint128', name: 'orderId', indexed: true },
+      { type: 'address', name: 'maker', indexed: true },
+      { type: 'address', name: 'taker', indexed: true },
+      { type: 'uint128', name: 'amountFilled' },
+      { type: 'bool', name: 'partialFill' },
+    ],
+  },
+  {
     name: 'OrderCancelled',
     type: 'event',
     inputs: [{ type: 'uint128', name: 'orderId', indexed: true }],
@@ -292,6 +488,7 @@ export const stablecoinExchange = [
   { name: 'PairAlreadyExists', type: 'error', inputs: [] },
   { name: 'OrderDoesNotExist', type: 'error', inputs: [] },
   { name: 'IdenticalTokens', type: 'error', inputs: [] },
+  { name: 'InvalidToken', type: 'error', inputs: [] },
   {
     name: 'TickOutOfBounds',
     type: 'error',
@@ -308,6 +505,7 @@ export const stablecoinExchange = [
     type: 'error',
     inputs: [{ type: 'uint128', name: 'amount' }],
   },
+  { name: 'InvalidBaseToken', type: 'error', inputs: [] },
 ] as const
 
 export const tip20 = [
@@ -501,6 +699,20 @@ export const tip20 = [
     outputs: [{ type: 'bool' }],
   },
   {
+    name: 'feeRecipient',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'setFeeRecipient',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'newRecipient' }],
+    outputs: [{ type: 'address' }],
+  },
+  {
     name: 'changeTransferPolicyId',
     type: 'function',
     stateMutability: 'nonpayable',
@@ -656,7 +868,7 @@ export const tip20 = [
       {
         type: 'tuple',
         components: [
-          { type: 'address', name: 'delegatedRecipient' },
+          { type: 'address', name: 'rewardRecipient' },
           { type: 'uint256', name: 'rewardPerToken' },
           { type: 'uint256', name: 'rewardBalance' },
         ],
@@ -783,6 +995,14 @@ export const tip20 = [
     ],
   },
   {
+    name: 'FeeRecipientUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'updater', indexed: true },
+      { type: 'address', name: 'newRecipient', indexed: true },
+    ],
+  },
+  {
     name: 'InsufficientBalance',
     type: 'error',
     inputs: [
@@ -807,6 +1027,9 @@ export const tip20 = [
   { name: 'StreamInactive', type: 'error', inputs: [] },
   { name: 'NoOptedInSupply', type: 'error', inputs: [] },
   { name: 'Unauthorized', type: 'error', inputs: [] },
+  { name: 'RewardsDisabled', type: 'error', inputs: [] },
+  { name: 'ScheduledRewardsDisabled', type: 'error', inputs: [] },
+  { name: 'ProtectedAddress', type: 'error', inputs: [] },
   {
     name: 'hasRole',
     type: 'function',
@@ -1074,11 +1297,14 @@ export const tipAccountRegistrar = [
     outputs: [{ type: 'address', name: 'authority' }],
   },
   {
-    name: 'getDelegationMessage',
+    name: 'delegateToDefault',
     type: 'function',
-    stateMutability: 'pure',
-    inputs: [],
-    outputs: [{ type: 'string' }],
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'bytes', name: 'message' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'address', name: 'authority' }],
   },
   { name: 'InvalidSignature', type: 'error', inputs: [] },
   { name: 'CodeNotEmpty', type: 'error', inputs: [] },
@@ -1151,14 +1377,42 @@ export const feeManager = [
   { name: 'OnlySystemContract', type: 'error', inputs: [] },
   { name: 'InvalidToken', type: 'error', inputs: [] },
   { name: 'PoolDoesNotExist', type: 'error', inputs: [] },
-  { name: 'InsufficientLiquidity', type: 'error', inputs: [] },
   { name: 'InsufficientFeeTokenBalance', type: 'error', inputs: [] },
   { name: 'InternalError', type: 'error', inputs: [] },
   { name: 'CannotChangeWithinBlock', type: 'error', inputs: [] },
+  { name: 'CannotChangeWithPendingFees', type: 'error', inputs: [] },
   { name: 'TokenPolicyForbids', type: 'error', inputs: [] },
 ] as const
 
 export const feeAmm = [
+  {
+    name: 'M',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'N',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'SCALE',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'MIN_LIQUIDITY',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+  },
   {
     name: 'getPoolId',
     type: 'function',
@@ -1270,16 +1524,6 @@ export const feeAmm = [
       { type: 'address', name: 'to' },
     ],
     outputs: [{ type: 'uint256', name: 'amountIn' }],
-  },
-  {
-    name: 'calculateLiquidity',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [
-      { type: 'uint256', name: 'x' },
-      { type: 'uint256', name: 'y' },
-    ],
-    outputs: [{ type: 'uint256' }],
   },
   {
     name: 'Mint',

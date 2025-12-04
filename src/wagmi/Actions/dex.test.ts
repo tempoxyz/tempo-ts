@@ -1,8 +1,9 @@
 import { connect } from '@wagmi/core'
-import { Addresses, Tick } from 'tempo.ts/viem'
+import { Tick } from 'tempo.ts/viem'
 import { Actions } from 'tempo.ts/wagmi'
 import { isAddress, parseUnits } from 'viem'
 import { beforeAll, describe, expect, test } from 'vitest'
+import { addresses } from '../../../test/config.js'
 import { accounts } from '../../../test/viem/config.js'
 import {
   config,
@@ -147,7 +148,7 @@ describe('cancel', () => {
     await Actions.token.transferSync(config, {
       to: account2.address,
       amount: parseUnits('1', 6),
-      token: Addresses.defaultFeeToken,
+      token: addresses.alphaUsd,
     })
 
     // Use a different account via the connector
@@ -599,7 +600,7 @@ describe('getOrderbook', () => {
   })
 })
 
-describe('getPriceLevel', () => {
+describe('getTickLevel', () => {
   test('default', async () => {
     const { base } = await setupTokenPair()
 
@@ -614,7 +615,7 @@ describe('getPriceLevel', () => {
     })
 
     // Get the price level
-    const level = await Actions.dex.getPriceLevel(config, {
+    const level = await Actions.dex.getTickLevel(config, {
       base,
       tick,
       isBid: true,
@@ -632,7 +633,7 @@ describe('getPriceLevel', () => {
     const tick = Tick.fromPrice('1.001')
 
     // Query a tick with no orders
-    const level = await Actions.dex.getPriceLevel(config, {
+    const level = await Actions.dex.getTickLevel(config, {
       base,
       tick,
       isBid: true,
@@ -666,7 +667,7 @@ describe('getPriceLevel', () => {
     })
 
     // Get the price level
-    const level = await Actions.dex.getPriceLevel(config, {
+    const level = await Actions.dex.getTickLevel(config, {
       base,
       tick,
       isBid: true,
@@ -700,14 +701,14 @@ describe('getPriceLevel', () => {
     })
 
     // Get bid side
-    const bidLevel = await Actions.dex.getPriceLevel(config, {
+    const bidLevel = await Actions.dex.getTickLevel(config, {
       base,
       tick,
       isBid: true,
     })
 
     // Get ask side
-    const askLevel = await Actions.dex.getPriceLevel(config, {
+    const askLevel = await Actions.dex.getTickLevel(config, {
       base,
       tick,
       isBid: false,
@@ -740,7 +741,7 @@ describe('getPriceLevel', () => {
     })
 
     // Get level before cancellation
-    const levelBefore = await Actions.dex.getPriceLevel(config, {
+    const levelBefore = await Actions.dex.getTickLevel(config, {
       base,
       tick,
       isBid: true,
@@ -752,7 +753,7 @@ describe('getPriceLevel', () => {
     })
 
     // Get level after cancellation
-    const levelAfter = await Actions.dex.getPriceLevel(config, {
+    const levelAfter = await Actions.dex.getTickLevel(config, {
       base,
       tick,
       isBid: true,
@@ -776,7 +777,7 @@ describe('getPriceLevel', () => {
     })
 
     // Get level before fill
-    const levelBefore = await Actions.dex.getPriceLevel(config, {
+    const levelBefore = await Actions.dex.getTickLevel(config, {
       base,
       tick,
       isBid: false,
@@ -791,7 +792,7 @@ describe('getPriceLevel', () => {
     })
 
     // Get level after fill
-    const levelAfter = await Actions.dex.getPriceLevel(config, {
+    const levelAfter = await Actions.dex.getTickLevel(config, {
       base,
       tick,
       isBid: false,
@@ -813,7 +814,7 @@ describe('getPriceLevel', () => {
     })
 
     // Query min tick
-    const minLevel = await Actions.dex.getPriceLevel(config, {
+    const minLevel = await Actions.dex.getTickLevel(config, {
       base,
       tick: Tick.minTick,
       isBid: false,
@@ -829,7 +830,7 @@ describe('getPriceLevel', () => {
     })
 
     // Query max tick
-    const maxLevel = await Actions.dex.getPriceLevel(config, {
+    const maxLevel = await Actions.dex.getTickLevel(config, {
       base,
       tick: Tick.maxTick,
       isBid: true,

@@ -54,7 +54,7 @@ type OrderType = 'buy' | 'sell'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -135,7 +135,7 @@ export namespace buy {
    * import { Actions } from 'tempo.ts/viem'
    *
    * const client = createClient({
-   *   chain: tempo,
+   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -177,7 +177,7 @@ export namespace buy {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -237,7 +237,7 @@ export namespace buySync {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -309,7 +309,7 @@ export namespace cancel {
    * import { Actions } from 'tempo.ts/viem'
    *
    * const client = createClient({
-   *   chain: tempo,
+   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -365,7 +365,7 @@ export namespace cancel {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -432,7 +432,7 @@ export namespace cancelSync {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -504,7 +504,7 @@ export namespace createPair {
    * import { Actions } from 'tempo.ts/viem'
    *
    * const client = createClient({
-   *   chain: tempo,
+   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -560,7 +560,7 @@ export namespace createPair {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -625,7 +625,7 @@ export namespace createPairSync {
  * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -700,7 +700,7 @@ export namespace getBalance {
  * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -771,7 +771,7 @@ export namespace getBuyQuote {
  * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -836,7 +836,7 @@ export namespace getOrder {
  * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -886,7 +886,7 @@ export namespace getOrders {
  * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -955,11 +955,11 @@ export namespace getOrderbook {
  * import { Actions, Tick } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
- * const level = await Actions.dex.getPriceLevel(client, {
+ * const level = await Actions.dex.getTickLevel(client, {
  *   base: '0x20c...11',
  *   tick: Tick.fromPrice('1.001'),
  *   isBid: true,
@@ -970,18 +970,19 @@ export namespace getOrderbook {
  * @param parameters - Parameters.
  * @returns The price level information.
  */
-export async function getPriceLevel<chain extends Chain | undefined>(
+export async function getTickLevel<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  parameters: getPriceLevel.Parameters,
-): Promise<getPriceLevel.ReturnValue> {
+  parameters: getTickLevel.Parameters,
+): Promise<getTickLevel.ReturnValue> {
   const { base, tick, isBid, ...rest } = parameters
-  return readContract(client, {
+  const [head, tail, totalLiquidity] = await readContract(client, {
     ...rest,
-    ...getPriceLevel.call({ base, tick, isBid }),
+    ...getTickLevel.call({ base, tick, isBid }),
   })
+  return { head, tail, totalLiquidity }
 }
 
-export namespace getPriceLevel {
+export namespace getTickLevel {
   export type Parameters = ReadParameters & Args
 
   export type Args = {
@@ -993,14 +994,17 @@ export namespace getPriceLevel {
     tick: number
   }
 
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.stablecoinExchange,
-    'getPriceLevel',
-    never
-  >
+  export type ReturnValue = {
+    /** Order ID of the first order at this tick (0 if empty) */
+    head: bigint
+    /** Order ID of the last order at this tick (0 if empty) */
+    tail: bigint
+    /** Total liquidity available at this tick level */
+    totalLiquidity: bigint
+  }
 
   /**
-   * Defines a call to the `getPriceLevel` function.
+   * Defines a call to the `getTickLevel` function.
    *
    * @param args - Arguments.
    * @returns The call.
@@ -1011,7 +1015,7 @@ export namespace getPriceLevel {
       address: Addresses.stablecoinExchange,
       abi: Abis.stablecoinExchange,
       args: [base, tick, isBid],
-      functionName: 'getPriceLevel',
+      functionName: 'getTickLevel',
     })
   }
 }
@@ -1026,7 +1030,7 @@ export namespace getPriceLevel {
  * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -1099,7 +1103,7 @@ export namespace getSellQuote {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -1180,7 +1184,7 @@ export namespace place {
    * import { Actions, Tick } from 'tempo.ts/viem'
    *
    * const client = createClient({
-   *   chain: tempo,
+   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -1240,7 +1244,7 @@ export namespace place {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -1324,7 +1328,7 @@ export namespace placeFlip {
    * import { Actions, Tick } from 'tempo.ts/viem'
    *
    * const client = createClient({
-   *   chain: tempo,
+   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -1385,7 +1389,7 @@ export namespace placeFlip {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -1456,7 +1460,7 @@ export namespace placeFlipSync {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -1526,7 +1530,7 @@ export namespace placeSync {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -1607,7 +1611,7 @@ export namespace sell {
    * import { Actions } from 'tempo.ts/viem'
    *
    * const client = createClient({
-   *   chain: tempo,
+   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -1649,7 +1653,7 @@ export namespace sell {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -1707,7 +1711,7 @@ export namespace sellSync {
  * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -1788,7 +1792,7 @@ export declare namespace watchFlipOrderPlaced {
  * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -1864,7 +1868,7 @@ export declare namespace watchOrderCancelled {
  * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -1948,7 +1952,7 @@ export declare namespace watchOrderFilled {
  * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -2031,7 +2035,7 @@ export declare namespace watchOrderPlaced {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -2106,7 +2110,7 @@ export namespace withdraw {
    * import { Actions } from 'tempo.ts/viem'
    *
    * const client = createClient({
-   *   chain: tempo,
+   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -2146,7 +2150,7 @@ export namespace withdraw {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *

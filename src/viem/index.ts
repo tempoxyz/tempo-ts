@@ -4,8 +4,6 @@ export * as Account from './Account.js'
 export * as Actions from './Actions/index.js'
 export * as Addresses from './Addresses.js'
 export * as Chain from './Chain.js'
-export * as Client from './Client.js'
-export { createTempoClient } from './Client.js'
 export {
   type Decorator as TempoActions,
   decorator as tempoActions,

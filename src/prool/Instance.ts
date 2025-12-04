@@ -1,9 +1,11 @@
-import * as fs from 'node:fs'
+import * as cp from 'node:child_process'
 import * as path from 'node:path'
 import { setTimeout } from 'node:timers/promises'
 import { toArgs } from 'prool'
 import { defineInstance } from 'prool/instances'
 import { execa } from 'prool/processes'
+
+let pulled = false
 
 /**
  * Defines a Tempo instance.
@@ -18,26 +20,34 @@ import { execa } from 'prool/processes'
  */
 export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
   const {
-    binary = 'tempo',
     builder,
-    chain = path.resolve(import.meta.dirname, './internal/chain.json'),
+    containerName = `tempo.${crypto.randomUUID()}`,
+    chain = path.resolve(import.meta.dirname, './chain.json'),
+    image = 'ghcr.io/tempoxyz/tempo',
     dev,
+    log: log_,
     faucet,
-    log = process.env.RUST_LOG,
+    tag = 'latest',
     ...args
   } = parameters
   const { deadline = 3, gaslimit = 3000000000, maxTasks = 8 } = builder ?? {}
   const { blockTime = '1sec' } = dev ?? {}
   const {
-    address = '0x20c0000000000000000000000000000000000001',
+    addresses = ['0x20c0000000000000000000000000000000000001'],
     amount = '1000000000000',
     privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
   } = faucet ?? {}
 
+  const log = (() => {
+    try {
+      return JSON.parse(log_ as string)
+    } catch {
+      return log_
+    }
+  })()
+
   const name = 'tempo'
   const process_ = execa({ name })
-
-  const tmp = `./tmp/${crypto.randomUUID()}`
 
   return {
     _internal: {
@@ -50,21 +60,36 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
     name,
     port: args.port ?? 8545,
     async start({ port = args.port }, options) {
-      try {
-        fs.rmSync(tmp, { recursive: true })
-      } catch {}
-      fs.mkdirSync(tmp, { recursive: true })
+      if (!pulled) {
+        cp.spawnSync('docker', [
+          'pull',
+          `${image}:${tag}`,
+          '--platform',
+          'linux/x86_64',
+        ])
+        pulled = true
+      }
 
-      const env: Record<string, string> = {}
-      if (log && typeof log !== 'boolean') env.RUST_LOG = log
+      const rustLog = log && typeof log !== 'boolean' ? log : ''
 
       return await process_.start(
         ($) =>
-          $(Object.keys(env).length > 0 ? { env } : {})`${binary} node \
+          $`docker run \
+              --name ${containerName} \
+              --network host \
+              --platform linux/x86_64 \
+              --add-host host.docker.internal:host-gateway \
+              --add-host localhost:host-gateway \
+              -v ${chain}:/chain.json \
+              -p ${port!}:${port!} \
+              -e RUST_LOG=${rustLog} \
+              ${image}:${tag} \
+              node \
               --dev \
               --engine.disable-precompile-cache \
               --engine.legacy-state-root \
               --faucet.enabled \
+              --faucet.address ${addresses.join(' ')} \
               --http \
               ${toArgs({
                 ...args,
@@ -73,13 +98,12 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
                   gaslimit,
                   maxTasks,
                 },
-                chain,
-                datadir: `${tmp}/data`,
+                chain: '/chain.json',
+                datadir: '/data',
                 dev: {
                   blockTime,
                 },
                 faucet: {
-                  address,
                   amount,
                   privateKey,
                 },
@@ -89,7 +113,6 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
                   corsdomain: '*',
                   port: port!,
                 },
-
                 port: port! + 10,
                 txpool: {
                   pendingMaxCount: '10000000000000',
@@ -127,20 +150,13 @@ export const tempo = defineInstance((parameters: tempo.Parameters = {}) => {
       )
     },
     async stop() {
-      try {
-        fs.rmSync(tmp, { recursive: true })
-      } catch {}
-      await process_.stop()
+      cp.spawnSync('docker', ['rm', '-f', containerName])
     },
   }
 })
 
 export declare namespace tempo {
   export type Parameters = {
-    /**
-     * Path or alias to the Tempo binary.
-     */
-    binary?: string | undefined
     /**
      * Builder options.
      */
@@ -165,6 +181,10 @@ export declare namespace tempo {
      */
     chain?: string | undefined
     /**
+     * Name of the container.
+     */
+    containerName?: string | undefined
+    /**
      * Development options.
      */
     dev?:
@@ -181,9 +201,9 @@ export declare namespace tempo {
     faucet?:
       | {
           /**
-           * Target token address for the faucet to be funding with
+           * Target token addresses for the faucet to be funding with
            */
-          address?: string | undefined
+          addresses?: string[] | undefined
           /**
            * Amount for each faucet funding transaction
            */
@@ -194,6 +214,10 @@ export declare namespace tempo {
           privateKey?: string | undefined
         }
       | undefined
+    /**
+     * Docker image to use.
+     */
+    image?: string | undefined
     /**
      * Rust log level configuration (sets RUST_LOG environment variable).
      * Can be a log level or a custom filter string.
@@ -215,5 +239,9 @@ export declare namespace tempo {
      * Port the server will listen on.
      */
     port?: number | undefined
+    /**
+     * Tag of the image to use.
+     */
+    tag?: string | undefined
   }
 }

@@ -1,38 +1,52 @@
 import type { FixedArray } from '@wagmi/core/internal'
-import { Actions, Addresses, Tick } from 'tempo.ts/viem'
+import * as Mnemonic from 'ox/Mnemonic'
+import {
+  Actions,
+  Addresses,
+  Chain,
+  Tick,
+  Account as tempo_Account,
+} from 'tempo.ts/viem'
 import {
   type Account,
-  type Chain,
+  type Address,
   type Client,
-  defineChain,
-  type LocalAccount,
+  type ClientConfig,
+  createClient,
+  type HttpTransportConfig,
   parseUnits,
   type Transport,
+  http as viem_http,
 } from 'viem'
-import { mnemonicToAccount } from 'viem/accounts'
+import { english, generateMnemonic } from 'viem/accounts'
 import { sendTransactionSync } from 'viem/actions'
-import { tempoLocal } from '../../src/chains.js'
-import { createTempoClient } from '../../src/viem/Client.js'
+import { tempoDevnet, tempoTestnet } from '../../src/chains.js'
+import type { TokenIdOrAddress } from '../../src/ox/TokenId.js'
+import { transferSync } from '../../src/viem/Actions/token.js'
+import { addresses, fetchOptions, nodeEnv, rpcUrl } from '../config.js'
 
-export const accounts = Array.from({ length: 20 }, (_, i) =>
-  mnemonicToAccount(
-    'test test test test test test test test test test test junk',
-    {
-      accountIndex: i,
-    },
-  ),
-) as unknown as FixedArray<LocalAccount, 20>
+const accountsMnemonic = (() => {
+  if (nodeEnv === 'localnet')
+    return 'test test test test test test test test test test test junk'
+  return generateMnemonic(english)
+})()
 
-export const id =
-  (typeof process !== 'undefined' &&
-    Number(process.env.VITEST_POOL_ID ?? 1) +
-      Math.floor(Math.random() * 10_000)) ||
-  1 + Math.floor(Math.random() * 10_000)
+export const accounts = Array.from({ length: 20 }, (_, i) => {
+  const privateKey = Mnemonic.toPrivateKey(accountsMnemonic, {
+    as: 'Hex',
+    path: Mnemonic.path({ account: i }),
+  })
+  return tempo_Account.fromSecp256k1(privateKey)
+}) as unknown as FixedArray<tempo_Account.RootAccount, 20>
 
-export const rpcUrl = `http://localhost:8545/${id}`
-
-export const tempoTest = defineChain({
-  ...tempoLocal,
+export const tempoTest = Chain.define({
+  id: 1337,
+  name: 'Tempo',
+  nativeCurrency: {
+    name: 'USD',
+    symbol: 'USD',
+    decimals: 6,
+  },
   rpcUrls: {
     default: {
       http: [rpcUrl],
@@ -40,14 +54,89 @@ export const tempoTest = defineChain({
   },
 })
 
-export const client = createTempoClient({
-  account: accounts[0],
-  chain: tempoTest,
-  pollingInterval: 100,
+export const chainFn = (() => {
+  const env = import.meta.env.VITE_NODE_ENV
+  if (env === 'testnet') return tempoTestnet
+  if (env === 'devnet') return tempoDevnet
+  return tempoTest
+})()
+export const chain = chainFn({ feeToken: 1n })
+
+export function debugOptions({
+  rpcUrl,
+}: {
+  rpcUrl: string
+}): HttpTransportConfig | undefined {
+  if (import.meta.env.VITE_HTTP_LOG !== 'true') return undefined
+  return {
+    async onFetchRequest(_, init) {
+      console.log(`curl \\
+${rpcUrl} \\
+-X POST \\
+-H "Content-Type: application/json" \\
+-d '${JSON.stringify(JSON.parse(init.body as string))}'`)
+    },
+    async onFetchResponse(response) {
+      console.log(`> ${JSON.stringify(await response.clone().json())}`)
+    },
+  }
+}
+
+export const http = (url?: string | undefined) =>
+  viem_http(url, {
+    fetchOptions,
+    ...debugOptions({
+      rpcUrl,
+    }),
+  })
+
+export function getClient<
+  accountOrAddress extends Account | Address | undefined = undefined,
+>(
+  parameters: Partial<
+    Pick<
+      ClientConfig<Transport, typeof chain, accountOrAddress>,
+      'account' | 'transport'
+    >
+  > = {},
+) {
+  return createClient({
+    pollingInterval: 100,
+    chain,
+    transport: http(),
+    ...parameters,
+  })
+}
+
+export const client = getClient()
+export const clientWithAccount = getClient({
+  account: accounts.at(0)!,
 })
 
+export async function fundAddress(
+  client: Client<Transport, Chain.Chain<TokenIdOrAddress>>,
+  parameters: fundAddress.Parameters,
+) {
+  const { address } = parameters
+  const account = accounts.at(0)!
+  if (account.address === address) return
+  await transferSync(client, {
+    account,
+    amount: parseUnits('10000', 6),
+    to: address,
+    token: 1n,
+  })
+}
+
+export declare namespace fundAddress {
+  export type Parameters = {
+    /** Account to fund. */
+    address: Address
+  }
+}
+
 export async function setupToken(
-  client: Client<Transport, Chain, Account>,
+  client: Client<Transport, Chain.Chain<TokenIdOrAddress>, Account>,
   parameters: Partial<
     Awaited<ReturnType<typeof Actions.token.createSync>>
   > = {},
@@ -75,7 +164,7 @@ export async function setupToken(
 }
 
 export async function setupPoolWithLiquidity(
-  client: Client<Transport, Chain, Account>,
+  client: Client<Transport, Chain.Chain<TokenIdOrAddress>, Account>,
 ) {
   // Create a new token for testing
   const { token } = await Actions.token.createSync(client, {
@@ -100,14 +189,9 @@ export async function setupPoolWithLiquidity(
 
   // Add liquidity to pool
   await Actions.amm.mintSync(client, {
-    userToken: {
-      address: token,
-      amount: parseUnits('100', 6),
-    },
-    validatorToken: {
-      address: Addresses.defaultFeeToken,
-      amount: parseUnits('100', 6),
-    },
+    userTokenAddress: token,
+    validatorTokenAddress: addresses.alphaUsd,
+    validatorTokenAmount: parseUnits('100', 6),
     to: client.account.address,
   })
 
@@ -115,7 +199,7 @@ export async function setupPoolWithLiquidity(
 }
 
 export async function setupTokenPair(
-  client: Client<Transport, Chain, Account>,
+  client: Client<Transport, typeof chain, Account>,
 ) {
   // Create quote token
   const { token: quoteToken } = await Actions.token.createSync(client, {
@@ -132,46 +216,39 @@ export async function setupTokenPair(
     quoteToken,
   })
 
-  // Grant issuer role to mint base tokens
-  await Actions.token.grantRolesSync(client, {
-    token: baseToken,
-    roles: ['issuer'],
-    to: client.account.address,
-  })
-
-  // Grant issuer role to mint quote tokens
-  await Actions.token.grantRolesSync(client, {
-    token: quoteToken,
-    roles: ['issuer'],
-    to: client.account.address,
-  })
-
-  // Mint base tokens
-  await Actions.token.mintSync(client, {
-    token: baseToken,
-    to: client.account.address,
-    amount: parseUnits('10000', 6),
-  })
-
-  // Mint quote tokens
-  await Actions.token.mintSync(client, {
-    token: quoteToken,
-    to: client.account.address,
-    amount: parseUnits('10000', 6),
-  })
-
-  // Approve DEX to spend base tokens
-  await Actions.token.approveSync(client, {
-    token: baseToken,
-    spender: Addresses.stablecoinExchange,
-    amount: parseUnits('10000', 6),
-  })
-
-  // Approve DEX to spend quote tokens
-  await Actions.token.approveSync(client, {
-    token: quoteToken,
-    spender: Addresses.stablecoinExchange,
-    amount: parseUnits('10000', 6),
+  await sendTransactionSync(client, {
+    calls: [
+      Actions.token.grantRoles.call({
+        token: baseToken,
+        role: 'issuer',
+        to: client.account.address,
+      }),
+      Actions.token.grantRoles.call({
+        token: quoteToken,
+        role: 'issuer',
+        to: client.account.address,
+      }),
+      Actions.token.mint.call({
+        token: baseToken,
+        to: client.account.address,
+        amount: parseUnits('10000', 6),
+      }),
+      Actions.token.mint.call({
+        token: quoteToken,
+        to: client.account.address,
+        amount: parseUnits('10000', 6),
+      }),
+      Actions.token.approve.call({
+        token: baseToken,
+        spender: Addresses.stablecoinExchange,
+        amount: parseUnits('10000', 6),
+      }),
+      Actions.token.approve.call({
+        token: quoteToken,
+        spender: Addresses.stablecoinExchange,
+        amount: parseUnits('10000', 6),
+      }),
+    ],
   })
 
   // Create the pair on the DEX
@@ -180,7 +257,9 @@ export async function setupTokenPair(
   })
 }
 
-export async function setupOrders(client: Client<Transport, Chain, Account>) {
+export async function setupOrders(
+  client: Client<Transport, typeof chain, Account>,
+) {
   const { base: base1 } = await setupTokenPair(client)
   const { base: base2 } = await setupTokenPair(client)
 

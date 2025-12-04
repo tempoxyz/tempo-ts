@@ -1,14 +1,28 @@
 import * as Address from 'ox/Address'
-import { Account, createTempoClient, WebAuthnP256 } from 'tempo.ts/viem'
+import type * as Hex from 'ox/Hex'
+import * as PublicKey from 'ox/PublicKey'
 import {
+  createClient,
   type EIP1193Provider,
   getAddress,
-  type Hex,
   type LocalAccount,
   SwitchChainError,
 } from 'viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { ChainNotConfiguredError, createConnector } from 'wagmi'
+import type { OneOf } from '../internal/types.js'
+import * as KeyAuthorization from '../ox/KeyAuthorization.js'
+import * as SignatureEnvelope from '../ox/SignatureEnvelope.js'
+import * as Account from '../viem/Account.js'
+import type * as tempo_Chain from '../viem/Chain.js'
+import { normalizeValue } from '../viem/internal/utils.js'
+import * as Storage from '../viem/Storage.js'
+import { walletNamespaceCompat } from '../viem/Transport.js'
+import * as WebAuthnP256 from '../viem/WebAuthnP256.js'
+import * as WebCryptoP256 from '../viem/WebCryptoP256.js'
+import type * as KeyManager from './KeyManager.js'
+
+type Chain = ReturnType<ReturnType<typeof tempo_Chain.define>>
 
 /**
  * Connector for a Secp256k1 EOA.
@@ -27,9 +41,12 @@ export function dangerous_secp256k1(
   type Properties = {
     connect<withCapabilities extends boolean = false>(parameters: {
       capabilities?:
-        | {
-            createAccount?: boolean | undefined
-          }
+        | OneOf<
+            | {
+                type: 'sign-up'
+              }
+            | {}
+          >
         | undefined
       chainId?: number | undefined
       isReconnecting?: boolean | undefined
@@ -43,7 +60,7 @@ export function dangerous_secp256k1(
   type StorageItem = {
     'secp256k1.activeAddress': Address.Address
     'secp256k1.lastActiveAddress': Address.Address
-    [key: `secp256k1.${string}.privateKey`]: Hex
+    [key: `secp256k1.${string}.privateKey`]: Hex.Hex
   }
 
   return createConnector<Provider, Properties, StorageItem>((config) => ({
@@ -67,7 +84,7 @@ export function dangerous_secp256k1(
       const address = await (async () => {
         if (
           'capabilities' in parameters &&
-          parameters.capabilities?.createAccount
+          parameters.capabilities?.type === 'sign-up'
         ) {
           const privateKey = generatePrivateKey()
           const account = privateKeyToAccount(privateKey)
@@ -164,10 +181,10 @@ export function dangerous_secp256k1(
       const transport = transports[chain.id]
       if (!transport) throw new ChainNotConfiguredError()
 
-      return createTempoClient({
+      return createClient({
         account,
-        chain,
-        transport,
+        chain: chain as Chain,
+        transport: walletNamespaceCompat(transport),
       })
     },
     async getProvider({ chainId } = {}) {
@@ -188,21 +205,29 @@ export declare namespace dangerous_secp256k1 {
  *
  * @returns Connector.
  */
-export function webAuthn(options: webAuthn.Parameters = {}) {
-  let account: Account.Account | undefined
+export function webAuthn(options: webAuthn.Parameters) {
+  let account: Account.RootAccount | undefined
+  let accessKey: Account.AccessKeyAccount | undefined
+
+  const idbStorage = Storage.idb<{
+    [key: `accessKey:${string}`]: WebCryptoP256.createKeyPair.ReturnType
+  }>()
 
   type Properties = {
     connect<withCapabilities extends boolean = false>(parameters: {
       chainId?: number | undefined
       capabilities?:
-        | {
-            createAccount?:
-              | boolean
-              | {
-                  label?: string | undefined
-                }
-              | undefined
-          }
+        | OneOf<
+            | {
+                label?: string | undefined
+                type: 'sign-up'
+              }
+            | {
+                selectAccount?: boolean | undefined
+                type: 'sign-in'
+              }
+            | {}
+          >
         | undefined
       isReconnecting?: boolean | undefined
       withCapabilities?: withCapabilities | boolean | undefined
@@ -212,7 +237,6 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
   type StorageItem = {
     'webAuthn.activeCredential': WebAuthnP256.P256Credential
     'webAuthn.lastActiveCredential': WebAuthnP256.P256Credential
-    [key: `webAuthn.${string}.publicKey`]: Hex
   }
 
   return createConnector<Provider, Properties, StorageItem>((config) => ({
@@ -227,56 +251,170 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
       account = Account.fromWebAuthnP256(credential)
     },
     async connect(parameters = {}) {
-      account ??= await (async () => {
-        let credential: WebAuthnP256.P256Credential | undefined
+      const { grantAccessKey = false } = options
+      const capabilities =
+        'capabilities' in parameters ? (parameters.capabilities ?? {}) : {}
 
-        if (
-          'capabilities' in parameters &&
-          parameters.capabilities?.createAccount
-        ) {
+      // We are going to need to find:
+      // - a WebAuthn `credential` to instantiate an account
+      // - optionally, a `keyPair` to use as the access key for the account
+      // - optionally, a signed `keyAuthorization` to provision the access key
+      const { credential, keyAuthorization, keyPair } = await (async () => {
+        // If the connection type is of "sign-up", we are going to create a new credential
+        // and provision an access key (if needed).
+        if (capabilities.type === 'sign-up') {
           // Create credential (sign up)
-          const createOptions =
-            typeof parameters.capabilities?.createAccount === 'boolean'
-              ? {}
-              : parameters.capabilities?.createAccount
-          credential = await WebAuthnP256.createCredential({
+          const createOptions_remote = await options.keyManager.getChallenge?.()
+          const label =
+            capabilities.label ??
+            options.createOptions?.label ??
+            new Date().toISOString()
+          const rpId =
+            createOptions_remote?.rp?.id ??
+            options.createOptions?.rpId ??
+            options.rpId
+          const credential = await WebAuthnP256.createCredential({
             ...(options.createOptions ?? {}),
-            label:
-              createOptions.label ??
-              options.createOptions?.label ??
-              `Account ${new Date().toISOString().split('T')[0]}`,
+            label,
+            rpId,
+            ...(createOptions_remote ?? {}),
           })
-          config.storage?.setItem(
-            `webAuthn.${credential.id}.publicKey`,
-            credential.publicKey,
-          )
-        } else {
-          // Load credential (log in)
-          credential = (await config.storage?.getItem(
-            'webAuthn.activeCredential',
-          )) as WebAuthnP256.P256Credential | undefined
+          await options.keyManager.setPublicKey({
+            credential: credential.raw,
+            publicKey: credential.publicKey,
+          })
 
-          // If no active credential, load (last active, if present) credential from keychain.
-          const lastActiveCredential = await config.storage?.getItem(
-            'webAuthn.lastActiveCredential',
-          )
-          credential ??= await WebAuthnP256.getCredential({
+          // Get key pair (access key) to use for the account.
+          const keyPair = await (async () => {
+            if (!grantAccessKey) return undefined
+            return await WebCryptoP256.createKeyPair()
+          })()
+
+          return { credential, keyPair }
+        }
+
+        // If we are not selecting an account, we will check if an active credential is present in
+        // storage and if so, we will use it to instantiate an account.
+        if (!capabilities.selectAccount) {
+          const credential = (await config.storage?.getItem(
+            'webAuthn.activeCredential',
+          )) as WebAuthnP256.getCredential.ReturnValue | undefined
+
+          if (credential) {
+            // Get key pair (access key) to use for the account.
+            const keyPair = await (async () => {
+              if (!grantAccessKey) return undefined
+              const address = Address.fromPublicKey(
+                PublicKey.fromHex(credential.publicKey),
+              )
+              return await idbStorage.getItem(`accessKey:${address}`)
+            })()
+
+            // If the access key policy is lax, return the credential and key pair (if exists).
+            if (grantAccessKey === 'lax') return { credential, keyPair }
+
+            // If a key pair is found, return the credential and key pair.
+            if (keyPair) return { credential, keyPair }
+
+            // If we are reconnecting, throw an error if not found.
+            if (parameters.isReconnecting)
+              throw new Error('credential not found.')
+
+            // Otherwise, we want to continue to sign up or register against new key pair.
+          }
+        }
+
+        // Discover credential
+        {
+          // Get key pair (access key) to use for the account.
+          const keyPair = await (async () => {
+            if (!grantAccessKey) return undefined
+            return await WebCryptoP256.createKeyPair()
+          })()
+
+          // If we are provisioning an access key, we will need to sign a key authorization.
+          // We will need the hash (digest) to sign, and the address of the access key to construct the key authorization.
+          const { accessKeyAddress, hash } = await (async () => {
+            if (!keyPair)
+              return { accessKeyAddress: undefined, hash: undefined }
+            const accessKeyAddress = Address.fromPublicKey(keyPair.publicKey)
+            const hash = KeyAuthorization.getSignPayload({
+              address: accessKeyAddress,
+              type: 'p256',
+            })
+            return { accessKeyAddress, hash, keyPair }
+          })()
+
+          // If no active credential, we will attempt to load the last active credential from storage.
+          const lastActiveCredential = !capabilities.selectAccount
+            ? await config.storage?.getItem('webAuthn.lastActiveCredential')
+            : undefined
+          const credential = await WebAuthnP256.getCredential({
             ...(options.getOptions ?? {}),
             credentialId: lastActiveCredential?.id,
             async getPublicKey(credential) {
-              const publicKey = await config.storage?.getItem(
-                `webAuthn.${credential.id}.publicKey`,
-              )
-              if (!publicKey) throw new Error('publicKey not found')
-              return publicKey as Hex
+              const publicKey = await options.keyManager.getPublicKey({
+                credential,
+              })
+              if (!publicKey) throw new Error('publicKey not found.')
+              return publicKey
             },
+            hash,
+            rpId: options.getOptions?.rpId ?? options.rpId,
           })
-        }
 
-        config.storage?.setItem('webAuthn.activeCredential', credential)
-        config.storage?.setItem('webAuthn.lastActiveCredential', credential)
-        return Account.fromWebAuthnP256(credential)
+          const keyAuthorization = accessKeyAddress
+            ? KeyAuthorization.from({
+                address: accessKeyAddress,
+                signature: SignatureEnvelope.from({
+                  metadata: credential.metadata,
+                  signature: credential.signature,
+                  publicKey: PublicKey.fromHex(credential.publicKey),
+                  type: 'webAuthn',
+                }),
+                type: 'p256',
+              })
+            : undefined
+
+          return { credential, keyAuthorization, keyPair }
+        }
       })()
+
+      config.storage?.setItem(
+        'webAuthn.lastActiveCredential',
+        normalizeValue(credential),
+      )
+      config.storage?.setItem(
+        'webAuthn.activeCredential',
+        normalizeValue(credential),
+      )
+
+      account = Account.fromWebAuthnP256(credential, {
+        storage: Storage.from(config.storage as never),
+      })
+
+      if (keyPair) {
+        accessKey = Account.fromWebCryptoP256(keyPair, {
+          access: account,
+          storage: Storage.from(config.storage as never),
+        })
+
+        // If we are not reconnecting, orchestrate the provisioning of the access key.
+        if (!parameters.isReconnecting) {
+          const keyAuth =
+            keyAuthorization ?? (await account.signKeyAuthorization(accessKey))
+
+          await account.storage.setItem('pendingKeyAuthorization', keyAuth)
+          await idbStorage.setItem(
+            `accessKey:${account.address.toLowerCase()}`,
+            keyPair,
+          )
+        }
+        // If we are granting an access key, throw an error if the access key is not provisioned.
+      } else if (grantAccessKey === true) {
+        await config.storage?.removeItem('webAuthn.activeCredential')
+        throw new Error('access key not found')
+      }
 
       const address = getAddress(account.address)
 
@@ -338,10 +476,10 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
       const transport = transports[chain.id]
       if (!transport) throw new ChainNotConfiguredError()
 
-      return createTempoClient({
-        account,
-        chain,
-        transport,
+      return createClient({
+        account: accessKey ?? account,
+        chain: chain as Chain,
+        transport: walletNamespaceCompat(transport),
       })
     },
     async getProvider({ chainId } = {}) {
@@ -351,16 +489,36 @@ export function webAuthn(options: webAuthn.Parameters = {}) {
   }))
 }
 
-export declare namespace webAuthn {
+export namespace webAuthn {
   export type Parameters = {
+    /** Options for WebAuthn registration. */
     createOptions?:
       | Pick<
           WebAuthnP256.createCredential.Parameters,
           'createFn' | 'label' | 'rpId' | 'userId' | 'timeout'
         >
       | undefined
+    /** Options for WebAuthn authentication. */
     getOptions?:
       | Pick<WebAuthnP256.getCredential.Parameters, 'getFn' | 'rpId'>
       | undefined
+    /**
+     * Whether or not to grant an access key upon connection.
+     *
+     * - `true`: The account MUST have an access key provisioned.
+     *   On failure, the connection will fail.
+     * - `"lax"`: The account MAY have an access key provisioned.
+     *   On failure, the connection will succeed, but the access key will not be provisioned
+     *   and must be provisioned manually if the user wants to enforce access keys.
+     * - `false`: The account WILL NOT have an access key provisioned. The access key must be
+     *   provisioned manually if the user wants to enforce access keys.
+     *
+     * @default false
+     */
+    grantAccessKey?: boolean | 'lax'
+    /** Public key manager. */
+    keyManager: KeyManager.KeyManager
+    /** The RP ID to use for WebAuthn. */
+    rpId?: string | undefined
   }
 }

@@ -196,10 +196,10 @@ export function useRebalanceSwap<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.rebalanceSwap(config, variables)
+      return Actions.rebalanceSwap(config, variables as never)
     },
     mutationKey: ['rebalanceSwap'],
-  })
+  }) as never
 }
 
 export declare namespace useRebalanceSwap {
@@ -273,10 +273,10 @@ export function useRebalanceSwapSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.rebalanceSwapSync(config, variables)
+      return Actions.rebalanceSwapSync(config, variables as never)
     },
     mutationKey: ['rebalanceSwapSync'],
-  })
+  }) as never
 }
 
 export declare namespace useRebalanceSwapSync {
@@ -319,14 +319,9 @@ export declare namespace useRebalanceSwapSync {
  *     <button
  *       onClick={() =>
  *         mutate({
- *           userToken: {
- *             address: '0x20c0...beef',
- *             amount: 100n,
- *           },
- *           validatorToken: {
- *             address: '0x20c0...babe',
- *             amount: 100n,
- *           },
+ *           userTokenAddress: '0x20c0...beef',
+ *           validatorTokenAddress: '0x20c0...babe',
+ *           validatorTokenAmount: 100n,
  *           to: '0xfeed...fede',
  *         })
  *       }
@@ -352,10 +347,10 @@ export function useMint<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.mint(config, variables)
+      return Actions.mint(config, variables as never)
     },
     mutationKey: ['mint'],
-  })
+  }) as never
 }
 
 export declare namespace useMint {
@@ -401,14 +396,9 @@ export declare namespace useMint {
  *     <button
  *       onClick={() =>
  *         mutate({
- *           userToken: {
- *             address: '0x20c0...beef',
- *             amount: 100n,
- *           },
- *           validatorToken: {
- *             address: '0x20c0...babe',
- *             amount: 100n,
- *           },
+ *           userTokenAddress: '0x20c0...beef',
+ *           validatorTokenAddress: '0x20c0...babe',
+ *           validatorTokenAmount: 100n,
  *           to: '0xfeed...fede',
  *         })
  *       }
@@ -434,10 +424,10 @@ export function useMintSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.mintSync(config, variables)
+      return Actions.mintSync(config, variables as never)
     },
     mutationKey: ['mintSync'],
-  })
+  }) as never
 }
 
 export declare namespace useMintSync {
@@ -508,10 +498,10 @@ export function useBurn<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.burn(config, variables)
+      return Actions.burn(config, variables as never)
     },
     mutationKey: ['burn'],
-  })
+  }) as never
 }
 
 export declare namespace useBurn {
@@ -585,10 +575,10 @@ export function useBurnSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.burnSync(config, variables)
+      return Actions.burnSync(config, variables as never)
     },
     mutationKey: ['burnSync'],
-  })
+  }) as never
 }
 
 export declare namespace useBurnSync {

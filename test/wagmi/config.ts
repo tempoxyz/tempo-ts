@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { connect, getAccount, getConnectorClient } from '@wagmi/core'
 import * as React from 'react'
-import { defineChain, http } from 'viem'
+import { http } from 'viem'
 import {
   type RenderHookOptions,
   type RenderHookResult,
@@ -10,10 +10,10 @@ import {
   renderHook as vbr_renderHook,
 } from 'vitest-browser-react'
 import { createConfig, WagmiProvider } from 'wagmi'
-import { tempoLocal } from '../../src/chains.js'
 import { dangerous_secp256k1 } from '../../src/wagmi/Connector.js'
 import {
   accounts,
+  chain,
   setupOrders as viem_setupOrders,
   setupPoolWithLiquidity as viem_setupPoolWithLiquidity,
   setupToken as viem_setupToken,
@@ -22,28 +22,11 @@ import {
 
 export { accounts }
 
-export const id =
-  (typeof process !== 'undefined' &&
-    Number(process.env.VITEST_POOL_ID ?? 1) +
-      Math.floor(Math.random() * 10_000)) ||
-  1 + Math.floor(Math.random() * 10_000)
-
-export const rpcUrl = `http://localhost:4000/${id}`
-
-export const tempoTest = defineChain({
-  ...tempoLocal,
-  rpcUrls: {
-    default: {
-      http: [rpcUrl],
-    },
-  },
-})
-
 export const config = createConfig({
   batch: {
     multicall: false,
   },
-  chains: [tempoTest],
+  chains: [chain],
   connectors: [
     dangerous_secp256k1({
       account: accounts.at(0),
@@ -54,8 +37,9 @@ export const config = createConfig({
   ],
   pollingInterval: 100,
   storage: null,
+  // @ts-expect-error
   transports: {
-    [tempoTest.id]: http(),
+    [chain.id]: http(),
   },
 })
 

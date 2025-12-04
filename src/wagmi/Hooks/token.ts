@@ -49,10 +49,10 @@ export function useApprove<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.approve(config, variables)
+      return Actions.approve(config, variables as never)
     },
     mutationKey: ['approve'],
-  })
+  }) as never
 }
 
 export declare namespace useApprove {
@@ -119,10 +119,10 @@ export function useApproveSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.approveSync(config, variables)
+      return Actions.approveSync(config, variables as never)
     },
     mutationKey: ['approveSync'],
-  })
+  }) as never
 }
 
 export declare namespace useApproveSync {
@@ -186,10 +186,10 @@ export function useBurn<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.burn(config, variables)
+      return Actions.burn(config, variables as never)
     },
     mutationKey: ['burn'],
-  })
+  }) as never
 }
 
 export declare namespace useBurn {
@@ -256,10 +256,10 @@ export function useBurnSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.burnSync(config, variables)
+      return Actions.burnSync(config, variables as never)
     },
     mutationKey: ['burnSync'],
-  })
+  }) as never
 }
 
 export declare namespace useBurnSync {
@@ -323,10 +323,10 @@ export function useBurnBlocked<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.burnBlocked(config, variables)
+      return Actions.burnBlocked(config, variables as never)
     },
     mutationKey: ['burnBlocked'],
-  })
+  }) as never
 }
 
 export declare namespace useBurnBlocked {
@@ -393,10 +393,10 @@ export function useBurnBlockedSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.burnBlockedSync(config, variables)
+      return Actions.burnBlockedSync(config, variables as never)
     },
     mutationKey: ['burnBlockedSync'],
-  })
+  }) as never
 }
 
 export declare namespace useBurnBlockedSync {
@@ -460,10 +460,10 @@ export function useChangeTransferPolicy<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.changeTransferPolicy(config, variables)
+      return Actions.changeTransferPolicy(config, variables as never)
     },
     mutationKey: ['changeTransferPolicy'],
-  })
+  }) as never
 }
 
 export declare namespace useChangeTransferPolicy {
@@ -530,10 +530,10 @@ export function useChangeTransferPolicySync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.changeTransferPolicySync(config, variables)
+      return Actions.changeTransferPolicySync(config, variables as never)
     },
     mutationKey: ['changeTransferPolicySync'],
-  })
+  }) as never
 }
 
 export declare namespace useChangeTransferPolicySync {
@@ -597,10 +597,10 @@ export function useCreate<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.create(config, variables)
+      return Actions.create(config, variables as never)
     },
     mutationKey: ['create'],
-  })
+  }) as never
 }
 
 export declare namespace useCreate {
@@ -667,10 +667,10 @@ export function useCreateSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.createSync(config, variables)
+      return Actions.createSync(config, variables as never)
     },
     mutationKey: ['createSync'],
-  })
+  }) as never
 }
 
 export declare namespace useCreateSync {
@@ -734,10 +734,10 @@ export function useUpdateQuoteToken<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.updateQuoteToken(config, variables)
+      return Actions.updateQuoteToken(config, variables as never)
     },
     mutationKey: ['updateQuoteToken'],
-  })
+  }) as never
 }
 
 export declare namespace useUpdateQuoteToken {
@@ -804,10 +804,10 @@ export function useUpdateQuoteTokenSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.updateQuoteTokenSync(config, variables)
+      return Actions.updateQuoteTokenSync(config, variables as never)
     },
     mutationKey: ['updateQuoteTokenSync'],
-  })
+  }) as never
 }
 
 export declare namespace useUpdateQuoteTokenSync {
@@ -983,7 +983,7 @@ export function useGetMetadata<
   config extends Config = ResolvedRegister['config'],
   selectData = Actions.getMetadata.ReturnValue,
 >(parameters: useGetMetadata.Parameters<config, selectData> = {}) {
-  const { query = {} } = parameters
+  const { query = {}, token } = parameters
 
   const config = useConfig(parameters)
   const chainId = useChainId({ config })
@@ -992,9 +992,11 @@ export function useGetMetadata<
     ...parameters,
     chainId: parameters.chainId ?? chainId,
     query: undefined,
+    token: token as never,
   })
+  const enabled = Boolean(token && (query.enabled ?? true))
 
-  return useQuery({ ...query, ...options })
+  return useQuery({ ...query, ...options, enabled })
 }
 
 export declare namespace useGetMetadata {
@@ -1028,7 +1030,7 @@ export declare namespace useGetMetadata {
  *
  * function App() {
  *   const { data, isLoading } = Hooks.token.useGetRoleAdmin({
- *     role: 'minter',
+ *     role: 'issuer',
  *     token: '0x...',
  *   })
  *
@@ -1115,10 +1117,10 @@ export function useGrantRoles<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.grantRoles(config, variables)
+      return Actions.grantRoles(config, variables as never)
     },
     mutationKey: ['grantRoles'],
-  })
+  }) as never
 }
 
 export declare namespace useGrantRoles {
@@ -1185,10 +1187,10 @@ export function useGrantRolesSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.grantRolesSync(config, variables)
+      return Actions.grantRolesSync(config, variables as never)
     },
     mutationKey: ['grantRolesSync'],
-  })
+  }) as never
 }
 
 export declare namespace useGrantRolesSync {
@@ -1312,10 +1314,10 @@ export function useMint<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.mint(config, variables)
+      return Actions.mint(config, variables as never)
     },
     mutationKey: ['mint'],
-  })
+  }) as never
 }
 
 export declare namespace useMint {
@@ -1382,10 +1384,10 @@ export function useMintSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.mintSync(config, variables)
+      return Actions.mintSync(config, variables as never)
     },
     mutationKey: ['mintSync'],
-  })
+  }) as never
 }
 
 export declare namespace useMintSync {
@@ -1449,10 +1451,10 @@ export function usePause<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.pause(config, variables)
+      return Actions.pause(config, variables as never)
     },
     mutationKey: ['pause'],
-  })
+  }) as never
 }
 
 export declare namespace usePause {
@@ -1519,10 +1521,10 @@ export function usePauseSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.pauseSync(config, variables)
+      return Actions.pauseSync(config, variables as never)
     },
     mutationKey: ['pauseSync'],
-  })
+  }) as never
 }
 
 export declare namespace usePauseSync {
@@ -1586,10 +1588,10 @@ export function useRenounceRoles<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.renounceRoles(config, variables)
+      return Actions.renounceRoles(config, variables as never)
     },
     mutationKey: ['renounceRoles'],
-  })
+  }) as never
 }
 
 export declare namespace useRenounceRoles {
@@ -1656,10 +1658,10 @@ export function useRenounceRolesSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.renounceRolesSync(config, variables)
+      return Actions.renounceRolesSync(config, variables as never)
     },
     mutationKey: ['renounceRolesSync'],
-  })
+  }) as never
 }
 
 export declare namespace useRenounceRolesSync {
@@ -1723,10 +1725,10 @@ export function useRevokeRoles<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.revokeRoles(config, variables)
+      return Actions.revokeRoles(config, variables as never)
     },
     mutationKey: ['revokeRoles'],
-  })
+  }) as never
 }
 
 export declare namespace useRevokeRoles {
@@ -1793,10 +1795,10 @@ export function useRevokeRolesSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.revokeRolesSync(config, variables)
+      return Actions.revokeRolesSync(config, variables as never)
     },
     mutationKey: ['revokeRolesSync'],
-  })
+  }) as never
 }
 
 export declare namespace useRevokeRolesSync {
@@ -1860,10 +1862,10 @@ export function useSetRoleAdmin<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.setRoleAdmin(config, variables)
+      return Actions.setRoleAdmin(config, variables as never)
     },
     mutationKey: ['setRoleAdmin'],
-  })
+  }) as never
 }
 
 export declare namespace useSetRoleAdmin {
@@ -1930,10 +1932,10 @@ export function useSetRoleAdminSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.setRoleAdminSync(config, variables)
+      return Actions.setRoleAdminSync(config, variables as never)
     },
     mutationKey: ['setRoleAdminSync'],
-  })
+  }) as never
 }
 
 export declare namespace useSetRoleAdminSync {
@@ -1997,10 +1999,10 @@ export function useSetSupplyCap<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.setSupplyCap(config, variables)
+      return Actions.setSupplyCap(config, variables as never)
     },
     mutationKey: ['setSupplyCap'],
-  })
+  }) as never
 }
 
 export declare namespace useSetSupplyCap {
@@ -2067,10 +2069,10 @@ export function useSetSupplyCapSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.setSupplyCapSync(config, variables)
+      return Actions.setSupplyCapSync(config, variables as never)
     },
     mutationKey: ['setSupplyCapSync'],
-  })
+  }) as never
 }
 
 export declare namespace useSetSupplyCapSync {
@@ -2134,10 +2136,10 @@ export function useTransfer<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.transfer(config, variables)
+      return Actions.transfer(config, variables as never)
     },
     mutationKey: ['transfer'],
-  })
+  }) as never
 }
 
 export declare namespace useTransfer {
@@ -2204,10 +2206,10 @@ export function useTransferSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.transferSync(config, variables)
+      return Actions.transferSync(config, variables as never)
     },
     mutationKey: ['transferSync'],
-  })
+  }) as never
 }
 
 export declare namespace useTransferSync {
@@ -2271,10 +2273,10 @@ export function useUnpause<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.unpause(config, variables)
+      return Actions.unpause(config, variables as never)
     },
     mutationKey: ['unpause'],
-  })
+  }) as never
 }
 
 export declare namespace useUnpause {
@@ -2341,10 +2343,10 @@ export function useUnpauseSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.unpauseSync(config, variables)
+      return Actions.unpauseSync(config, variables as never)
     },
     mutationKey: ['unpauseSync'],
-  })
+  }) as never
 }
 
 export declare namespace useUnpauseSync {
@@ -2408,10 +2410,10 @@ export function usePrepareUpdateQuoteToken<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.prepareUpdateQuoteToken(config, variables)
+      return Actions.prepareUpdateQuoteToken(config, variables as never)
     },
     mutationKey: ['prepareUpdateQuoteToken'],
-  })
+  }) as never
 }
 
 export declare namespace usePrepareUpdateQuoteToken {
@@ -2478,10 +2480,10 @@ export function usePrepareUpdateQuoteTokenSync<
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return Actions.prepareUpdateQuoteTokenSync(config, variables)
+      return Actions.prepareUpdateQuoteTokenSync(config, variables as never)
     },
     mutationKey: ['prepareUpdateQuoteTokenSync'],
-  })
+  }) as never
 }
 
 export declare namespace usePrepareUpdateQuoteTokenSync {
@@ -2533,7 +2535,7 @@ export declare namespace usePrepareUpdateQuoteTokenSync {
 export function useWatchAdminRole<
   config extends Config = ResolvedRegister['config'],
 >(parameters: useWatchAdminRole.Parameters<config> = {}) {
-  const { enabled = true, onRoleAdminUpdated, ...rest } = parameters
+  const { enabled = true, onRoleAdminUpdated, token, ...rest } = parameters
 
   const config = useConfig({ config: parameters.config })
   const configChainId = useChainId({ config })
@@ -2542,10 +2544,12 @@ export function useWatchAdminRole<
   useEffect(() => {
     if (!enabled) return
     if (!onRoleAdminUpdated) return
+    if (!token) return
     return Actions.watchAdminRole(config, {
       ...rest,
       chainId,
       onRoleAdminUpdated,
+      token,
     })
   }, [config, enabled, onRoleAdminUpdated, rest])
 }
@@ -2580,7 +2584,7 @@ export declare namespace useWatchAdminRole {
 export function useWatchApprove<
   config extends Config = ResolvedRegister['config'],
 >(parameters: useWatchApprove.Parameters<config> = {}) {
-  const { enabled = true, onApproval, ...rest } = parameters
+  const { enabled = true, onApproval, token, ...rest } = parameters
 
   const config = useConfig({ config: parameters.config })
   const configChainId = useChainId({ config })
@@ -2589,10 +2593,12 @@ export function useWatchApprove<
   useEffect(() => {
     if (!enabled) return
     if (!onApproval) return
+    if (!token) return
     return Actions.watchApprove(config, {
       ...rest,
       chainId,
       onApproval,
+      token,
     })
   }, [config, enabled, onApproval, rest])
 }
@@ -2627,7 +2633,7 @@ export declare namespace useWatchApprove {
 export function useWatchBurn<
   config extends Config = ResolvedRegister['config'],
 >(parameters: useWatchBurn.Parameters<config> = {}) {
-  const { enabled = true, onBurn, ...rest } = parameters
+  const { enabled = true, onBurn, token, ...rest } = parameters
 
   const config = useConfig({ config: parameters.config })
   const configChainId = useChainId({ config })
@@ -2636,12 +2642,14 @@ export function useWatchBurn<
   useEffect(() => {
     if (!enabled) return
     if (!onBurn) return
+    if (!token) return
     return Actions.watchBurn(config, {
       ...rest,
       chainId,
       onBurn,
+      token,
     })
-  }, [config, enabled, onBurn, rest])
+  }, [config, enabled, onBurn, rest, token])
 }
 
 export declare namespace useWatchBurn {
@@ -2721,7 +2729,7 @@ export declare namespace useWatchCreate {
 export function useWatchMint<
   config extends Config = ResolvedRegister['config'],
 >(parameters: useWatchMint.Parameters<config> = {}) {
-  const { enabled = true, onMint, ...rest } = parameters
+  const { enabled = true, onMint, token, ...rest } = parameters
 
   const config = useConfig({ config: parameters.config })
   const configChainId = useChainId({ config })
@@ -2730,12 +2738,14 @@ export function useWatchMint<
   useEffect(() => {
     if (!enabled) return
     if (!onMint) return
+    if (!token) return
     return Actions.watchMint(config, {
       ...rest,
       chainId,
       onMint,
+      token,
     })
-  }, [config, enabled, onMint, rest])
+  }, [config, enabled, onMint, rest, token])
 }
 
 export declare namespace useWatchMint {
@@ -2768,7 +2778,7 @@ export declare namespace useWatchMint {
 export function useWatchRole<
   config extends Config = ResolvedRegister['config'],
 >(parameters: useWatchRole.Parameters<config> = {}) {
-  const { enabled = true, onRoleUpdated, ...rest } = parameters
+  const { enabled = true, onRoleUpdated, token, ...rest } = parameters
 
   const config = useConfig({ config: parameters.config })
   const configChainId = useChainId({ config })
@@ -2777,12 +2787,14 @@ export function useWatchRole<
   useEffect(() => {
     if (!enabled) return
     if (!onRoleUpdated) return
+    if (!token) return
     return Actions.watchRole(config, {
       ...rest,
       chainId,
       onRoleUpdated,
+      token,
     })
-  }, [config, enabled, onRoleUpdated, rest])
+  }, [config, enabled, onRoleUpdated, rest, token])
 }
 
 export declare namespace useWatchRole {
@@ -2815,7 +2827,7 @@ export declare namespace useWatchRole {
 export function useWatchTransfer<
   config extends Config = ResolvedRegister['config'],
 >(parameters: useWatchTransfer.Parameters<config> = {}) {
-  const { enabled = true, onTransfer, ...rest } = parameters
+  const { enabled = true, onTransfer, token, ...rest } = parameters
 
   const config = useConfig({ config: parameters.config })
   const configChainId = useChainId({ config })
@@ -2824,10 +2836,12 @@ export function useWatchTransfer<
   useEffect(() => {
     if (!enabled) return
     if (!onTransfer) return
+    if (!token) return
     return Actions.watchTransfer(config, {
       ...rest,
       chainId,
       onTransfer,
+      token,
     })
   }, [config, enabled, onTransfer, rest])
 }
@@ -2865,7 +2879,7 @@ export declare namespace useWatchTransfer {
 export function useWatchUpdateQuoteToken<
   config extends Config = ResolvedRegister['config'],
 >(parameters: useWatchUpdateQuoteToken.Parameters<config> = {}) {
-  const { enabled = true, onUpdateQuoteToken, ...rest } = parameters
+  const { enabled = true, onUpdateQuoteToken, token, ...rest } = parameters
 
   const config = useConfig({ config: parameters.config })
   const configChainId = useChainId({ config })
@@ -2874,12 +2888,14 @@ export function useWatchUpdateQuoteToken<
   useEffect(() => {
     if (!enabled) return
     if (!onUpdateQuoteToken) return
+    if (!token) return
     return Actions.watchUpdateQuoteToken(config, {
       ...rest,
       chainId,
       onUpdateQuoteToken,
+      token,
     })
-  }, [config, enabled, onUpdateQuoteToken, rest])
+  }, [config, enabled, onUpdateQuoteToken, rest, token])
 }
 
 export declare namespace useWatchUpdateQuoteToken {

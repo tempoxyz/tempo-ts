@@ -5,31 +5,6 @@ import { config, queryClient, setupToken } from '../../../test/wagmi/config.js'
 import * as actions from './reward.js'
 import * as tokenActions from './token.js'
 
-describe('cancelSync', () => {
-  test('default', async () => {
-    const { token } = await setupToken()
-
-    // Start a reward stream
-    const rewardAmount = parseUnits('100', 6)
-    const { id: streamId } = await actions.startSync(config, {
-      amount: rewardAmount,
-      seconds: 3600,
-      token,
-    })
-
-    // Cancel the reward
-    const { receipt, refund, ...result } = await actions.cancelSync(config, {
-      id: streamId,
-      token,
-    })
-
-    expect(refund).toBeGreaterThan(0n)
-    expect(receipt).toBeDefined()
-    expect(result.funder).toBeDefined()
-    expect(result.id).toBe(streamId)
-  })
-})
-
 // TODO: unskip
 describe.skip('claimSync', () => {
   test('default', async () => {
@@ -59,7 +34,6 @@ describe.skip('claimSync', () => {
     // Start immediate reward
     await actions.startSync(config, {
       amount: rewardAmount,
-      seconds: 0,
       token,
     })
 
@@ -89,55 +63,6 @@ describe.skip('claimSync', () => {
   })
 })
 
-describe('getStream', () => {
-  test('default', async () => {
-    const { token } = await setupToken()
-
-    // Start a reward stream
-    const rewardAmount = parseUnits('100', 6)
-    const { id: streamId } = await actions.startSync(config, {
-      amount: rewardAmount,
-      seconds: 10,
-      token,
-    })
-
-    // Get the stream
-    const stream = await actions.getStream(config, {
-      id: streamId,
-      token,
-    })
-
-    expect(stream.funder).toBeDefined()
-    expect(stream.amountTotal).toBe(rewardAmount)
-    expect(stream.endTime).toBeGreaterThan(stream.startTime)
-    expect(stream.ratePerSecondScaled).toBeGreaterThan(0n)
-  })
-
-  describe('queryOptions', () => {
-    test('default', async () => {
-      const { token } = await setupToken()
-
-      // Start a reward stream
-      const rewardAmount = parseUnits('100', 6)
-      const { id: streamId } = await actions.startSync(config, {
-        amount: rewardAmount,
-        seconds: 10,
-        token,
-      })
-
-      const options = actions.getStream.queryOptions(config, {
-        id: streamId,
-        token,
-      })
-
-      const stream = await queryClient.fetchQuery(options)
-
-      expect(stream.funder).toBeDefined()
-      expect(stream.amountTotal).toBe(rewardAmount)
-    })
-  })
-})
-
 describe('getTotalPerSecond', () => {
   test('default', async () => {
     const { token } = await setupToken()
@@ -164,6 +89,42 @@ describe('getTotalPerSecond', () => {
   })
 })
 
+describe('getUserRewardInfo', () => {
+  test('default', async () => {
+    const { token } = await setupToken()
+
+    const account = getAccount(config)
+
+    const info = await actions.getUserRewardInfo(config, {
+      token,
+      account: account.address!,
+    })
+
+    expect(info.rewardRecipient).toBeDefined()
+    expect(info.rewardPerToken).toBeDefined()
+    expect(info.rewardBalance).toBeDefined()
+  })
+
+  describe('queryOptions', () => {
+    test('default', async () => {
+      const { token } = await setupToken()
+
+      const account = getAccount(config)
+
+      const options = actions.getUserRewardInfo.queryOptions(config, {
+        token,
+        account: account.address!,
+      })
+
+      const info = await queryClient.fetchQuery(options)
+
+      expect(info.rewardRecipient).toBeDefined()
+      expect(info.rewardPerToken).toBeDefined()
+      expect(info.rewardBalance).toBeDefined()
+    })
+  })
+})
+
 describe('setRecipientSync', () => {
   test('default', async () => {
     const { token } = await setupToken()
@@ -185,26 +146,71 @@ describe('setRecipientSync', () => {
   })
 })
 
-describe('startSync', () => {
+describe('watchRewardScheduled', () => {
   test('default', async () => {
     const { token } = await setupToken()
 
     const account = getAccount(config)
 
-    // Start a reward stream
-    const rewardAmount = parseUnits('100', 6)
-    const duration = 10
-    const { amount, durationSeconds, funder, id, receipt } =
-      await actions.startSync(config, {
-        amount: rewardAmount,
-        seconds: duration,
-        token,
-      })
+    // Setup rewards
+    await actions.setRecipientSync(config, {
+      recipient: account.address!,
+      token,
+    })
 
-    expect(receipt).toBeDefined()
-    expect(funder).toBe(account.address)
-    expect(id).toBeGreaterThan(0n)
-    expect(amount).toBe(rewardAmount)
-    expect(durationSeconds).toBe(duration)
+    const rewardAmount = parseUnits('100', 6)
+    await tokenActions.mintSync(config, {
+      amount: rewardAmount,
+      to: account.address!,
+      token,
+    })
+
+    const events: any[] = []
+    const unwatch = actions.watchRewardScheduled(config, {
+      token,
+      onRewardScheduled: (args) => {
+        events.push(args)
+      },
+    })
+
+    await actions.startSync(config, {
+      amount: rewardAmount,
+      token,
+    })
+
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    expect(events.length).toBeGreaterThan(0)
+    expect(events[0]?.amount).toBe(rewardAmount)
+    expect(events[0]?.funder).toBe(account.address)
+    unwatch()
+  })
+})
+
+describe('watchRewardRecipientSet', () => {
+  test('default', async () => {
+    const { token } = await setupToken()
+
+    const account = getAccount(config)
+
+    const events: any[] = []
+    const unwatch = actions.watchRewardRecipientSet(config, {
+      token,
+      onRewardRecipientSet: (args) => {
+        events.push(args)
+      },
+    })
+
+    await actions.setRecipientSync(config, {
+      recipient: account.address!,
+      token,
+    })
+
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    expect(events.length).toBeGreaterThan(0)
+    expect(events[0]?.holder).toBe(account.address)
+    expect(events[0]?.recipient).toBe(account.address)
+    unwatch()
   })
 })

@@ -13,6 +13,7 @@ import {
   type Log as viem_Log,
   type WatchContractEventParameters,
   type WriteContractReturnType,
+  zeroAddress,
 } from 'viem'
 import { parseAccount } from 'viem/accounts'
 import {
@@ -39,16 +40,16 @@ import { defineCall } from '../internal/utils.js'
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
- * const { address, id } = await actions.fee.getUserToken(client)
+ * const { address, id } = await Actions.fee.getUserToken(client)
  * ```
  *
  * @param client - Client.
@@ -71,6 +72,7 @@ export async function getUserToken<
     ...rest,
     ...getUserToken.call({ account: account.address }),
   })
+  if (address === zeroAddress) return null
   return {
     address,
     id: TokenId.fromAddress(address),
@@ -90,7 +92,7 @@ export namespace getUserToken {
   export type ReturnValue = Compute<{
     address: Address
     id: bigint
-  }>
+  } | null>
 
   /**
    * Defines a call to the `userTokens` function.
@@ -116,16 +118,16 @@ export namespace getUserToken {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
- * const hash = await actions.fee.setUserToken(client, {
+ * const hash = await Actions.fee.setUserToken(client, {
  *   token: '0x...',
  * })
  * ```
@@ -190,10 +192,10 @@ export namespace setUserToken {
    * ```ts
    * import { createClient, http, walletActions } from 'viem'
    * import { tempo } from 'tempo.ts/chains'
-   * import * as actions from 'tempo.ts/viem/actions'
+   * import { Actions } from 'tempo.ts/viem'
    *
    * const client = createClient({
-   *   chain: tempo,
+   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -241,16 +243,16 @@ export namespace setUserToken {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
- * const result = await actions.fee.setUserTokenSync(client, {
+ * const result = await Actions.fee.setUserTokenSync(client, {
  *   token: '0x...',
  * })
  * ```
@@ -307,10 +309,10 @@ export namespace setUserTokenSync {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'tempo.ts/chains'
- * import * as actions from 'tempo.ts/viem/actions'
+ * import { Actions } from 'tempo.ts/viem'
  *
  * const client = createClient({
- *   chain: tempo,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
