@@ -1,5 +1,13 @@
 # tempo.ts
 
+## 0.8.2
+
+### Patch Changes
+
+- [#102](https://github.com/tempoxyz/tempo-ts/pull/102) [`b7d18b1`](https://github.com/tempoxyz/tempo-ts/commit/b7d18b1b1791a6c51d13fe3230f4c72e0ff8f0bd) Thanks [@gorried](https://github.com/gorried)! - Added `watchRewardRecipientSet` and `watchRewardScheduled` actions and hooks.
+
+- [`5280a23`](https://github.com/tempoxyz/tempo-ts/commit/5280a23688c087b8e4b8c874003e536ab5874552) Thanks [@jxom](https://github.com/jxom)! - `tempo.ts/viem`: Removed `eip1559 → aa` type conversion in `Transaction.serialize`.
+
 ## 0.8.1
 
 ### Patch Changes
