@@ -27,11 +27,11 @@ import {
   type TransactionType as viem_TransactionType,
 } from 'viem'
 import type { ExactPartial, OneOf, PartialBy } from '../internal/types.js'
+import type * as AuthorizationTempo from '../ox/AuthorizationTempo.js'
 import type * as KeyAuthorization from '../ox/KeyAuthorization.js'
 import * as SignatureEnvelope from '../ox/SignatureEnvelope.js'
 import * as TxTempo from '../ox/TransactionEnvelopeTempo.js'
 import type * as ox_TransactionReceipt from '../ox/TransactionReceipt.js'
-import type * as AuthorizationTempo from '../ox/AuthorizationTempo.js'
 
 export type Transaction<
   bigintType = bigint,

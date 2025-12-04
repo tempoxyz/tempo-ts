@@ -2,11 +2,11 @@ import type * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 import * as ox_TransactionRequest from 'ox/TransactionRequest'
 import type { Compute } from '../internal/types.js'
+import * as AuthorizationTempo from './AuthorizationTempo.js'
 import * as KeyAuthorization from './KeyAuthorization.js'
 import * as TokenId from './TokenId.js'
 import * as Transaction from './Transaction.js'
 import type { Call } from './TransactionEnvelopeTempo.js'
-import * as AuthorizationTempo from './AuthorizationTempo.js'
 
 type KeyType = 'secp256k1' | 'p256' | 'webAuthn'
 

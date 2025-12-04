@@ -5,10 +5,10 @@ import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
 import * as ox_Transaction from 'ox/Transaction'
 import type { Compute, OneOf, UnionCompute } from '../internal/types.js'
+import type * as AuthorizationTempo from './AuthorizationTempo.js'
 import * as KeyAuthorization from './KeyAuthorization.js'
 import * as SignatureEnvelope from './SignatureEnvelope.js'
 import type { Call } from './TransactionEnvelopeTempo.js'
-import type * as AuthorizationTempo from './AuthorizationTempo.js'
 
 /**
  * A Transaction as defined in the [Execution API specification](https://github.com/ethereum/execution-apis/blob/main/src/schemas/transaction.yaml).
