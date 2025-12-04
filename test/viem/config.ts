@@ -1,3 +1,4 @@
+import { setTimeout } from 'node:timers/promises'
 import type { FixedArray } from '@wagmi/core/internal'
 import * as Mnemonic from 'ox/Mnemonic'
 import {
@@ -126,6 +127,7 @@ export async function fundAddress(
     to: address,
     token: 1n,
   })
+  if (nodeEnv !== 'localnet') await setTimeout(1000)
 }
 
 export declare namespace fundAddress {
