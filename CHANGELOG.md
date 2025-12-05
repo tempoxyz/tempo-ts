@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.10.1
+
+### Patch Changes
+
+- [`e54df78`](https://github.com/tempoxyz/tempo-ts/commit/e54df7859704d2fcc3f4e712aeba9d436ca9f801) Thanks [@tmm](https://github.com/tmm)! - Added block explorer to Tempo Testnet chain definition.
+
 ## 0.10.0
 
 ### Minor Changes
