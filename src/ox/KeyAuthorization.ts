@@ -6,8 +6,6 @@ import * as Rlp from 'ox/Rlp'
 import type { Compute } from '../internal/types.js'
 import * as SignatureEnvelope from './SignatureEnvelope.js'
 
-const defaultExpiry = 0xffffffffffff
-
 /**
  * Key authorization for provisioning access keys.
  *
@@ -43,8 +41,8 @@ export type Rpc = Omit<
   'address' | 'signature' | 'type'
 > & {
   keyId: Address.Address
-  signature: SignatureEnvelope.SignatureEnvelopeRpc
   keyType: SignatureEnvelope.Type
+  signature: SignatureEnvelope.SignatureEnvelopeRpc
 }
 
 /** Signed representation of a Key Authorization. */
@@ -451,16 +449,16 @@ export function toRpc(authorization: Signed): Rpc {
   const {
     address,
     chainId = 0n,
-    expiry = defaultExpiry,
-    limits = [],
+    expiry,
+    limits,
     type,
     signature,
   } = authorization
 
   return {
     chainId: chainId === 0n ? '0x' : Hex.fromNumber(chainId),
-    expiry: Hex.fromNumber(expiry),
-    limits: limits.map(({ token, limit }) => ({
+    expiry: typeof expiry === 'number' ? Hex.fromNumber(expiry) : undefined,
+    limits: limits?.map(({ token, limit }) => ({
       token,
       limit: Hex.fromNumber(limit),
     })),
