@@ -1,5 +1,19 @@
 # tempo.ts
 
+## 0.10.0
+
+### Minor Changes
+
+- [#108](https://github.com/tempoxyz/tempo-ts/pull/108) [`c2f353a`](https://github.com/tempoxyz/tempo-ts/commit/c2f353a1e7b0da380d3600f5839cfb61fcb52b17) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`tempo.ts/wagmi`):** Changed default `expiry` of `Connector.webAuthn` connector access keys to one day (previously unlimited).
+
+- [#108](https://github.com/tempoxyz/tempo-ts/pull/108) [`c2f353a`](https://github.com/tempoxyz/tempo-ts/commit/c2f353a1e7b0da380d3600f5839cfb61fcb52b17) Thanks [@jxom](https://github.com/jxom)! - `tempo.ts/wagmi`: Added ability to pass `expiry` and `limits` to `webAuthn#grantAccessKey`.
+
+- [#108](https://github.com/tempoxyz/tempo-ts/pull/108) [`c2f353a`](https://github.com/tempoxyz/tempo-ts/commit/c2f353a1e7b0da380d3600f5839cfb61fcb52b17) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`tempo.ts/wagmi`):** Removed `"lax"` option from `Connector.webAuthn#grantAccessKey` connector. The "lax" behavior is now the default. To opt-in to "strict mode", set `strict: true` in the `grantAccessKey` options.
+
+### Patch Changes
+
+- [#38](https://github.com/tempoxyz/tempo-ts/pull/38) [`0861c0d`](https://github.com/tempoxyz/tempo-ts/commit/0861c0d07ccd73a3be4f2562f969df3bd43a9398) Thanks [@jxom](https://github.com/jxom)! - `tempo.ts/ox`: Added `AuthorizationTempo` for Tempo-flavoured 7702 auths.
+
 ## 0.9.0
 
 ### Minor Changes
