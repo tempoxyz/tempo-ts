@@ -235,6 +235,10 @@ export function GrantTokenRoles(props: {
           <CheckFeeAmmPool token={token} />
           <MintFeeAmmLiquidity token={token} />
           <BurnFeeAmmLiquidity token={token} />
+          <h1>Rewards</h1>
+          <OptInToRewards token={token} />
+          <StartReward token={token} />
+          <ClaimReward token={token} />
         </>
       )}
     </div>
@@ -873,6 +877,120 @@ export function BurnFeeAmmLiquidity(props: { token: Address }) {
         <div>
           <strong>Available LP Balance:</strong>{' '}
           {formatUnits(lpBalance, validatorMetadata?.decimals || 6)} LP tokens
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function OptInToRewards(props: { token: Address }) {
+  const { token } = props
+  const { address } = useAccount()
+
+  const setRecipient = Hooks.reward.useSetRecipientSync()
+
+  return (
+    <div>
+      <h2>Opt In to Rewards</h2>
+      <button
+        type="button"
+        disabled={!address || setRecipient.isPending}
+        onClick={() => {
+          if (!address) throw new Error('Address is required')
+          setRecipient.mutate({
+            recipient: address,
+            token,
+            feeToken: alphaUsd,
+          })
+        }}
+      >
+        {setRecipient.isPending ? 'Opting in...' : 'Opt In'}
+      </button>
+      {setRecipient.data && (
+        <div>
+          <a
+            href={`https://explore.tempo.xyz/tx/${setRecipient.data.receipt.transactionHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View receipt
+          </a>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function StartReward(props: { token: Address }) {
+  const { token } = props
+  const { address } = useAccount()
+
+  const metadata = Hooks.token.useGetMetadata({ token })
+  const start = Hooks.reward.useStartSync()
+
+  return (
+    <div>
+      <h2>Distribute 50 {metadata.name} Reward</h2>
+      <button
+        type="button"
+        disabled={!address || start.isPending || !metadata.data?.decimals}
+        onClick={() => {
+          if (!metadata?.data?.decimals)
+            throw new Error('metadata.decimals not found')
+          start.mutate({
+            amount: parseUnits('50', metadata.data.decimals),
+            token,
+            feeToken: alphaUsd,
+          })
+        }}
+      >
+        {start.isPending ? 'Starting...' : 'Start Reward'}
+      </button>
+      {start.data && (
+        <div>
+          <a
+            href={`https://explore.tempo.xyz/tx/${start.data.receipt.transactionHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View receipt
+          </a>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function ClaimReward(props: { token: Address }) {
+  const { token } = props
+  const { address } = useAccount()
+
+  const claim = Hooks.reward.useClaimSync()
+
+  return (
+    <div>
+      <h2>Claim Reward</h2>
+      <button
+        type="button"
+        disabled={!address || claim.isPending}
+        onClick={() => {
+          claim.mutate({
+            token,
+            feeToken: alphaUsd,
+          })
+        }}
+      >
+        {claim.isPending ? 'Claiming...' : 'Claim'}
+      </button>
+      {claim.data && (
+        <div>
+          <a
+            href={`https://explore.tempo.xyz/tx/${claim.data.receipt.transactionHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View receipt
+          </a>
         </div>
       )}
     </div>
