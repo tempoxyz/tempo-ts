@@ -209,8 +209,23 @@ export function webAuthn(options: webAuthn.Parameters) {
   let account: Account.RootAccount | undefined
   let accessKey: Account.AccessKeyAccount | undefined
 
+  const defaultAccessKeyOptions = {
+    expiry: Math.floor(
+      (Date.now() + 24 * 60 * 60 * 1000) / 1000, // one day
+    ),
+    strict: false,
+  }
+  const accessKeyOptions = (() => {
+    if (typeof options.grantAccessKey === 'object')
+      return { ...defaultAccessKeyOptions, ...options.grantAccessKey }
+    if (options.grantAccessKey === true) return defaultAccessKeyOptions
+    return undefined
+  })()
+
   const idbStorage = Storage.idb<{
-    [key: `accessKey:${string}`]: WebCryptoP256.createKeyPair.ReturnType
+    [key: `accessKey:${string}`]: WebCryptoP256.createKeyPair.ReturnType & {
+      keyAuthorization: KeyAuthorization.KeyAuthorization
+    }
   }>()
 
   type Properties = {
@@ -251,9 +266,17 @@ export function webAuthn(options: webAuthn.Parameters) {
       account = Account.fromWebAuthnP256(credential)
     },
     async connect(parameters = {}) {
-      const { grantAccessKey = false } = options
       const capabilities =
         'capabilities' in parameters ? (parameters.capabilities ?? {}) : {}
+
+      if (
+        accessKeyOptions?.strict &&
+        accessKeyOptions.expiry &&
+        accessKeyOptions.expiry < Date.now() / 1000
+      )
+        throw new Error(
+          `\`grantAccessKey.expiry = ${accessKeyOptions.expiry}\` is in the past (${new Date(accessKeyOptions.expiry * 1000).toLocaleString()}). Please provide a valid expiry.`,
+        )
 
       // We are going to need to find:
       // - a WebAuthn `credential` to instantiate an account
@@ -286,7 +309,7 @@ export function webAuthn(options: webAuthn.Parameters) {
 
           // Get key pair (access key) to use for the account.
           const keyPair = await (async () => {
-            if (!grantAccessKey) return undefined
+            if (!accessKeyOptions) return undefined
             return await WebCryptoP256.createKeyPair()
           })()
 
@@ -303,15 +326,15 @@ export function webAuthn(options: webAuthn.Parameters) {
           if (credential) {
             // Get key pair (access key) to use for the account.
             const keyPair = await (async () => {
-              if (!grantAccessKey) return undefined
+              if (!accessKeyOptions) return undefined
               const address = Address.fromPublicKey(
                 PublicKey.fromHex(credential.publicKey),
               )
               return await idbStorage.getItem(`accessKey:${address}`)
             })()
 
-            // If the access key policy is lax, return the credential and key pair (if exists).
-            if (grantAccessKey === 'lax') return { credential, keyPair }
+            // If the access key provisioning is not in strict mode, return the credential and key pair (if exists).
+            if (!accessKeyOptions?.strict) return { credential, keyPair }
 
             // If a key pair is found, return the credential and key pair.
             if (keyPair) return { credential, keyPair }
@@ -328,21 +351,25 @@ export function webAuthn(options: webAuthn.Parameters) {
         {
           // Get key pair (access key) to use for the account.
           const keyPair = await (async () => {
-            if (!grantAccessKey) return undefined
+            if (!accessKeyOptions) return undefined
             return await WebCryptoP256.createKeyPair()
           })()
 
           // If we are provisioning an access key, we will need to sign a key authorization.
           // We will need the hash (digest) to sign, and the address of the access key to construct the key authorization.
-          const { accessKeyAddress, hash } = await (async () => {
+          const { hash, keyAuthorization_unsigned } = await (async () => {
             if (!keyPair)
               return { accessKeyAddress: undefined, hash: undefined }
             const accessKeyAddress = Address.fromPublicKey(keyPair.publicKey)
-            const hash = KeyAuthorization.getSignPayload({
+            const keyAuthorization_unsigned = KeyAuthorization.from({
+              ...accessKeyOptions,
               address: accessKeyAddress,
               type: 'p256',
             })
-            return { accessKeyAddress, hash, keyPair }
+            const hash = KeyAuthorization.getSignPayload(
+              keyAuthorization_unsigned,
+            )
+            return { keyAuthorization_unsigned, hash }
           })()
 
           // If no active credential, we will attempt to load the last active credential from storage.
@@ -363,16 +390,15 @@ export function webAuthn(options: webAuthn.Parameters) {
             rpId: options.getOptions?.rpId ?? options.rpId,
           })
 
-          const keyAuthorization = accessKeyAddress
+          const keyAuthorization = keyAuthorization_unsigned
             ? KeyAuthorization.from({
-                address: accessKeyAddress,
+                ...keyAuthorization_unsigned,
                 signature: SignatureEnvelope.from({
                   metadata: credential.metadata,
                   signature: credential.signature,
                   publicKey: PublicKey.fromHex(credential.publicKey),
                   type: 'webAuthn',
                 }),
-                type: 'p256',
               })
             : undefined
 
@@ -399,19 +425,42 @@ export function webAuthn(options: webAuthn.Parameters) {
           storage: Storage.from(config.storage as never),
         })
 
+        // If we are reconnecting, check if the access key is expired.
+        if (parameters.isReconnecting) {
+          if (
+            'keyAuthorization' in keyPair &&
+            keyPair.keyAuthorization.expiry &&
+            keyPair.keyAuthorization.expiry < Date.now() / 1000
+          ) {
+            // remove any pending key authorizations from storage.
+            await account?.storage.removeItem('pendingKeyAuthorization')
+
+            const message = `Access key expired (on ${new Date(keyPair.keyAuthorization.expiry * 1000).toLocaleString()}).`
+            accessKey = undefined
+
+            // if in strict mode, disconnect and throw an error.
+            if (accessKeyOptions?.strict) {
+              await this.disconnect()
+              throw new Error(message)
+            }
+            // otherwise, fall back to the root account.
+            console.warn(`${message} Falling back to passkey.`)
+          }
+        }
         // If we are not reconnecting, orchestrate the provisioning of the access key.
-        if (!parameters.isReconnecting) {
+        else {
           const keyAuth =
-            keyAuthorization ?? (await account.signKeyAuthorization(accessKey))
+            keyAuthorization ??
+            (await account.signKeyAuthorization(accessKey, accessKeyOptions))
 
           await account.storage.setItem('pendingKeyAuthorization', keyAuth)
           await idbStorage.setItem(
             `accessKey:${account.address.toLowerCase()}`,
-            keyPair,
+            { ...keyPair, keyAuthorization: keyAuth },
           )
         }
-        // If we are granting an access key, throw an error if the access key is not provisioned.
-      } else if (grantAccessKey === true) {
+        // If we are granting an access key and it is in strict mode, throw an error if the access key is not provisioned.
+      } else if (accessKeyOptions?.strict) {
         await config.storage?.removeItem('webAuthn.activeCredential')
         throw new Error('access key not found')
       }
@@ -430,6 +479,7 @@ export function webAuthn(options: webAuthn.Parameters) {
     },
     async disconnect() {
       await config.storage?.removeItem('webAuthn.activeCredential')
+      config.emitter.emit('disconnect')
       account = undefined
     },
     async getAccounts() {
@@ -476,8 +526,36 @@ export function webAuthn(options: webAuthn.Parameters) {
       const transport = transports[chain.id]
       if (!transport) throw new ChainNotConfiguredError()
 
+      const targetAccount = await (async () => {
+        if (!accessKey) return account
+
+        const item = await idbStorage.getItem(
+          `accessKey:${accessKey.address.toLowerCase()}`,
+        )
+        if (
+          item?.keyAuthorization.expiry &&
+          item.keyAuthorization.expiry < Date.now() / 1000
+        ) {
+          // remove any pending key authorizations from storage.
+          await account?.storage.removeItem('pendingKeyAuthorization')
+
+          const message = `Access key expired (on ${new Date(item.keyAuthorization.expiry * 1000).toLocaleString()}).`
+
+          // if in strict mode, disconnect and throw an error.
+          if (accessKeyOptions?.strict) {
+            await this.disconnect()
+            throw new Error(message)
+          }
+
+          // otherwise, fall back to the root account.
+          console.warn(`${message} Falling back to passkey.`)
+          return account
+        }
+        return accessKey
+      })()
+
       return createClient({
-        account: accessKey ?? account,
+        account: targetAccount,
         chain: chain as Chain,
         transport: walletNamespaceCompat(transport),
       })
@@ -503,19 +581,14 @@ export namespace webAuthn {
       | Pick<WebAuthnP256.getCredential.Parameters, 'getFn' | 'rpId'>
       | undefined
     /**
-     * Whether or not to grant an access key upon connection.
-     *
-     * - `true`: The account MUST have an access key provisioned.
-     *   On failure, the connection will fail.
-     * - `"lax"`: The account MAY have an access key provisioned.
-     *   On failure, the connection will succeed, but the access key will not be provisioned
-     *   and must be provisioned manually if the user wants to enforce access keys.
-     * - `false`: The account WILL NOT have an access key provisioned. The access key must be
-     *   provisioned manually if the user wants to enforce access keys.
-     *
-     * @default false
+     * Whether or not to grant an access key upon connection, and optionally, expiry + limits to assign to the key.
      */
-    grantAccessKey?: boolean | 'lax'
+    grantAccessKey?:
+      | boolean
+      | (Pick<KeyAuthorization.KeyAuthorization, 'expiry' | 'limits'> & {
+          /** Whether or not to throw an error and disconnect if the access key is not provisioned or is expired. */
+          strict?: boolean | undefined
+        })
     /** Public key manager. */
     keyManager: KeyManager.KeyManager
     /** The RP ID to use for WebAuthn. */
