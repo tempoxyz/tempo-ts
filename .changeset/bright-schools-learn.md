@@ -1,5 +1,5 @@
 ---
-"tempo.ts": minor
+"tempo.ts": patch
 ---
 
-Adds nonce hooks and actions for wagmi and viem
+Added `nonce` Actions & Hooks.
