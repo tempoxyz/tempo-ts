@@ -1,14 +1,14 @@
-import {
-  type Account,
-  type Address,
-  type Chain,
-  type Client,
-  type ExtractAbiItem,
-  type GetEventArgs,
-  type ReadContractReturnType,
-  type Transport,
-  type Log as viem_Log,
-  type WatchContractEventParameters,
+import type {
+  Account,
+  Address,
+  Chain,
+  Client,
+  ExtractAbiItem,
+  GetEventArgs,
+  ReadContractReturnType,
+  Transport,
+  Log as viem_Log,
+  WatchContractEventParameters,
 } from 'viem'
 import { readContract, watchContractEvent } from 'viem/actions'
 import type { UnionOmit } from '../../internal/types.js'

@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.10.3
+
+### Patch Changes
+
+- [#112](https://github.com/tempoxyz/tempo-ts/pull/112) [`11a0ddd`](https://github.com/tempoxyz/tempo-ts/commit/11a0ddd97f8a923152415e3454e063647d9284fa) Thanks [@gorried](https://github.com/gorried)! - Added `nonce` Actions & Hooks.
+
 ## 0.10.2
 
 ### Patch Changes

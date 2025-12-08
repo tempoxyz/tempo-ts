@@ -7,8 +7,8 @@ import { type UseQueryReturnType, useQuery } from 'wagmi/query'
 
 import type { ExactPartial, UnionCompute } from '../../internal/types.js'
 import {
-  getNonceKeyCount,
   getNonce,
+  getNonceKeyCount,
   watchActiveKeyCountChanged,
   watchNonceIncremented,
 } from '../Actions/nonce.js'
@@ -66,7 +66,9 @@ export declare namespace useNonce {
       selectData,
       getNonce.QueryKey<config>
     > &
-    ExactPartial<Omit<getNonce.queryOptions.Parameters<config, selectData>, 'query'>>
+    ExactPartial<
+      Omit<getNonce.queryOptions.Parameters<config, selectData>, 'query'>
+    >
 
   export type ReturnValue<selectData = getNonce.ReturnValue> =
     UseQueryReturnType<selectData, Error>
@@ -123,7 +125,10 @@ export declare namespace useNonceKeyCount {
       getNonceKeyCount.QueryKey<config>
     > &
     ExactPartial<
-      Omit<getNonceKeyCount.queryOptions.Parameters<config, selectData>, 'query'>
+      Omit<
+        getNonceKeyCount.queryOptions.Parameters<config, selectData>,
+        'query'
+      >
     >
 
   export type ReturnValue<selectData = getNonceKeyCount.ReturnValue> =
