@@ -91,7 +91,9 @@ function config<const chain extends Chain>(chain: chain) {
       const request = r as Transaction.TransactionRequest
       const nonceKey = (() => {
         if (typeof request.nonceKey !== 'undefined') return request.nonceKey
-        return nonceKeyManager.get()
+        const nonceKey = nonceKeyManager.get()
+        if (nonceKey === 0n) return undefined
+        return nonceKey
       })()
 
       const nonce = (() => {
