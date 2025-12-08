@@ -1,5 +1,15 @@
 # tempo.ts
 
+## 0.10.2
+
+### Patch Changes
+
+- [`8204289`](https://github.com/tempoxyz/tempo-ts/commit/82042894c38404b0cd282d59819269adb4cd238d) Thanks [@jxom](https://github.com/jxom)! - Updated `tempoDev` chain id.
+
+- [`a0e1745`](https://github.com/tempoxyz/tempo-ts/commit/a0e17454c3f8a36175b3131a3e06784b12f3d443) Thanks [@jxom](https://github.com/jxom)! - Added missing properties to actions.
+
+- [`888f10b`](https://github.com/tempoxyz/tempo-ts/commit/888f10be87641444171572e5f2898b2e6b969402) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where zeroish `nonceKey`s would not use protocol nonce. This is an issue to be fixed upstream in Tempo.
+
 ## 0.10.1
 
 ### Patch Changes
