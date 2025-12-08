@@ -8,10 +8,11 @@ const account = accounts[0]
 
 describe('useNonce', () => {
   test('default', async () => {
-    const { result, rerender } = await renderHook(
-      (props: { account?: Address; nonceKey?: bigint }) =>
-        useNonce({ account: props?.account, nonceKey: props?.nonceKey }),
-      { initialProps: { account: undefined, nonceKey: undefined } },
+    let testAccount: Address | undefined
+    let testNonceKey: bigint | undefined
+
+    const { result, rerender } = await renderHook(() =>
+      useNonce({ account: testAccount, nonceKey: testNonceKey }),
     )
 
     await vi.waitFor(() => result.current.fetchStatus === 'fetching')
@@ -22,7 +23,9 @@ describe('useNonce', () => {
     expect(result.current.isEnabled).toBe(false)
 
     // Set account and nonceKey
-    rerender({ account: account.address, nonceKey: 1n })
+    testAccount = account.address
+    testNonceKey = 1n
+    rerender()
 
     await vi.waitFor(
       () => expect(result.current.isSuccess).toBeTruthy(),
@@ -35,10 +38,10 @@ describe('useNonce', () => {
   })
 
   test('reactivity: account parameter', async () => {
-    const { result, rerender } = await renderHook(
-      (props: { account?: Address }) =>
-        useNonce({ account: props?.account, nonceKey: 1n }),
-      { initialProps: { account: undefined as Address | undefined } },
+    let testAccount: Address | undefined
+
+    const { result, rerender } = await renderHook(() =>
+      useNonce({ account: testAccount, nonceKey: 1n }),
     )
 
     await vi.waitFor(() => result.current.fetchStatus === 'fetching')
@@ -47,7 +50,8 @@ describe('useNonce', () => {
     expect(result.current.isEnabled).toBe(false)
 
     // Set account
-    rerender({ account: account.address })
+    testAccount = account.address
+    rerender()
 
     await vi.waitFor(
       () => expect(result.current.isSuccess).toBeTruthy(),
@@ -59,10 +63,10 @@ describe('useNonce', () => {
   })
 
   test('reactivity: nonceKey parameter', async () => {
-    const { result, rerender } = await renderHook(
-      (props: { nonceKey?: bigint }) =>
-        useNonce({ account: account.address, nonceKey: props?.nonceKey }),
-      { initialProps: { nonceKey: undefined as bigint | undefined } },
+    let testNonceKey: bigint | undefined
+
+    const { result, rerender } = await renderHook(() =>
+      useNonce({ account: account.address, nonceKey: testNonceKey }),
     )
 
     await vi.waitFor(() => result.current.fetchStatus === 'fetching')
@@ -71,7 +75,8 @@ describe('useNonce', () => {
     expect(result.current.isEnabled).toBe(false)
 
     // Set nonceKey
-    rerender({ nonceKey: 1n })
+    testNonceKey = 1n
+    rerender()
 
     await vi.waitFor(
       () => expect(result.current.isSuccess).toBeTruthy(),
@@ -85,10 +90,10 @@ describe('useNonce', () => {
 
 describe('useActiveNonceKeyCount', () => {
   test('default', async () => {
-    const { result, rerender } = await renderHook(
-      (props: { account?: Address }) =>
-        useActiveNonceKeyCount({ account: props?.account }),
-      { initialProps: { account: undefined as Address | undefined } },
+    let testAccount: Address | undefined
+
+    const { result, rerender } = await renderHook(() =>
+      useActiveNonceKeyCount({ account: testAccount }),
     )
 
     await vi.waitFor(() => result.current.fetchStatus === 'fetching')
@@ -99,7 +104,8 @@ describe('useActiveNonceKeyCount', () => {
     expect(result.current.isEnabled).toBe(false)
 
     // Set account
-    rerender({ account: account.address })
+    testAccount = account.address
+    rerender()
 
     await vi.waitFor(
       () => expect(result.current.isSuccess).toBeTruthy(),

@@ -46,7 +46,7 @@ export namespace getNonce {
   export type ReturnValue = viem_Actions.getNonce.ReturnValue
 
   export function queryKey<config extends Config>(
-    parameters: PartialBy<Parameters<config>, 'account'>,
+    parameters: PartialBy<Parameters<config>, 'account' | 'nonceKey'>,
   ) {
     return ['getNonce', parameters] as const
   }
@@ -218,7 +218,7 @@ export namespace getActiveNonceKeyCount {
 export function watchNonceIncremented<config extends Config>(
   config: config,
   parameters: watchNonceIncremented.Parameters<config>,
-) {
+): () => void {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
   return viem_Actions.watchNonceIncremented(client, rest)
@@ -259,7 +259,7 @@ export declare namespace watchNonceIncremented {
 export function watchActiveKeyCountChanged<config extends Config>(
   config: config,
   parameters: watchActiveKeyCountChanged.Parameters<config>,
-) {
+): () => void {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
   return viem_Actions.watchActiveKeyCountChanged(client, rest)
