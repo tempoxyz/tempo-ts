@@ -7,7 +7,7 @@ import { type UseQueryReturnType, useQuery } from 'wagmi/query'
 
 import type { ExactPartial, UnionCompute } from '../../internal/types.js'
 import {
-  getActiveNonceKeyCount,
+  getNonceKeyCount,
   getNonce,
   watchActiveKeyCountChanged,
   watchNonceIncremented,
@@ -80,7 +80,7 @@ export declare namespace useNonce {
  * import { Hooks } from 'tempo.ts/wagmi'
  *
  * function App() {
- *   const { data, isLoading } = Hooks.nonce.useActiveNonceKeyCount({
+ *   const { data, isLoading } = Hooks.nonce.useNonceKeyCount({
  *     account: '0x...',
  *   })
  *
@@ -92,16 +92,16 @@ export declare namespace useNonce {
  * @param parameters - Parameters.
  * @returns Query result with active nonce key count.
  */
-export function useActiveNonceKeyCount<
+export function useNonceKeyCount<
   config extends Config = ResolvedRegister['config'],
-  selectData = getActiveNonceKeyCount.ReturnValue,
->(parameters: useActiveNonceKeyCount.Parameters<config, selectData> = {}) {
+  selectData = getNonceKeyCount.ReturnValue,
+>(parameters: useNonceKeyCount.Parameters<config, selectData> = {}) {
   const { account, query = {} } = parameters
 
   const config = useConfig(parameters)
   const chainId = useChainId({ config })
 
-  const options = getActiveNonceKeyCount.queryOptions(config, {
+  const options = getNonceKeyCount.queryOptions(config, {
     ...parameters,
     chainId: parameters.chainId ?? chainId,
     query: undefined,
@@ -111,22 +111,22 @@ export function useActiveNonceKeyCount<
   return useQuery({ ...query, ...options, enabled })
 }
 
-export declare namespace useActiveNonceKeyCount {
+export declare namespace useNonceKeyCount {
   export type Parameters<
     config extends Config = ResolvedRegister['config'],
-    selectData = getActiveNonceKeyCount.ReturnValue,
+    selectData = getNonceKeyCount.ReturnValue,
   > = ConfigParameter<config> &
     QueryParameter<
-      getActiveNonceKeyCount.ReturnValue,
+      getNonceKeyCount.ReturnValue,
       DefaultError,
       selectData,
-      getActiveNonceKeyCount.QueryKey<config>
+      getNonceKeyCount.QueryKey<config>
     > &
     ExactPartial<
-      Omit<getActiveNonceKeyCount.queryOptions.Parameters<config, selectData>, 'query'>
+      Omit<getNonceKeyCount.queryOptions.Parameters<config, selectData>, 'query'>
     >
 
-  export type ReturnValue<selectData = getActiveNonceKeyCount.ReturnValue> =
+  export type ReturnValue<selectData = getNonceKeyCount.ReturnValue> =
     UseQueryReturnType<selectData, Error>
 }
 

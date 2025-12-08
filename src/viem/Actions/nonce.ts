@@ -125,7 +125,7 @@ export namespace getNonce {
  *   transport: http(),
  * })
  *
- * const count = await Actions.nonce.getActiveNonceKeyCount(client, {
+ * const count = await Actions.nonce.getNonceKeyCount(client, {
  *   account: '0x...',
  * })
  * ```
@@ -134,20 +134,20 @@ export namespace getNonce {
  * @param parameters - Parameters.
  * @returns The number of active nonce keys.
  */
-export async function getActiveNonceKeyCount<
+export async function getNonceKeyCount<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: getActiveNonceKeyCount.Parameters,
-): Promise<getActiveNonceKeyCount.ReturnValue> {
+  parameters: getNonceKeyCount.Parameters,
+): Promise<getNonceKeyCount.ReturnValue> {
   return readContract(client, {
     ...parameters,
-    ...getActiveNonceKeyCount.call(parameters),
+    ...getNonceKeyCount.call(parameters),
   })
 }
 
-export namespace getActiveNonceKeyCount {
+export namespace getNonceKeyCount {
   export type Parameters = ReadParameters & Args
 
   export type Args = {
@@ -162,7 +162,7 @@ export namespace getActiveNonceKeyCount {
   >
 
   /**
-   * Defines a call to the `getActiveNonceKeyCount` function.
+   * Defines a call to the `getNonceKeyCount` function.
    *
    * Can be passed as a parameter to:
    * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
@@ -182,8 +182,8 @@ export namespace getActiveNonceKeyCount {
    *
    * const result = await client.multicall({
    *   contracts: [
-   *     Actions.nonce.getActiveNonceKeyCount.call({ account: '0x...' }),
-   *     Actions.nonce.getActiveNonceKeyCount.call({ account: '0x...' }),
+   *     Actions.nonce.getNonceKeyCount.call({ account: '0x...' }),
+   *     Actions.nonce.getNonceKeyCount.call({ account: '0x...' }),
    *   ],
    * })
    * ```

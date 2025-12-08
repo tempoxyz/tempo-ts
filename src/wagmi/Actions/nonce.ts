@@ -113,7 +113,7 @@ export namespace getNonce {
  *   },
  * })
  *
- * const count = await Actions.nonce.getActiveNonceKeyCount(config, {
+ * const count = await Actions.nonce.getNonceKeyCount(config, {
  *   account: '0x...',
  * })
  * ```
@@ -122,25 +122,25 @@ export namespace getNonce {
  * @param parameters - Parameters.
  * @returns The number of active nonce keys.
  */
-export function getActiveNonceKeyCount<config extends Config>(
+export function getNonceKeyCount<config extends Config>(
   config: config,
-  parameters: getActiveNonceKeyCount.Parameters<config>,
-): Promise<getActiveNonceKeyCount.ReturnValue> {
+  parameters: getNonceKeyCount.Parameters<config>,
+): Promise<getNonceKeyCount.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getActiveNonceKeyCount(client, rest)
+  return viem_Actions.getNonceKeyCount(client, rest)
 }
 
-export namespace getActiveNonceKeyCount {
+export namespace getNonceKeyCount {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getActiveNonceKeyCount.Parameters
+    viem_Actions.getNonceKeyCount.Parameters
 
-  export type ReturnValue = viem_Actions.getActiveNonceKeyCount.ReturnValue
+  export type ReturnValue = viem_Actions.getNonceKeyCount.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: PartialBy<Parameters<config>, 'account'>,
   ) {
-    return ['getActiveNonceKeyCount', parameters] as const
+    return ['getNonceKeyCount', parameters] as const
   }
 
   export type QueryKey<config extends Config> = ReturnType<
@@ -158,7 +158,7 @@ export namespace getActiveNonceKeyCount {
       async queryFn({ queryKey }) {
         const [, { account, ...parameters }] = queryKey
         if (!account) throw new Error('account is required.')
-        return await getActiveNonceKeyCount(config, { account, ...parameters })
+        return await getNonceKeyCount(config, { account, ...parameters })
       },
     }
   }
@@ -166,8 +166,8 @@ export namespace getActiveNonceKeyCount {
   export declare namespace queryOptions {
     export type Parameters<
       config extends Config,
-      selectData = getActiveNonceKeyCount.ReturnValue,
-    > = PartialBy<getActiveNonceKeyCount.Parameters<config>, 'account'> & {
+      selectData = getNonceKeyCount.ReturnValue,
+    > = PartialBy<getNonceKeyCount.Parameters<config>, 'account'> & {
       query?:
         | Omit<ReturnValue<config, selectData>, 'queryKey' | 'queryFn'>
         | undefined
@@ -175,13 +175,13 @@ export namespace getActiveNonceKeyCount {
 
     export type ReturnValue<
       config extends Config,
-      selectData = getActiveNonceKeyCount.ReturnValue,
+      selectData = getNonceKeyCount.ReturnValue,
     > = RequiredBy<
       Query.QueryOptions<
-        getActiveNonceKeyCount.ReturnValue,
+        getNonceKeyCount.ReturnValue,
         Query.DefaultError,
         selectData,
-        getActiveNonceKeyCount.QueryKey<config>
+        getNonceKeyCount.QueryKey<config>
       >,
       'queryKey' | 'queryFn'
     >

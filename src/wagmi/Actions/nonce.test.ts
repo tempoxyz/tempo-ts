@@ -5,7 +5,7 @@ import { config, queryClient } from '../../../test/wagmi/config.js'
 import * as nonce from './nonce.js'
 import * as token from './token.js'
 
-const { getActiveNonceKeyCount, getNonce } = nonce
+const { getNonceKeyCount, getNonce } = nonce
 
 const account = accounts[0]
 const account2 = accounts[1]
@@ -31,9 +31,9 @@ describe('getNonce', () => {
   })
 })
 
-describe('getActiveNonceKeyCount', () => {
+describe('getNonceKeyCount', () => {
   test('default', async () => {
-    const result = await getActiveNonceKeyCount(config, {
+    const result = await getNonceKeyCount(config, {
       account: account.address,
     })
     expect(result).toBe(0n)
@@ -41,7 +41,7 @@ describe('getActiveNonceKeyCount', () => {
 
   describe('queryOptions', () => {
     test('default', async () => {
-      const options = getActiveNonceKeyCount.queryOptions(config, {
+      const options = getNonceKeyCount.queryOptions(config, {
         account: account.address,
       })
       expect(await queryClient.fetchQuery(options)).toBe(0n)

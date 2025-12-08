@@ -6,7 +6,7 @@ import { config, renderHook } from '../../../test/wagmi/config.js'
 import * as hooks from './nonce.js'
 import * as tokenHooks from './token.js'
 
-const { useActiveNonceKeyCount, useNonce } = hooks
+const { useNonceKeyCount, useNonce } = hooks
 
 const account = accounts[0]
 const account2 = accounts[1]
@@ -90,12 +90,12 @@ describe('useNonce', () => {
   })
 })
 
-describe('useActiveNonceKeyCount', () => {
+describe('useNonceKeyCount', () => {
   test('default', async () => {
     let testAccount: Address | undefined
 
     const { result, rerender } = await renderHook(() =>
-      useActiveNonceKeyCount({ account: testAccount }),
+      useNonceKeyCount({ account: testAccount }),
     )
 
     await vi.waitFor(() => result.current.fetchStatus === 'fetching')

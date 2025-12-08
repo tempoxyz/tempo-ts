@@ -72,10 +72,10 @@ describe('getNonce', () => {
   })
 })
 
-describe('getActiveNonceKeyCount', () => {
+describe('getNonceKeyCount', () => {
   test('default', async () => {
     // Get active nonce key count for a fresh account
-    const count = await actions.nonce.getActiveNonceKeyCount(
+    const count = await actions.nonce.getNonceKeyCount(
       clientWithAccount,
       {
         account: account.address,
@@ -87,13 +87,13 @@ describe('getActiveNonceKeyCount', () => {
   })
 
   test('behavior: different accounts are independent', async () => {
-    const count1 = await actions.nonce.getActiveNonceKeyCount(
+    const count1 = await actions.nonce.getNonceKeyCount(
       clientWithAccount,
       {
         account: account.address,
       },
     )
-    const count2 = await actions.nonce.getActiveNonceKeyCount(
+    const count2 = await actions.nonce.getNonceKeyCount(
       clientWithAccount,
       {
         account: account2.address,
