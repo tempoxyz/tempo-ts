@@ -1,5 +1,6 @@
 import { connect } from '@wagmi/core'
-import { describe, expect, test } from 'vitest'
+import { afterEach, describe, expect, test } from 'vitest'
+import { rpcUrl } from '../../../test/config.js'
 import { accounts } from '../../../test/viem/config.js'
 import { config, queryClient } from '../../../test/wagmi/config.js'
 import * as nonce from './nonce.js'
@@ -9,6 +10,10 @@ const { getNonceKeyCount, getNonce } = nonce
 
 const account = accounts[0]
 const account2 = accounts[1]
+
+afterEach(async () => {
+  await fetch(`${rpcUrl}/restart`)
+})
 
 describe('getNonce', () => {
   test('default', async () => {
@@ -112,7 +117,7 @@ describe('watchActiveKeyCountChanged', () => {
       to: account2.address,
       amount: 1n,
       token: 1n,
-      nonceKey: 100n,
+      nonceKey: 10n,
       nonce: 0,
     })
 
@@ -121,7 +126,7 @@ describe('watchActiveKeyCountChanged', () => {
       to: account2.address,
       amount: 1n,
       token: 1n,
-      nonceKey: 101n,
+      nonceKey: 11n,
       nonce: 0,
     })
 
