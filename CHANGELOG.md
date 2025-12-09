@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.10.5
+
+### Patch Changes
+
+- [`c28007f`](https://github.com/tempoxyz/tempo-ts/commit/c28007feaba887e805a5a334a58fb5caa48a2e1a) Thanks [@jxom](https://github.com/jxom)! - Made chain parameters optional.
+
 ## 0.10.4
 
 ### Patch Changes

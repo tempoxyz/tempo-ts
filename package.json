@@ -69,7 +69,7 @@
 	"[!start-pkg]": "",
 	"name": "tempo.ts",
 	"type": "module",
-	"version": "0.10.4",
+	"version": "0.10.5",
 	"dependencies": {
 		"@remix-run/fetch-router": "~0.12.0",
 		"idb-keyval": "^6.2.2",
