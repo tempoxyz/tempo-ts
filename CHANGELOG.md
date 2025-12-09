@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.10.4
+
+### Patch Changes
+
+- [`2f1eda2`](https://github.com/tempoxyz/tempo-ts/commit/2f1eda204250e8d20e55802f884724593a65d74d) Thanks [@jxom](https://github.com/jxom)! - Removed `multicall` contracts from chain. Rely on deployless instead.
+
 ## 0.10.3
 
 ### Patch Changes
