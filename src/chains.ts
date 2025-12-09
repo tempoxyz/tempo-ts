@@ -11,6 +11,7 @@ export const tempoDevnet = /*#__PURE__*/ Chain.define({
   rpcUrls: {
     default: {
       http: ['https://rpc.devnet.tempo.xyz'],
+      webSocket: ['wss://rpc.devnet.tempo.xyz'],
     },
   },
 })
@@ -43,7 +44,10 @@ export const tempoTestnet = /*#__PURE__*/ Chain.define({
     decimals: 6,
   },
   rpcUrls: {
-    default: { http: ['https://rpc.testnet.tempo.xyz'] },
+    default: {
+      http: ['https://rpc.testnet.tempo.xyz'],
+      webSocket: ['wss://rpc.testnet.tempo.xyz'],
+    },
   },
 })
 
