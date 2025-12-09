@@ -150,6 +150,6 @@ export declare namespace define {
   type ReturnValue<chain extends viem_Chain> = (<
     properties extends define.Properties | undefined,
   >(
-    properties: properties,
+    properties?: properties | undefined,
   ) => ReturnType<typeof config<chain & properties>>) & { id: chain['id'] }
 }
