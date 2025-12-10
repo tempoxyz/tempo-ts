@@ -1,7 +1,7 @@
-import { createServer } from 'prool'
-import { Instance } from 'tempo.ts/prool'
+import { Instance, Server } from 'prool'
 import { createClient, http } from 'viem'
 import { fetchOptions } from './config.js'
+import { setTimeout } from 'node:timers/promises'
 
 export async function setupServer({ port }: { port: number }) {
   const tag = await (async () => {
@@ -20,13 +20,19 @@ export async function setupServer({ port }: { port: number }) {
     return `sha-${sha}`
   })()
 
-  const server = createServer({
-    instance: Instance.tempo({
-      dev: { blockTime: '2ms' },
-      log: import.meta.env.VITE_NODE_LOG,
-      port,
-      tag,
-    }),
+  const args = {
+    blockTime: '2ms',
+    log: import.meta.env.VITE_NODE_LOG,
+    port,
+  } satisfies Instance.tempo.Parameters
+
+  const server = Server.create({
+    instance: tag
+      ? Instance.tempoDocker({
+          ...args,
+          image: `ghcr.io/tempoxyz/tempo:${tag}`,
+        })
+      : Instance.tempo(args),
     port,
   })
   await server.start()
