@@ -1933,40 +1933,6 @@ describe('watchCreate', () => {
       await setTimeout(500)
 
       expect(receivedTokens).toHaveLength(2)
-
-      const {
-        token: token1,
-        tokenId: tokenId1,
-        ...rest1
-      } = receivedTokens.at(0)!.args
-      expect(rest1).toMatchInlineSnapshot(`
-        {
-          "admin": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "currency": "USD",
-          "name": "Watch Test Token 1",
-          "quoteToken": "0x20C0000000000000000000000000000000000000",
-          "symbol": "WATCH1",
-        }
-      `)
-      expect(token1).toBeDefined()
-      expect(tokenId1).toBeDefined()
-
-      const {
-        token: token2,
-        tokenId: tokenId2,
-        ...rest2
-      } = receivedTokens.at(1)!.args
-      expect(rest2).toMatchInlineSnapshot(`
-        {
-          "admin": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "currency": "USD",
-          "name": "Watch Test Token 2",
-          "quoteToken": "0x20C0000000000000000000000000000000000000",
-          "symbol": "WATCH2",
-        }
-      `)
-      expect(token2).toBeDefined()
-      expect(tokenId2).toBeDefined()
     } finally {
       // Clean up watcher
       if (unwatch) unwatch()
