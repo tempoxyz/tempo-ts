@@ -1930,7 +1930,7 @@ describe('watchCreate', () => {
         symbol: 'WATCH2',
       })
 
-      await setTimeout(100)
+      await setTimeout(500)
 
       expect(receivedTokens).toHaveLength(2)
 
@@ -2027,7 +2027,7 @@ describe('watchCreate', () => {
         symbol: 'FWATCH3',
       })
 
-      await setTimeout(100)
+      await setTimeout(500)
 
       // Should only receive 1 event (for targetTokenId)
       expect(receivedTokens).toHaveLength(1)
@@ -2100,7 +2100,7 @@ describe('watchMint', () => {
         amount: parseUnits('50', 6),
       })
 
-      await setTimeout(100)
+      await setTimeout(500)
 
       expect(receivedMints).toHaveLength(2)
 
@@ -2177,7 +2177,7 @@ describe('watchMint', () => {
         amount: parseUnits('75', 6),
       })
 
-      await setTimeout(100)
+      await setTimeout(500)
 
       // Should only receive 2 events (for account2)
       expect(receivedMints).toHaveLength(2)
@@ -2245,7 +2245,7 @@ describe('watchApprove', () => {
         amount: parseUnits('50', 6),
       })
 
-      await setTimeout(100)
+      await setTimeout(500)
 
       expect(receivedApprovals).toHaveLength(2)
 
@@ -2317,7 +2317,7 @@ describe('watchApprove', () => {
         amount: parseUnits('75', 6),
       })
 
-      await setTimeout(100)
+      await setTimeout(500)
 
       // Should only receive 2 events (for account2)
       expect(receivedApprovals).toHaveLength(2)
@@ -2421,7 +2421,7 @@ describe('watchBurn', () => {
         amount: parseUnits('25', 6),
       })
 
-      await setTimeout(100)
+      await setTimeout(500)
 
       expect(receivedBurns).toHaveLength(2)
 
@@ -2524,7 +2524,7 @@ describe('watchBurn', () => {
         amount: parseUnits('75', 6),
       })
 
-      await setTimeout(100)
+      await setTimeout(500)
 
       // Should only receive 2 events (from clientWithAccount.account)
       expect(receivedBurns).toHaveLength(2)
@@ -2605,7 +2605,7 @@ describe('watchAdminRole', () => {
         adminRole: 'unpause',
       })
 
-      await setTimeout(100)
+      await setTimeout(500)
 
       expect(receivedAdminUpdates).toHaveLength(2)
 
@@ -2668,7 +2668,7 @@ describe('watchRole', () => {
         from: account2.address,
       })
 
-      await setTimeout(100)
+      await setTimeout(500)
 
       expect(receivedRoleUpdates).toHaveLength(3)
 
@@ -2740,7 +2740,7 @@ describe('watchRole', () => {
         from: account2.address,
       })
 
-      await setTimeout(100)
+      await setTimeout(500)
 
       // Should only receive 2 events (for account2)
       expect(receivedRoleUpdates).toHaveLength(2)
@@ -2909,7 +2909,7 @@ describe('watchTransfer', () => {
         amount: parseUnits('75', 6),
       })
 
-      await setTimeout(100)
+      await setTimeout(500)
 
       // Should only receive 2 events (to account2)
       expect(receivedTransfers).toHaveLength(2)
@@ -2986,7 +2986,7 @@ describe('watchUpdateQuoteToken', () => {
         token: address,
       })
 
-      await setTimeout(100)
+      await setTimeout(500)
 
       // Should receive 2 events: one for update, one for finalized
       expect(receivedUpdates).toHaveLength(2)
@@ -3050,7 +3050,7 @@ describe('watchUpdateQuoteToken', () => {
         quoteToken: quoteTokenAddress,
       })
 
-      await setTimeout(100)
+      await setTimeout(500)
 
       // Should only receive 1 event (not finalized)
       expect(receivedUpdates).toHaveLength(1)

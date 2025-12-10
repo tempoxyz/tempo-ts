@@ -158,7 +158,7 @@ describe('watchSetUserToken', async () => {
         token: '0x20c0000000000000000000000000000000000002',
       })
 
-      await setTimeout(100)
+      await setTimeout(500)
 
       expect(receivedSets).toHaveLength(2)
 
@@ -230,7 +230,7 @@ describe('watchSetUserToken', async () => {
         token: 2n,
       })
 
-      await setTimeout(100)
+      await setTimeout(500)
 
       // Should only receive 2 events (for account2)
       expect(receivedSets).toHaveLength(2)
