@@ -126,6 +126,7 @@ test('behavior: default (secp256k1)', async () => {
   const {
     blockNumber,
     blockHash,
+    cumulativeGasUsed,
     feePayer,
     feeToken: _,
     from,
@@ -138,6 +139,7 @@ test('behavior: default (secp256k1)', async () => {
 
   expect(blockNumber).toBeDefined()
   expect(blockHash).toBeDefined()
+  expect(cumulativeGasUsed).toBeDefined()
   expect(feePayer).toBeDefined()
   expect(from).toBe(address)
   expect(logs).toBeDefined()
@@ -149,7 +151,6 @@ test('behavior: default (secp256k1)', async () => {
       "blobGasPrice": undefined,
       "blobGasUsed": undefined,
       "contractAddress": null,
-      "cumulativeGasUsed": 23600n,
       "effectiveGasPrice": 20000000000n,
       "gasUsed": 23600n,
       "status": "success",
@@ -333,6 +334,7 @@ test('behavior: default (p256)', async () => {
   const {
     blockNumber,
     blockHash,
+    cumulativeGasUsed,
     feePayer,
     feeToken: _,
     from,
@@ -345,6 +347,7 @@ test('behavior: default (p256)', async () => {
 
   expect(blockNumber).toBeDefined()
   expect(blockHash).toBeDefined()
+  expect(cumulativeGasUsed).toBeDefined()
   expect(feePayer).toBeDefined()
   expect(from).toBe(address)
   expect(logs).toBeDefined()
@@ -356,7 +359,6 @@ test('behavior: default (p256)', async () => {
       "blobGasPrice": undefined,
       "blobGasUsed": undefined,
       "contractAddress": null,
-      "cumulativeGasUsed": 28600n,
       "effectiveGasPrice": 20000000000n,
       "gasUsed": 28600n,
       "status": "success",
@@ -472,6 +474,7 @@ test('behavior: default (p256 - webcrypto)', async () => {
   const {
     blockNumber,
     blockHash,
+    cumulativeGasUsed,
     feePayer,
     feeToken: _,
     from,
@@ -484,6 +487,7 @@ test('behavior: default (p256 - webcrypto)', async () => {
 
   expect(blockNumber).toBeDefined()
   expect(blockHash).toBeDefined()
+  expect(cumulativeGasUsed).toBeDefined()
   expect(feePayer).toBeDefined()
   expect(from).toBeDefined()
   expect(logs).toBeDefined()
@@ -495,7 +499,6 @@ test('behavior: default (p256 - webcrypto)', async () => {
       "blobGasPrice": undefined,
       "blobGasUsed": undefined,
       "contractAddress": null,
-      "cumulativeGasUsed": 28600n,
       "effectiveGasPrice": 20000000000n,
       "gasUsed": 28600n,
       "status": "success",
@@ -729,6 +732,7 @@ test('behavior: feePayerSignature (user → feePayer)', async () => {
     const {
       blockNumber,
       blockHash,
+      cumulativeGasUsed,
       feePayer,
       feeToken: _,
       from,
@@ -741,6 +745,7 @@ test('behavior: feePayerSignature (user → feePayer)', async () => {
 
     expect(blockNumber).toBeDefined()
     expect(blockHash).toBeDefined()
+    expect(cumulativeGasUsed).toBeDefined()
     expect(feePayer).toBe(feePayerAddress)
     expect(from).toBe(senderAddress)
     expect(logs).toBeDefined()
@@ -752,7 +757,6 @@ test('behavior: feePayerSignature (user → feePayer)', async () => {
         "blobGasPrice": undefined,
         "blobGasUsed": undefined,
         "contractAddress": null,
-        "cumulativeGasUsed": 23600n,
         "effectiveGasPrice": 20000000000n,
         "gasUsed": 23600n,
         "status": "success",
@@ -915,6 +919,7 @@ describe('behavior: keyAuthorization', () => {
     const {
       blockNumber,
       blockHash,
+      cumulativeGasUsed,
       feePayer,
       feeToken,
       from,
@@ -927,6 +932,7 @@ describe('behavior: keyAuthorization', () => {
 
     expect(blockNumber).toBeDefined()
     expect(blockHash).toBeDefined()
+    expect(cumulativeGasUsed).toBeDefined()
     expect(feeToken).toBeDefined()
     expect(feePayer).toBeDefined()
     expect(from).toBeDefined()
@@ -939,7 +945,6 @@ describe('behavior: keyAuthorization', () => {
         "blobGasPrice": undefined,
         "blobGasUsed": undefined,
         "contractAddress": null,
-        "cumulativeGasUsed": 23600n,
         "effectiveGasPrice": 20000000000n,
         "gasUsed": 23600n,
         "status": "success",
@@ -1128,6 +1133,7 @@ describe('behavior: keyAuthorization', () => {
     const {
       blockNumber,
       blockHash,
+      cumulativeGasUsed,
       feePayer,
       feeToken,
       from,
@@ -1140,6 +1146,7 @@ describe('behavior: keyAuthorization', () => {
 
     expect(blockNumber).toBeDefined()
     expect(blockHash).toBeDefined()
+    expect(cumulativeGasUsed).toBeDefined()
     expect(feePayer).toBeDefined()
     expect(feeToken).toBeDefined()
     expect(from).toBeDefined()
@@ -1152,7 +1159,6 @@ describe('behavior: keyAuthorization', () => {
         "blobGasPrice": undefined,
         "blobGasUsed": undefined,
         "contractAddress": null,
-        "cumulativeGasUsed": 28600n,
         "effectiveGasPrice": 20000000000n,
         "gasUsed": 28600n,
         "status": "success",
