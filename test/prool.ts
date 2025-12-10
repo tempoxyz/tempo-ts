@@ -1,7 +1,6 @@
 import { Instance, Server } from 'prool'
 import { createClient, http } from 'viem'
 import { fetchOptions } from './config.js'
-import { setTimeout } from 'node:timers/promises'
 
 export async function setupServer({ port }: { port: number }) {
   const tag = await (async () => {
