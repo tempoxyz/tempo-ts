@@ -1,6 +1,6 @@
 import react from '@vitejs/plugin-react'
+import { Instance } from 'prool'
 import { defineConfig } from 'vite'
-import { Instance } from '../src/prool/index.js'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -12,7 +12,7 @@ export default defineConfig({
         if (process.env.VITE_NODE_ENV !== 'localnet') return
 
         const instance = Instance.tempo({
-          dev: { blockTime: '500ms' },
+          blockTime: '500ms',
           port: 8545,
         })
         console.log('→ starting tempo node...')

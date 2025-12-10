@@ -31,6 +31,7 @@
 		"@tanstack/query-core": "^5.90.5",
 		"@tanstack/react-query": "catalog:default",
 		"@types/express": "^5.0.5",
+		"@types/http-proxy": "^1.17.17",
 		"@types/node": "^24.10.0",
 		"@types/react": "catalog:default",
 		"@types/react-dom": "catalog:default",
