@@ -39,7 +39,6 @@ docker login ghcr.io
 | `tempo.ts/viem`  | Tempo extension for Viem.                |
 | `tempo.ts/wagmi` | Tempo actions/hooks for Wagmi.           |
 | `tempo.ts/ox`    | Tempo primitives for Ox.                 |
-| `tempo.ts/prool` | Tempo instance for pooled HTTP/WS tests. |
 
 ## Usage
 
@@ -124,20 +123,6 @@ const signature = Secp256k1.sign({
 const envelope_signed = TxFeeToken.from(envelope, {
   signature,
 });
-```
-
-### `tempo.ts/prool`
-
-You can programmatically start a Tempo node instance in TypeScript using `Instance.tempo`:
-
-```ts
-import { Instance } from 'tempo.ts/prool';
-
-const instance = Instance.tempo();
-
-await instance.start();
-// ...
-await instance.stop();
 ```
 
 ## Contributing
