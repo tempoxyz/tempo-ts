@@ -11,7 +11,6 @@ import {
 } from 'vitest-browser-react'
 import { createConfig, WagmiProvider } from 'wagmi'
 import { dangerous_secp256k1 } from '../../src/wagmi/Connector.js'
-import type * as _ from 'ox/tempo'
 import {
   accounts,
   chain,

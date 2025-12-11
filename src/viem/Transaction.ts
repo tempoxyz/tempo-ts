@@ -369,7 +369,7 @@ async function serializeTempo(
 
 // Export types required for inference.
 export {
-  SignatureEnvelope as internal_SignatureEnvelope,
   KeyAuthorization as internal_KeyAuthorization,
+  SignatureEnvelope as internal_SignatureEnvelope,
   TxEnvelopeTempo as internal_TxEnvelopeTempo,
 } from 'ox/tempo'

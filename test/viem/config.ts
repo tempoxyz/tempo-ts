@@ -135,7 +135,11 @@ export declare namespace fundAddress {
 }
 
 export async function setupToken(
-  client: Client<Transport, Chain.Chain<Chain.TokenId.TokenIdOrAddress>, Account>,
+  client: Client<
+    Transport,
+    Chain.Chain<Chain.TokenId.TokenIdOrAddress>,
+    Account
+  >,
   parameters: Partial<
     Awaited<ReturnType<typeof Actions.token.createSync>>
   > = {},
@@ -163,7 +167,11 @@ export async function setupToken(
 }
 
 export async function setupPoolWithLiquidity(
-  client: Client<Transport, Chain.Chain<Chain.TokenId.TokenIdOrAddress>, Account>,
+  client: Client<
+    Transport,
+    Chain.Chain<Chain.TokenId.TokenIdOrAddress>,
+    Account
+  >,
 ) {
   // Create a new token for testing
   const { token } = await Actions.token.createSync(client, {
