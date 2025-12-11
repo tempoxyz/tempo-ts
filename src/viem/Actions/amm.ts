@@ -1,3 +1,4 @@
+import { PoolId, TokenId } from 'ox/tempo'
 import {
   type Account,
   type Address,
@@ -24,8 +25,6 @@ import {
   writeContractSync,
 } from 'viem/actions'
 import type { Compute, OneOf, UnionOmit } from '../../internal/types.js'
-import * as PoolId from '../../ox/PoolId.js'
-import * as TokenId from '../../ox/TokenId.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'

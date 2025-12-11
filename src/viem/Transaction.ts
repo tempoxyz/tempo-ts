@@ -4,6 +4,13 @@ import * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
 import {
+  type AuthorizationTempo,
+  type KeyAuthorization,
+  type TransactionReceipt as ox_TransactionReceipt,
+  SignatureEnvelope,
+  TxEnvelopeTempo as TxTempo,
+} from 'ox/tempo'
+import {
   type AccessList,
   type Account,
   type Address,
@@ -27,11 +34,6 @@ import {
   type TransactionType as viem_TransactionType,
 } from 'viem'
 import type { ExactPartial, OneOf, PartialBy } from '../internal/types.js'
-import type * as AuthorizationTempo from '../ox/AuthorizationTempo.js'
-import type * as KeyAuthorization from '../ox/KeyAuthorization.js'
-import * as SignatureEnvelope from '../ox/SignatureEnvelope.js'
-import * as TxTempo from '../ox/TransactionEnvelopeTempo.js'
-import type * as ox_TransactionReceipt from '../ox/TransactionReceipt.js'
 
 export type Transaction<
   bigintType = bigint,
@@ -311,7 +313,7 @@ async function serializeTempo(
         : undefined,
     type: 'tempo',
     ...(nonce ? { nonce: BigInt(nonce) } : {}),
-  } satisfies TxTempo.TransactionEnvelopeTempo
+  } satisfies TxTempo.TxEnvelopeTempo
 
   if (signature && typeof transaction.feePayer === 'object') {
     const tx = TxTempo.from(transaction_ox, {
@@ -364,3 +366,10 @@ async function serializeTempo(
     },
   )
 }
+
+// Export types required for inference.
+export {
+  SignatureEnvelope as internal_SignatureEnvelope,
+  KeyAuthorization as internal_KeyAuthorization,
+  TxEnvelopeTempo as internal_TxEnvelopeTempo,
+} from 'ox/tempo'

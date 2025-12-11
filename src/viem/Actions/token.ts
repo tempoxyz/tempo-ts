@@ -1,4 +1,5 @@
 import * as Hex from 'ox/Hex'
+import { TokenId, TokenRole } from 'ox/tempo'
 import {
   type Account,
   type Address,
@@ -30,8 +31,6 @@ import {
   writeContractSync,
 } from 'viem/actions'
 import type { Compute, OneOf, UnionOmit } from '../../internal/types.js'
-import * as TokenId from '../../ox/TokenId.js'
-import * as TokenRole from '../../ox/TokenRole.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
 import type {

@@ -1,6 +1,7 @@
 import * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import * as PublicKey from 'ox/PublicKey'
+import { KeyAuthorization, SignatureEnvelope } from 'ox/tempo'
 import {
   createClient,
   type EIP1193Provider,
@@ -11,8 +12,6 @@ import {
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { ChainNotConfiguredError, createConnector } from 'wagmi'
 import type { OneOf } from '../internal/types.js'
-import * as KeyAuthorization from '../ox/KeyAuthorization.js'
-import * as SignatureEnvelope from '../ox/SignatureEnvelope.js'
 import * as Account from '../viem/Account.js'
 import type * as tempo_Chain from '../viem/Chain.js'
 import { normalizeValue } from '../viem/internal/utils.js'

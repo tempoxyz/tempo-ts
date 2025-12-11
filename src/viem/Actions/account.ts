@@ -1,13 +1,13 @@
 import { Secp256k1 } from 'ox'
 import * as Hex from 'ox/Hex'
 import * as P256 from 'ox/P256'
+import { SignatureEnvelope } from 'ox/tempo'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import type { Chain, Client, Transport } from 'viem'
 import type { VerifyHashParameters, VerifyHashReturnType } from 'viem/actions'
 import { verifyHash as viem_verifyHash } from 'viem/actions'
 import { getAction } from 'viem/utils'
 import type { PartialBy } from '../../internal/types.js'
-import * as SignatureEnvelope from '../../ox/SignatureEnvelope.js'
 
 /**
  * Verifies that a signature is valid for a given hash and address.

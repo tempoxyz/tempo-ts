@@ -4,6 +4,7 @@ import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
+import { KeyAuthorization, SignatureEnvelope } from 'ox/tempo'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
 import type { LocalAccount, RequiredBy, Account as viem_Account } from 'viem'
@@ -15,8 +16,6 @@ import {
   parseAccount,
 } from 'viem/utils'
 import type { OneOf } from '../internal/types.js'
-import * as KeyAuthorization from '../ox/KeyAuthorization.js'
-import * as SignatureEnvelope from '../ox/SignatureEnvelope.js'
 import * as Storage from './Storage.js'
 import * as Transaction from './Transaction.js'
 
@@ -590,3 +589,9 @@ declare namespace from {
     ? AccessKeyAccount
     : RootAccount
 }
+
+export {
+  KeyAuthorization as internal_KeyAuthorization,
+  SignatureEnvelope as internal_SignatureEnvelope,
+  TxEnvelopeTempo as internal_TxEnvelopeTempo,
+} from 'ox/tempo'

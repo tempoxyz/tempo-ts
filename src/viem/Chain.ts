@@ -1,4 +1,5 @@
 import * as Hex from 'ox/Hex'
+import { TokenId } from 'ox/tempo'
 import {
   defineTransaction,
   defineTransactionReceipt,
@@ -7,7 +8,6 @@ import {
   type Chain as viem_Chain,
 } from 'viem'
 import type { IsUndefined } from '../internal/types.js'
-import type * as TokenId from '../ox/TokenId.js'
 import * as Formatters from './Formatters.js'
 import * as Transaction from './Transaction.js'
 
@@ -132,6 +132,8 @@ export function define<const chain extends viem_Chain>(
     { id: chain.id },
   ) as never
 }
+
+export { TokenId }
 
 export declare namespace define {
   type Properties = {

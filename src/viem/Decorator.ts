@@ -631,35 +631,6 @@ export type Decorator<
       parameters: dexActions.getOrder.Parameters,
     ) => Promise<dexActions.getOrder.ReturnValue>
     /**
-     * Gets paginated orders from the orderbook.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { tempoActions } from 'tempo.ts/viem'
-     *
-     * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const { orders, nextCursor } = await client.dex.getOrders({
-     *   limit: 100,
-     *   filters: {
-     *     baseToken: '0x20c0...',
-     *     isBid: true,
-     *   }
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns Paginated orders and next cursor.
-     */
-    getOrders: (
-      parameters?: dexActions.getOrders.Parameters,
-    ) => Promise<dexActions.getOrders.ReturnValue>
-    /**
      * Gets the price level information at a specific tick.
      *
      * @example
@@ -3055,7 +3026,6 @@ export function decorator() {
         getBalance: (parameters) => dexActions.getBalance(client, parameters),
         getBuyQuote: (parameters) => dexActions.getBuyQuote(client, parameters),
         getOrder: (parameters) => dexActions.getOrder(client, parameters),
-        getOrders: (parameters) => dexActions.getOrders(client, parameters),
         getTickLevel: (parameters) =>
           dexActions.getTickLevel(client, parameters),
         getSellQuote: (parameters) =>

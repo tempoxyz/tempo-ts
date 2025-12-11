@@ -21,7 +21,6 @@ import {
 import { english, generateMnemonic } from 'viem/accounts'
 import { sendTransactionSync } from 'viem/actions'
 import { tempoDevnet, tempoTestnet } from '../../src/chains.js'
-import type { TokenIdOrAddress } from '../../src/ox/TokenId.js'
 import { transferSync } from '../../src/viem/Actions/token.js'
 import { addresses, fetchOptions, nodeEnv, rpcUrl } from '../config.js'
 
@@ -114,7 +113,7 @@ export const clientWithAccount = getClient({
 })
 
 export async function fundAddress(
-  client: Client<Transport, Chain.Chain<TokenIdOrAddress>>,
+  client: Client<Transport, Chain.Chain<Chain.TokenId.TokenIdOrAddress>>,
   parameters: fundAddress.Parameters,
 ) {
   const { address } = parameters
@@ -136,7 +135,7 @@ export declare namespace fundAddress {
 }
 
 export async function setupToken(
-  client: Client<Transport, Chain.Chain<TokenIdOrAddress>, Account>,
+  client: Client<Transport, Chain.Chain<Chain.TokenId.TokenIdOrAddress>, Account>,
   parameters: Partial<
     Awaited<ReturnType<typeof Actions.token.createSync>>
   > = {},
@@ -164,7 +163,7 @@ export async function setupToken(
 }
 
 export async function setupPoolWithLiquidity(
-  client: Client<Transport, Chain.Chain<TokenIdOrAddress>, Account>,
+  client: Client<Transport, Chain.Chain<Chain.TokenId.TokenIdOrAddress>, Account>,
 ) {
   // Create a new token for testing
   const { token } = await Actions.token.createSync(client, {

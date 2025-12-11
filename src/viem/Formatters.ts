@@ -2,6 +2,10 @@
 
 import * as Hex from 'ox/Hex'
 import {
+  Transaction as ox_Transaction,
+  TransactionRequest as ox_TransactionRequest,
+} from 'ox/tempo'
+import {
   type Chain,
   type Account as viem_Account,
   formatTransaction as viem_formatTransaction,
@@ -10,8 +14,6 @@ import {
 } from 'viem'
 import { type Address, parseAccount } from 'viem/accounts'
 import type { UnionOmit } from '../internal/types.js'
-import * as ox_Transaction from '../ox/Transaction.js'
-import * as ox_TransactionRequest from '../ox/TransactionRequest.js'
 import type { Account } from './Account.js'
 import type { GetFeeTokenParameter } from './internal/types.js'
 import {

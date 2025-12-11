@@ -1,6 +1,6 @@
 import { Value, WebCryptoP256 } from 'ox'
+import { SignatureEnvelope } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
-import * as SignatureEnvelope from '../ox/SignatureEnvelope.js'
 import * as Account from './Account.js'
 
 const privateKey_secp256k1 =

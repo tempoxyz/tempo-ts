@@ -1,6 +1,6 @@
 import { setTimeout } from 'node:timers/promises'
 import { Hex } from 'ox'
-import { TokenRole } from 'tempo.ts/ox'
+import { TokenRole } from 'ox/tempo'
 import { Abis, Addresses, TokenIds } from 'tempo.ts/viem'
 import { parseUnits } from 'viem'
 import { getCode, writeContractSync } from 'viem/actions'

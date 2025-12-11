@@ -18,23 +18,6 @@ export default defineConfig({
       {
         extends: true,
         test: {
-          env: {
-            RPC_PORT: '3000',
-          },
-          include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)', '**/*.test-d.ts'],
-          globalSetup: [join(import.meta.dirname, './test/ox/setup.global.ts')],
-          name: 'ox',
-          root: './src/ox',
-          sequence: { groupOrder: 0 },
-          setupFiles: [join(import.meta.dirname, './test/ox/setup.ts')],
-          typecheck: {
-            enabled: true,
-          },
-        },
-      },
-      {
-        extends: true,
-        test: {
           name: 'prool',
           root: './src/prool',
           sequence: { groupOrder: 1 },

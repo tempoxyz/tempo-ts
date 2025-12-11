@@ -1,3 +1,4 @@
+import type { TokenId } from 'ox/tempo'
 import type {
   Account,
   Address,
@@ -10,7 +11,6 @@ import type {
   MaybeRequired,
   UnionPick,
 } from '../../internal/types.js'
-import type * as TokenId from '../../ox/TokenId.js'
 import type { TransactionRequestTempo } from '../Transaction.js'
 
 export type GetAccountParameter<
