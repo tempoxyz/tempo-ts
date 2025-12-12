@@ -2,4 +2,4 @@
 "tempo.ts": patch
 ---
 
-fix: getNonce returns correct value
+Fixed `nonce.getNonce` return value.
