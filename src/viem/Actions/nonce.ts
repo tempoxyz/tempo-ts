@@ -142,9 +142,10 @@ export async function getNonceKeyCount<
   client: Client<Transport, chain, account>,
   parameters: getNonceKeyCount.Parameters,
 ): Promise<getNonceKeyCount.ReturnValue> {
+  const { account, ...rest } = parameters
   return readContract(client, {
-    ...parameters,
-    ...getNonceKeyCount.call(parameters),
+    ...rest,
+    ...getNonceKeyCount.call({ account }),
   })
 }
 
