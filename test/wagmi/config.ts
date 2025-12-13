@@ -10,7 +10,15 @@ import {
   renderHook as vbr_renderHook,
 } from 'vitest-browser-react'
 import { createConfig, WagmiProvider } from 'wagmi'
-import { dangerous_secp256k1 } from '../../src/wagmi/Connector.js'
+import { dangerous_secp256k1 } from '../../src/wagmi/index.js'
+// These imports ensure TypeScript can reference ox/tempo types portably
+// biome-ignore lint/correctness/noUnusedImports: _
+import type {
+  KeyAuthorization as _,
+  SignatureEnvelope as __,
+  TokenId as ___,
+  TxEnvelopeTempo as ____,
+} from 'ox/tempo'
 import {
   accounts,
   chain,
@@ -122,3 +130,15 @@ declare module 'wagmi' {
     config: typeof config
   }
 }
+
+// Export types required for inference.
+export {
+  /** @deprecated */
+  KeyAuthorization as z_KeyAuthorization,
+  /** @deprecated */
+  SignatureEnvelope as z_SignatureEnvelope,
+  /** @deprecated */
+  TokenId as z_TokenId,
+  /** @deprecated */
+  TxEnvelopeTempo as z_TxEnvelopeTempo,
+} from 'ox/tempo'
