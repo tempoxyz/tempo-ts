@@ -1,5 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { connect, getAccount, getConnectorClient } from '@wagmi/core'
+// These imports ensure TypeScript can reference ox/tempo types portably
+// biome-ignore lint/correctness/noUnusedImports: _
+import type {
+  KeyAuthorization as _,
+  SignatureEnvelope as __,
+  TokenId as ___,
+  TxEnvelopeTempo as ____,
+} from 'ox/tempo'
 import * as React from 'react'
 import { http } from 'viem'
 import {
@@ -11,14 +19,6 @@ import {
 } from 'vitest-browser-react'
 import { createConfig, WagmiProvider } from 'wagmi'
 import { dangerous_secp256k1 } from '../../src/wagmi/index.js'
-// These imports ensure TypeScript can reference ox/tempo types portably
-// biome-ignore lint/correctness/noUnusedImports: _
-import type {
-  KeyAuthorization as _,
-  SignatureEnvelope as __,
-  TokenId as ___,
-  TxEnvelopeTempo as ____,
-} from 'ox/tempo'
 import {
   accounts,
   chain,
