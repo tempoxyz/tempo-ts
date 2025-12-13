@@ -38,7 +38,7 @@ describe('useNonce', () => {
 
     // Should now be enabled and have data
     expect(result.current.isEnabled).toBe(true)
-    expect(result.current.data).toBe(1n)
+    expect(result.current.data).toBe(0n)
   })
 
   test('reactivity: account parameter', async () => {
@@ -62,7 +62,7 @@ describe('useNonce', () => {
     })
 
     expect(result.current.isEnabled).toBe(true)
-    expect(result.current.data).toBe(1n)
+    expect(result.current.data).toBe(0n)
   })
 
   test('reactivity: nonceKey parameter', async () => {
@@ -86,7 +86,7 @@ describe('useNonce', () => {
     })
 
     expect(result.current.isEnabled).toBe(true)
-    expect(result.current.data).toBe(1n)
+    expect(result.current.data).toBe(0n)
   })
 })
 

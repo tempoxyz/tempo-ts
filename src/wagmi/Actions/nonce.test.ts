@@ -21,7 +21,7 @@ describe('getNonce', () => {
       account: account.address,
       nonceKey: 1n,
     })
-    expect(result).toBe(1n)
+    expect(result).toBe(0n)
   })
 
   describe('queryOptions', () => {
@@ -31,7 +31,7 @@ describe('getNonce', () => {
         nonceKey: 1n,
       })
       const result = await queryClient.fetchQuery(options)
-      expect(result).toBe(1n)
+      expect(result).toBe(0n)
     })
   })
 })
@@ -112,6 +112,10 @@ describe('watchActiveKeyCountChanged', () => {
       },
     })
 
+    const priorKeyCount = await getNonceKeyCount(config, {
+      account: account.address,
+    })
+
     // First use of nonceKey 10 should increment active key count
     await token.transferSync(config, {
       to: account2.address,
@@ -134,8 +138,8 @@ describe('watchActiveKeyCountChanged', () => {
 
     expect(events).toHaveLength(2)
     expect(events[0]?.account).toBe(account.address)
-    expect(events[0]?.newCount).toBe(1n)
-    expect(events[1]?.newCount).toBe(2n)
+    expect(events[0]?.newCount - priorKeyCount).toBe(1n)
+    expect(events[1]?.newCount - priorKeyCount).toBe(2n)
     unwatch()
   })
 })
