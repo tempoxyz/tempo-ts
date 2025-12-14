@@ -1,8 +1,7 @@
 import type { Account } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
-import { accounts } from '../../../test/viem/config.js'
-import { config, renderHook } from '../../../test/wagmi/config.js'
+import { accounts, config, renderHook } from '../../../test/wagmi/config.js'
 import { useSetUserToken, useSetUserTokenSync, useUserToken } from './fee.js'
 
 describe('useUserToken', () => {
@@ -100,7 +99,6 @@ describe('useUserToken', () => {
           {
             "account": {
               "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-              "assignKeyAuthorization": [Function],
               "keyType": "secp256k1",
               "publicKey": "0x8318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
               "sign": [Function],
@@ -110,11 +108,6 @@ describe('useUserToken', () => {
               "signTransaction": [Function],
               "signTypedData": [Function],
               "source": "root",
-              "storage": {
-                "getItem": [Function],
-                "removeItem": [Function],
-                "setItem": [Function],
-              },
               "type": "local",
             },
             "chainId": 1337,

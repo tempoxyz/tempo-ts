@@ -1,11 +1,11 @@
-import { Tick } from 'tempo.ts/viem'
 import { Actions, Hooks } from 'tempo.ts/wagmi'
 import { type Address, isAddress, parseUnits } from 'viem'
+import { Tick } from 'viem/tempo'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
 import { addresses } from '../../../test/config.js'
-import { accounts } from '../../../test/viem/config.js'
 import {
+  accounts,
   config,
   renderHook,
   setupTokenPair,
@@ -163,7 +163,7 @@ describe('useCancel', () => {
       result.current.cancel.mutateAsync({
         orderId,
       }),
-    ).rejects.toThrow('The contract function "cancel" reverted')
+    ).rejects.toThrow('Execution reverted')
   })
 
   test('behavior: cannot cancel non-existent order', async () => {

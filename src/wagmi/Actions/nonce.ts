@@ -1,8 +1,8 @@
 import type * as Query from '@tanstack/query-core'
 import type { Config } from '@wagmi/core'
 import type { ChainIdParameter } from '@wagmi/core/internal'
+import { nonce } from 'viem/tempo/actions'
 import type { PartialBy, RequiredBy } from '../../internal/types.js'
-import * as viem_Actions from '../../viem/Actions/nonce.js'
 
 /**
  * Gets the nonce for an account and nonce key.
@@ -36,14 +36,14 @@ export function getNonce<config extends Config>(
 ): Promise<getNonce.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getNonce(client, rest)
+  return nonce.getNonce(client, rest)
 }
 
 export namespace getNonce {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getNonce.Parameters
+    nonce.getNonce.Parameters
 
-  export type ReturnValue = viem_Actions.getNonce.ReturnValue
+  export type ReturnValue = nonce.getNonce.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: PartialBy<Parameters<config>, 'account' | 'nonceKey'>,
@@ -128,14 +128,14 @@ export function getNonceKeyCount<config extends Config>(
 ): Promise<getNonceKeyCount.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getNonceKeyCount(client, rest)
+  return nonce.getNonceKeyCount(client, rest)
 }
 
 export namespace getNonceKeyCount {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getNonceKeyCount.Parameters
+    nonce.getNonceKeyCount.Parameters
 
-  export type ReturnValue = viem_Actions.getNonceKeyCount.ReturnValue
+  export type ReturnValue = nonce.getNonceKeyCount.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: PartialBy<Parameters<config>, 'account'>,
@@ -221,12 +221,12 @@ export function watchNonceIncremented<config extends Config>(
 ): () => void {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchNonceIncremented(client, rest)
+  return nonce.watchNonceIncremented(client, rest)
 }
 
 export declare namespace watchNonceIncremented {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchNonceIncremented.Parameters
+    nonce.watchNonceIncremented.Parameters
 }
 
 /**
@@ -262,10 +262,10 @@ export function watchActiveKeyCountChanged<config extends Config>(
 ): () => void {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchActiveKeyCountChanged(client, rest)
+  return nonce.watchActiveKeyCountChanged(client, rest)
 }
 
 export declare namespace watchActiveKeyCountChanged {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchActiveKeyCountChanged.Parameters
+    nonce.watchActiveKeyCountChanged.Parameters
 }

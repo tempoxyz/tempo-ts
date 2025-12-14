@@ -1,8 +1,12 @@
 import type { Address } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
-import { accounts } from '../../../test/viem/config.js'
-import { config, queryClient, renderHook } from '../../../test/wagmi/config.js'
+import {
+  accounts,
+  config,
+  queryClient,
+  renderHook,
+} from '../../../test/wagmi/config.js'
 import * as Actions from '../Actions/policy.js'
 import * as hooks from './policy.js'
 

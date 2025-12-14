@@ -2,8 +2,8 @@ import type * as Query from '@tanstack/query-core'
 import { type Config, getConnectorClient } from '@wagmi/core'
 import type { ChainIdParameter, ConnectorParameter } from '@wagmi/core/internal'
 import type { Account } from 'viem'
+import { dex } from 'viem/tempo/actions'
 import type { PartialBy, RequiredBy, UnionOmit } from '../../internal/types.js'
-import * as viem_Actions from '../../viem/Actions/dex.js'
 
 /**
  * Buys a specific amount of tokens.
@@ -36,7 +36,7 @@ import * as viem_Actions from '../../viem/Actions/dex.js'
 export async function buy<config extends Config>(
   config: config,
   parameters: buy.Parameters<config>,
-): Promise<viem_Actions.buy.ReturnValue> {
+): Promise<dex.buy.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -46,20 +46,17 @@ export async function buy<config extends Config>(
     connector,
   })
 
-  return viem_Actions.buy(client, parameters as never)
+  return dex.buy(client, parameters as never)
 }
 
 export declare namespace buy {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    UnionOmit<
-      viem_Actions.buy.Parameters<config['chains'][number], Account>,
-      'chain'
-    >
+    UnionOmit<dex.buy.Parameters<config['chains'][number], Account>, 'chain'>
 
-  export type ReturnValue = viem_Actions.buy.ReturnValue
+  export type ReturnValue = dex.buy.ReturnValue
 
-  export type ErrorType = viem_Actions.buy.ErrorType
+  export type ErrorType = dex.buy.ErrorType
 }
 
 /**
@@ -96,7 +93,7 @@ export declare namespace buy {
 export async function buySync<config extends Config>(
   config: config,
   parameters: buySync.Parameters<config>,
-): Promise<viem_Actions.buySync.ReturnValue> {
+): Promise<dex.buySync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -106,20 +103,20 @@ export async function buySync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.buySync(client, parameters as never)
+  return dex.buySync(client, parameters as never)
 }
 
 export declare namespace buySync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.buySync.Parameters<config['chains'][number], Account>,
+      dex.buySync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.buySync.ReturnValue
+  export type ReturnValue = dex.buySync.ReturnValue
 
-  export type ErrorType = viem_Actions.buySync.ErrorType
+  export type ErrorType = dex.buySync.ErrorType
 }
 
 /**
@@ -150,7 +147,7 @@ export declare namespace buySync {
 export async function cancel<config extends Config>(
   config: config,
   parameters: cancel.Parameters<config>,
-): Promise<viem_Actions.cancel.ReturnValue> {
+): Promise<dex.cancel.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -160,20 +157,17 @@ export async function cancel<config extends Config>(
     connector,
   })
 
-  return viem_Actions.cancel(client, parameters as never)
+  return dex.cancel(client, parameters as never)
 }
 
 export declare namespace cancel {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    UnionOmit<
-      viem_Actions.cancel.Parameters<config['chains'][number], Account>,
-      'chain'
-    >
+    UnionOmit<dex.cancel.Parameters<config['chains'][number], Account>, 'chain'>
 
-  export type ReturnValue = viem_Actions.cancel.ReturnValue
+  export type ReturnValue = dex.cancel.ReturnValue
 
-  export type ErrorType = viem_Actions.cancel.ErrorType
+  export type ErrorType = dex.cancel.ErrorType
 }
 
 /**
@@ -207,7 +201,7 @@ export declare namespace cancel {
 export async function cancelSync<config extends Config>(
   config: config,
   parameters: cancelSync.Parameters<config>,
-): Promise<viem_Actions.cancelSync.ReturnValue> {
+): Promise<dex.cancelSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -217,20 +211,20 @@ export async function cancelSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.cancelSync(client, parameters as never)
+  return dex.cancelSync(client, parameters as never)
 }
 
 export declare namespace cancelSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.cancelSync.Parameters<config['chains'][number], Account>,
+      dex.cancelSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.cancelSync.ReturnValue
+  export type ReturnValue = dex.cancelSync.ReturnValue
 
-  export type ErrorType = viem_Actions.cancelSync.ErrorType
+  export type ErrorType = dex.cancelSync.ErrorType
 }
 
 /**
@@ -261,7 +255,7 @@ export declare namespace cancelSync {
 export async function createPair<config extends Config>(
   config: config,
   parameters: createPair.Parameters<config>,
-): Promise<viem_Actions.createPair.ReturnValue> {
+): Promise<dex.createPair.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -271,20 +265,20 @@ export async function createPair<config extends Config>(
     connector,
   })
 
-  return viem_Actions.createPair(client, parameters as never)
+  return dex.createPair(client, parameters as never)
 }
 
 export declare namespace createPair {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.createPair.Parameters<config['chains'][number], Account>,
+      dex.createPair.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.createPair.ReturnValue
+  export type ReturnValue = dex.createPair.ReturnValue
 
-  export type ErrorType = viem_Actions.createPair.ErrorType
+  export type ErrorType = dex.createPair.ErrorType
 }
 
 /**
@@ -318,7 +312,7 @@ export declare namespace createPair {
 export async function createPairSync<config extends Config>(
   config: config,
   parameters: createPairSync.Parameters<config>,
-): Promise<viem_Actions.createPairSync.ReturnValue> {
+): Promise<dex.createPairSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -328,20 +322,20 @@ export async function createPairSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.createPairSync(client, parameters as never)
+  return dex.createPairSync(client, parameters as never)
 }
 
 export declare namespace createPairSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.createPairSync.Parameters<config['chains'][number], Account>,
+      dex.createPairSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.createPairSync.ReturnValue
+  export type ReturnValue = dex.createPairSync.ReturnValue
 
-  export type ErrorType = viem_Actions.createPairSync.ErrorType
+  export type ErrorType = dex.createPairSync.ErrorType
 }
 
 /**
@@ -376,14 +370,14 @@ export function getBalance<config extends Config>(
 ): Promise<getBalance.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getBalance(client, rest)
+  return dex.getBalance(client, rest)
 }
 
 export namespace getBalance {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getBalance.Parameters
+    dex.getBalance.Parameters
 
-  export type ReturnValue = viem_Actions.getBalance.ReturnValue
+  export type ReturnValue = dex.getBalance.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: PartialBy<Parameters<config>, 'account'>,
@@ -469,14 +463,14 @@ export function getBuyQuote<config extends Config>(
 ): Promise<getBuyQuote.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getBuyQuote(client, rest)
+  return dex.getBuyQuote(client, rest)
 }
 
 export namespace getBuyQuote {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getBuyQuote.Parameters
+    dex.getBuyQuote.Parameters
 
-  export type ReturnValue = viem_Actions.getBuyQuote.ReturnValue
+  export type ReturnValue = dex.getBuyQuote.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: Parameters<config>,
@@ -559,14 +553,14 @@ export function getOrder<config extends Config>(
 ): Promise<getOrder.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getOrder(client, rest)
+  return dex.getOrder(client, rest)
 }
 
 export namespace getOrder {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getOrder.Parameters
+    dex.getOrder.Parameters
 
-  export type ReturnValue = viem_Actions.getOrder.ReturnValue
+  export type ReturnValue = dex.getOrder.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: Parameters<config>,
@@ -650,14 +644,14 @@ export function getOrderbook<config extends Config>(
 ): Promise<getOrderbook.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getOrderbook(client, rest)
+  return dex.getOrderbook(client, rest)
 }
 
 export namespace getOrderbook {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getOrderbook.Parameters
+    dex.getOrderbook.Parameters
 
-  export type ReturnValue = viem_Actions.getOrderbook.ReturnValue
+  export type ReturnValue = dex.getOrderbook.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: Parameters<config>,
@@ -742,14 +736,14 @@ export function getTickLevel<config extends Config>(
 ): Promise<getTickLevel.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getTickLevel(client, rest)
+  return dex.getTickLevel(client, rest)
 }
 
 export namespace getTickLevel {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getTickLevel.Parameters
+    dex.getTickLevel.Parameters
 
-  export type ReturnValue = viem_Actions.getTickLevel.ReturnValue
+  export type ReturnValue = dex.getTickLevel.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: Parameters<config>,
@@ -834,14 +828,14 @@ export function getSellQuote<config extends Config>(
 ): Promise<getSellQuote.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getSellQuote(client, rest)
+  return dex.getSellQuote(client, rest)
 }
 
 export namespace getSellQuote {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getSellQuote.Parameters
+    dex.getSellQuote.Parameters
 
-  export type ReturnValue = viem_Actions.getSellQuote.ReturnValue
+  export type ReturnValue = dex.getSellQuote.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: Parameters<config>,
@@ -924,7 +918,7 @@ export namespace getSellQuote {
 export async function place<config extends Config>(
   config: config,
   parameters: place.Parameters<config>,
-): Promise<viem_Actions.place.ReturnValue> {
+): Promise<dex.place.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -934,20 +928,17 @@ export async function place<config extends Config>(
     connector,
   })
 
-  return viem_Actions.place(client, parameters as never)
+  return dex.place(client, parameters as never)
 }
 
 export declare namespace place {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    UnionOmit<
-      viem_Actions.place.Parameters<config['chains'][number], Account>,
-      'chain'
-    >
+    UnionOmit<dex.place.Parameters<config['chains'][number], Account>, 'chain'>
 
-  export type ReturnValue = viem_Actions.place.ReturnValue
+  export type ReturnValue = dex.place.ReturnValue
 
-  export type ErrorType = viem_Actions.place.ErrorType
+  export type ErrorType = dex.place.ErrorType
 }
 
 /**
@@ -982,7 +973,7 @@ export declare namespace place {
 export async function placeFlip<config extends Config>(
   config: config,
   parameters: placeFlip.Parameters<config>,
-): Promise<viem_Actions.placeFlip.ReturnValue> {
+): Promise<dex.placeFlip.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -992,20 +983,20 @@ export async function placeFlip<config extends Config>(
     connector,
   })
 
-  return viem_Actions.placeFlip(client, parameters as never)
+  return dex.placeFlip(client, parameters as never)
 }
 
 export declare namespace placeFlip {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.placeFlip.Parameters<config['chains'][number], Account>,
+      dex.placeFlip.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.placeFlip.ReturnValue
+  export type ReturnValue = dex.placeFlip.ReturnValue
 
-  export type ErrorType = viem_Actions.placeFlip.ErrorType
+  export type ErrorType = dex.placeFlip.ErrorType
 }
 
 /**
@@ -1043,7 +1034,7 @@ export declare namespace placeFlip {
 export async function placeFlipSync<config extends Config>(
   config: config,
   parameters: placeFlipSync.Parameters<config>,
-): Promise<viem_Actions.placeFlipSync.ReturnValue> {
+): Promise<dex.placeFlipSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1053,20 +1044,20 @@ export async function placeFlipSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.placeFlipSync(client, parameters as never)
+  return dex.placeFlipSync(client, parameters as never)
 }
 
 export declare namespace placeFlipSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.placeFlipSync.Parameters<config['chains'][number], Account>,
+      dex.placeFlipSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.placeFlipSync.ReturnValue
+  export type ReturnValue = dex.placeFlipSync.ReturnValue
 
-  export type ErrorType = viem_Actions.placeFlipSync.ErrorType
+  export type ErrorType = dex.placeFlipSync.ErrorType
 }
 
 /**
@@ -1103,7 +1094,7 @@ export declare namespace placeFlipSync {
 export async function placeSync<config extends Config>(
   config: config,
   parameters: placeSync.Parameters<config>,
-): Promise<viem_Actions.placeSync.ReturnValue> {
+): Promise<dex.placeSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1113,20 +1104,20 @@ export async function placeSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.placeSync(client, parameters as never)
+  return dex.placeSync(client, parameters as never)
 }
 
 export declare namespace placeSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.placeSync.Parameters<config['chains'][number], Account>,
+      dex.placeSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.placeSync.ReturnValue
+  export type ReturnValue = dex.placeSync.ReturnValue
 
-  export type ErrorType = viem_Actions.placeSync.ErrorType
+  export type ErrorType = dex.placeSync.ErrorType
 }
 
 /**
@@ -1160,7 +1151,7 @@ export declare namespace placeSync {
 export async function sell<config extends Config>(
   config: config,
   parameters: sell.Parameters<config>,
-): Promise<viem_Actions.sell.ReturnValue> {
+): Promise<dex.sell.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1170,20 +1161,17 @@ export async function sell<config extends Config>(
     connector,
   })
 
-  return viem_Actions.sell(client, parameters as never)
+  return dex.sell(client, parameters as never)
 }
 
 export declare namespace sell {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    UnionOmit<
-      viem_Actions.sell.Parameters<config['chains'][number], Account>,
-      'chain'
-    >
+    UnionOmit<dex.sell.Parameters<config['chains'][number], Account>, 'chain'>
 
-  export type ReturnValue = viem_Actions.sell.ReturnValue
+  export type ReturnValue = dex.sell.ReturnValue
 
-  export type ErrorType = viem_Actions.sell.ErrorType
+  export type ErrorType = dex.sell.ErrorType
 }
 
 /**
@@ -1220,7 +1208,7 @@ export declare namespace sell {
 export async function sellSync<config extends Config>(
   config: config,
   parameters: sellSync.Parameters<config>,
-): Promise<viem_Actions.sellSync.ReturnValue> {
+): Promise<dex.sellSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1230,20 +1218,20 @@ export async function sellSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.sellSync(client, parameters as never)
+  return dex.sellSync(client, parameters as never)
 }
 
 export declare namespace sellSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.sellSync.Parameters<config['chains'][number], Account>,
+      dex.sellSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.sellSync.ReturnValue
+  export type ReturnValue = dex.sellSync.ReturnValue
 
-  export type ErrorType = viem_Actions.sellSync.ErrorType
+  export type ErrorType = dex.sellSync.ErrorType
 }
 
 /**
@@ -1279,16 +1267,16 @@ export function watchFlipOrderPlaced<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchFlipOrderPlaced(client, rest)
+  return dex.watchFlipOrderPlaced(client, rest)
 }
 
 export declare namespace watchFlipOrderPlaced {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchFlipOrderPlaced.Parameters
+    dex.watchFlipOrderPlaced.Parameters
 
-  export type Args = viem_Actions.watchFlipOrderPlaced.Args
+  export type Args = dex.watchFlipOrderPlaced.Args
 
-  export type Log = viem_Actions.watchFlipOrderPlaced.Log
+  export type Log = dex.watchFlipOrderPlaced.Log
 }
 
 /**
@@ -1324,16 +1312,16 @@ export function watchOrderCancelled<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchOrderCancelled(client, rest)
+  return dex.watchOrderCancelled(client, rest)
 }
 
 export declare namespace watchOrderCancelled {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchOrderCancelled.Parameters
+    dex.watchOrderCancelled.Parameters
 
-  export type Args = viem_Actions.watchOrderCancelled.Args
+  export type Args = dex.watchOrderCancelled.Args
 
-  export type Log = viem_Actions.watchOrderCancelled.Log
+  export type Log = dex.watchOrderCancelled.Log
 }
 
 /**
@@ -1369,16 +1357,16 @@ export function watchOrderFilled<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchOrderFilled(client, rest)
+  return dex.watchOrderFilled(client, rest)
 }
 
 export declare namespace watchOrderFilled {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchOrderFilled.Parameters
+    dex.watchOrderFilled.Parameters
 
-  export type Args = viem_Actions.watchOrderFilled.Args
+  export type Args = dex.watchOrderFilled.Args
 
-  export type Log = viem_Actions.watchOrderFilled.Log
+  export type Log = dex.watchOrderFilled.Log
 }
 
 /**
@@ -1414,16 +1402,16 @@ export function watchOrderPlaced<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchOrderPlaced(client, rest)
+  return dex.watchOrderPlaced(client, rest)
 }
 
 export declare namespace watchOrderPlaced {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchOrderPlaced.Parameters
+    dex.watchOrderPlaced.Parameters
 
-  export type Args = viem_Actions.watchOrderPlaced.Args
+  export type Args = dex.watchOrderPlaced.Args
 
-  export type Log = viem_Actions.watchOrderPlaced.Log
+  export type Log = dex.watchOrderPlaced.Log
 }
 
 /**
@@ -1455,7 +1443,7 @@ export declare namespace watchOrderPlaced {
 export async function withdraw<config extends Config>(
   config: config,
   parameters: withdraw.Parameters<config>,
-): Promise<viem_Actions.withdraw.ReturnValue> {
+): Promise<dex.withdraw.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1465,20 +1453,20 @@ export async function withdraw<config extends Config>(
     connector,
   })
 
-  return viem_Actions.withdraw(client, parameters as never)
+  return dex.withdraw(client, parameters as never)
 }
 
 export declare namespace withdraw {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.withdraw.Parameters<config['chains'][number], Account>,
+      dex.withdraw.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.withdraw.ReturnValue
+  export type ReturnValue = dex.withdraw.ReturnValue
 
-  export type ErrorType = viem_Actions.withdraw.ErrorType
+  export type ErrorType = dex.withdraw.ErrorType
 }
 
 /**
@@ -1513,7 +1501,7 @@ export declare namespace withdraw {
 export async function withdrawSync<config extends Config>(
   config: config,
   parameters: withdrawSync.Parameters<config>,
-): Promise<viem_Actions.withdrawSync.ReturnValue> {
+): Promise<dex.withdrawSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1523,18 +1511,18 @@ export async function withdrawSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.withdrawSync(client, parameters as never)
+  return dex.withdrawSync(client, parameters as never)
 }
 
 export declare namespace withdrawSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.withdrawSync.Parameters<config['chains'][number], Account>,
+      dex.withdrawSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.withdrawSync.ReturnValue
+  export type ReturnValue = dex.withdrawSync.ReturnValue
 
-  export type ErrorType = viem_Actions.withdrawSync.ErrorType
+  export type ErrorType = dex.withdrawSync.ErrorType
 }

@@ -1,8 +1,7 @@
 import { connect } from '@wagmi/core'
 import { afterEach, describe, expect, test } from 'vitest'
 import { rpcUrl } from '../../../test/config.js'
-import { accounts } from '../../../test/viem/config.js'
-import { config, queryClient } from '../../../test/wagmi/config.js'
+import { accounts, config, queryClient } from '../../../test/wagmi/config.js'
 import * as nonce from './nonce.js'
 import * as token from './token.js'
 

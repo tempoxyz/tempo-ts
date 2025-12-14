@@ -1,8 +1,10 @@
+import * as idb from 'idb-keyval'
 import * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import * as PublicKey from 'ox/PublicKey'
 import { KeyAuthorization, SignatureEnvelope } from 'ox/tempo'
 import {
+  type Chain,
   createClient,
   type EIP1193Provider,
   getAddress,
@@ -10,18 +12,11 @@ import {
   SwitchChainError,
 } from 'viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { Account, Transport, WebAuthnP256, WebCryptoP256 } from 'viem/tempo'
 import { ChainNotConfiguredError, createConnector } from 'wagmi'
 import type { OneOf } from '../internal/types.js'
-import * as Account from '../viem/Account.js'
-import type * as tempo_Chain from '../viem/Chain.js'
-import { normalizeValue } from '../viem/internal/utils.js'
-import * as Storage from '../viem/Storage.js'
-import { walletNamespaceCompat } from '../viem/Transport.js'
-import * as WebAuthnP256 from '../viem/WebAuthnP256.js'
-import * as WebCryptoP256 from '../viem/WebCryptoP256.js'
+import { normalizeValue } from './internal/utils.js'
 import type * as KeyManager from './KeyManager.js'
-
-type Chain = ReturnType<ReturnType<typeof tempo_Chain.define>>
 
 /**
  * Connector for a Secp256k1 EOA.
@@ -180,10 +175,14 @@ export function dangerous_secp256k1(
       const transport = transports[chain.id]
       if (!transport) throw new ChainNotConfiguredError()
 
+      if (!account) throw new ChainNotConfiguredError()
+
       return createClient({
         account,
         chain: chain as Chain,
-        transport: walletNamespaceCompat(transport),
+        transport: Transport.walletNamespaceCompat(transport, {
+          account,
+        }),
       })
     },
     async getProvider({ chainId } = {}) {
@@ -221,12 +220,6 @@ export function webAuthn(options: webAuthn.Parameters) {
     return undefined
   })()
 
-  const idbStorage = Storage.idb<{
-    [key: `accessKey:${string}`]: WebCryptoP256.createKeyPair.ReturnType & {
-      keyAuthorization: KeyAuthorization.KeyAuthorization
-    }
-  }>()
-
   type Properties = {
     connect<withCapabilities extends boolean = false>(parameters: {
       chainId?: number | undefined
@@ -249,6 +242,7 @@ export function webAuthn(options: webAuthn.Parameters) {
   }
   type Provider = Pick<EIP1193Provider, 'request'>
   type StorageItem = {
+    pendingKeyAuthorization: KeyAuthorization.KeyAuthorization
     'webAuthn.activeCredential': WebAuthnP256.P256Credential
     'webAuthn.lastActiveCredential': WebAuthnP256.P256Credential
   }
@@ -329,7 +323,9 @@ export function webAuthn(options: webAuthn.Parameters) {
               const address = Address.fromPublicKey(
                 PublicKey.fromHex(credential.publicKey),
               )
-              return await idbStorage.getItem(`accessKey:${address}`)
+              return await idb.get(
+                `${config.storage?.key}.accessKey:${address}`,
+              )
             })()
 
             // If the access key provisioning is not in strict mode, return the credential and key pair (if exists).
@@ -414,14 +410,11 @@ export function webAuthn(options: webAuthn.Parameters) {
         normalizeValue(credential),
       )
 
-      account = Account.fromWebAuthnP256(credential, {
-        storage: Storage.from(config.storage as never),
-      })
+      account = Account.fromWebAuthnP256(credential)
 
       if (keyPair) {
         accessKey = Account.fromWebCryptoP256(keyPair, {
           access: account,
-          storage: Storage.from(config.storage as never),
         })
 
         // If we are reconnecting, check if the access key is expired.
@@ -432,7 +425,7 @@ export function webAuthn(options: webAuthn.Parameters) {
             keyPair.keyAuthorization.expiry < Date.now() / 1000
           ) {
             // remove any pending key authorizations from storage.
-            await account?.storage.removeItem('pendingKeyAuthorization')
+            await config.storage?.removeItem('pendingKeyAuthorization')
 
             const message = `Access key expired (on ${new Date(keyPair.keyAuthorization.expiry * 1000).toLocaleString()}).`
             accessKey = undefined
@@ -452,10 +445,13 @@ export function webAuthn(options: webAuthn.Parameters) {
             keyAuthorization ??
             (await account.signKeyAuthorization(accessKey, accessKeyOptions))
 
-          await account.storage.setItem('pendingKeyAuthorization', keyAuth)
-          await idbStorage.setItem(
-            `accessKey:${account.address.toLowerCase()}`,
-            { ...keyPair, keyAuthorization: keyAuth },
+          await config.storage?.setItem('pendingKeyAuthorization', keyAuth)
+          await idb.set(
+            `${config.storage?.key}.accessKey:${account.address.toLowerCase()}`,
+            {
+              ...keyPair,
+              keyAuthorization: keyAuth,
+            },
           )
         }
         // If we are granting an access key and it is in strict mode, throw an error if the access key is not provisioned.
@@ -528,15 +524,15 @@ export function webAuthn(options: webAuthn.Parameters) {
       const targetAccount = await (async () => {
         if (!accessKey) return account
 
-        const item = await idbStorage.getItem(
-          `accessKey:${accessKey.address.toLowerCase()}`,
+        const item = await idb.get(
+          `${config.storage?.key}.accessKey:${accessKey.address.toLowerCase()}`,
         )
         if (
           item?.keyAuthorization.expiry &&
           item.keyAuthorization.expiry < Date.now() / 1000
         ) {
           // remove any pending key authorizations from storage.
-          await account?.storage.removeItem('pendingKeyAuthorization')
+          await config.storage?.removeItem('pendingKeyAuthorization')
 
           const message = `Access key expired (on ${new Date(item.keyAuthorization.expiry * 1000).toLocaleString()}).`
 
@@ -553,10 +549,14 @@ export function webAuthn(options: webAuthn.Parameters) {
         return accessKey
       })()
 
+      if (!targetAccount) throw new ChainNotConfiguredError()
+
       return createClient({
         account: targetAccount,
         chain: chain as Chain,
-        transport: walletNamespaceCompat(transport),
+        transport: Transport.walletNamespaceCompat(transport, {
+          account: targetAccount,
+        }),
       })
     },
     async getProvider({ chainId } = {}) {

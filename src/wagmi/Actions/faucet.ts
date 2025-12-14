@@ -1,6 +1,6 @@
 import type { Config } from '@wagmi/core'
 import type { ChainIdParameter, UnionCompute } from '@wagmi/core/internal'
-import * as viem_Actions from '../../viem/Actions/faucet.js'
+import { faucet } from 'viem/tempo/actions'
 
 /**
  * Funds an account with an initial amount of set token(s)
@@ -34,15 +34,15 @@ export async function fund<config extends Config>(
 ): Promise<fund.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.fund(client, rest)
+  return faucet.fund(client, rest)
 }
 
 export declare namespace fund {
   export type Parameters<config extends Config> = UnionCompute<
-    ChainIdParameter<config> & viem_Actions.fund.Parameters
+    ChainIdParameter<config> & faucet.fund.Parameters
   >
 
-  export type ReturnValue = viem_Actions.fund.ReturnValue
+  export type ReturnValue = faucet.fund.ReturnValue
 }
 
 /**
@@ -77,13 +77,13 @@ export async function fundSync<config extends Config>(
 ): Promise<fundSync.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.fundSync(client, rest)
+  return faucet.fundSync(client, rest)
 }
 
 export declare namespace fundSync {
   export type Parameters<config extends Config> = UnionCompute<
-    ChainIdParameter<config> & viem_Actions.fundSync.Parameters
+    ChainIdParameter<config> & faucet.fundSync.Parameters
   >
 
-  export type ReturnValue = viem_Actions.fundSync.ReturnValue
+  export type ReturnValue = faucet.fundSync.ReturnValue
 }

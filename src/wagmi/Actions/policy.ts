@@ -2,10 +2,10 @@ import type * as Query from '@tanstack/query-core'
 import { type Config, getConnectorClient } from '@wagmi/core'
 import type { ChainIdParameter, ConnectorParameter } from '@wagmi/core/internal'
 import type { Account } from 'viem'
+import { policy } from 'viem/tempo/actions'
 import type { RequiredBy, UnionOmit } from '../../internal/types.js'
-import * as viem_Actions from '../../viem/Actions/policy.js'
 
-export type { PolicyType } from '../../viem/Actions/policy.js'
+export type PolicyType = policy.PolicyType
 
 /**
  * Creates a new policy.
@@ -35,7 +35,7 @@ export type { PolicyType } from '../../viem/Actions/policy.js'
 export async function create<config extends Config>(
   config: config,
   parameters: create.Parameters<config>,
-): Promise<viem_Actions.create.ReturnValue> {
+): Promise<policy.create.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -45,20 +45,20 @@ export async function create<config extends Config>(
     connector,
   })
 
-  return viem_Actions.create(client, parameters as never)
+  return policy.create(client, parameters as never)
 }
 
 export declare namespace create {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.create.Parameters<config['chains'][number], Account>,
+      policy.create.Parameters<config['chains'][number], Account>,
       'chain' | 'admin'
     >
 
-  export type ReturnValue = viem_Actions.create.ReturnValue
+  export type ReturnValue = policy.create.ReturnValue
 
-  export type ErrorType = viem_Actions.create.ErrorType
+  export type ErrorType = policy.create.ErrorType
 }
 
 /**
@@ -92,7 +92,7 @@ export declare namespace create {
 export async function createSync<config extends Config>(
   config: config,
   parameters: createSync.Parameters<config>,
-): Promise<viem_Actions.createSync.ReturnValue> {
+): Promise<policy.createSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -102,20 +102,20 @@ export async function createSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.createSync(client, parameters as never)
+  return policy.createSync(client, parameters as never)
 }
 
 export declare namespace createSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.createSync.Parameters<config['chains'][number], Account>,
+      policy.createSync.Parameters<config['chains'][number], Account>,
       'chain' | 'admin'
     >
 
-  export type ReturnValue = viem_Actions.createSync.ReturnValue
+  export type ReturnValue = policy.createSync.ReturnValue
 
-  export type ErrorType = viem_Actions.createSync.ErrorType
+  export type ErrorType = policy.createSync.ErrorType
 }
 
 /**
@@ -147,7 +147,7 @@ export declare namespace createSync {
 export async function setAdmin<config extends Config>(
   config: config,
   parameters: setAdmin.Parameters<config>,
-): Promise<viem_Actions.setAdmin.ReturnValue> {
+): Promise<policy.setAdmin.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -157,20 +157,20 @@ export async function setAdmin<config extends Config>(
     connector,
   })
 
-  return viem_Actions.setAdmin(client, parameters as never)
+  return policy.setAdmin(client, parameters as never)
 }
 
 export declare namespace setAdmin {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.setAdmin.Parameters<config['chains'][number], Account>,
+      policy.setAdmin.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.setAdmin.ReturnValue
+  export type ReturnValue = policy.setAdmin.ReturnValue
 
-  export type ErrorType = viem_Actions.setAdmin.ErrorType
+  export type ErrorType = policy.setAdmin.ErrorType
 }
 
 /**
@@ -205,7 +205,7 @@ export declare namespace setAdmin {
 export async function setAdminSync<config extends Config>(
   config: config,
   parameters: setAdminSync.Parameters<config>,
-): Promise<viem_Actions.setAdminSync.ReturnValue> {
+): Promise<policy.setAdminSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -215,20 +215,20 @@ export async function setAdminSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.setAdminSync(client, parameters as never)
+  return policy.setAdminSync(client, parameters as never)
 }
 
 export declare namespace setAdminSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.setAdminSync.Parameters<config['chains'][number], Account>,
+      policy.setAdminSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.setAdminSync.ReturnValue
+  export type ReturnValue = policy.setAdminSync.ReturnValue
 
-  export type ErrorType = viem_Actions.setAdminSync.ErrorType
+  export type ErrorType = policy.setAdminSync.ErrorType
 }
 
 /**
@@ -261,7 +261,7 @@ export declare namespace setAdminSync {
 export async function modifyWhitelist<config extends Config>(
   config: config,
   parameters: modifyWhitelist.Parameters<config>,
-): Promise<viem_Actions.modifyWhitelist.ReturnValue> {
+): Promise<policy.modifyWhitelist.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -271,23 +271,20 @@ export async function modifyWhitelist<config extends Config>(
     connector,
   })
 
-  return viem_Actions.modifyWhitelist(client, parameters as never)
+  return policy.modifyWhitelist(client, parameters as never)
 }
 
 export declare namespace modifyWhitelist {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.modifyWhitelist.Parameters<
-        config['chains'][number],
-        Account
-      >,
+      policy.modifyWhitelist.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.modifyWhitelist.ReturnValue
+  export type ReturnValue = policy.modifyWhitelist.ReturnValue
 
-  export type ErrorType = viem_Actions.modifyWhitelist.ErrorType
+  export type ErrorType = policy.modifyWhitelist.ErrorType
 }
 
 /**
@@ -323,7 +320,7 @@ export declare namespace modifyWhitelist {
 export async function modifyWhitelistSync<config extends Config>(
   config: config,
   parameters: modifyWhitelistSync.Parameters<config>,
-): Promise<viem_Actions.modifyWhitelistSync.ReturnValue> {
+): Promise<policy.modifyWhitelistSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -333,23 +330,20 @@ export async function modifyWhitelistSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.modifyWhitelistSync(client, parameters as never)
+  return policy.modifyWhitelistSync(client, parameters as never)
 }
 
 export declare namespace modifyWhitelistSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.modifyWhitelistSync.Parameters<
-        config['chains'][number],
-        Account
-      >,
+      policy.modifyWhitelistSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.modifyWhitelistSync.ReturnValue
+  export type ReturnValue = policy.modifyWhitelistSync.ReturnValue
 
-  export type ErrorType = viem_Actions.modifyWhitelistSync.ErrorType
+  export type ErrorType = policy.modifyWhitelistSync.ErrorType
 }
 
 /**
@@ -382,7 +376,7 @@ export declare namespace modifyWhitelistSync {
 export async function modifyBlacklist<config extends Config>(
   config: config,
   parameters: modifyBlacklist.Parameters<config>,
-): Promise<viem_Actions.modifyBlacklist.ReturnValue> {
+): Promise<policy.modifyBlacklist.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -392,23 +386,20 @@ export async function modifyBlacklist<config extends Config>(
     connector,
   })
 
-  return viem_Actions.modifyBlacklist(client, parameters as never)
+  return policy.modifyBlacklist(client, parameters as never)
 }
 
 export declare namespace modifyBlacklist {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.modifyBlacklist.Parameters<
-        config['chains'][number],
-        Account
-      >,
+      policy.modifyBlacklist.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.modifyBlacklist.ReturnValue
+  export type ReturnValue = policy.modifyBlacklist.ReturnValue
 
-  export type ErrorType = viem_Actions.modifyBlacklist.ErrorType
+  export type ErrorType = policy.modifyBlacklist.ErrorType
 }
 
 /**
@@ -444,7 +435,7 @@ export declare namespace modifyBlacklist {
 export async function modifyBlacklistSync<config extends Config>(
   config: config,
   parameters: modifyBlacklistSync.Parameters<config>,
-): Promise<viem_Actions.modifyBlacklistSync.ReturnValue> {
+): Promise<policy.modifyBlacklistSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -454,23 +445,20 @@ export async function modifyBlacklistSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.modifyBlacklistSync(client, parameters as never)
+  return policy.modifyBlacklistSync(client, parameters as never)
 }
 
 export declare namespace modifyBlacklistSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.modifyBlacklistSync.Parameters<
-        config['chains'][number],
-        Account
-      >,
+      policy.modifyBlacklistSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.modifyBlacklistSync.ReturnValue
+  export type ReturnValue = policy.modifyBlacklistSync.ReturnValue
 
-  export type ErrorType = viem_Actions.modifyBlacklistSync.ErrorType
+  export type ErrorType = policy.modifyBlacklistSync.ErrorType
 }
 
 /**
@@ -504,14 +492,14 @@ export function getData<config extends Config>(
 ): Promise<getData.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getData(client, rest)
+  return policy.getData(client, rest)
 }
 
 export namespace getData {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getData.Parameters
+    policy.getData.Parameters
 
-  export type ReturnValue = viem_Actions.getData.ReturnValue
+  export type ReturnValue = policy.getData.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: Parameters<config>,
@@ -595,14 +583,14 @@ export function isAuthorized<config extends Config>(
 ): Promise<isAuthorized.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.isAuthorized(client, rest)
+  return policy.isAuthorized(client, rest)
 }
 
 export namespace isAuthorized {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.isAuthorized.Parameters
+    policy.isAuthorized.Parameters
 
-  export type ReturnValue = viem_Actions.isAuthorized.ReturnValue
+  export type ReturnValue = policy.isAuthorized.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: Parameters<config>,
@@ -687,12 +675,12 @@ export function watchCreate<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchCreate(client, rest)
+  return policy.watchCreate(client, rest)
 }
 
 export declare namespace watchCreate {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchCreate.Parameters
+    policy.watchCreate.Parameters
 }
 
 /**
@@ -728,12 +716,12 @@ export function watchAdminUpdated<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchAdminUpdated(client, rest)
+  return policy.watchAdminUpdated(client, rest)
 }
 
 export declare namespace watchAdminUpdated {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchAdminUpdated.Parameters
+    policy.watchAdminUpdated.Parameters
 }
 
 /**
@@ -769,12 +757,12 @@ export function watchWhitelistUpdated<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchWhitelistUpdated(client, rest)
+  return policy.watchWhitelistUpdated(client, rest)
 }
 
 export declare namespace watchWhitelistUpdated {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchWhitelistUpdated.Parameters
+    policy.watchWhitelistUpdated.Parameters
 }
 
 /**
@@ -810,10 +798,10 @@ export function watchBlacklistUpdated<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchBlacklistUpdated(client, rest)
+  return policy.watchBlacklistUpdated(client, rest)
 }
 
 export declare namespace watchBlacklistUpdated {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchBlacklistUpdated.Parameters
+    policy.watchBlacklistUpdated.Parameters
 }

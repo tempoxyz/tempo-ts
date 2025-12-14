@@ -1,11 +1,11 @@
 import { connect } from '@wagmi/core'
-import { Tick } from 'tempo.ts/viem'
 import { Actions } from 'tempo.ts/wagmi'
 import { isAddress, parseUnits } from 'viem'
+import { Tick } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { addresses } from '../../../test/config.js'
-import { accounts } from '../../../test/viem/config.js'
 import {
+  accounts,
   config,
   setupOrders,
   setupTokenPair,
@@ -160,7 +160,7 @@ describe('cancel', () => {
       Actions.dex.cancelSync(config, {
         orderId,
       }),
-    ).rejects.toThrow('The contract function "cancel" reverted')
+    ).rejects.toThrow('Execution reverted')
   })
 
   test('behavior: cannot cancel non-existent order', async () => {

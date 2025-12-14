@@ -18,14 +18,6 @@ export default defineConfig({
       {
         extends: true,
         test: {
-          name: 'prool',
-          root: './src/prool',
-          sequence: { groupOrder: 1 },
-        },
-      },
-      {
-        extends: true,
-        test: {
           env: {
             RPC_PORT: '9545',
           },
@@ -38,38 +30,6 @@ export default defineConfig({
           setupFiles: [join(import.meta.dirname, './test/server/setup.ts')],
         },
       },
-      {
-        extends: true,
-        test: {
-          env: {
-            RPC_PORT: '8545',
-          },
-          globalSetup: [
-            join(import.meta.dirname, './test/viem/setup.global.ts'),
-          ],
-          name: 'viem',
-          root: './src/viem',
-          environment: 'node',
-          include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)', '**/*.test-d.ts'],
-          typecheck: {
-            enabled: true,
-          },
-          sequence: { groupOrder: 3 },
-          setupFiles: [join(import.meta.dirname, './test/viem/setup.ts')],
-        },
-      },
-      // {
-      //   extends: true,
-      //   test: {
-      //     globalSetup: [
-      //       join(import.meta.dirname, './test/viem-attest/setup.global.ts'),
-      //     ],
-      //     name: 'attest/viem',
-      //     root: './src/viem',
-      //     environment: 'node',
-      //     include: ['**/*.bench-d.ts'],
-      //   },
-      // },
       {
         extends: true,
         plugins: [react()],

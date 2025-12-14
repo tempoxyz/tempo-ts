@@ -2,8 +2,8 @@ import type * as Query from '@tanstack/query-core'
 import { type Config, getConnectorClient } from '@wagmi/core'
 import type { ChainIdParameter, ConnectorParameter } from '@wagmi/core/internal'
 import type { Account } from 'viem'
+import { reward } from 'viem/tempo/actions'
 import type { RequiredBy, UnionOmit } from '../../internal/types.js'
-import * as viem_Actions from '../../viem/Actions/reward.js'
 
 /**
  * Claims accumulated rewards for a recipient.
@@ -33,7 +33,7 @@ import * as viem_Actions from '../../viem/Actions/reward.js'
 export async function claim<config extends Config>(
   config: config,
   parameters: claim.Parameters<config>,
-): Promise<viem_Actions.claim.ReturnValue> {
+): Promise<reward.claim.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -43,7 +43,7 @@ export async function claim<config extends Config>(
     connector,
   })
 
-  return viem_Actions.claim(client, parameters as never)
+  return reward.claim(client, parameters as never)
 }
 
 export declare namespace claim {
@@ -51,13 +51,13 @@ export declare namespace claim {
     ChainIdParameter<config> &
       ConnectorParameter &
       UnionOmit<
-        viem_Actions.claim.Parameters<config['chains'][number], Account>,
+        reward.claim.Parameters<config['chains'][number], Account>,
         'chain'
       >
 
-  export type ReturnValue = viem_Actions.claim.ReturnValue
+  export type ReturnValue = reward.claim.ReturnValue
 
-  export type ErrorType = viem_Actions.claim.ErrorType
+  export type ErrorType = reward.claim.ErrorType
 }
 
 /**
@@ -88,7 +88,7 @@ export declare namespace claim {
 export async function claimSync<config extends Config>(
   config: config,
   parameters: claimSync.Parameters<config>,
-): Promise<viem_Actions.claimSync.ReturnValue> {
+): Promise<reward.claimSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -98,7 +98,7 @@ export async function claimSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.claimSync(client, parameters as never)
+  return reward.claimSync(client, parameters as never)
 }
 
 export declare namespace claimSync {
@@ -106,13 +106,13 @@ export declare namespace claimSync {
     ChainIdParameter<config> &
       ConnectorParameter &
       UnionOmit<
-        viem_Actions.claimSync.Parameters<config['chains'][number], Account>,
+        reward.claimSync.Parameters<config['chains'][number], Account>,
         'chain'
       >
 
-  export type ReturnValue = viem_Actions.claimSync.ReturnValue
+  export type ReturnValue = reward.claimSync.ReturnValue
 
-  export type ErrorType = viem_Actions.claimSync.ErrorType
+  export type ErrorType = reward.claimSync.ErrorType
 }
 
 /**
@@ -146,14 +146,14 @@ export function getTotalPerSecond<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getTotalPerSecond(client, rest)
+  return reward.getTotalPerSecond(client, rest)
 }
 
 export namespace getTotalPerSecond {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getTotalPerSecond.Parameters
+    reward.getTotalPerSecond.Parameters
 
-  export type ReturnValue = viem_Actions.getTotalPerSecond.ReturnValue
+  export type ReturnValue = reward.getTotalPerSecond.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: Parameters<config>,
@@ -237,14 +237,14 @@ export function getUserRewardInfo<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getUserRewardInfo(client, rest)
+  return reward.getUserRewardInfo(client, rest)
 }
 
 export namespace getUserRewardInfo {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getUserRewardInfo.Parameters
+    reward.getUserRewardInfo.Parameters
 
-  export type ReturnValue = viem_Actions.getUserRewardInfo.ReturnValue
+  export type ReturnValue = reward.getUserRewardInfo.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: Parameters<config>,
@@ -325,7 +325,7 @@ export namespace getUserRewardInfo {
 export async function setRecipient<config extends Config>(
   config: config,
   parameters: setRecipient.Parameters<config>,
-): Promise<viem_Actions.setRecipient.ReturnValue> {
+): Promise<reward.setRecipient.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -335,7 +335,7 @@ export async function setRecipient<config extends Config>(
     connector,
   })
 
-  return viem_Actions.setRecipient(client, parameters as never)
+  return reward.setRecipient(client, parameters as never)
 }
 
 export declare namespace setRecipient {
@@ -343,13 +343,13 @@ export declare namespace setRecipient {
     ChainIdParameter<config> &
       ConnectorParameter &
       UnionOmit<
-        viem_Actions.setRecipient.Parameters<config['chains'][number], Account>,
+        reward.setRecipient.Parameters<config['chains'][number], Account>,
         'chain'
       >
 
-  export type ReturnValue = viem_Actions.setRecipient.ReturnValue
+  export type ReturnValue = reward.setRecipient.ReturnValue
 
-  export type ErrorType = viem_Actions.setRecipient.ErrorType
+  export type ErrorType = reward.setRecipient.ErrorType
 }
 
 /**
@@ -381,7 +381,7 @@ export declare namespace setRecipient {
 export async function setRecipientSync<config extends Config>(
   config: config,
   parameters: setRecipientSync.Parameters<config>,
-): Promise<viem_Actions.setRecipientSync.ReturnValue> {
+): Promise<reward.setRecipientSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -391,7 +391,7 @@ export async function setRecipientSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.setRecipientSync(client, parameters as never)
+  return reward.setRecipientSync(client, parameters as never)
 }
 
 export declare namespace setRecipientSync {
@@ -399,16 +399,13 @@ export declare namespace setRecipientSync {
     ChainIdParameter<config> &
       ConnectorParameter &
       UnionOmit<
-        viem_Actions.setRecipientSync.Parameters<
-          config['chains'][number],
-          Account
-        >,
+        reward.setRecipientSync.Parameters<config['chains'][number], Account>,
         'chain'
       >
 
-  export type ReturnValue = viem_Actions.setRecipientSync.ReturnValue
+  export type ReturnValue = reward.setRecipientSync.ReturnValue
 
-  export type ErrorType = viem_Actions.setRecipientSync.ErrorType
+  export type ErrorType = reward.setRecipientSync.ErrorType
 }
 
 /**
@@ -441,7 +438,7 @@ export declare namespace setRecipientSync {
 export async function start<config extends Config>(
   config: config,
   parameters: start.Parameters<config>,
-): Promise<viem_Actions.start.ReturnValue> {
+): Promise<reward.start.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -451,7 +448,7 @@ export async function start<config extends Config>(
     connector,
   })
 
-  return viem_Actions.start(client, parameters as never)
+  return reward.start(client, parameters as never)
 }
 
 export declare namespace start {
@@ -459,13 +456,13 @@ export declare namespace start {
     ChainIdParameter<config> &
       ConnectorParameter &
       UnionOmit<
-        viem_Actions.start.Parameters<config['chains'][number], Account>,
+        reward.start.Parameters<config['chains'][number], Account>,
         'chain'
       >
 
-  export type ReturnValue = viem_Actions.start.ReturnValue
+  export type ReturnValue = reward.start.ReturnValue
 
-  export type ErrorType = viem_Actions.start.ErrorType
+  export type ErrorType = reward.start.ErrorType
 }
 
 /**
@@ -498,7 +495,7 @@ export declare namespace start {
 export async function startSync<config extends Config>(
   config: config,
   parameters: startSync.Parameters<config>,
-): Promise<viem_Actions.startSync.ReturnValue> {
+): Promise<reward.startSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -508,7 +505,7 @@ export async function startSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.startSync(client, parameters as never)
+  return reward.startSync(client, parameters as never)
 }
 
 export declare namespace startSync {
@@ -516,13 +513,13 @@ export declare namespace startSync {
     ChainIdParameter<config> &
       ConnectorParameter &
       UnionOmit<
-        viem_Actions.startSync.Parameters<config['chains'][number], Account>,
+        reward.startSync.Parameters<config['chains'][number], Account>,
         'chain'
       >
 
-  export type ReturnValue = viem_Actions.startSync.ReturnValue
+  export type ReturnValue = reward.startSync.ReturnValue
 
-  export type ErrorType = viem_Actions.startSync.ErrorType
+  export type ErrorType = reward.startSync.ErrorType
 }
 
 /**
@@ -559,12 +556,12 @@ export function watchRewardScheduled<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchRewardScheduled(client, rest)
+  return reward.watchRewardScheduled(client, rest)
 }
 
 export declare namespace watchRewardScheduled {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchRewardScheduled.Parameters
+    reward.watchRewardScheduled.Parameters
 }
 
 /**
@@ -601,10 +598,10 @@ export function watchRewardRecipientSet<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchRewardRecipientSet(client, rest)
+  return reward.watchRewardRecipientSet(client, rest)
 }
 
 export declare namespace watchRewardRecipientSet {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchRewardRecipientSet.Parameters
+    reward.watchRewardRecipientSet.Parameters
 }

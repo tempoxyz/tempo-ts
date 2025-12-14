@@ -1,7 +1,6 @@
 import { connect } from '@wagmi/core'
 import { describe, expect, test } from 'vitest'
-import { accounts } from '../../../test/viem/config.js'
-import { config, queryClient } from '../../../test/wagmi/config.js'
+import { accounts, config, queryClient } from '../../../test/wagmi/config.js'
 import * as policy from './policy.js'
 
 const account = accounts[0]

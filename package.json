@@ -131,11 +131,6 @@
 			"types": "./dist/server/index.d.ts",
 			"default": "./dist/server/index.js"
 		},
-		"./viem": {
-			"src": "./src/viem/index.ts",
-			"types": "./dist/viem/index.d.ts",
-			"default": "./dist/viem/index.js"
-		},
 		"./wagmi": {
 			"src": "./src/wagmi/index.ts",
 			"types": "./dist/wagmi/index.d.ts",

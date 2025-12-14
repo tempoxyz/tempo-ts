@@ -5,6 +5,7 @@ import type { RpcRequest } from 'ox'
 import * as Base64 from 'ox/Base64'
 import * as Hex from 'ox/Hex'
 import { sendTransactionSync } from 'viem/actions'
+import { withFeePayer } from 'viem/tempo'
 import {
   afterAll,
   afterEach,
@@ -16,7 +17,6 @@ import {
 } from 'vitest'
 import { createServer, type Server } from '../../test/server/utils.js'
 import { accounts, getClient, http } from '../../test/viem/config.js'
-import { withFeePayer } from '../viem/Transport.js'
 import * as Handler from './Handler.js'
 import * as Kv from './Kv.js'
 

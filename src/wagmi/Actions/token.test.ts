@@ -2,8 +2,7 @@ import { connect } from '@wagmi/core'
 import { parseUnits } from 'viem'
 import { describe, expect, test } from 'vitest'
 import { addresses } from '../../../test/config.js'
-import { accounts } from '../../../test/viem/config.js'
-import { config, queryClient } from '../../../test/wagmi/config.js'
+import { accounts, config, queryClient } from '../../../test/wagmi/config.js'
 import * as token from './token.js'
 
 const account = accounts[0]

@@ -36,34 +36,9 @@ docker login ghcr.io
 
 | Entrypoint       | Description                              |
 | ---------------- | ---------------------------------------- |
-| `tempo.ts/viem`  | Tempo extension for Viem.                |
 | `tempo.ts/wagmi` | Tempo actions/hooks for Wagmi.           |
-| `tempo.ts/ox`    | Tempo primitives for Ox.                 |
 
 ## Usage
-
-### `tempo.ts/viem`
-
-```ts
-import { createClient, http, publicActions, walletActions } from 'viem';
-import { tempo } from 'tempo.ts/chains';
-
-const client = createClient({
-  chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
-  transport: http(),
-})
-  .extend(publicActions)
-  .extend(walletActions);
-
-const hash = await client.sendTransaction({
-  calls: [
-    { data: '0x...', to: '0x...' },
-    { data: '0x...', to: '0x...' },
-  ],
-});
-
-const transaction = await client.getTransaction({ hash });
-```
 
 ### `tempo.ts/wagmi`
 
@@ -97,31 +72,6 @@ mutate({
   tokenOut: '0x...',
   amountOut: parseEther('100'),
   maxAmountIn: parseEther('150'),
-});
-```
-
-### `tempo.ts/ox`
-
-```ts
-import { Secp256k1, Value } from 'ox';
-import { TransactionEnvelopeFeeToken as TxFeeToken } from 'tempo.ts/ox';
-
-const envelope = TxFeeToken.from({
-  chainId: 1,
-  feeToken: '0x20c0000000000000000000000000000000000001',
-  maxFeePerGas: Value.fromGwei('10'),
-  maxPriorityFeePerGas: Value.fromGwei('1'),
-  to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
-  value: Value.fromEther('1'),
-});
-
-const signature = Secp256k1.sign({
-  payload: TxFeeToken.getSignPayload(envelope),
-  privateKey: '0x...',
-});
-
-const envelope_signed = TxFeeToken.from(envelope, {
-  signature,
 });
 ```
 

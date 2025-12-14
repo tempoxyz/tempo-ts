@@ -1,9 +1,13 @@
-import { connect, getConnectorClient } from '@wagmi/core'
+import { connect } from '@wagmi/core'
 import { parseUnits } from 'viem'
 import { describe, expect, test } from 'vitest'
 import { addresses } from '../../../test/config.js'
-import { accounts, setupPoolWithLiquidity } from '../../../test/viem/config.js'
-import { config, queryClient } from '../../../test/wagmi/config.js'
+import {
+  accounts,
+  config,
+  queryClient,
+  setupPoolWithLiquidity,
+} from '../../../test/wagmi/config.js'
 import * as ammActions from './amm.js'
 import * as tokenActions from './token.js'
 
@@ -122,8 +126,7 @@ describe.skip('burnSync', () => {
       connector: config.connectors[0]!,
     })
 
-    const client = await getConnectorClient(config)
-    const { tokenAddress } = await setupPoolWithLiquidity(client)
+    const { tokenAddress } = await setupPoolWithLiquidity()
 
     const account2 = accounts[1]
 
@@ -173,8 +176,7 @@ describe.skip('rebalanceSwapSync', () => {
       connector: config.connectors[0]!,
     })
 
-    const client = await getConnectorClient(config)
-    const { tokenAddress } = await setupPoolWithLiquidity(client)
+    const { tokenAddress } = await setupPoolWithLiquidity()
 
     const account2 = accounts[1]
 

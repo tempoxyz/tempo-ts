@@ -2,8 +2,8 @@ import type * as Query from '@tanstack/query-core'
 import { type Config, getConnectorClient } from '@wagmi/core'
 import type { ChainIdParameter, ConnectorParameter } from '@wagmi/core/internal'
 import type { Account } from 'viem'
+import { token } from 'viem/tempo/actions'
 import type { RequiredBy, UnionOmit } from '../../internal/types.js'
-import * as viem_Actions from '../../viem/Actions/token.js'
 
 /**
  * Approves a spender to transfer TIP20 tokens on behalf of the caller.
@@ -34,7 +34,7 @@ import * as viem_Actions from '../../viem/Actions/token.js'
 export async function approve<config extends Config>(
   config: config,
   parameters: approve.Parameters<config>,
-): Promise<viem_Actions.approve.ReturnValue> {
+): Promise<token.approve.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -44,20 +44,20 @@ export async function approve<config extends Config>(
     connector,
   })
 
-  return viem_Actions.approve(client, parameters as never)
+  return token.approve(client, parameters as never)
 }
 
 export declare namespace approve {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.approve.Parameters<config['chains'][number], Account>,
+      token.approve.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.approve.ReturnValue
+  export type ReturnValue = token.approve.ReturnValue
 
-  export type ErrorType = viem_Actions.approve.ErrorType
+  export type ErrorType = token.approve.ErrorType
 }
 
 /**
@@ -92,7 +92,7 @@ export declare namespace approve {
 export async function approveSync<config extends Config>(
   config: config,
   parameters: approveSync.Parameters<config>,
-): Promise<viem_Actions.approveSync.ReturnValue> {
+): Promise<token.approveSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -102,20 +102,20 @@ export async function approveSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.approveSync(client, parameters as never)
+  return token.approveSync(client, parameters as never)
 }
 
 export declare namespace approveSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.approveSync.Parameters<config['chains'][number], Account>,
+      token.approveSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.approveSync.ReturnValue
+  export type ReturnValue = token.approveSync.ReturnValue
 
-  export type ErrorType = viem_Actions.approveSync.ErrorType
+  export type ErrorType = token.approveSync.ErrorType
 }
 
 /**
@@ -147,7 +147,7 @@ export declare namespace approveSync {
 export async function burn<config extends Config>(
   config: config,
   parameters: burn.Parameters<config>,
-): Promise<viem_Actions.burn.ReturnValue> {
+): Promise<token.burn.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -157,20 +157,17 @@ export async function burn<config extends Config>(
     connector,
   })
 
-  return viem_Actions.burn(client, parameters as never)
+  return token.burn(client, parameters as never)
 }
 
 export declare namespace burn {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    UnionOmit<
-      viem_Actions.burn.Parameters<config['chains'][number], Account>,
-      'chain'
-    >
+    UnionOmit<token.burn.Parameters<config['chains'][number], Account>, 'chain'>
 
-  export type ReturnValue = viem_Actions.burn.ReturnValue
+  export type ReturnValue = token.burn.ReturnValue
 
-  export type ErrorType = viem_Actions.burn.ErrorType
+  export type ErrorType = token.burn.ErrorType
 }
 
 /**
@@ -203,7 +200,7 @@ export declare namespace burn {
 export async function burnBlocked<config extends Config>(
   config: config,
   parameters: burnBlocked.Parameters<config>,
-): Promise<viem_Actions.burnBlocked.ReturnValue> {
+): Promise<token.burnBlocked.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -213,20 +210,20 @@ export async function burnBlocked<config extends Config>(
     connector,
   })
 
-  return await viem_Actions.burnBlocked(client, parameters as never)
+  return await token.burnBlocked(client, parameters as never)
 }
 
 export declare namespace burnBlocked {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.burnBlocked.Parameters<config['chains'][number], Account>,
+      token.burnBlocked.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.burnBlocked.ReturnValue
+  export type ReturnValue = token.burnBlocked.ReturnValue
 
-  export type ErrorType = viem_Actions.burnBlocked.ErrorType
+  export type ErrorType = token.burnBlocked.ErrorType
 }
 
 /**
@@ -262,7 +259,7 @@ export declare namespace burnBlocked {
 export async function burnBlockedSync<config extends Config>(
   config: config,
   parameters: burnBlockedSync.Parameters<config>,
-): Promise<viem_Actions.burnBlockedSync.ReturnValue> {
+): Promise<token.burnBlockedSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -272,23 +269,20 @@ export async function burnBlockedSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.burnBlockedSync(client, parameters as never)
+  return token.burnBlockedSync(client, parameters as never)
 }
 
 export declare namespace burnBlockedSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.burnBlockedSync.Parameters<
-        config['chains'][number],
-        Account
-      >,
+      token.burnBlockedSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.burnBlockedSync.ReturnValue
+  export type ReturnValue = token.burnBlockedSync.ReturnValue
 
-  export type ErrorType = viem_Actions.burnBlockedSync.ErrorType
+  export type ErrorType = token.burnBlockedSync.ErrorType
 }
 
 /**
@@ -323,7 +317,7 @@ export declare namespace burnBlockedSync {
 export async function burnSync<config extends Config>(
   config: config,
   parameters: burnSync.Parameters<config>,
-): Promise<viem_Actions.burnSync.ReturnValue> {
+): Promise<token.burnSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -333,20 +327,20 @@ export async function burnSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.burnSync(client, parameters as never)
+  return token.burnSync(client, parameters as never)
 }
 
 export declare namespace burnSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.burnSync.Parameters<config['chains'][number], Account>,
+      token.burnSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.burnSync.ReturnValue
+  export type ReturnValue = token.burnSync.ReturnValue
 
-  export type ErrorType = viem_Actions.burnSync.ErrorType
+  export type ErrorType = token.burnSync.ErrorType
 }
 
 /**
@@ -378,7 +372,7 @@ export declare namespace burnSync {
 export async function changeTransferPolicy<config extends Config>(
   config: config,
   parameters: changeTransferPolicy.Parameters<config>,
-): Promise<viem_Actions.changeTransferPolicy.ReturnValue> {
+): Promise<token.changeTransferPolicy.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -388,23 +382,20 @@ export async function changeTransferPolicy<config extends Config>(
     connector,
   })
 
-  return viem_Actions.changeTransferPolicy(client, parameters as never)
+  return token.changeTransferPolicy(client, parameters as never)
 }
 
 export declare namespace changeTransferPolicy {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.changeTransferPolicy.Parameters<
-        config['chains'][number],
-        Account
-      >,
+      token.changeTransferPolicy.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.changeTransferPolicy.ReturnValue
+  export type ReturnValue = token.changeTransferPolicy.ReturnValue
 
-  export type ErrorType = viem_Actions.changeTransferPolicy.ErrorType
+  export type ErrorType = token.changeTransferPolicy.ErrorType
 }
 
 /**
@@ -439,7 +430,7 @@ export declare namespace changeTransferPolicy {
 export async function changeTransferPolicySync<config extends Config>(
   config: config,
   parameters: changeTransferPolicySync.Parameters<config>,
-): Promise<viem_Actions.changeTransferPolicySync.ReturnValue> {
+): Promise<token.changeTransferPolicySync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -449,23 +440,23 @@ export async function changeTransferPolicySync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.changeTransferPolicySync(client, parameters as never)
+  return token.changeTransferPolicySync(client, parameters as never)
 }
 
 export declare namespace changeTransferPolicySync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.changeTransferPolicySync.Parameters<
+      token.changeTransferPolicySync.Parameters<
         config['chains'][number],
         Account
       >,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.changeTransferPolicySync.ReturnValue
+  export type ReturnValue = token.changeTransferPolicySync.ReturnValue
 
-  export type ErrorType = viem_Actions.changeTransferPolicySync.ErrorType
+  export type ErrorType = token.changeTransferPolicySync.ErrorType
 }
 
 /**
@@ -498,7 +489,7 @@ export declare namespace changeTransferPolicySync {
 export async function create<config extends Config>(
   config: config,
   parameters: create.Parameters<config>,
-): Promise<viem_Actions.create.ReturnValue> {
+): Promise<token.create.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -508,20 +499,20 @@ export async function create<config extends Config>(
     connector,
   })
 
-  return viem_Actions.create(client, parameters as never)
+  return token.create(client, parameters as never)
 }
 
 export declare namespace create {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.create.Parameters<config['chains'][number], Account>,
+      token.create.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.create.ReturnValue
+  export type ReturnValue = token.create.ReturnValue
 
-  export type ErrorType = viem_Actions.create.ErrorType
+  export type ErrorType = token.create.ErrorType
 }
 
 /**
@@ -557,7 +548,7 @@ export declare namespace create {
 export async function createSync<config extends Config>(
   config: config,
   parameters: createSync.Parameters<config>,
-): Promise<viem_Actions.createSync.ReturnValue> {
+): Promise<token.createSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -567,20 +558,20 @@ export async function createSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.createSync(client, parameters as never)
+  return token.createSync(client, parameters as never)
 }
 
 export declare namespace createSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.createSync.Parameters<config['chains'][number], Account>,
+      token.createSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.createSync.ReturnValue
+  export type ReturnValue = token.createSync.ReturnValue
 
-  export type ErrorType = viem_Actions.createSync.ErrorType
+  export type ErrorType = token.createSync.ErrorType
 }
 
 /**
@@ -611,7 +602,7 @@ export declare namespace createSync {
 export async function updateQuoteToken<config extends Config>(
   config: config,
   parameters: updateQuoteToken.Parameters<config>,
-): Promise<viem_Actions.updateQuoteToken.ReturnValue> {
+): Promise<token.updateQuoteToken.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -621,23 +612,20 @@ export async function updateQuoteToken<config extends Config>(
     connector,
   })
 
-  return viem_Actions.updateQuoteToken(client, parameters as never)
+  return token.updateQuoteToken(client, parameters as never)
 }
 
 export declare namespace updateQuoteToken {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.updateQuoteToken.Parameters<
-        config['chains'][number],
-        Account
-      >,
+      token.updateQuoteToken.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.updateQuoteToken.ReturnValue
+  export type ReturnValue = token.updateQuoteToken.ReturnValue
 
-  export type ErrorType = viem_Actions.updateQuoteToken.ErrorType
+  export type ErrorType = token.updateQuoteToken.ErrorType
 }
 
 /**
@@ -671,7 +659,7 @@ export declare namespace updateQuoteToken {
 export async function updateQuoteTokenSync<config extends Config>(
   config: config,
   parameters: updateQuoteTokenSync.Parameters<config>,
-): Promise<viem_Actions.updateQuoteTokenSync.ReturnValue> {
+): Promise<token.updateQuoteTokenSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -681,23 +669,20 @@ export async function updateQuoteTokenSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.updateQuoteTokenSync(client, parameters as never)
+  return token.updateQuoteTokenSync(client, parameters as never)
 }
 
 export declare namespace updateQuoteTokenSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.updateQuoteTokenSync.Parameters<
-        config['chains'][number],
-        Account
-      >,
+      token.updateQuoteTokenSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.updateQuoteTokenSync.ReturnValue
+  export type ReturnValue = token.updateQuoteTokenSync.ReturnValue
 
-  export type ErrorType = viem_Actions.updateQuoteTokenSync.ErrorType
+  export type ErrorType = token.updateQuoteTokenSync.ErrorType
 }
 
 /**
@@ -732,14 +717,14 @@ export function getAllowance<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getAllowance(client, rest)
+  return token.getAllowance(client, rest)
 }
 
 export namespace getAllowance {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getAllowance.Parameters
+    token.getAllowance.Parameters
 
-  export type ReturnValue = viem_Actions.getAllowance.ReturnValue
+  export type ReturnValue = token.getAllowance.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: Parameters<config>,
@@ -822,14 +807,14 @@ export function getBalance<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getBalance(client, rest as never)
+  return token.getBalance(client, rest as never)
 }
 
 export namespace getBalance {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getBalance.Parameters
+    token.getBalance.Parameters
 
-  export type ReturnValue = viem_Actions.getBalance.ReturnValue
+  export type ReturnValue = token.getBalance.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: Parameters<config>,
@@ -912,14 +897,14 @@ export function getMetadata<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getMetadata(client, rest)
+  return token.getMetadata(client, rest)
 }
 
 export namespace getMetadata {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getMetadata.Parameters
+    token.getMetadata.Parameters
 
-  export type ReturnValue = viem_Actions.getMetadata.ReturnValue
+  export type ReturnValue = token.getMetadata.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: Parameters<config>,
@@ -1003,14 +988,14 @@ export function getRoleAdmin<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.getRoleAdmin(client, rest)
+  return token.getRoleAdmin(client, rest)
 }
 
 export namespace getRoleAdmin {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.getRoleAdmin.Parameters
+    token.getRoleAdmin.Parameters
 
-  export type ReturnValue = viem_Actions.getRoleAdmin.ReturnValue
+  export type ReturnValue = token.getRoleAdmin.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: Parameters<config>,
@@ -1092,7 +1077,7 @@ export namespace getRoleAdmin {
 export async function grantRoles<config extends Config>(
   config: config,
   parameters: grantRoles.Parameters<config>,
-): Promise<viem_Actions.grantRoles.ReturnValue> {
+): Promise<token.grantRoles.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1102,20 +1087,20 @@ export async function grantRoles<config extends Config>(
     connector,
   })
 
-  return viem_Actions.grantRoles(client, parameters as never)
+  return token.grantRoles(client, parameters as never)
 }
 
 export declare namespace grantRoles {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.grantRoles.Parameters<config['chains'][number], Account>,
+      token.grantRoles.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.grantRoles.ReturnValue
+  export type ReturnValue = token.grantRoles.ReturnValue
 
-  export type ErrorType = viem_Actions.grantRoles.ErrorType
+  export type ErrorType = token.grantRoles.ErrorType
 }
 
 /**
@@ -1151,7 +1136,7 @@ export declare namespace grantRoles {
 export async function grantRolesSync<config extends Config>(
   config: config,
   parameters: grantRolesSync.Parameters<config>,
-): Promise<viem_Actions.grantRolesSync.ReturnValue> {
+): Promise<token.grantRolesSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1161,20 +1146,20 @@ export async function grantRolesSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.grantRolesSync(client, parameters as never)
+  return token.grantRolesSync(client, parameters as never)
 }
 
 export declare namespace grantRolesSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.grantRolesSync.Parameters<config['chains'][number], Account>,
+      token.grantRolesSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.grantRolesSync.ReturnValue
+  export type ReturnValue = token.grantRolesSync.ReturnValue
 
-  export type ErrorType = viem_Actions.grantRolesSync.ErrorType
+  export type ErrorType = token.grantRolesSync.ErrorType
 }
 
 /**
@@ -1210,14 +1195,14 @@ export function hasRole<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.hasRole(client, rest)
+  return token.hasRole(client, rest)
 }
 
 export namespace hasRole {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.hasRole.Parameters
+    token.hasRole.Parameters
 
-  export type ReturnValue = viem_Actions.hasRole.ReturnValue
+  export type ReturnValue = token.hasRole.ReturnValue
 
   export function queryKey<config extends Config>(
     parameters: Parameters<config>,
@@ -1299,7 +1284,7 @@ export namespace hasRole {
 export async function mint<config extends Config>(
   config: config,
   parameters: mint.Parameters<config>,
-): Promise<viem_Actions.mint.ReturnValue> {
+): Promise<token.mint.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1309,20 +1294,17 @@ export async function mint<config extends Config>(
     connector,
   })
 
-  return viem_Actions.mint(client, parameters as never)
+  return token.mint(client, parameters as never)
 }
 
 export declare namespace mint {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    UnionOmit<
-      viem_Actions.mint.Parameters<config['chains'][number], Account>,
-      'chain'
-    >
+    UnionOmit<token.mint.Parameters<config['chains'][number], Account>, 'chain'>
 
-  export type ReturnValue = viem_Actions.mint.ReturnValue
+  export type ReturnValue = token.mint.ReturnValue
 
-  export type ErrorType = viem_Actions.mint.ErrorType
+  export type ErrorType = token.mint.ErrorType
 }
 
 /**
@@ -1358,7 +1340,7 @@ export declare namespace mint {
 export async function mintSync<config extends Config>(
   config: config,
   parameters: mintSync.Parameters<config>,
-): Promise<viem_Actions.mintSync.ReturnValue> {
+): Promise<token.mintSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1368,20 +1350,20 @@ export async function mintSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.mintSync(client, parameters as never)
+  return token.mintSync(client, parameters as never)
 }
 
 export declare namespace mintSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.mintSync.Parameters<config['chains'][number], Account>,
+      token.mintSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.mintSync.ReturnValue
+  export type ReturnValue = token.mintSync.ReturnValue
 
-  export type ErrorType = viem_Actions.mintSync.ErrorType
+  export type ErrorType = token.mintSync.ErrorType
 }
 
 /**
@@ -1412,7 +1394,7 @@ export declare namespace mintSync {
 export async function pause<config extends Config>(
   config: config,
   parameters: pause.Parameters<config>,
-): Promise<viem_Actions.pause.ReturnValue> {
+): Promise<token.pause.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1422,20 +1404,20 @@ export async function pause<config extends Config>(
     connector,
   })
 
-  return viem_Actions.pause(client, parameters as never)
+  return token.pause(client, parameters as never)
 }
 
 export declare namespace pause {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.pause.Parameters<config['chains'][number], Account>,
+      token.pause.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.pause.ReturnValue
+  export type ReturnValue = token.pause.ReturnValue
 
-  export type ErrorType = viem_Actions.pause.ErrorType
+  export type ErrorType = token.pause.ErrorType
 }
 
 /**
@@ -1469,7 +1451,7 @@ export declare namespace pause {
 export async function pauseSync<config extends Config>(
   config: config,
   parameters: pauseSync.Parameters<config>,
-): Promise<viem_Actions.pauseSync.ReturnValue> {
+): Promise<token.pauseSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1479,20 +1461,20 @@ export async function pauseSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.pauseSync(client, parameters as never)
+  return token.pauseSync(client, parameters as never)
 }
 
 export declare namespace pauseSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.pauseSync.Parameters<config['chains'][number], Account>,
+      token.pauseSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.pauseSync.ReturnValue
+  export type ReturnValue = token.pauseSync.ReturnValue
 
-  export type ErrorType = viem_Actions.pauseSync.ErrorType
+  export type ErrorType = token.pauseSync.ErrorType
 }
 
 /**
@@ -1524,7 +1506,7 @@ export declare namespace pauseSync {
 export async function renounceRoles<config extends Config>(
   config: config,
   parameters: renounceRoles.Parameters<config>,
-): Promise<viem_Actions.renounceRoles.ReturnValue> {
+): Promise<token.renounceRoles.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1534,20 +1516,20 @@ export async function renounceRoles<config extends Config>(
     connector,
   })
 
-  return viem_Actions.renounceRoles(client, parameters as never)
+  return token.renounceRoles(client, parameters as never)
 }
 
 export declare namespace renounceRoles {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.renounceRoles.Parameters<config['chains'][number], Account>,
+      token.renounceRoles.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.renounceRoles.ReturnValue
+  export type ReturnValue = token.renounceRoles.ReturnValue
 
-  export type ErrorType = viem_Actions.renounceRoles.ErrorType
+  export type ErrorType = token.renounceRoles.ErrorType
 }
 
 /**
@@ -1582,7 +1564,7 @@ export declare namespace renounceRoles {
 export async function renounceRolesSync<config extends Config>(
   config: config,
   parameters: renounceRolesSync.Parameters<config>,
-): Promise<viem_Actions.renounceRolesSync.ReturnValue> {
+): Promise<token.renounceRolesSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1592,23 +1574,20 @@ export async function renounceRolesSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.renounceRolesSync(client, parameters as never)
+  return token.renounceRolesSync(client, parameters as never)
 }
 
 export declare namespace renounceRolesSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.renounceRolesSync.Parameters<
-        config['chains'][number],
-        Account
-      >,
+      token.renounceRolesSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.renounceRolesSync.ReturnValue
+  export type ReturnValue = token.renounceRolesSync.ReturnValue
 
-  export type ErrorType = viem_Actions.renounceRolesSync.ErrorType
+  export type ErrorType = token.renounceRolesSync.ErrorType
 }
 
 /**
@@ -1641,7 +1620,7 @@ export declare namespace renounceRolesSync {
 export async function revokeRoles<config extends Config>(
   config: config,
   parameters: revokeRoles.Parameters<config>,
-): Promise<viem_Actions.revokeRoles.ReturnValue> {
+): Promise<token.revokeRoles.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1651,20 +1630,20 @@ export async function revokeRoles<config extends Config>(
     connector,
   })
 
-  return viem_Actions.revokeRoles(client, parameters as never)
+  return token.revokeRoles(client, parameters as never)
 }
 
 export declare namespace revokeRoles {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.revokeRoles.Parameters<config['chains'][number], Account>,
+      token.revokeRoles.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.revokeRoles.ReturnValue
+  export type ReturnValue = token.revokeRoles.ReturnValue
 
-  export type ErrorType = viem_Actions.revokeRoles.ErrorType
+  export type ErrorType = token.revokeRoles.ErrorType
 }
 
 /**
@@ -1700,7 +1679,7 @@ export declare namespace revokeRoles {
 export async function revokeRolesSync<config extends Config>(
   config: config,
   parameters: revokeRolesSync.Parameters<config>,
-): Promise<viem_Actions.revokeRolesSync.ReturnValue> {
+): Promise<token.revokeRolesSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1710,23 +1689,20 @@ export async function revokeRolesSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.revokeRolesSync(client, parameters as never)
+  return token.revokeRolesSync(client, parameters as never)
 }
 
 export declare namespace revokeRolesSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.revokeRolesSync.Parameters<
-        config['chains'][number],
-        Account
-      >,
+      token.revokeRolesSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.revokeRolesSync.ReturnValue
+  export type ReturnValue = token.revokeRolesSync.ReturnValue
 
-  export type ErrorType = viem_Actions.revokeRolesSync.ErrorType
+  export type ErrorType = token.revokeRolesSync.ErrorType
 }
 
 /**
@@ -1759,7 +1735,7 @@ export declare namespace revokeRolesSync {
 export async function setRoleAdmin<config extends Config>(
   config: config,
   parameters: setRoleAdmin.Parameters<config>,
-): Promise<viem_Actions.setRoleAdmin.ReturnValue> {
+): Promise<token.setRoleAdmin.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1769,20 +1745,20 @@ export async function setRoleAdmin<config extends Config>(
     connector,
   })
 
-  return viem_Actions.setRoleAdmin(client, parameters as never)
+  return token.setRoleAdmin(client, parameters as never)
 }
 
 export declare namespace setRoleAdmin {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.setRoleAdmin.Parameters<config['chains'][number], Account>,
+      token.setRoleAdmin.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.setRoleAdmin.ReturnValue
+  export type ReturnValue = token.setRoleAdmin.ReturnValue
 
-  export type ErrorType = viem_Actions.setRoleAdmin.ErrorType
+  export type ErrorType = token.setRoleAdmin.ErrorType
 }
 
 /**
@@ -1818,7 +1794,7 @@ export declare namespace setRoleAdmin {
 export async function setRoleAdminSync<config extends Config>(
   config: config,
   parameters: setRoleAdminSync.Parameters<config>,
-): Promise<viem_Actions.setRoleAdminSync.ReturnValue> {
+): Promise<token.setRoleAdminSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1828,23 +1804,20 @@ export async function setRoleAdminSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.setRoleAdminSync(client, parameters as never)
+  return token.setRoleAdminSync(client, parameters as never)
 }
 
 export declare namespace setRoleAdminSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.setRoleAdminSync.Parameters<
-        config['chains'][number],
-        Account
-      >,
+      token.setRoleAdminSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.setRoleAdminSync.ReturnValue
+  export type ReturnValue = token.setRoleAdminSync.ReturnValue
 
-  export type ErrorType = viem_Actions.setRoleAdminSync.ErrorType
+  export type ErrorType = token.setRoleAdminSync.ErrorType
 }
 
 /**
@@ -1876,7 +1849,7 @@ export declare namespace setRoleAdminSync {
 export async function setSupplyCap<config extends Config>(
   config: config,
   parameters: setSupplyCap.Parameters<config>,
-): Promise<viem_Actions.setSupplyCap.ReturnValue> {
+): Promise<token.setSupplyCap.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1886,20 +1859,20 @@ export async function setSupplyCap<config extends Config>(
     connector,
   })
 
-  return viem_Actions.setSupplyCap(client, parameters as never)
+  return token.setSupplyCap(client, parameters as never)
 }
 
 export declare namespace setSupplyCap {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.setSupplyCap.Parameters<config['chains'][number], Account>,
+      token.setSupplyCap.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.setSupplyCap.ReturnValue
+  export type ReturnValue = token.setSupplyCap.ReturnValue
 
-  export type ErrorType = viem_Actions.setSupplyCap.ErrorType
+  export type ErrorType = token.setSupplyCap.ErrorType
 }
 
 /**
@@ -1934,7 +1907,7 @@ export declare namespace setSupplyCap {
 export async function setSupplyCapSync<config extends Config>(
   config: config,
   parameters: setSupplyCapSync.Parameters<config>,
-): Promise<viem_Actions.setSupplyCapSync.ReturnValue> {
+): Promise<token.setSupplyCapSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -1944,23 +1917,20 @@ export async function setSupplyCapSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.setSupplyCapSync(client, parameters as never)
+  return token.setSupplyCapSync(client, parameters as never)
 }
 
 export declare namespace setSupplyCapSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.setSupplyCapSync.Parameters<
-        config['chains'][number],
-        Account
-      >,
+      token.setSupplyCapSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.setSupplyCapSync.ReturnValue
+  export type ReturnValue = token.setSupplyCapSync.ReturnValue
 
-  export type ErrorType = viem_Actions.setSupplyCapSync.ErrorType
+  export type ErrorType = token.setSupplyCapSync.ErrorType
 }
 
 /**
@@ -1992,7 +1962,7 @@ export declare namespace setSupplyCapSync {
 export async function transfer<config extends Config>(
   config: config,
   parameters: transfer.Parameters<config>,
-): Promise<viem_Actions.transfer.ReturnValue> {
+): Promise<token.transfer.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -2002,20 +1972,20 @@ export async function transfer<config extends Config>(
     connector,
   })
 
-  return viem_Actions.transfer(client, parameters as never)
+  return token.transfer(client, parameters as never)
 }
 
 export declare namespace transfer {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.transfer.Parameters<config['chains'][number], Account>,
+      token.transfer.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.transfer.ReturnValue
+  export type ReturnValue = token.transfer.ReturnValue
 
-  export type ErrorType = viem_Actions.transfer.ErrorType
+  export type ErrorType = token.transfer.ErrorType
 }
 
 /**
@@ -2050,7 +2020,7 @@ export declare namespace transfer {
 export async function transferSync<config extends Config>(
   config: config,
   parameters: transferSync.Parameters<config>,
-): Promise<viem_Actions.transferSync.ReturnValue> {
+): Promise<token.transferSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -2060,20 +2030,20 @@ export async function transferSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.transferSync(client, parameters as never)
+  return token.transferSync(client, parameters as never)
 }
 
 export declare namespace transferSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.transferSync.Parameters<config['chains'][number], Account>,
+      token.transferSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.transferSync.ReturnValue
+  export type ReturnValue = token.transferSync.ReturnValue
 
-  export type ErrorType = viem_Actions.transferSync.ErrorType
+  export type ErrorType = token.transferSync.ErrorType
 }
 
 /**
@@ -2104,7 +2074,7 @@ export declare namespace transferSync {
 export async function unpause<config extends Config>(
   config: config,
   parameters: unpause.Parameters<config>,
-): Promise<viem_Actions.unpause.ReturnValue> {
+): Promise<token.unpause.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -2114,20 +2084,20 @@ export async function unpause<config extends Config>(
     connector,
   })
 
-  return viem_Actions.unpause(client, parameters as never)
+  return token.unpause(client, parameters as never)
 }
 
 export declare namespace unpause {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.unpause.Parameters<config['chains'][number], Account>,
+      token.unpause.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.unpause.ReturnValue
+  export type ReturnValue = token.unpause.ReturnValue
 
-  export type ErrorType = viem_Actions.unpause.ErrorType
+  export type ErrorType = token.unpause.ErrorType
 }
 
 /**
@@ -2161,7 +2131,7 @@ export declare namespace unpause {
 export async function unpauseSync<config extends Config>(
   config: config,
   parameters: unpauseSync.Parameters<config>,
-): Promise<viem_Actions.unpauseSync.ReturnValue> {
+): Promise<token.unpauseSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -2171,20 +2141,20 @@ export async function unpauseSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.unpauseSync(client, parameters as never)
+  return token.unpauseSync(client, parameters as never)
 }
 
 export declare namespace unpauseSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.unpauseSync.Parameters<config['chains'][number], Account>,
+      token.unpauseSync.Parameters<config['chains'][number], Account>,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.unpauseSync.ReturnValue
+  export type ReturnValue = token.unpauseSync.ReturnValue
 
-  export type ErrorType = viem_Actions.unpauseSync.ErrorType
+  export type ErrorType = token.unpauseSync.ErrorType
 }
 
 /**
@@ -2216,7 +2186,7 @@ export declare namespace unpauseSync {
 export async function prepareUpdateQuoteToken<config extends Config>(
   config: config,
   parameters: prepareUpdateQuoteToken.Parameters<config>,
-): Promise<viem_Actions.prepareUpdateQuoteToken.ReturnValue> {
+): Promise<token.prepareUpdateQuoteToken.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -2226,23 +2196,23 @@ export async function prepareUpdateQuoteToken<config extends Config>(
     connector,
   })
 
-  return viem_Actions.prepareUpdateQuoteToken(client, parameters as never)
+  return token.prepareUpdateQuoteToken(client, parameters as never)
 }
 
 export declare namespace prepareUpdateQuoteToken {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.prepareUpdateQuoteToken.Parameters<
+      token.prepareUpdateQuoteToken.Parameters<
         config['chains'][number],
         Account
       >,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.prepareUpdateQuoteToken.ReturnValue
+  export type ReturnValue = token.prepareUpdateQuoteToken.ReturnValue
 
-  export type ErrorType = viem_Actions.prepareUpdateQuoteToken.ErrorType
+  export type ErrorType = token.prepareUpdateQuoteToken.ErrorType
 }
 
 /**
@@ -2277,7 +2247,7 @@ export declare namespace prepareUpdateQuoteToken {
 export async function prepareUpdateQuoteTokenSync<config extends Config>(
   config: config,
   parameters: prepareUpdateQuoteTokenSync.Parameters<config>,
-): Promise<viem_Actions.prepareUpdateQuoteTokenSync.ReturnValue> {
+): Promise<token.prepareUpdateQuoteTokenSync.ReturnValue> {
   const { account, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -2287,23 +2257,23 @@ export async function prepareUpdateQuoteTokenSync<config extends Config>(
     connector,
   })
 
-  return viem_Actions.prepareUpdateQuoteTokenSync(client, parameters as never)
+  return token.prepareUpdateQuoteTokenSync(client, parameters as never)
 }
 
 export declare namespace prepareUpdateQuoteTokenSync {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
     ConnectorParameter &
     UnionOmit<
-      viem_Actions.prepareUpdateQuoteTokenSync.Parameters<
+      token.prepareUpdateQuoteTokenSync.Parameters<
         config['chains'][number],
         Account
       >,
       'chain'
     >
 
-  export type ReturnValue = viem_Actions.prepareUpdateQuoteTokenSync.ReturnValue
+  export type ReturnValue = token.prepareUpdateQuoteTokenSync.ReturnValue
 
-  export type ErrorType = viem_Actions.prepareUpdateQuoteTokenSync.ErrorType
+  export type ErrorType = token.prepareUpdateQuoteTokenSync.ErrorType
 }
 
 /**
@@ -2339,12 +2309,12 @@ export function watchAdminRole<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchAdminRole(client, rest)
+  return token.watchAdminRole(client, rest)
 }
 
 export declare namespace watchAdminRole {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchAdminRole.Parameters
+    token.watchAdminRole.Parameters
 }
 
 /**
@@ -2380,12 +2350,12 @@ export function watchApprove<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchApprove(client, rest)
+  return token.watchApprove(client, rest)
 }
 
 export declare namespace watchApprove {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchApprove.Parameters
+    token.watchApprove.Parameters
 }
 
 /**
@@ -2421,12 +2391,12 @@ export function watchBurn<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchBurn(client, rest)
+  return token.watchBurn(client, rest)
 }
 
 export declare namespace watchBurn {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchBurn.Parameters
+    token.watchBurn.Parameters
 }
 
 /**
@@ -2462,12 +2432,12 @@ export function watchCreate<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchCreate(client, rest)
+  return token.watchCreate(client, rest)
 }
 
 export declare namespace watchCreate {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchCreate.Parameters
+    token.watchCreate.Parameters
 }
 
 /**
@@ -2503,14 +2473,14 @@ export function watchMint<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchMint(client, rest)
+  return token.watchMint(client, rest)
 }
 
 export declare namespace watchMint {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchMint.Parameters
+    token.watchMint.Parameters
 
-  export type ReturnValue = viem_Actions.watchMint.ReturnValue
+  export type ReturnValue = token.watchMint.ReturnValue
 }
 
 /**
@@ -2546,12 +2516,12 @@ export function watchRole<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchRole(client, rest)
+  return token.watchRole(client, rest)
 }
 
 export declare namespace watchRole {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchRole.Parameters
+    token.watchRole.Parameters
 }
 
 /**
@@ -2587,12 +2557,12 @@ export function watchTransfer<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchTransfer(client, rest)
+  return token.watchTransfer(client, rest)
 }
 
 export declare namespace watchTransfer {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchTransfer.Parameters
+    token.watchTransfer.Parameters
 }
 
 /**
@@ -2631,10 +2601,10 @@ export function watchUpdateQuoteToken<config extends Config>(
 ) {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.watchUpdateQuoteToken(client, rest)
+  return token.watchUpdateQuoteToken(client, rest)
 }
 
 export declare namespace watchUpdateQuoteToken {
   export type Parameters<config extends Config> = ChainIdParameter<config> &
-    viem_Actions.watchUpdateQuoteToken.Parameters
+    token.watchUpdateQuoteToken.Parameters
 }

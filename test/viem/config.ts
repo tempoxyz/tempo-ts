@@ -1,28 +1,34 @@
-import type { FixedArray } from '@wagmi/core/internal'
-import * as Mnemonic from 'ox/Mnemonic'
+import { Mnemonic } from 'ox'
 import {
-  Actions,
-  Addresses,
-  Chain,
-  Tick,
-  Account as tempo_Account,
-} from 'tempo.ts/viem'
-import {
-  type Account,
-  type Address,
+  type Chain,
   type Client,
   type ClientConfig,
   createClient,
   type HttpTransportConfig,
   parseUnits,
   type Transport,
+  type Account as viem_Account,
   http as viem_http,
 } from 'viem'
-import { english, generateMnemonic } from 'viem/accounts'
+import {
+  type Address,
+  english,
+  generateMnemonic,
+  type JsonRpcAccount,
+} from 'viem/accounts'
 import { sendTransactionSync } from 'viem/actions'
-import { tempoDevnet, tempoTestnet } from '../../src/chains.js'
-import { transferSync } from '../../src/viem/Actions/token.js'
-import { addresses, fetchOptions, nodeEnv, rpcUrl } from '../config.js'
+import { tempoLocalnet, tempoTestnet } from 'viem/chains'
+import {
+  // biome-ignore lint/correctness/noUnusedImports: These imports ensure TypeScript can reference ox/tempo types portably
+  Transaction as _,
+  Account,
+  Actions,
+  Addresses,
+  Tick,
+} from 'viem/tempo'
+import { rpcUrl } from '../config.js'
+
+export const nodeEnv = import.meta.env.VITE_NODE_ENV || 'localnet'
 
 const accountsMnemonic = (() => {
   if (nodeEnv === 'localnet')
@@ -35,31 +41,17 @@ export const accounts = Array.from({ length: 20 }, (_, i) => {
     as: 'Hex',
     path: Mnemonic.path({ account: i }),
   })
-  return tempo_Account.fromSecp256k1(privateKey)
-}) as unknown as FixedArray<tempo_Account.RootAccount, 20>
+  return Account.fromSecp256k1(privateKey)
+}) as unknown as FixedArray<Account.RootAccount, 20>
 
-export const tempoTest = Chain.define({
-  id: 1337,
-  name: 'Tempo',
-  nativeCurrency: {
-    name: 'USD',
-    symbol: 'USD',
-    decimals: 6,
-  },
-  rpcUrls: {
-    default: {
-      http: [rpcUrl],
-    },
-  },
-})
+export const addresses = {
+  alphaUsd: '0x20c0000000000000000000000000000000000001',
+} as const
 
-export const chainFn = (() => {
-  const env = import.meta.env.VITE_NODE_ENV
-  if (env === 'testnet') return tempoTestnet
-  if (env === 'devnet') return tempoDevnet
-  return tempoTest
+export const chain = (() => {
+  if (nodeEnv === 'testnet') return tempoTestnet
+  return tempoLocalnet
 })()
-export const chain = chainFn({ feeToken: 1n })
 
 export function debugOptions({
   rpcUrl,
@@ -81,65 +73,40 @@ ${rpcUrl} \\
   }
 }
 
-export const http = (url?: string | undefined) =>
+export const http = (url = rpcUrl) =>
   viem_http(url, {
-    fetchOptions,
     ...debugOptions({
-      rpcUrl,
+      rpcUrl: url,
     }),
   })
 
 export function getClient<
-  accountOrAddress extends Account | Address | undefined = undefined,
+  chain extends Chain | undefined = typeof tempoLocalnet,
+  accountOrAddress extends viem_Account | Address | undefined = undefined,
 >(
   parameters: Partial<
     Pick<
-      ClientConfig<Transport, typeof chain, accountOrAddress>,
-      'account' | 'transport'
+      ClientConfig<Transport, chain, accountOrAddress>,
+      'account' | 'chain' | 'transport'
     >
   > = {},
-) {
+): Client<
+  Transport,
+  chain,
+  accountOrAddress extends Address
+    ? JsonRpcAccount<accountOrAddress>
+    : accountOrAddress
+> {
   return createClient({
     pollingInterval: 100,
     chain,
-    transport: http(),
+    transport: http(rpcUrl),
     ...parameters,
-  })
-}
-
-export const client = getClient()
-export const clientWithAccount = getClient({
-  account: accounts.at(0)!,
-})
-
-export async function fundAddress(
-  client: Client<Transport, Chain.Chain<Chain.TokenId.TokenIdOrAddress>>,
-  parameters: fundAddress.Parameters,
-) {
-  const { address } = parameters
-  const account = accounts.at(0)!
-  if (account.address === address) return
-  await transferSync(client, {
-    account,
-    amount: parseUnits('10000', 6),
-    to: address,
-    token: 1n,
-  })
-}
-
-export declare namespace fundAddress {
-  export type Parameters = {
-    /** Account to fund. */
-    address: Address
-  }
+  }) as never
 }
 
 export async function setupToken(
-  client: Client<
-    Transport,
-    Chain.Chain<Chain.TokenId.TokenIdOrAddress>,
-    Account
-  >,
+  client: Client<Transport, Chain, viem_Account>,
   parameters: Partial<
     Awaited<ReturnType<typeof Actions.token.createSync>>
   > = {},
@@ -167,11 +134,7 @@ export async function setupToken(
 }
 
 export async function setupPoolWithLiquidity(
-  client: Client<
-    Transport,
-    Chain.Chain<Chain.TokenId.TokenIdOrAddress>,
-    Account
-  >,
+  client: Client<Transport, Chain, viem_Account>,
 ) {
   // Create a new token for testing
   const { token } = await Actions.token.createSync(client, {
@@ -206,7 +169,7 @@ export async function setupPoolWithLiquidity(
 }
 
 export async function setupTokenPair(
-  client: Client<Transport, typeof chain, Account>,
+  client: Client<Transport, typeof chain, viem_Account>,
 ) {
   // Create quote token
   const { token: quoteToken } = await Actions.token.createSync(client, {
@@ -265,7 +228,7 @@ export async function setupTokenPair(
 }
 
 export async function setupOrders(
-  client: Client<Transport, typeof chain, Account>,
+  client: Client<Transport, typeof chain, viem_Account>,
 ) {
   const { base: base1 } = await setupTokenPair(client)
   const { base: base2 } = await setupTokenPair(client)
@@ -295,3 +258,38 @@ export async function setupOrders(
 
   return { bases }
 }
+
+export async function fundAddress(
+  client: Client<Transport, Chain>,
+  parameters: fundAddress.Parameters,
+) {
+  const { address } = parameters
+  const account = accounts.at(0)!
+  if (account.address === address) return
+  await Promise.all(
+    // fund pathUSD, alphaUSD, betaUSD, thetaUSD
+    [0n, 1n, 2n, 3n].map((feeToken) =>
+      Actions.token.transferSync(client, {
+        account,
+        amount: parseUnits('10000', 6),
+        to: address,
+        token: feeToken,
+      }),
+    ),
+  )
+}
+
+export declare namespace fundAddress {
+  export type Parameters = {
+    /** Account to fund. */
+    address: Address
+  }
+}
+
+type FixedArray<
+  type,
+  count extends number,
+  result extends readonly type[] = [],
+> = result['length'] extends count
+  ? result
+  : FixedArray<type, count, readonly [...result, type]>
