@@ -40,7 +40,7 @@ export function fromStorage(
   baseStorage: BaseStorage,
   options: fromStorage.Options = {},
 ): KeyManager {
-  const { key = 'webAuthn:publicKey' } = options
+  const { key = 'wagmi.webAuthn.publicKey' } = options
   const storage = createStorage({
     key,
     storage: baseStorage,

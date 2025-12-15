@@ -6,6 +6,7 @@ import { KeyAuthorization, SignatureEnvelope } from 'ox/tempo'
 import {
   type Chain,
   createClient,
+  defineChain,
   type EIP1193Provider,
   getAddress,
   type LocalAccount,
@@ -551,9 +552,23 @@ export function webAuthn(options: webAuthn.Parameters) {
 
       if (!targetAccount) throw new ChainNotConfiguredError()
 
+      const targetChain = defineChain({
+        ...chain,
+        async prepareTransactionRequest(args) {
+          const keyAuthorization = await config.storage?.getItem(
+            'pendingKeyAuthorization',
+          )
+          await config.storage?.removeItem('pendingKeyAuthorization')
+          return {
+            ...args,
+            ...(keyAuthorization ? { keyAuthorization } : {}),
+          }
+        },
+      })
+
       return createClient({
         account: targetAccount,
-        chain,
+        chain: targetChain,
         transport: Transport.walletNamespaceCompat(transport, {
           account: targetAccount,
         }),
