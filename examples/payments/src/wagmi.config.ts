@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
-import { tempoTestnet } from 'tempo.ts/chains'
+import { tempoTestnet } from 'wagmi/chains'
 import { KeyManager, webAuthn } from 'tempo.ts/wagmi'
 import { mnemonicToAccount } from 'viem/accounts'
 import { withFeePayer } from 'viem/tempo'
@@ -21,7 +21,7 @@ export const config = createConfig({
       keyManager: KeyManager.localStorage(),
     }),
   ],
-  chains: [tempoTestnet({ feeToken: alphaUsd })],
+  chains: [tempoTestnet.extend({ feeToken: alphaUsd })],
   multiInjectedProviderDiscovery: false,
   transports: {
     [tempoTestnet.id]: withFeePayer(

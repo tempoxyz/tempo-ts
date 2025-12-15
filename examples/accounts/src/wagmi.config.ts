@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
-import { tempoTestnet } from 'tempo.ts/chains'
+import { tempoTestnet } from 'wagmi/chains'
 import { KeyManager, webAuthn } from 'tempo.ts/wagmi'
 import { createConfig, webSocket } from 'wagmi'
 
@@ -13,7 +13,7 @@ export const config = createConfig({
       keyManager: KeyManager.http('/key'),
     }),
   ],
-  chains: [tempoTestnet({ feeToken: alphaUsd })],
+  chains: [tempoTestnet.extend({ feeToken: alphaUsd })],
   transports: {
     [tempoTestnet.id]: webSocket(),
   },

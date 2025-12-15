@@ -1,6 +1,6 @@
 import { QueryClient } from '@tanstack/react-query'
 import { dangerous_secp256k1, KeyManager, webAuthn } from 'tempo.ts/wagmi'
-import { tempoDevnet, tempoLocalnet, tempoTestnet } from 'viem/chains'
+import { tempoDevnet, tempoLocalnet, tempoTestnet } from 'wagmi/chains'
 import { createConfig, http } from 'wagmi'
 
 const chain = (() => {

@@ -44,18 +44,18 @@ docker login ghcr.io
 
 ```ts
 import { createConfig, http } from 'wagmi';
-import { tempo } from 'tempo.ts/chains';
+import { tempoTestnet } from 'wagmi/chains';
 import { Actions, Hooks, KeyManager, webauthn } from 'tempo.ts/wagmi';
 
 export const config = createConfig({
-  chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+  chains: [tempoTestnet],
   connectors: [
     webAuthn({
       keyManager: KeyManager.localStorage(),
     })
   ],
   transports: {
-    [tempo.id]: http(),
+    [tempoTestnet.id]: http(),
   },
 });
 

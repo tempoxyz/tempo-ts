@@ -348,11 +348,11 @@ export declare namespace keyManager {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from 'viem/chains'
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -372,11 +372,11 @@ export declare namespace keyManager {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from 'viem/chains'
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -395,11 +395,11 @@ export declare namespace keyManager {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from 'viem/chains'
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -420,11 +420,11 @@ export declare namespace keyManager {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from 'viem/chains'
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -443,7 +443,7 @@ export declare namespace keyManager {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from 'viem/chains'
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
@@ -468,11 +468,11 @@ export declare namespace keyManager {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from 'viem/chains'
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -490,11 +490,11 @@ export declare namespace keyManager {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from 'viem/chains'
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *

@@ -1,6 +1,3 @@
 [submodule "test/tempo"]
 	path = test/tempo
 	url = git@github.com:tempoxyz/tempo.git
-[submodule "test/docs"]
-	path = test/docs
-	url = git@github.com:tempoxyz/docs.git
