@@ -1,5 +1,35 @@
 # tempo.ts
 
+## 0.11.0
+
+### Minor Changes
+
+- [#117](https://github.com/tempoxyz/tempo-ts/pull/117) [`12193a4`](https://github.com/tempoxyz/tempo-ts/commit/12193a4b8ebd92def63b30baef87035bd222a272) Thanks [@jxom](https://github.com/jxom)! - Removed `tempo.ts/prool`. The `tempo` prool instance has been upstreamed directly into `prool`.
+
+  ```diff
+  - import { Instance } from 'tempo.ts/prool'
+  + import { Instance } from 'prool'
+
+  const instance = Instance.tempo()
+  ```
+
+- [#121](https://github.com/tempoxyz/tempo-ts/pull/121) [`378f794`](https://github.com/tempoxyz/tempo-ts/commit/378f794f3dcd2de5aca3f1f67cfdbc2f0b363d33) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `tempo.ts/ox` entrypoint. Use `ox/tempo` instead.
+
+  ```
+  npm i ox
+  ```
+
+  ```diff
+  - import … from 'tempo.ts/ox'
+  + import … from 'ox/tempo'
+  ```
+
+### Patch Changes
+
+- [#122](https://github.com/tempoxyz/tempo-ts/pull/122) [`1b3f34f`](https://github.com/tempoxyz/tempo-ts/commit/1b3f34f5527f465617027135ce07783f0aca2ee8) Thanks [@gorried](https://github.com/gorried)! - Fixed `nonce.getNonce` return value.
+
+- [`48a27f3`](https://github.com/tempoxyz/tempo-ts/commit/48a27f35e8de7721c7152c764b531b6d37da5300) Thanks [@jxom](https://github.com/jxom)! - `tempo.ts/viem`: Fixed contract deployments.
+
 ## 0.10.5
 
 ### Patch Changes
