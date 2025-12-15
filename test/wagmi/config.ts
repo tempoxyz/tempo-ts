@@ -1,7 +1,15 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { connect, getAccount, getConnectorClient } from '@wagmi/core'
 import * as React from 'react'
-import 'viem/tempo'
+// This is needed to ensure TypeScript can reference viem types portably
+import 'viem'
+// biome-ignore lint/correctness/noUnusedImports: This is needed to ensure TypeScript can reference viem/tempo types portably
+import type {
+  z_KeyAuthorization,
+  z_SignatureEnvelope,
+  z_TokenId,
+  z_TxEnvelopeTempo,
+} from 'viem/tempo'
 import {
   type RenderHookOptions,
   type RenderHookResult,

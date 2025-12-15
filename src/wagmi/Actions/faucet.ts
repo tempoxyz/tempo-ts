@@ -9,11 +9,11 @@ import { faucet } from 'viem/tempo/actions'
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -52,11 +52,11 @@ export declare namespace fund {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },

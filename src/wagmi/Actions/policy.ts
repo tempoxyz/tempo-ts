@@ -13,11 +13,11 @@ export type PolicyType = policy.PolicyType
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -70,11 +70,11 @@ export declare namespace create {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -124,11 +124,11 @@ export declare namespace createSync {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -182,11 +182,11 @@ export declare namespace setAdmin {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -237,11 +237,11 @@ export declare namespace setAdminSync {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -296,11 +296,11 @@ export declare namespace modifyWhitelist {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -352,11 +352,11 @@ export declare namespace modifyWhitelistSync {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -411,11 +411,11 @@ export declare namespace modifyBlacklist {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -467,11 +467,11 @@ export declare namespace modifyBlacklistSync {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -557,11 +557,11 @@ export namespace getData {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -648,11 +648,11 @@ export namespace isAuthorized {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -689,11 +689,11 @@ export declare namespace watchCreate {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -730,11 +730,11 @@ export declare namespace watchAdminUpdated {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -771,11 +771,11 @@ export declare namespace watchWhitelistUpdated {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },

@@ -11,11 +11,11 @@ import type { RequiredBy, UnionOmit } from '../../internal/types.js'
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -102,11 +102,11 @@ export namespace getPool {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -198,11 +198,11 @@ export namespace getLiquidityBalance {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -253,11 +253,11 @@ export declare namespace rebalanceSwap {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -308,11 +308,11 @@ export declare namespace rebalanceSwapSync {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -360,11 +360,11 @@ export declare namespace mint {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -415,11 +415,11 @@ export declare namespace mintSync {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -467,11 +467,11 @@ export declare namespace burn {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -522,11 +522,11 @@ export declare namespace burnSync {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -563,11 +563,11 @@ export declare namespace watchRebalanceSwap {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -604,11 +604,11 @@ export declare namespace watchFeeSwap {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -645,11 +645,11 @@ export declare namespace watchMint {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from '@wagmi/core/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempo],
  *   transports: {
  *     [tempo.id]: http(),
  *   },

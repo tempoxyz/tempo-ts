@@ -19,8 +19,8 @@ import {
 import { sendTransactionSync } from 'viem/actions'
 import { tempoLocalnet, tempoTestnet } from 'viem/chains'
 import {
-  // biome-ignore lint/correctness/noUnusedImports: These imports ensure TypeScript can reference ox/tempo types portably
-  Transaction as _,
+  // biome-ignore lint/correctness/noUnusedImports: This is needed to ensure TypeScript can reference viem/tempo types portably
+  type z_TokenId as _,
   Account,
   Actions,
   Addresses,

@@ -553,7 +553,7 @@ export function webAuthn(options: webAuthn.Parameters) {
 
       return createClient({
         account: targetAccount,
-        chain: chain as Chain,
+        chain,
         transport: Transport.walletNamespaceCompat(transport, {
           account: targetAccount,
         }),
