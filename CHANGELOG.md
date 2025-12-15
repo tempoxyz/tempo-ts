@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.11.1
+
+### Patch Changes
+
+- [`337d6df`](https://github.com/tempoxyz/tempo-ts/commit/337d6df02f34804f85d3815e51e103802a9fcc56) Thanks [@jxom](https://github.com/jxom)! - Fixed missing exports.
+
 ## 0.11.0
 
 ### Minor Changes
