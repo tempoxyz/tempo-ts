@@ -16,8 +16,8 @@
 # Tempo TS
 
 > [!NOTE]
-> This is a temporary package for TypeScript tooling for Tempo.
-> It will be merged into [Wevm](https://github.com/wevm) repositories soon.
+> `tempo.ts/viem` & `tempo.ts/wagmi` have been upstreamed into Viem and Wagmi, and removed as of `tempo.ts@0.12.0`.
+> See [Migrating from `tempo.ts` to Wagmi or Viem](./.github/viem-wagmi-migration.md)
 
 ## Install
 
@@ -25,78 +25,37 @@
 pnpm i tempo.ts
 ```
 
-If you wish to use `tempo.ts/prool` for programmatic Tempo node instances, you will need
-to ensure you have access to [`tempoxyz/tempo`](https://github.com/tempoxyz/tempo) and are logged into the GitHub Container Registry:
-
-```sh
-docker login ghcr.io
-```
-
 ## Entrypoints
 
 | Entrypoint       | Description                              |
 | ---------------- | ---------------------------------------- |
-| `tempo.ts/viem`  | Tempo extension for Viem.                |
-| `tempo.ts/wagmi` | Tempo actions/hooks for Wagmi.           |
+| `tempo.ts/server`  | Server handlers for Tempo.               |
 
 ## Usage
 
-### `tempo.ts/viem`
+### `tempo.ts/server`
 
 ```ts
-import { createClient, http, publicActions, walletActions } from 'viem';
-import { tempo } from 'tempo.ts/chains';
+import { createServer } from 'node:http'
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempoTestnet } from 'viem/chains'
+import { Handler } from 'tempo.ts/server'
 
 const client = createClient({
-  chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+  chain: tempoTestnet.extend({ 
+    feeToken: '0x20c0000000000000000000000000000000000001' 
+  }),
   transport: http(),
 })
-  .extend(publicActions)
-  .extend(walletActions);
 
-const hash = await client.sendTransaction({
-  calls: [
-    { data: '0x...', to: '0x...' },
-    { data: '0x...', to: '0x...' },
-  ],
-});
+const handler = Handler.feePayer({
+  account: privateKeyToAccount('0x...'),
+  client,
+})
 
-const transaction = await client.getTransaction({ hash });
-```
-
-### `tempo.ts/wagmi`
-
-```ts
-import { createConfig, http } from 'wagmi';
-import { tempo } from 'tempo.ts/chains';
-import { Actions, Hooks, KeyManager, webauthn } from 'tempo.ts/wagmi';
-
-export const config = createConfig({
-  chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
-  connectors: [
-    webAuthn({
-      keyManager: KeyManager.localStorage(),
-    })
-  ],
-  transports: {
-    [tempo.id]: http(),
-  },
-});
-
-const { receipt } = await Actions.dex.buySync(config, {
-  tokenIn: '0x...',
-  tokenOut: '0x...',
-  amountOut: parseEther('100'),
-  maxAmountIn: parseEther('150'),
-});
-
-const { data, mutate } = Hooks.dex.useBuySync();
-mutate({
-  tokenIn: '0x...',
-  tokenOut: '0x...',
-  amountOut: parseEther('100'),
-  maxAmountIn: parseEther('150'),
-});
+const server = createServer(handler.listener)
+server.listen(3000)
 ```
 
 ## Contributing
