@@ -15,8 +15,8 @@ import {
   expect,
   test,
 } from 'vitest'
+import { accounts, getClient, http } from '../../test/server/config.js'
 import { createServer, type Server } from '../../test/server/utils.js'
-import { accounts, getClient, http } from '../../test/viem/config.js'
 import * as Handler from './Handler.js'
 import * as Kv from './Kv.js'
 

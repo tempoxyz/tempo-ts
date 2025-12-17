@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { Address } from 'ox'
 import { useState } from 'react'
-import { Hooks } from 'tempo.ts/wagmi'
 import {
   type Chain,
   type Client,
@@ -22,6 +21,7 @@ import {
   useSendCallsSync,
   useSwitchChain,
 } from 'wagmi'
+import { Hooks } from 'wagmi/tempo'
 
 const alphaUsd = '0x20c0000000000000000000000000000000000001'
 

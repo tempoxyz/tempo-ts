@@ -1,4 +1,3 @@
-import { Hooks } from 'tempo.ts/wagmi'
 import { formatUnits, parseUnits } from 'viem'
 import { Actions, Addresses } from 'viem/tempo'
 import {
@@ -9,6 +8,7 @@ import {
   useSendCallsSync,
   useWatchBlockNumber,
 } from 'wagmi'
+import { Hooks } from 'wagmi/tempo'
 import { alphaUsd, betaUsd, pathUsd } from './wagmi.config'
 
 export function App() {

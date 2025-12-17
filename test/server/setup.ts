@@ -1,7 +1,7 @@
 import { Actions } from 'viem/tempo'
 import { afterAll, beforeAll } from 'vitest'
 import { nodeEnv, rpcUrl } from '../config.js'
-import { accounts, getClient } from '../viem/config.js'
+import { accounts, getClient } from './config.js'
 
 beforeAll(async () => {
   if (nodeEnv === 'localnet') return
