@@ -7,7 +7,7 @@
 # Exchange Example
 
 ```sh
-pnpx gitpick tempoxyz/tempo-ts/tree/main/examples/exchange-example exchange-example && cd exchange-example
+pnpx gitpick tempoxyz/tempo-ts/tree/main/examples/exchange exchange-example && cd exchange-example
 pnpm i
 pnpm dev
 ```
