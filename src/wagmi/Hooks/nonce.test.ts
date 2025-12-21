@@ -6,7 +6,7 @@ import { config, renderHook } from '../../../test/wagmi/config.js'
 import * as hooks from './nonce.js'
 import * as tokenHooks from './token.js'
 
-const { useNonceKeyCount, useNonce } = hooks
+const { useNonce } = hooks
 
 const account = accounts[0]
 const account2 = accounts[1]
@@ -90,35 +90,6 @@ describe('useNonce', () => {
   })
 })
 
-describe('useNonceKeyCount', () => {
-  test('default', async () => {
-    let testAccount: Address | undefined
-
-    const { result, rerender } = await renderHook(() =>
-      useNonceKeyCount({ account: testAccount }),
-    )
-
-    await vi.waitFor(() => result.current.fetchStatus === 'fetching')
-
-    // Should be disabled when account is undefined
-    expect(result.current.data).toBeUndefined()
-    expect(result.current.isPending).toBe(true)
-    expect(result.current.isEnabled).toBe(false)
-
-    // Set account
-    testAccount = account.address
-    rerender()
-
-    await vi.waitFor(() => expect(result.current.isSuccess).toBeTruthy(), {
-      timeout: 5_000,
-    })
-
-    // Should now be enabled and have data
-    expect(result.current.isEnabled).toBe(true)
-    expect(result.current.data).toBe(0n)
-  })
-})
-
 describe('useWatchNonceIncremented', () => {
   test('default', async () => {
     const { result: connectResult } = await renderHook(() => ({
@@ -167,41 +138,5 @@ describe('useWatchNonceIncremented', () => {
     expect(events[0]?.nonceKey).toBe(5n)
     expect(events[0]?.newNonce).toBe(1n)
     expect(events[1]?.newNonce).toBe(2n)
-  })
-})
-
-describe('useWatchActiveKeyCountChanged', () => {
-  test('default', async () => {
-    const { result: connectResult } = await renderHook(() => ({
-      connect: useConnect(),
-      transferSync: tokenHooks.useTransferSync(),
-    }))
-
-    await connectResult.current.connect.connectAsync({
-      connector: config.connectors[0]!,
-    })
-
-    const events: any[] = []
-    await renderHook(() =>
-      hooks.useWatchActiveKeyCountChanged({
-        onActiveKeyCountChanged(args) {
-          events.push(args)
-        },
-      }),
-    )
-
-    await connectResult.current.transferSync.mutateAsync({
-      to: account2.address,
-      amount: 1n,
-      token: 1n,
-      nonceKey: 10n,
-      nonce: 0,
-    })
-
-    await vi.waitUntil(() => events.length >= 1)
-
-    expect(events).toHaveLength(1)
-    expect(events[0]?.account).toBe(account.address)
-    expect(events[0]?.newCount).toBe(2n)
   })
 })

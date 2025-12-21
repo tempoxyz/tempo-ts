@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { Address } from 'ox'
 import { useState } from 'react'
-import { Actions } from 'tempo.ts/viem'
 import { Hooks } from 'tempo.ts/wagmi'
 import {
   type Chain,
@@ -12,6 +11,7 @@ import {
   type Transport,
 } from 'viem'
 import { mnemonicToAccount } from 'viem/accounts'
+import { Actions } from 'viem/tempo'
 import {
   useAccount,
   useChains,
@@ -93,6 +93,8 @@ function AccountDetails() {
 function Connect() {
   const connect = useConnect()
   const connectors = useConnectors()
+
+  console.log(connect.error)
 
   return (
     <>
@@ -188,7 +190,6 @@ function Balance() {
           params: [account.address],
         })
       } else {
-        // @ts-expect-error - TODO: fix this
         await Actions.token.transferSync(client as Client<Transport, Chain>, {
           account: mnemonicToAccount(
             'test test test test test test test test test test test junk',

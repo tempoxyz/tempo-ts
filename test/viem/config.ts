@@ -1,18 +1,15 @@
 import type { FixedArray } from '@wagmi/core/internal'
 import * as Mnemonic from 'ox/Mnemonic'
-import {
-  Actions,
-  Addresses,
-  Chain,
-  Tick,
-  Account as tempo_Account,
-} from 'tempo.ts/viem'
+// biome-ignore lint/correctness/noUnusedImports: imported for inference
+import { TokenId as _ } from 'ox/tempo'
 import {
   type Account,
   type Address,
+  type Chain,
   type Client,
   type ClientConfig,
   createClient,
+  defineChain,
   type HttpTransportConfig,
   parseUnits,
   type Transport,
@@ -20,8 +17,8 @@ import {
 } from 'viem'
 import { english, generateMnemonic } from 'viem/accounts'
 import { sendTransactionSync } from 'viem/actions'
-import { tempoDevnet, tempoTestnet } from '../../src/chains.js'
-import { transferSync } from '../../src/viem/Actions/token.js'
+import { tempoDevnet, tempoLocalnet, tempoTestnet } from 'viem/chains'
+import { Actions, Addresses, Tick, Account as tempo_Account } from 'viem/tempo'
 import { addresses, fetchOptions, nodeEnv, rpcUrl } from '../config.js'
 
 const accountsMnemonic = (() => {
@@ -38,14 +35,8 @@ export const accounts = Array.from({ length: 20 }, (_, i) => {
   return tempo_Account.fromSecp256k1(privateKey)
 }) as unknown as FixedArray<tempo_Account.RootAccount, 20>
 
-export const tempoTest = Chain.define({
-  id: 1337,
-  name: 'Tempo',
-  nativeCurrency: {
-    name: 'USD',
-    symbol: 'USD',
-    decimals: 6,
-  },
+export const tempoTest = defineChain({
+  ...tempoLocalnet,
   rpcUrls: {
     default: {
       http: [rpcUrl],
@@ -59,7 +50,7 @@ export const chainFn = (() => {
   if (env === 'devnet') return tempoDevnet
   return tempoTest
 })()
-export const chain = chainFn({ feeToken: 1n })
+export const chain = chainFn.extend({ feeToken: 1n })
 
 export function debugOptions({
   rpcUrl,
@@ -113,13 +104,13 @@ export const clientWithAccount = getClient({
 })
 
 export async function fundAddress(
-  client: Client<Transport, Chain.Chain<Chain.TokenId.TokenIdOrAddress>>,
+  client: Client<Transport, Chain>,
   parameters: fundAddress.Parameters,
 ) {
   const { address } = parameters
   const account = accounts.at(0)!
   if (account.address === address) return
-  await transferSync(client, {
+  await Actions.token.transferSync(client, {
     account,
     amount: parseUnits('10000', 6),
     to: address,
@@ -135,11 +126,7 @@ export declare namespace fundAddress {
 }
 
 export async function setupToken(
-  client: Client<
-    Transport,
-    Chain.Chain<Chain.TokenId.TokenIdOrAddress>,
-    Account
-  >,
+  client: Client<Transport, Chain, Account>,
   parameters: Partial<
     Awaited<ReturnType<typeof Actions.token.createSync>>
   > = {},
@@ -167,11 +154,7 @@ export async function setupToken(
 }
 
 export async function setupPoolWithLiquidity(
-  client: Client<
-    Transport,
-    Chain.Chain<Chain.TokenId.TokenIdOrAddress>,
-    Account
-  >,
+  client: Client<Transport, Chain, Account>,
 ) {
   // Create a new token for testing
   const { token } = await Actions.token.createSync(client, {

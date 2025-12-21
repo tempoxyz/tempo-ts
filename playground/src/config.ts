@@ -1,10 +1,10 @@
 import { QueryClient } from '@tanstack/react-query'
-import { tempoDevnet, tempoLocal, tempoTestnet } from 'tempo.ts/chains'
 import { dangerous_secp256k1, KeyManager, webAuthn } from 'tempo.ts/wagmi'
+import { tempoDevnet, tempoLocalnet, tempoTestnet } from 'viem/chains'
 import { createConfig, http } from 'wagmi'
 
 const chain = (() => {
-  if (import.meta.env.VITE_NODE_ENV === 'localnet') return tempoLocal
+  if (import.meta.env.VITE_NODE_ENV === 'localnet') return tempoLocalnet
   if (import.meta.env.VITE_NODE_ENV === 'devnet') return tempoDevnet
   return tempoTestnet
 })()
@@ -13,7 +13,7 @@ export const config = createConfig({
   batch: {
     multicall: false,
   },
-  chains: [chain({ feeToken: 1n })],
+  chains: [chain.extend({ feeToken: 1n })],
   connectors: [
     webAuthn({
       grantAccessKey: true,

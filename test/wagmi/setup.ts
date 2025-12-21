@@ -1,6 +1,6 @@
 import { disconnect } from '@wagmi/core'
+import { Actions } from 'viem/tempo'
 import { afterAll, beforeAll, beforeEach, vi } from 'vitest'
-import { Actions } from '../../src/viem/index.js'
 import { nodeEnv, rpcUrl } from '../config.js'
 import { accounts, client } from '../viem/config.js'
 import { config } from '../wagmi/config.js'

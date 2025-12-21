@@ -1,7 +1,11 @@
 import type * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
+import {
+  type CreateStorageParameters,
+  createStorage,
+  type Storage,
+} from 'wagmi'
 import type * as Handler from '../server/Handler.js'
-import * as Storage from '../viem/Storage.js'
 
 export type KeyManager = {
   /** Function to fetch create options for WebAuthn. */
@@ -24,8 +28,7 @@ export function from<manager extends KeyManager>(manager: manager): manager {
 }
 
 /** Instantiates a key manager from a Storage instance. */
-export function fromStorage(s: Storage.Storage): KeyManager {
-  const storage = Storage.from(s, { key: 'webAuthn:publicKey' })
+export function fromStorage(storage: Storage): KeyManager {
   return from({
     async getPublicKey(parameters) {
       const publicKey = await storage.getItem(parameters.credential.id)
@@ -53,8 +56,18 @@ export function fromStorage(s: Storage.Storage): KeyManager {
  *
  * @deprecated
  */
-export function localStorage(options: Storage.localStorage.Options = {}) {
-  return fromStorage(Storage.localStorage(options))
+export function localStorage(options: localStorage.Options = {}) {
+  const { key = 'wagmi.keyManager' } = options
+  const storage = createStorage({
+    ...options,
+    key,
+    storage: window.localStorage,
+  })
+  return fromStorage(storage)
+}
+
+export namespace localStorage {
+  export type Options = Omit<CreateStorageParameters, 'storage'>
 }
 
 /**

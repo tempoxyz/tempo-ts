@@ -14,8 +14,6 @@ import {
 import type { ExactPartial, UnionCompute } from '../../internal/types.js'
 import * as Actions from '../Actions/policy.js'
 
-export type { PolicyType } from '../Actions/policy.js'
-
 /**
  * Hook for creating a new policy.
  *

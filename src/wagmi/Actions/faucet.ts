@@ -1,6 +1,6 @@
 import type { Config } from '@wagmi/core'
 import type { ChainIdParameter, UnionCompute } from '@wagmi/core/internal'
-import * as viem_Actions from '../../viem/Actions/faucet.js'
+import { Actions } from 'viem/tempo'
 
 /**
  * Funds an account with an initial amount of set token(s)
@@ -9,11 +9,11 @@ import * as viem_Actions from '../../viem/Actions/faucet.js'
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from 'viem/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempoTestnet],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -34,15 +34,15 @@ export async function fund<config extends Config>(
 ): Promise<fund.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.fund(client, rest)
+  return Actions.faucet.fund(client, rest)
 }
 
 export declare namespace fund {
   export type Parameters<config extends Config> = UnionCompute<
-    ChainIdParameter<config> & viem_Actions.fund.Parameters
+    ChainIdParameter<config> & Actions.faucet.fund.Parameters
   >
 
-  export type ReturnValue = viem_Actions.fund.ReturnValue
+  export type ReturnValue = Actions.faucet.fund.ReturnValue
 }
 
 /**
@@ -52,11 +52,11 @@ export declare namespace fund {
  * @example
  * ```ts
  * import { createConfig, http } from '@wagmi/core'
- * import { tempo } from 'tempo.ts/chains'
+ * import { tempo } from 'viem/chains'
  * import { Actions } from 'tempo.ts/wagmi'
  *
  * const config = createConfig({
- *   chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+ *   chains: [tempoTestnet],
  *   transports: {
  *     [tempo.id]: http(),
  *   },
@@ -77,13 +77,13 @@ export async function fundSync<config extends Config>(
 ): Promise<fundSync.ReturnValue> {
   const { chainId, ...rest } = parameters
   const client = config.getClient({ chainId })
-  return viem_Actions.fundSync(client, rest)
+  return Actions.faucet.fundSync(client, rest)
 }
 
 export declare namespace fundSync {
   export type Parameters<config extends Config> = UnionCompute<
-    ChainIdParameter<config> & viem_Actions.fundSync.Parameters
+    ChainIdParameter<config> & Actions.faucet.fundSync.Parameters
   >
 
-  export type ReturnValue = viem_Actions.fundSync.ReturnValue
+  export type ReturnValue = Actions.faucet.fundSync.ReturnValue
 }
