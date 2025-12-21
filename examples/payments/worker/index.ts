@@ -1,6 +1,6 @@
-import { tempoTestnet } from 'tempo.ts/chains'
 import { Handler } from 'tempo.ts/server'
 import { http } from 'viem'
+import { tempoTestnet } from 'viem/chains'
 import { alphaUsd, sponsorAccount } from '../src/wagmi.config'
 
 export default {

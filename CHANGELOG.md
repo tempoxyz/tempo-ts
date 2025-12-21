@@ -531,11 +531,11 @@
   ```diff
   -import { createTempoClient } from 'tempo.ts/viem'
   +import { createClient, http } from 'viem'
-  +import { tempo } from 'tempo.ts/chains'
+  +import { tempo } from 'viem/chains'
 
   -const client = createTempoClient()
   +const client = createClient({
-  +  chain: tempo({
+  +  chain: tempoTestnet.extend({
   +    feeToken: '0x20c0000000000000000000000000000000000001'
   +  }),
   +  transport: http(),
@@ -560,7 +560,7 @@
   ```ts
   // fee token NOT set on client
   const client2 = createClient({
-    chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+    chain: tempoTestnet
     transport: http(),
   });
 
@@ -577,7 +577,7 @@
 
   ```ts
   const client1 = createClient({
-    chain: tempo({ feeToken: "0x20c...001" }), // note: pass `null` to opt-in to protocol preferences.
+    chain: tempoTestnet.extend({ feeToken: "0x20c...001" }), // note: pass `null` to opt-in to protocol preferences.
     transport: http(),
   });
 

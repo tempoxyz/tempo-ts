@@ -1,6 +1,6 @@
-import { Tick } from 'tempo.ts/viem'
 import { Actions, Hooks } from 'tempo.ts/wagmi'
 import { type Address, isAddress, parseUnits } from 'viem'
+import { Tick } from 'viem/tempo'
 import { describe, expect, test, vi } from 'vitest'
 import { useConnect } from 'wagmi'
 import { addresses } from '../../../test/config.js'

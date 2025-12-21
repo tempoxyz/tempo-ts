@@ -1,27 +1,26 @@
+import * as idb from 'idb-keyval'
 import * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import * as PublicKey from 'ox/PublicKey'
 import { KeyAuthorization, SignatureEnvelope } from 'ox/tempo'
 import {
   createClient,
+  defineChain,
   type EIP1193Provider,
   getAddress,
   type LocalAccount,
   SwitchChainError,
 } from 'viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import {
+  Account,
+  WebAuthnP256,
+  WebCryptoP256,
+  walletNamespaceCompat,
+} from 'viem/tempo'
 import { ChainNotConfiguredError, createConnector } from 'wagmi'
 import type { OneOf } from '../internal/types.js'
-import * as Account from '../viem/Account.js'
-import type * as tempo_Chain from '../viem/Chain.js'
-import { normalizeValue } from '../viem/internal/utils.js'
-import * as Storage from '../viem/Storage.js'
-import { walletNamespaceCompat } from '../viem/Transport.js'
-import * as WebAuthnP256 from '../viem/WebAuthnP256.js'
-import * as WebCryptoP256 from '../viem/WebCryptoP256.js'
 import type * as KeyManager from './KeyManager.js'
-
-type Chain = ReturnType<ReturnType<typeof tempo_Chain.define>>
 
 /**
  * Connector for a Secp256k1 EOA.
@@ -180,10 +179,14 @@ export function dangerous_secp256k1(
       const transport = transports[chain.id]
       if (!transport) throw new ChainNotConfiguredError()
 
+      if (!account) throw new Error('account not found.')
+
       return createClient({
         account,
-        chain: chain as Chain,
-        transport: walletNamespaceCompat(transport),
+        chain,
+        transport: walletNamespaceCompat(transport, {
+          account,
+        }),
       })
     },
     async getProvider({ chainId } = {}) {
@@ -221,12 +224,6 @@ export function webAuthn(options: webAuthn.Parameters) {
     return undefined
   })()
 
-  const idbStorage = Storage.idb<{
-    [key: `accessKey:${string}`]: WebCryptoP256.createKeyPair.ReturnType & {
-      keyAuthorization: KeyAuthorization.KeyAuthorization
-    }
-  }>()
-
   type Properties = {
     connect<withCapabilities extends boolean = false>(parameters: {
       chainId?: number | undefined
@@ -249,6 +246,9 @@ export function webAuthn(options: webAuthn.Parameters) {
   }
   type Provider = Pick<EIP1193Provider, 'request'>
   type StorageItem = {
+    [
+      key: `pendingKeyAuthorization:${string}`
+    ]: KeyAuthorization.KeyAuthorization
     'webAuthn.activeCredential': WebAuthnP256.P256Credential
     'webAuthn.lastActiveCredential': WebAuthnP256.P256Credential
   }
@@ -329,7 +329,7 @@ export function webAuthn(options: webAuthn.Parameters) {
               const address = Address.fromPublicKey(
                 PublicKey.fromHex(credential.publicKey),
               )
-              return await idbStorage.getItem(`accessKey:${address}`)
+              return await idb.get(`accessKey:${address}`)
             })()
 
             // If the access key provisioning is not in strict mode, return the credential and key pair (if exists).
@@ -414,14 +414,11 @@ export function webAuthn(options: webAuthn.Parameters) {
         normalizeValue(credential),
       )
 
-      account = Account.fromWebAuthnP256(credential, {
-        storage: Storage.from(config.storage as never),
-      })
+      account = Account.fromWebAuthnP256(credential)
 
       if (keyPair) {
         accessKey = Account.fromWebCryptoP256(keyPair, {
           access: account,
-          storage: Storage.from(config.storage as never),
         })
 
         // If we are reconnecting, check if the access key is expired.
@@ -432,7 +429,9 @@ export function webAuthn(options: webAuthn.Parameters) {
             keyPair.keyAuthorization.expiry < Date.now() / 1000
           ) {
             // remove any pending key authorizations from storage.
-            await account?.storage.removeItem('pendingKeyAuthorization')
+            await config?.storage?.removeItem(
+              `pendingKeyAuthorization:${account.address.toLowerCase()}`,
+            )
 
             const message = `Access key expired (on ${new Date(keyPair.keyAuthorization.expiry * 1000).toLocaleString()}).`
             accessKey = undefined
@@ -452,11 +451,14 @@ export function webAuthn(options: webAuthn.Parameters) {
             keyAuthorization ??
             (await account.signKeyAuthorization(accessKey, accessKeyOptions))
 
-          await account.storage.setItem('pendingKeyAuthorization', keyAuth)
-          await idbStorage.setItem(
-            `accessKey:${account.address.toLowerCase()}`,
-            { ...keyPair, keyAuthorization: keyAuth },
+          await config?.storage?.setItem(
+            `pendingKeyAuthorization:${account.address.toLowerCase()}`,
+            keyAuth,
           )
+          await idb.set(`accessKey:${account.address.toLowerCase()}`, {
+            ...keyPair,
+            keyAuthorization: keyAuth,
+          })
         }
         // If we are granting an access key and it is in strict mode, throw an error if the access key is not provisioned.
       } else if (accessKeyOptions?.strict) {
@@ -528,7 +530,7 @@ export function webAuthn(options: webAuthn.Parameters) {
       const targetAccount = await (async () => {
         if (!accessKey) return account
 
-        const item = await idbStorage.getItem(
+        const item = await idb.get(
           `accessKey:${accessKey.address.toLowerCase()}`,
         )
         if (
@@ -536,7 +538,9 @@ export function webAuthn(options: webAuthn.Parameters) {
           item.keyAuthorization.expiry < Date.now() / 1000
         ) {
           // remove any pending key authorizations from storage.
-          await account?.storage.removeItem('pendingKeyAuthorization')
+          await config?.storage?.removeItem(
+            `pendingKeyAuthorization:${accessKey.address.toLowerCase()}`,
+          )
 
           const message = `Access key expired (on ${new Date(item.keyAuthorization.expiry * 1000).toLocaleString()}).`
 
@@ -552,11 +556,44 @@ export function webAuthn(options: webAuthn.Parameters) {
         }
         return accessKey
       })()
+      if (!targetAccount) throw new Error('account not found.')
+
+      const targetChain = defineChain({
+        ...chain,
+        async prepareTransactionRequest(args) {
+          const keyAuthorization = await (async () => {
+            {
+              const keyAuthorization = (
+                args as {
+                  keyAuthorization?:
+                    | KeyAuthorization.KeyAuthorization
+                    | undefined
+                }
+              ).keyAuthorization
+              if (keyAuthorization) return keyAuthorization
+            }
+
+            const keyAuthorization = await config.storage?.getItem(
+              `pendingKeyAuthorization:${targetAccount?.address.toLowerCase()}`,
+            )
+            await config.storage?.removeItem(
+              `pendingKeyAuthorization:${targetAccount?.address.toLowerCase()}`,
+            )
+            return keyAuthorization
+          })()
+          return {
+            ...args,
+            keyAuthorization,
+          }
+        },
+      })
 
       return createClient({
         account: targetAccount,
-        chain: chain as Chain,
-        transport: walletNamespaceCompat(transport),
+        chain: targetChain,
+        transport: walletNamespaceCompat(transport, {
+          account: targetAccount,
+        }),
       })
     },
     async getProvider({ chainId } = {}) {
@@ -593,4 +630,25 @@ export namespace webAuthn {
     /** The RP ID to use for WebAuthn. */
     rpId?: string | undefined
   }
+}
+
+/**
+ * Normalizes a value into a structured-clone compatible format.
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/structuredClone
+ */
+function normalizeValue<type>(value: type): type {
+  if (Array.isArray(value)) return value.map(normalizeValue) as never
+  if (typeof value === 'function') return undefined as never
+  if (typeof value !== 'object' || value === null) return value
+  if (Object.getPrototypeOf(value) !== Object.prototype)
+    try {
+      return structuredClone(value)
+    } catch {
+      return undefined as never
+    }
+
+  const normalized: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(value)) normalized[k] = normalizeValue(v)
+  return normalized as never
 }

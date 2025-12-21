@@ -62,7 +62,7 @@
 	},
 	"pnpm": {
 		"overrides": {
-			"ox": "~0.10.2",
+			"ox": "~0.11.1",
 			"tempo.ts": "workspace:*",
 			"viem": "catalog:default"
 		}
@@ -74,7 +74,7 @@
 	"dependencies": {
 		"@remix-run/fetch-router": "~0.12.0",
 		"idb-keyval": "^6.2.2",
-		"ox": "~0.10.2"
+		"ox": "~0.11.1"
 	},
 	"peerDependencies": {
 		"@tanstack/query-core": ">=5.0.0",
@@ -123,20 +123,10 @@
 			"types": "./dist/index.d.ts",
 			"default": "./dist/index.js"
 		},
-		"./chains": {
-			"src": "./src/chains.ts",
-			"types": "./dist/chains.d.ts",
-			"default": "./dist/chains.js"
-		},
 		"./server": {
 			"src": "./src/server/index.ts",
 			"types": "./dist/server/index.d.ts",
 			"default": "./dist/server/index.js"
-		},
-		"./viem": {
-			"src": "./src/viem/index.ts",
-			"types": "./dist/viem/index.d.ts",
-			"default": "./dist/viem/index.js"
 		},
 		"./wagmi": {
 			"src": "./src/wagmi/index.ts",

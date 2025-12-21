@@ -25,61 +25,30 @@
 pnpm i tempo.ts
 ```
 
-If you wish to use `tempo.ts/prool` for programmatic Tempo node instances, you will need
-to ensure you have access to [`tempoxyz/tempo`](https://github.com/tempoxyz/tempo) and are logged into the GitHub Container Registry:
-
-```sh
-docker login ghcr.io
-```
-
 ## Entrypoints
 
 | Entrypoint       | Description                              |
 | ---------------- | ---------------------------------------- |
-| `tempo.ts/viem`  | Tempo extension for Viem.                |
 | `tempo.ts/wagmi` | Tempo actions/hooks for Wagmi.           |
 
 ## Usage
-
-### `tempo.ts/viem`
-
-```ts
-import { createClient, http, publicActions, walletActions } from 'viem';
-import { tempo } from 'tempo.ts/chains';
-
-const client = createClient({
-  chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
-  transport: http(),
-})
-  .extend(publicActions)
-  .extend(walletActions);
-
-const hash = await client.sendTransaction({
-  calls: [
-    { data: '0x...', to: '0x...' },
-    { data: '0x...', to: '0x...' },
-  ],
-});
-
-const transaction = await client.getTransaction({ hash });
-```
 
 ### `tempo.ts/wagmi`
 
 ```ts
 import { createConfig, http } from 'wagmi';
-import { tempo } from 'tempo.ts/chains';
+import { tempoTestnet } from 'viem/chains';
 import { Actions, Hooks, KeyManager, webauthn } from 'tempo.ts/wagmi';
 
 export const config = createConfig({
-  chains: [tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })],
+  chains: [tempoTestnet.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })],
   connectors: [
     webAuthn({
       keyManager: KeyManager.localStorage(),
     })
   ],
   transports: {
-    [tempo.id]: http(),
+    [tempoTestnet.id]: http(),
   },
 });
 
