@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.12.1
+
+### Patch Changes
+
+- [`10eb044`](https://github.com/tempoxyz/tempo-ts/commit/10eb044b5c9b218e81a94b8642c0d40309c87792) Thanks [@jxom](https://github.com/jxom)! - Bumped `viem` peer dep range.
+
 ## 0.12.0
 
 ### Minor Changes
