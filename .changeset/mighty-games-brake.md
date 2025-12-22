@@ -24,6 +24,15 @@ const client = createClient({
 })
 ```
 
+### Removed `tempo` chain
+
+The `tempo` chain has been removed. Use `tempoTestnet` instead.
+
+```diff
+- import { tempo } from 'tempo.ts/chains'
++ import { tempoTestnet } from 'viem/chains'
+```
+
 ### `Account#assignKeyAuthorization` has been removed
 
 The `Account#assignKeyAuthorization` function has been removed. Instead, you will need to assign the key authorization on a transaction manually on the next transaction.
