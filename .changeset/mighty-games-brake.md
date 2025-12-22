@@ -4,6 +4,10 @@
 
 **Breaking:** As of `viem@2.43.0`, `tempo.ts/chains` and `tempo.ts/viem` have been upstreamed into Viem, and are no longer maintained in this repository.
 
+Follow the instructions below to migrate:
+
+### Update Viem
+
 ```bash
 pnpm i viem@2.43.0
 ```
