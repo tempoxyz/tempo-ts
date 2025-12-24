@@ -7,7 +7,7 @@
 # Payments Example
 
 ```sh
-pnpx gitpick tempoxyz/tempo-ts/tree/main/examples/payments-example payments-example && cd payments-example
+pnpx gitpick tempoxyz/tempo-ts/tree/main/examples/payments payments-example && cd payments-example
 pnpm i
 pnpm dev
 ```
