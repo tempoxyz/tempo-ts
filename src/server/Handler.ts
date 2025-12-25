@@ -104,6 +104,7 @@ export declare namespace from {
  * import { Handler } from 'tempo.ts/server'
  *
  * const handler = Handler.keyManager({
+ *   path: '/api/key', // Update this to match your API path, else it will return a 404
  *   kv: Kv.memory(),
  * })
  *
@@ -381,6 +382,7 @@ export declare namespace keyManager {
  * })
  *
  * const handler = Handler.feePayer({
+ *   path: '/api/fee', // Update this to match your API path, else it will return a 404
  *   account: privateKeyToAccount('0x...'),
  *   client,
  * })
