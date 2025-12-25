@@ -63,7 +63,6 @@
 	"pnpm": {
 		"overrides": {
 			"ox": "~0.11.1",
-			"tempo.ts": "workspace:*",
 			"viem": "catalog:default"
 		}
 	},
