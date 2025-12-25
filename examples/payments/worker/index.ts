@@ -7,7 +7,7 @@ export default {
   fetch(request) {
     return Handler.feePayer({
       account: sponsorAccount,
-      chain: tempoTestnet({ feeToken: alphaUsd }),
+      chain: tempoTestnet.extend({ feeToken: alphaUsd }),
       path: '/fee-payer',
       transport: http(
         'https://rpc.testnet.tempo.xyz?supersecretargument=pleasedonotusemeinprod',

@@ -13,7 +13,7 @@ export const config = createConfig({
       keyManager: KeyManager.http('/key'),
     }),
   ],
-  chains: [tempoTestnet({ feeToken: alphaUsd })],
+  chains: [tempoTestnet.extend({ feeToken: alphaUsd })],
   transports: {
     [tempoTestnet.id]: webSocket(),
   },
