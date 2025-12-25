@@ -7,7 +7,7 @@
 # Accounts Example
 
 ```sh
-pnpx gitpick tempoxyz/tempo-ts/tree/main/examples/accounts-example accounts-example && cd accounts-example
+pnpx gitpick tempoxyz/tempo-ts/tree/main/examples/accounts accounts-example && cd accounts-example
 pnpm i
 pnpm dev
 ```

@@ -13,7 +13,7 @@ export const config = createConfig({
       keyManager: KeyManager.localStorage(),
     }),
   ],
-  chains: [tempoTestnet({ feeToken: alphaUsd })],
+  chains: [tempoTestnet.extend({ feeToken: alphaUsd })],
   multiInjectedProviderDiscovery: false,
   transports: {
     [tempoTestnet.id]: webSocket(),
