@@ -5,7 +5,6 @@
 	"compilerOptions": {
 		"customConditions": ["src"],
 		"moduleResolution": "nodenext",
-		"noEmit": true,
-		"types": ["@vitest/browser-playwright"]
+		"noEmit": true
 	}
 }

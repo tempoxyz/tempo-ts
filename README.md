@@ -27,45 +27,39 @@ pnpm i tempo.ts
 
 ## Entrypoints
 
-| Entrypoint       | Description                              |
-| ---------------- | ---------------------------------------- |
-| `tempo.ts/wagmi` | Tempo actions/hooks for Wagmi.           |
+| Entrypoint        | Description                              |
+| ----------------- | ---------------------------------------- |
+| `tempo.ts/server` | Framework-agnostic server handlers.      |
 
 ## Usage
 
-### `tempo.ts/wagmi`
+### `tempo.ts/server`
 
 ```ts
-import { createConfig, http } from 'wagmi';
-import { tempoTestnet } from 'viem/chains';
-import { Actions, Hooks, KeyManager, webauthn } from 'tempo.ts/wagmi';
-
-export const config = createConfig({
-  chains: [tempoTestnet.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })],
-  connectors: [
-    webAuthn({
-      keyManager: KeyManager.localStorage(),
-    })
-  ],
-  transports: {
-    [tempoTestnet.id]: http(),
-  },
-});
-
-const { receipt } = await Actions.dex.buySync(config, {
-  tokenIn: '0x...',
-  tokenOut: '0x...',
-  amountOut: parseEther('100'),
-  maxAmountIn: parseEther('150'),
-});
-
-const { data, mutate } = Hooks.dex.useBuySync();
-mutate({
-  tokenIn: '0x...',
-  tokenOut: '0x...',
-  amountOut: parseEther('100'),
-  maxAmountIn: parseEther('150'),
-});
+import { Handler } from 'tempo.ts/server'
+import { account, client } from './config'
+ 
+const handler = Handler.feePayer({
+  account,
+  client,
+  feeToken: '0x20c0…0001'
+  path: '/fee-payer',
+})
+ 
+createServer(handler.listener) // Node.js
+ 
+Bun.serve(handler) // Bun
+ 
+Deno.serve(handler) // Deno
+ 
+app.all('*', c => handler.fetch(c.request)) // Elysia
+ 
+app.use(handler.listener) // Express
+ 
+app.use(c => handler.fetch(c.req.raw)) // Hono
+ 
+export const GET = handler.fetch // Next.js
+export const POST = handler.fetch // Next.js
 ```
 
 ## Contributing
