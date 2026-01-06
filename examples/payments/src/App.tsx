@@ -1,4 +1,3 @@
-import { Hooks } from 'tempo.ts/wagmi'
 import { formatUnits, pad, parseUnits, stringToHex } from 'viem'
 import {
   useAccount,
@@ -7,6 +6,7 @@ import {
   useDisconnect,
   useWatchBlockNumber,
 } from 'wagmi'
+import { Hooks } from 'wagmi/tempo'
 import { alphaUsd, betaUsd, sponsorAccount } from './wagmi.config'
 
 export function App() {

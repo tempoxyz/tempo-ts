@@ -37,14 +37,11 @@
 		"@types/react-dom": "catalog:default",
 		"@typescript/native-preview": "7.0.0-dev.20251110.1",
 		"@vitejs/plugin-react": "catalog:default",
-		"@vitest/browser": "^4.0.13",
-		"@vitest/browser-playwright": "^4.0.13",
 		"@vitest/coverage-v8": "^4.0.13",
 		"@wagmi/core": "catalog:default",
 		"elysia": "^1.4.16",
 		"express": "^5.1.0",
 		"hono": "^4.10.6",
-		"playwright": "^1.56.1",
 		"prool": "catalog:default",
 		"react": "catalog:default",
 		"react-dom": "catalog:default",
@@ -53,7 +50,6 @@
 		"typescript": "catalog:default",
 		"viem": "catalog:default",
 		"vitest": "^4.0.13",
-		"vitest-browser-react": "^2.0.2",
 		"wagmi": "catalog:default",
 		"zile": "^0.0.13"
 	},
@@ -73,34 +69,13 @@
 	"version": "0.12.1",
 	"dependencies": {
 		"@remix-run/fetch-router": "~0.12.0",
-		"idb-keyval": "^6.2.2",
 		"ox": "~0.11.1"
 	},
 	"peerDependencies": {
-		"@tanstack/query-core": ">=5.0.0",
-		"@tanstack/react-query": ">=5.0.0",
-		"@wagmi/core": ">=2.18",
-		"prool": "^0",
-		"viem": ">=2.43.3",
-		"wagmi": ">=2.19"
+		"viem": ">=2.43.3"
 	},
 	"peerDependenciesMeta": {
-		"@tanstack/react-query": {
-			"optional": true
-		},
-		"@tanstack/query-core": {
-			"optional": true
-		},
-		"@wagmi/core": {
-			"optional": true
-		},
-		"prool": {
-			"optional": true
-		},
 		"viem": {
-			"optional": true
-		},
-		"wagmi": {
 			"optional": true
 		}
 	},
@@ -127,11 +102,6 @@
 			"src": "./src/server/index.ts",
 			"types": "./dist/server/index.d.ts",
 			"default": "./dist/server/index.js"
-		},
-		"./wagmi": {
-			"src": "./src/wagmi/index.ts",
-			"types": "./dist/wagmi/index.d.ts",
-			"default": "./dist/wagmi/index.js"
 		}
 	}
 }

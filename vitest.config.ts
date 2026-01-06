@@ -1,6 +1,4 @@
 import { join } from 'node:path'
-import react from '@vitejs/plugin-react'
-import { playwright } from '@vitest/browser-playwright'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -28,29 +26,6 @@ export default defineConfig({
           ],
           sequence: { groupOrder: 2 },
           setupFiles: [join(import.meta.dirname, './test/server/setup.ts')],
-        },
-      },
-      {
-        extends: true,
-        plugins: [react()],
-        test: {
-          browser: {
-            provider: playwright(),
-            instances: [{ browser: 'chromium' }],
-            enabled: true,
-            headless: true,
-            screenshotFailures: false,
-          },
-          env: {
-            RPC_PORT: '4000',
-          },
-          globalSetup: [
-            join(import.meta.dirname, './test/wagmi/setup.global.ts'),
-          ],
-          name: 'wagmi',
-          setupFiles: [join(import.meta.dirname, './test/wagmi/setup.ts')],
-          root: './src/wagmi',
-          sequence: { groupOrder: 4 },
         },
       },
     ],

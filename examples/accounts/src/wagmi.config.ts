@@ -1,7 +1,7 @@
 import { QueryClient } from '@tanstack/react-query'
-import { KeyManager, webAuthn } from 'tempo.ts/wagmi'
 import { tempoTestnet } from 'viem/chains'
 import { createConfig, webSocket } from 'wagmi'
+import { KeyManager, webAuthn } from 'wagmi/tempo'
 
 export const alphaUsd = '0x20c0000000000000000000000000000000000001'
 
