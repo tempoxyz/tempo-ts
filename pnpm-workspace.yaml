@@ -8,12 +8,12 @@ catalog:
   '@types/react': ^19.1.16
   '@types/react-dom': ^19.1.9
   '@vitejs/plugin-react': ^5.0.4
-  '@wagmi/core': ^3.2.0
+  '@wagmi/core': ^3.1.0
   prool: ~0.2.0
   react: ^19.1.1
   react-dom: ^19.1.1
   typescript: ^5.9.3
-  viem: https://pkg.pr.new/viem@28ba089
+  viem: ^2.43.5
   wagmi: ^3.2.0
 
 onlyBuiltDependencies:
