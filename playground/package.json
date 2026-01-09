@@ -13,10 +13,10 @@
 		"@tanstack/react-query": "catalog:default",
 		"jotai": "latest",
 		"prool": "catalog:default",
-		"tempo.ts": "workspace:*",
 		"react": "catalog:default",
 		"react-dom": "catalog:default",
-		"viem": "catalog:default",
+		"tempo.ts": "workspace:*",
+		"viem": "catalog:",
 		"wagmi": "catalog:default"
 	},
 	"devDependencies": {

@@ -13,7 +13,7 @@
 		"react": "^19",
 		"react-dom": "^19",
 		"tempo.ts": "~0.13.0",
-		"viem": "^2",
+		"viem": "catalog:",
 		"wagmi": "^3"
 	},
 	"devDependencies": {

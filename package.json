@@ -48,7 +48,7 @@
 		"simple-git-hooks": "^2.13.1",
 		"testcontainers": "^11.10.0",
 		"typescript": "catalog:default",
-		"viem": "catalog:default",
+		"viem": "catalog:",
 		"vitest": "^4.0.13",
 		"wagmi": "catalog:default",
 		"zile": "^0.0.13"

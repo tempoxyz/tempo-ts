@@ -253,6 +253,12 @@ export function SendPayment() {
         Send Payment
       </button>
 
+      {sendPayment.error && (
+        <pre style={{ color: 'red', marginTop: '8px', whiteSpace: 'pre-wrap' }}>
+          {sendPayment.error.stack || String(sendPayment.error)}
+        </pre>
+      )}
+
       {sendPayment.data && (
         <a
           href={`https://explore.tempo.xyz/tx/${sendPayment.data.receipt.transactionHash}`}
