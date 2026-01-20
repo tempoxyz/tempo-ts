@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.14.0
+
+### Minor Changes
+
+- [`c01b2ec`](https://github.com/tempoxyz/tempo-ts/commit/c01b2ecccf0afcfce8b688cfe8a39759fa7b6999) Thanks [@jxom](https://github.com/jxom)! - Added CORS configuration to `Handler`.
+
 ## 0.13.0
 
 ### Minor Changes
