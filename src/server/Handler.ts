@@ -697,7 +697,8 @@ function headers(headers: Headers): Middleware {
   return async (_, next) => {
     const response = await next()
     const responseHeaders = new Headers(response.headers)
-    for (const [key, value] of headers.entries()) responseHeaders.set(key, value)
+    for (const [key, value] of headers.entries())
+      responseHeaders.set(key, value)
     return new Response(response.body, {
       headers: responseHeaders,
       status: response.status,
