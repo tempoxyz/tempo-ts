@@ -2,7 +2,6 @@
 	"name": "accounts-example",
 	"private": true,
 	"type": "module",
-
 	"scripts": {
 		"build": "tsc -b && vite build",
 		"check:types": "tsc -b",
@@ -18,7 +17,7 @@
 		"ox": "~0.9.17",
 		"react": "^19",
 		"react-dom": "^19",
-		"tempo.ts": "~0.13.0",
+		"tempo.ts": "~0.14.0",
 		"viem": "^2",
 		"wagmi": "^3"
 	},
