@@ -20,6 +20,112 @@ import { createServer, type Server } from '../../test/server/utils.js'
 import * as Handler from './Handler.js'
 import * as Kv from './Kv.js'
 
+describe('from', () => {
+  describe('cors', () => {
+    test('default: adds CORS headers', async () => {
+      const handler = Handler.from()
+      handler.get('/test', () => new Response('test'))
+
+      const response = await handler.fetch(new Request('http://localhost/test'))
+
+      expect(response.status).toBe(200)
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
+      expect(response.headers.get('Access-Control-Allow-Methods')).toBe(
+        'GET, POST, PUT, DELETE, OPTIONS',
+      )
+      expect(response.headers.get('Access-Control-Allow-Headers')).toBe(
+        'Content-Type',
+      )
+    })
+
+    test('behavior: cors = false disables CORS headers', async () => {
+      const handler = Handler.from({ cors: false })
+      handler.get('/test', () => new Response('test'))
+
+      const response = await handler.fetch(new Request('http://localhost/test'))
+
+      expect(response.status).toBe(200)
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBeNull()
+      expect(response.headers.get('Access-Control-Allow-Methods')).toBeNull()
+    })
+
+    test('behavior: custom cors config', async () => {
+      const handler = Handler.from({
+        cors: {
+          origin: 'https://example.com',
+          methods: 'GET, POST',
+          headers: 'Content-Type, Authorization',
+          credentials: true,
+          maxAge: 86400,
+        },
+      })
+      handler.get('/test', () => new Response('test'))
+
+      const response = await handler.fetch(new Request('http://localhost/test'))
+
+      expect(response.status).toBe(200)
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBe(
+        'https://example.com',
+      )
+      expect(response.headers.get('Access-Control-Allow-Methods')).toBe(
+        'GET, POST',
+      )
+      expect(response.headers.get('Access-Control-Allow-Headers')).toBe(
+        'Content-Type, Authorization',
+      )
+      expect(response.headers.get('Access-Control-Allow-Credentials')).toBe(
+        'true',
+      )
+      expect(response.headers.get('Access-Control-Max-Age')).toBe('86400')
+    })
+
+    test('behavior: cors with array of origins', async () => {
+      const handler = Handler.from({
+        cors: {
+          origin: ['https://example.com', 'https://other.com'],
+        },
+      })
+      handler.get('/test', () => new Response('test'))
+
+      const response = await handler.fetch(new Request('http://localhost/test'))
+
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBe(
+        'https://example.com, https://other.com',
+      )
+    })
+
+    test('behavior: OPTIONS preflight with default CORS', async () => {
+      const handler = Handler.from()
+      handler.get('/test', () => new Response('test'))
+
+      const response = await handler.fetch(
+        new Request('http://localhost/test', { method: 'OPTIONS' }),
+      )
+
+      expect(response.status).toBe(200)
+      expect(await response.text()).toBe('')
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
+      expect(response.headers.get('Access-Control-Allow-Methods')).toBe(
+        'GET, POST, PUT, DELETE, OPTIONS',
+      )
+    })
+
+    test('behavior: custom headers override CORS headers', async () => {
+      const handler = Handler.from({
+        cors: { origin: 'https://default.com' },
+        headers: { 'Access-Control-Allow-Origin': 'https://override.com' },
+      })
+      handler.get('/test', () => new Response('test'))
+
+      const response = await handler.fetch(new Request('http://localhost/test'))
+
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBe(
+        'https://override.com',
+      )
+    })
+  })
+})
+
 describe('compose', () => {
   test('default', async () => {
     const handler1 = Handler.from()

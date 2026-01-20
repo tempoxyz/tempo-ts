@@ -2,6 +2,7 @@
 	"name": "accounts-example",
 	"private": true,
 	"type": "module",
+
 	"scripts": {
 		"build": "tsc -b && vite build",
 		"check:types": "tsc -b",

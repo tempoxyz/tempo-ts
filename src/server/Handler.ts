@@ -58,9 +58,14 @@ export declare namespace compose {
  * @returns Handler instance
  */
 export function from(options: from.Options = {}): Handler {
+  const corsHeaders = corsToHeaders(options.cors)
+  const mergedHeaders = new Headers(corsHeaders)
+  for (const [key, value] of normalizeHeaders(options.headers).entries())
+    mergedHeaders.set(key, value)
+
   const router = createRouter({
     ...options,
-    middleware: [headers(options.headers), preflight(options.headers)],
+    middleware: [headers(mergedHeaders), preflight(mergedHeaders)],
   })
 
   return {
@@ -73,8 +78,28 @@ export function from(options: from.Options = {}): Handler {
 
 export declare namespace from {
   export type Options = RouterOptions & {
+    /**
+     * CORS configuration.
+     * - `true` (default): Allow all origins with default methods/headers
+     * - `false`: Disable CORS headers
+     * - Object: Custom CORS configuration
+     */
+    cors?: boolean | Cors | undefined
     /** Headers to add to the response. */
     headers?: Headers | Record<string, string> | undefined
+  }
+
+  export type Cors = {
+    /** Allowed origins. Defaults to `'*'`. */
+    origin?: string | string[] | undefined
+    /** Allowed methods. Defaults to `'GET, POST, PUT, DELETE, OPTIONS'`. */
+    methods?: string | undefined
+    /** Allowed headers. Defaults to `'Content-Type'`. */
+    headers?: string | undefined
+    /** Whether to allow credentials. */
+    credentials?: boolean | undefined
+    /** Max age for preflight cache in seconds. */
+    maxAge?: number | undefined
   }
 }
 
@@ -644,15 +669,37 @@ function normalizeHeaders(headers?: Headers | Record<string, string>): Headers {
 }
 
 /** @internal */
-function headers(headers?: Headers | Record<string, string>): Middleware {
-  const normalizedHeaders = normalizeHeaders(headers)
+function corsToHeaders(cors?: boolean | from.Cors): Headers {
+  if (cors === false) return new Headers()
+
+  const config = cors === true || cors === undefined ? {} : cors
+
+  const headers = new Headers()
+  const origin = Array.isArray(config.origin)
+    ? config.origin.join(', ')
+    : (config.origin ?? '*')
+  headers.set('Access-Control-Allow-Origin', origin)
+  headers.set(
+    'Access-Control-Allow-Methods',
+    config.methods ?? 'GET, POST, PUT, DELETE, OPTIONS',
+  )
+  headers.set('Access-Control-Allow-Headers', config.headers ?? 'Content-Type')
+  if (config.credentials)
+    headers.set('Access-Control-Allow-Credentials', 'true')
+  if (config.maxAge !== undefined)
+    headers.set('Access-Control-Max-Age', String(config.maxAge))
+
+  return headers
+}
+
+/** @internal */
+function headers(headers: Headers): Middleware {
   return async (_, next) => {
     const response = await next()
-    const headers = new Headers(response.headers)
-    for (const [key, value] of normalizedHeaders.entries())
-      headers.set(key, value)
+    const responseHeaders = new Headers(response.headers)
+    for (const [key, value] of headers.entries()) responseHeaders.set(key, value)
     return new Response(response.body, {
-      headers,
+      headers: responseHeaders,
       status: response.status,
       statusText: response.statusText,
     })
@@ -660,10 +707,9 @@ function headers(headers?: Headers | Record<string, string>): Middleware {
 }
 
 /** @internal */
-function preflight(headers?: Headers | Record<string, string>): Middleware {
-  const normalizedHeaders = normalizeHeaders(headers)
+function preflight(headers: Headers): Middleware {
   return async (context) => {
     if (context.request.method === 'OPTIONS')
-      return new Response(null, { headers: normalizedHeaders })
+      return new Response(null, { headers })
   }
 }

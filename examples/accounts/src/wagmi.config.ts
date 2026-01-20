@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
-import { tempoTestnet } from 'viem/chains'
+import { tempoModerato } from 'viem/chains'
 import { createConfig, webSocket } from 'wagmi'
 import { KeyManager, webAuthn } from 'wagmi/tempo'
 
@@ -13,9 +13,9 @@ export const config = createConfig({
       keyManager: KeyManager.http('/key'),
     }),
   ],
-  chains: [tempoTestnet({ feeToken: alphaUsd })],
+  chains: [tempoModerato.extend({ feeToken: alphaUsd })],
   transports: {
-    [tempoTestnet.id]: webSocket(),
+    [tempoModerato.id]: webSocket(),
   },
 })
 

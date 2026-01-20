@@ -149,7 +149,7 @@ export function PlaceOrder() {
           sendCalls.sendCallsSync({
             calls: [
               Actions.token.approve.call({
-                spender: Addresses.stablecoinExchange,
+                spender: Addresses.stablecoinDex,
                 amount,
                 token: pathUsd,
               }),
@@ -225,7 +225,7 @@ export function MakeSwaps() {
             buySendCalls.sendCallsSync({
               calls: [
                 Actions.token.approve.call({
-                  spender: Addresses.stablecoinExchange,
+                  spender: Addresses.stablecoinDex,
                   amount: maxAmountIn,
                   token: betaUsd,
                 }),
@@ -261,7 +261,7 @@ export function MakeSwaps() {
             sellSendCalls.sendCallsSync({
               calls: [
                 Actions.token.approve.call({
-                  spender: Addresses.stablecoinExchange,
+                  spender: Addresses.stablecoinDex,
                   amount: amount,
                   token: alphaUsd,
                 }),
