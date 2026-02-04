@@ -1,6 +1,5 @@
 packages:
   - .
-  - examples/*
   - playground
 
 catalog:
@@ -13,8 +12,8 @@ catalog:
   react: ^19.1.1
   react-dom: ^19.1.1
   typescript: ^5.9.3
-  viem: ^2.44.2
-  wagmi: ^3.2.0
+  viem: ^2.45.1
+  wagmi: ^3.4.2
 
 onlyBuiltDependencies:
   - esbuild

@@ -38,7 +38,6 @@
 		"@typescript/native-preview": "7.0.0-dev.20251110.1",
 		"@vitejs/plugin-react": "catalog:default",
 		"@vitest/coverage-v8": "^4.0.13",
-		"@wagmi/core": "catalog:default",
 		"elysia": "^1.4.16",
 		"express": "^5.1.0",
 		"hono": "^4.10.6",
@@ -50,7 +49,6 @@
 		"typescript": "catalog:default",
 		"viem": "catalog:default",
 		"vitest": "^4.0.13",
-		"wagmi": "catalog:default",
 		"zile": "^0.0.13"
 	},
 	"simple-git-hooks": {
