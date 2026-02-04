@@ -1,6 +1,5 @@
 packages:
   - .
-  - playground
 
 catalog:
   '@tanstack/react-query': 5.90.5
