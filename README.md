@@ -38,6 +38,7 @@ pnpm i tempo.ts
 ```ts
 import { Handler } from 'tempo.ts/server'
 import { account, client } from './config'
+import { createServer } from 'node:http'
  
 const handler = Handler.feePayer({
   account,
