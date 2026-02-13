@@ -42,7 +42,7 @@ import { account, client } from './config'
 const handler = Handler.feePayer({
   account,
   client,
-  feeToken: '0x20c0…0001'
+  feeToken: '0x20c0…0001',
   path: '/fee-payer',
 })
  
