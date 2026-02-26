@@ -278,7 +278,7 @@
       path: '/fee-payer'
     }),
     Handler.keyManager({
-      kv: Kv.memory()
+      kv: Kv.memory(),
       path: '/key'
     }),
   ], { path: '/api' })
