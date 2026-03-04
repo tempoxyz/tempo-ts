@@ -3,7 +3,7 @@
 		"build": "zile",
 		"changeset:publish": "zile publish:prepare && changeset publish && zile publish:post",
 		"changeset:version": "changeset version && pnpm check",
-		"check": "biome check . --write --unsafe",
+		"check": "oxlint --fix --ignore-pattern package.json && oxfmt",
 		"check:types": "tsgo -b",
 		"check:types:examples": "pnpm --filter *-example check:types",
 		"preconstruct": "zile dev && pnpm check",
@@ -18,7 +18,6 @@
 		}
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.4.5",
 		"@changesets/changelog-github": "^0.6.0",
 		"@changesets/cli": "^2.30.0",
 		"@types/express": "^5.0.6",
@@ -31,6 +30,8 @@
 		"elysia": "^1.4.27",
 		"express": "^5.2.1",
 		"hono": "^4.12.4",
+		"oxfmt": "^0.35.0",
+		"oxlint": "^1.50.0",
 		"prool": "catalog:default",
 		"react": "catalog:default",
 		"react-dom": "catalog:default",
