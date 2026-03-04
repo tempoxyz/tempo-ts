@@ -13,11 +13,7 @@
 <br>
 <br>
 
-# Tempo TS
-
-> [!NOTE]
-> This is a temporary package for TypeScript tooling for Tempo.
-> It will be merged into [Wevm](https://github.com/wevm) repositories soon.
+# Tempo TypeScript SDK
 
 ## Install
 
@@ -30,37 +26,6 @@ pnpm i tempo.ts
 | Entrypoint        | Description                              |
 | ----------------- | ---------------------------------------- |
 | `tempo.ts/server` | Framework-agnostic server handlers.      |
-
-## Usage
-
-### `tempo.ts/server`
-
-```ts
-import { Handler } from 'tempo.ts/server'
-import { account, client } from './config'
- 
-const handler = Handler.feePayer({
-  account,
-  client,
-  feeToken: '0x20c0…0001'
-  path: '/fee-payer',
-})
- 
-createServer(handler.listener) // Node.js
- 
-Bun.serve(handler) // Bun
- 
-Deno.serve(handler) // Deno
- 
-app.all('*', c => handler.fetch(c.request)) // Elysia
- 
-app.use(handler.listener) // Express
- 
-app.use(c => handler.fetch(c.req.raw)) // Hono
- 
-export const GET = handler.fetch // Next.js
-export const POST = handler.fetch // Next.js
-```
 
 ## Contributing
 
