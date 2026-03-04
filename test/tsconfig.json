@@ -1,6 +1,5 @@
 {
 	"extends": "../tsconfig.base.json",
-	"exclude": ["tempo", "docs"],
 	"include": ["../env.d.ts", "./**/*", "../src/**/*.test.ts"],
 	"compilerOptions": {
 		"customConditions": ["src"],
