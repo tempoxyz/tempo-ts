@@ -570,9 +570,8 @@ export function feePayer(options: feePayer.Options) {
         const serializedTransaction = await signTransaction(client, {
           ...transaction,
           account,
-          // @ts-expect-error
           feePayer: account,
-        })
+        } as any)
 
         return Response.json(
           RpcResponse.from({ result: serializedTransaction }, { request }),
@@ -595,9 +594,8 @@ export function feePayer(options: feePayer.Options) {
         const serializedTransaction = await signTransaction(client, {
           ...transaction,
           account,
-          // @ts-expect-error
           feePayer: account,
-        })
+        } as any)
 
         const result = await client.request({
           method: request.method,
