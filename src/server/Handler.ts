@@ -557,76 +557,55 @@ export function feePayer(options: feePayer.Options) {
     try {
       await onRequest?.(request)
 
-      if ((request as any).method === 'eth_signRawTransaction') {
-        const serialized = request.params?.[0] as `0x76${string}`
+      const method = request.method as string
+      if (
+        method !== 'eth_signRawTransaction' &&
+        method !== 'eth_sendRawTransaction' &&
+        method !== 'eth_sendRawTransactionSync'
+      )
+        return Response.json(
+          RpcResponse.from(
+            {
+              error: new RpcResponse.MethodNotSupportedError({
+                message: `Method not supported: ${request.method}`,
+              }),
+            },
+            { request },
+          ),
+        )
 
-        if (!serialized?.startsWith('0x76'))
-          throw new RpcResponse.InvalidParamsError({
-            message: 'Only Tempo (0x76) transactions are supported.',
-          })
+      const serialized = request.params?.[0] as `0x76${string}`
 
-        const transaction = Transaction.deserialize(serialized) as any
-
-        if (!transaction.signature || !transaction.from)
-          throw new RpcResponse.InvalidParamsError({
-            message:
-              'Transaction must be signed by the sender before fee payer signing.',
-          })
-
-        const serializedTransaction = await signTransaction(client, {
-          ...transaction,
-          account,
-          feePayer: account,
+      if (!serialized?.startsWith('0x76'))
+        throw new RpcResponse.InvalidParamsError({
+          message: 'Only Tempo (0x76) transactions are supported.',
         })
 
+      const transaction = Transaction.deserialize(serialized) as any
+
+      if (!transaction.signature || !transaction.from)
+        throw new RpcResponse.InvalidParamsError({
+          message:
+            'Transaction must be signed by the sender before fee payer signing.',
+        })
+
+      const serializedTransaction = await signTransaction(client, {
+        ...transaction,
+        account,
+        feePayer: account,
+      })
+
+      if (method === 'eth_signRawTransaction')
         return Response.json(
           RpcResponse.from({ result: serializedTransaction }, { request }),
         )
-      }
 
-      if (
-        request.method === 'eth_sendRawTransaction' ||
-        request.method === 'eth_sendRawTransactionSync'
-      ) {
-        const serialized = request.params?.[0] as `0x76${string}`
+      const result = await (client as any).request({
+        method,
+        params: [serializedTransaction],
+      })
 
-        if (!serialized?.startsWith('0x76'))
-          throw new RpcResponse.InvalidParamsError({
-            message: 'Only Tempo (0x76) transactions are supported.',
-          })
-
-        const transaction = Transaction.deserialize(serialized) as any
-
-        if (!transaction.signature || !transaction.from)
-          throw new RpcResponse.InvalidParamsError({
-            message:
-              'Transaction must be signed by the sender before fee payer signing.',
-          })
-
-        const serializedTransaction = await signTransaction(client, {
-          ...transaction,
-          account,
-          feePayer: account,
-        })
-
-        const result = await (client as any).request({
-          method: request.method,
-          params: [serializedTransaction],
-        })
-
-        return Response.json(RpcResponse.from({ result }, { request }))
-      }
-
-      return Response.json(
-        RpcResponse.from(
-          {
-            error: new RpcResponse.MethodNotSupportedError({
-              message: `Method not supported: ${request.method}`,
-            }),
-          },
-          { request },
-        ),
-      )
+      return Response.json(RpcResponse.from({ result }, { request }))
     } catch (error) {
       return Response.json(
         RpcResponse.from(
