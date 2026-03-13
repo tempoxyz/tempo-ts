@@ -11,7 +11,7 @@ import type * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { type Chain, type Client, createClient, type Transport } from 'viem'
 import type { LocalAccount } from 'viem/accounts'
 import { signTransaction } from 'viem/actions'
-import { Formatters, Transaction } from 'viem/tempo'
+import { Transaction } from 'viem/tempo'
 import type { OneOf } from '../internal/types.js'
 import * as RequestListener from './internal/requestListener.js'
 import type * as Kv from './Kv.js'
@@ -557,71 +557,55 @@ export function feePayer(options: feePayer.Options) {
     try {
       await onRequest?.(request)
 
-      if (request.method === 'eth_signTransaction') {
-        const transactionRequest = Formatters.formatTransaction(
-          request.params?.[0] as never,
-        )
-
-        const serializedTransaction = await signTransaction(client, {
-          ...transactionRequest,
-          account,
-          // @ts-expect-error
-          feePayer: account,
-        })
-
-        return Response.json(
-          RpcResponse.from({ result: serializedTransaction }, { request }),
-        )
-      }
-
-      if ((request as any).method === 'eth_signRawTransaction') {
-        const serialized = request.params?.[0] as `0x76${string}`
-        const transaction = Transaction.deserialize(serialized)
-
-        const serializedTransaction = await signTransaction(client, {
-          ...transaction,
-          account,
-          // @ts-expect-error
-          feePayer: account,
-        })
-
-        return Response.json(
-          RpcResponse.from({ result: serializedTransaction }, { request }),
-        )
-      }
-
+      const method = request.method as string
       if (
-        request.method === 'eth_sendRawTransaction' ||
-        request.method === 'eth_sendRawTransactionSync'
-      ) {
-        const serialized = request.params?.[0] as `0x76${string}`
-        const transaction = Transaction.deserialize(serialized)
-
-        const serializedTransaction = await signTransaction(client, {
-          ...transaction,
-          account,
-          // @ts-expect-error
-          feePayer: account,
-        })
-
-        const result = await client.request({
-          method: request.method,
-          params: [serializedTransaction],
-        })
-
-        return Response.json(RpcResponse.from({ result }, { request }))
-      }
-
-      return Response.json(
-        RpcResponse.from(
-          {
-            error: new RpcResponse.MethodNotSupportedError({
-              message: `Method not supported: ${request.method}`,
-            }),
-          },
-          { request },
-        ),
+        method !== 'eth_signRawTransaction' &&
+        method !== 'eth_sendRawTransaction' &&
+        method !== 'eth_sendRawTransactionSync'
       )
+        return Response.json(
+          RpcResponse.from(
+            {
+              error: new RpcResponse.MethodNotSupportedError({
+                message: `Method not supported: ${request.method}`,
+              }),
+            },
+            { request },
+          ),
+        )
+
+      const serialized = request.params?.[0] as `0x76${string}`
+
+      if (!serialized?.startsWith('0x76'))
+        throw new RpcResponse.InvalidParamsError({
+          message: 'Only Tempo (0x76) transactions are supported.',
+        })
+
+      const transaction = Transaction.deserialize(serialized) as any
+
+      if (!transaction.signature || !transaction.from)
+        throw new RpcResponse.InvalidParamsError({
+          message:
+            'Transaction must be signed by the sender before fee payer signing.',
+        })
+
+      const serializedTransaction = await signTransaction(client, {
+        ...transaction,
+        account,
+        feePayer: account,
+      })
+
+      if (method === 'eth_signRawTransaction')
+        return Response.json(
+          RpcResponse.from({ result: serializedTransaction }, { request }),
+        )
+
+      const result = await (client as any).request({
+        method,
+        params: [serializedTransaction],
+      })
+
+      return Response.json(RpcResponse.from({ result }, { request }))
     } catch (error) {
       return Response.json(
         RpcResponse.from(
