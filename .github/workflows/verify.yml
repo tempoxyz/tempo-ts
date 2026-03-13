@@ -25,7 +25,7 @@ jobs:
         run: pnpm build
 
       - name: Check types
-        run: pnpm check:types
+        run: pnpm run check:types
 
   test-localnet:
     name: 'Test Runtime (env: localnet, tag: ${{ matrix.tag }})'
