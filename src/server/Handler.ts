@@ -355,7 +355,7 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempoTestnet.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempoModerato.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -379,7 +379,7 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempoTestnet.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempoModerato.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -402,7 +402,7 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempoTestnet.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempoModerato.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -427,7 +427,7 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempoTestnet.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempoModerato.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -451,7 +451,7 @@ export declare namespace keyManager {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempoTestnet.extend({
+ *   chain: tempoModerato.extend({
  *     feeToken: '0x20c0000000000000000000000000000000000001',
  *   }),
  *   transport: http(),
@@ -475,7 +475,7 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempoTestnet.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempoModerato.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -497,7 +497,7 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempoTestnet.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempoModerato.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *

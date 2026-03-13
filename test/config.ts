@@ -1,4 +1,4 @@
-import { tempoDevnet, tempoLocalnet, tempoTestnet } from 'viem/chains'
+import { tempoDevnet, tempoLocalnet, tempoModerato } from 'viem/chains'
 
 export const addresses = {
   alphaUsd: '0x20c0000000000000000000000000000000000001',
@@ -11,7 +11,7 @@ export const id =
 
 export const nodeEnv = import.meta.env.VITE_NODE_ENV || 'localnet'
 export const chainId = (() => {
-  if (nodeEnv === 'testnet') return tempoTestnet.id
+  if (nodeEnv === 'moderato') return tempoModerato.id
   if (nodeEnv === 'devnet') return tempoDevnet.id
   return tempoLocalnet.id
 })()
@@ -24,7 +24,7 @@ export const fetchOptions = {
 
 export const rpcUrl = (() => {
   const env = import.meta.env.VITE_NODE_ENV
-  if (env === 'testnet') return tempoTestnet.rpcUrls.default.http[0]
+  if (env === 'moderato') return tempoModerato.rpcUrls.default.http[0]
   if (env === 'devnet') return tempoDevnet.rpcUrls.default.http[0]
   return `http://localhost:${import.meta.env.RPC_PORT ?? '8545'}/${id}`
 })()

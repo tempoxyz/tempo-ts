@@ -10,7 +10,7 @@ import {
   http as viem_http,
 } from 'viem'
 import { type Address, english, generateMnemonic, type JsonRpcAccount } from 'viem/accounts'
-import { tempoLocalnet, tempoTestnet } from 'viem/chains'
+import { tempoLocalnet, tempoModerato } from 'viem/chains'
 import {
   // biome-ignore lint/correctness/noUnusedImports: This is needed to ensure TypeScript can reference viem/tempo types portably
   type z_TokenId as _,
@@ -39,7 +39,7 @@ export const addresses = {
 } as const
 
 export const chain = (() => {
-  if (nodeEnv === 'testnet') return tempoTestnet
+  if (nodeEnv === 'moderato') return tempoModerato
   return tempoLocalnet
 })()
 
