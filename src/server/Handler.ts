@@ -561,6 +561,12 @@ export function feePayer(options: feePayer.Options) {
         const serialized = request.params?.[0] as `0x76${string}`
         const transaction = Transaction.deserialize(serialized)
 
+        if (!transaction.signature || !transaction.from)
+          throw new RpcResponse.InvalidParamsError({
+            message:
+              'Transaction must be signed by the sender before fee payer signing.',
+          })
+
         const serializedTransaction = await signTransaction(client, {
           ...transaction,
           account,
@@ -579,6 +585,12 @@ export function feePayer(options: feePayer.Options) {
       ) {
         const serialized = request.params?.[0] as `0x76${string}`
         const transaction = Transaction.deserialize(serialized)
+
+        if (!transaction.signature || !transaction.from)
+          throw new RpcResponse.InvalidParamsError({
+            message:
+              'Transaction must be signed by the sender before fee payer signing.',
+          })
 
         const serializedTransaction = await signTransaction(client, {
           ...transaction,

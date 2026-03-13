@@ -1190,6 +1190,42 @@ describe('feePayer', () => {
       expect(data.error.name).toBe('RpcResponse.MethodNotSupportedError')
     })
 
+    test('behavior: eth_signRawTransaction rejects unsigned transaction', async () => {
+      const response = await fetch(server.url, {
+        method: 'POST',
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_signRawTransaction',
+          params: [
+            '0x76e501808080d8d79400000000000000000000000000000000000000008080c0808080808080c0',
+          ],
+        }),
+      })
+
+      const data = await response.json()
+      expect(data.error.code).toBe(-32602)
+      expect(data.error.name).toBe('RpcResponse.InvalidParamsError')
+    })
+
+    test('behavior: eth_sendRawTransaction rejects unsigned transaction', async () => {
+      const response = await fetch(server.url, {
+        method: 'POST',
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_sendRawTransaction',
+          params: [
+            '0x76e501808080d8d79400000000000000000000000000000000000000008080c0808080808080c0',
+          ],
+        }),
+      })
+
+      const data = await response.json()
+      expect(data.error.code).toBe(-32602)
+      expect(data.error.name).toBe('RpcResponse.InvalidParamsError')
+    })
+
     test('behavior: unsupported method', async () => {
       await expect(
         fetch(server.url, {
