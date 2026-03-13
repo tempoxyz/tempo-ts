@@ -1169,6 +1169,27 @@ describe('feePayer', () => {
       `)
     })
 
+    test('behavior: eth_signTransaction is rejected', async () => {
+      const response = await fetch(server.url, {
+        method: 'POST',
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_signTransaction',
+          params: [
+            {
+              to: '0x0000000000000000000000000000000000000000',
+              value: '0x0',
+            },
+          ],
+        }),
+      })
+
+      const data = await response.json()
+      expect(data.error.code).toBe(-32004)
+      expect(data.error.name).toBe('RpcResponse.MethodNotSupportedError')
+    })
+
     test('behavior: unsupported method', async () => {
       await expect(
         fetch(server.url, {

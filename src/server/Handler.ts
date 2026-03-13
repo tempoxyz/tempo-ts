@@ -11,7 +11,7 @@ import type * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { type Chain, type Client, createClient, type Transport } from 'viem'
 import type { LocalAccount } from 'viem/accounts'
 import { signTransaction } from 'viem/actions'
-import { Formatters, Transaction } from 'viem/tempo'
+import { Transaction } from 'viem/tempo'
 import type { OneOf } from '../internal/types.js'
 import * as RequestListener from './internal/requestListener.js'
 import type * as Kv from './Kv.js'
@@ -556,23 +556,6 @@ export function feePayer(options: feePayer.Options) {
 
     try {
       await onRequest?.(request)
-
-      if (request.method === 'eth_signTransaction') {
-        const transactionRequest = Formatters.formatTransaction(
-          request.params?.[0] as never,
-        )
-
-        const serializedTransaction = await signTransaction(client, {
-          ...transactionRequest,
-          account,
-          // @ts-expect-error
-          feePayer: account,
-        })
-
-        return Response.json(
-          RpcResponse.from({ result: serializedTransaction }, { request }),
-        )
-      }
 
       if ((request as any).method === 'eth_signRawTransaction') {
         const serialized = request.params?.[0] as `0x76${string}`
