@@ -21,11 +21,11 @@ jobs:
       - name: Check code
         run: pnpm check
 
-      - name: Check build
-        run: pnpm build
-
       - name: Check types
         run: pnpm run check:types
+
+      - name: Check build
+        run: pnpm build
 
   test-localnet:
     name: 'Test Runtime (env: localnet, tag: ${{ matrix.tag }})'
