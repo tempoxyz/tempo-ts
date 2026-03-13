@@ -6,15 +6,8 @@ import * as Base64 from 'ox/Base64'
 import * as Hex from 'ox/Hex'
 import { sendTransactionSync } from 'viem/actions'
 import { withFeePayer } from 'viem/tempo'
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  test,
-} from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest'
+
 import { accounts, getClient, http } from '../../test/server/config.js'
 import { createServer, type Server } from '../../test/server/utils.js'
 import * as Handler from './Handler.js'
@@ -33,9 +26,7 @@ describe('from', () => {
       expect(response.headers.get('Access-Control-Allow-Methods')).toBe(
         'GET, POST, PUT, DELETE, OPTIONS',
       )
-      expect(response.headers.get('Access-Control-Allow-Headers')).toBe(
-        'Content-Type',
-      )
+      expect(response.headers.get('Access-Control-Allow-Headers')).toBe('Content-Type')
     })
 
     test('behavior: cors = false disables CORS headers', async () => {
@@ -64,18 +55,12 @@ describe('from', () => {
       const response = await handler.fetch(new Request('http://localhost/test'))
 
       expect(response.status).toBe(200)
-      expect(response.headers.get('Access-Control-Allow-Origin')).toBe(
-        'https://example.com',
-      )
-      expect(response.headers.get('Access-Control-Allow-Methods')).toBe(
-        'GET, POST',
-      )
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBe('https://example.com')
+      expect(response.headers.get('Access-Control-Allow-Methods')).toBe('GET, POST')
       expect(response.headers.get('Access-Control-Allow-Headers')).toBe(
         'Content-Type, Authorization',
       )
-      expect(response.headers.get('Access-Control-Allow-Credentials')).toBe(
-        'true',
-      )
+      expect(response.headers.get('Access-Control-Allow-Credentials')).toBe('true')
       expect(response.headers.get('Access-Control-Max-Age')).toBe('86400')
     })
 
@@ -119,9 +104,7 @@ describe('from', () => {
 
       const response = await handler.fetch(new Request('http://localhost/test'))
 
-      expect(response.headers.get('Access-Control-Allow-Origin')).toBe(
-        'https://override.com',
-      )
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBe('https://override.com')
     })
   })
 })
@@ -143,9 +126,7 @@ describe('compose', () => {
     }
 
     {
-      const response = await handler.fetch(
-        new Request('http://localhost/test2'),
-      )
+      const response = await handler.fetch(new Request('http://localhost/test2'))
       expect(response.status).toBe(200)
       expect(await response.text()).toBe('test2')
     }
@@ -163,17 +144,13 @@ describe('compose', () => {
     expect(handler).toBeDefined()
 
     {
-      const response = await handler.fetch(
-        new Request('http://localhost/api/test'),
-      )
+      const response = await handler.fetch(new Request('http://localhost/api/test'))
       expect(response.status).toBe(200)
       expect(await response.text()).toBe('test')
     }
 
     {
-      const response = await handler.fetch(
-        new Request('http://localhost/api/test2'),
-      )
+      const response = await handler.fetch(new Request('http://localhost/api/test2'))
       expect(response.status).toBe(200)
       expect(await response.text()).toBe('test2')
     }
@@ -200,18 +177,14 @@ describe('compose', () => {
       expect(response.status).toBe(200)
       expect(await response.text()).toBe('test')
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
-      expect(response.headers.get('Access-Control-Allow-Methods')).toBe(
-        'POST, OPTIONS',
-      )
+      expect(response.headers.get('Access-Control-Allow-Methods')).toBe('POST, OPTIONS')
       expect(response.headers.get('Access-Control-Allow-Headers')).toBe(
         'Content-Type, Authorization',
       )
     }
 
     {
-      const response = await handler.fetch(
-        new Request('http://localhost/test2'),
-      )
+      const response = await handler.fetch(new Request('http://localhost/test2'))
       expect(response.status).toBe(200)
       expect(await response.text()).toBe('test2')
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
@@ -235,21 +208,15 @@ describe('compose', () => {
     })
 
     {
-      const response = await handler.fetch(
-        new Request('http://localhost/api/test'),
-      )
+      const response = await handler.fetch(new Request('http://localhost/api/test'))
       expect(response.status).toBe(200)
       expect(await response.text()).toBe('test')
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
-      expect(response.headers.get('Access-Control-Allow-Methods')).toBe(
-        'POST, OPTIONS',
-      )
+      expect(response.headers.get('Access-Control-Allow-Methods')).toBe('POST, OPTIONS')
     }
 
     {
-      const response = await handler.fetch(
-        new Request('http://localhost/api/test2'),
-      )
+      const response = await handler.fetch(new Request('http://localhost/api/test2'))
       expect(response.status).toBe(200)
       expect(await response.text()).toBe('test2')
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
@@ -280,12 +247,8 @@ describe('compose', () => {
     expect(response.status).toBe(200)
     expect(await response.text()).toBe('')
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
-    expect(response.headers.get('Access-Control-Allow-Methods')).toBe(
-      'POST, OPTIONS',
-    )
-    expect(response.headers.get('Access-Control-Allow-Headers')).toBe(
-      'Content-Type, Authorization',
-    )
+    expect(response.headers.get('Access-Control-Allow-Methods')).toBe('POST, OPTIONS')
+    expect(response.headers.get('Access-Control-Allow-Headers')).toBe('Content-Type, Authorization')
     expect(response.headers.get('Access-Control-Max-Age')).toBe('86400')
   })
 
@@ -301,9 +264,7 @@ describe('compose', () => {
       headers,
     })
 
-    const response = await handler.fetch(
-      new Request('http://localhost/nonexistent'),
-    )
+    const response = await handler.fetch(new Request('http://localhost/nonexistent'))
 
     expect(response.status).toBe(404)
     expect(await response.text()).toBe('Not Found')
@@ -376,12 +337,8 @@ describe('compose', () => {
     expect(response.status).toBe(200)
     expect(await response.text()).toBe('test')
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
-    expect(response.headers.get('Access-Control-Allow-Methods')).toBe(
-      'POST, OPTIONS',
-    )
-    expect(response.headers.get('Access-Control-Allow-Headers')).toBe(
-      'Content-Type, Authorization',
-    )
+    expect(response.headers.get('Access-Control-Allow-Methods')).toBe('POST, OPTIONS')
+    expect(response.headers.get('Access-Control-Allow-Headers')).toBe('Content-Type, Authorization')
   })
 
   describe('integration', () => {
@@ -432,9 +389,7 @@ describe('compose', () => {
       const app = new Elysia().all('*', ({ request }) => handler.fetch(request))
 
       {
-        const response = await app.handle(
-          new Request('http://localhost/api/foo'),
-        )
+        const response = await app.handle(new Request('http://localhost/api/foo'))
         expect(await response.text()).toBe('foo')
       }
 
@@ -552,9 +507,7 @@ describe('from', () => {
 
   test('.listener', async () => {
     const handler = Handler.from()
-    handler.get('/test', () =>
-      Response.json({ message: 'hello from listener' }),
-    )
+    handler.get('/test', () => Response.json({ message: 'hello from listener' }))
 
     const server = await createServer(handler.listener)
 
@@ -580,12 +533,8 @@ describe('from', () => {
     expect(response.status).toBe(200)
     expect(await response.text()).toBe('test')
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
-    expect(response.headers.get('Access-Control-Allow-Methods')).toBe(
-      'POST, OPTIONS',
-    )
-    expect(response.headers.get('Access-Control-Allow-Headers')).toBe(
-      'Content-Type, Authorization',
-    )
+    expect(response.headers.get('Access-Control-Allow-Methods')).toBe('POST, OPTIONS')
+    expect(response.headers.get('Access-Control-Allow-Headers')).toBe('Content-Type, Authorization')
   })
 
   test('behavior: headers + OPTIONS', async () => {
@@ -608,12 +557,8 @@ describe('from', () => {
     expect(response.status).toBe(200)
     expect(await response.text()).toBe('')
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
-    expect(response.headers.get('Access-Control-Allow-Methods')).toBe(
-      'POST, OPTIONS',
-    )
-    expect(response.headers.get('Access-Control-Allow-Headers')).toBe(
-      'Content-Type, Authorization',
-    )
+    expect(response.headers.get('Access-Control-Allow-Methods')).toBe('POST, OPTIONS')
+    expect(response.headers.get('Access-Control-Allow-Headers')).toBe('Content-Type, Authorization')
     expect(response.headers.get('Access-Control-Max-Age')).toBe('86400')
   })
 
@@ -625,9 +570,7 @@ describe('from', () => {
     const handler = Handler.from({ headers })
     handler.get('/test', () => new Response('test'))
 
-    const response = await handler.fetch(
-      new Request('http://localhost/nonexistent'),
-    )
+    const response = await handler.fetch(new Request('http://localhost/nonexistent'))
 
     expect(response.status).toBe(404)
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
@@ -669,12 +612,8 @@ describe('from', () => {
     expect(response.status).toBe(200)
     expect(await response.text()).toBe('test')
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
-    expect(response.headers.get('Access-Control-Allow-Methods')).toBe(
-      'POST, OPTIONS',
-    )
-    expect(response.headers.get('Access-Control-Allow-Headers')).toBe(
-      'Content-Type, Authorization',
-    )
+    expect(response.headers.get('Access-Control-Allow-Methods')).toBe('POST, OPTIONS')
+    expect(response.headers.get('Access-Control-Allow-Headers')).toBe('Content-Type, Authorization')
   })
 
   describe('integration', () => {
@@ -791,14 +730,11 @@ describe('keyManager', () => {
 
   describe('GET /challenge', () => {
     test('default', async () => {
-      const response = await handler.fetch(
-        new Request('http://localhost/challenge'),
-      )
+      const response = await handler.fetch(new Request('http://localhost/challenge'))
 
       expect(response.status).toBe(200)
 
-      const data =
-        (await response.json()) as Handler.keyManager.ChallengeResponse
+      const data = (await response.json()) as Handler.keyManager.ChallengeResponse
       expect(Hex.validate(data.challenge)).toBe(true)
 
       // Verify challenge was stored in KV
@@ -812,14 +748,11 @@ describe('keyManager', () => {
         rp: 'example.com',
       })
 
-      const response = await handlerWithRpId.fetch(
-        new Request('http://localhost/challenge'),
-      )
+      const response = await handlerWithRpId.fetch(new Request('http://localhost/challenge'))
 
       expect(response.status).toBe(200)
 
-      const data =
-        (await response.json()) as Handler.keyManager.ChallengeResponse
+      const data = (await response.json()) as Handler.keyManager.ChallengeResponse
       expect(data.rp).toEqual({
         id: 'example.com',
         name: 'example.com',
@@ -834,9 +767,7 @@ describe('keyManager', () => {
 
       await kv.set(`credential:${credentialId}`, publicKey)
 
-      const response = await handler.fetch(
-        new Request(`http://localhost/${credentialId}`),
-      )
+      const response = await handler.fetch(new Request(`http://localhost/${credentialId}`))
 
       expect(response.status).toBe(200)
 
@@ -845,9 +776,7 @@ describe('keyManager', () => {
     })
 
     test('behavior: returns 404 for non-existent credential', async () => {
-      const response = await handler.fetch(
-        new Request('http://localhost/non-existent'),
-      )
+      const response = await handler.fetch(new Request('http://localhost/non-existent'))
 
       expect(response.status).toBe(404)
       expect(await response.text()).toBe('Credential not found')
@@ -858,8 +787,7 @@ describe('keyManager', () => {
     test('default', async () => {
       const credentialId = credential.id
       const challenge = Base64.toHex(
-        JSON.parse(Base64.toString(credential.response.clientDataJSON))
-          .challenge,
+        JSON.parse(Base64.toString(credential.response.clientDataJSON)).challenge,
       )
 
       // Store the challenge first
@@ -953,9 +881,7 @@ describe('keyManager', () => {
       }
 
       const challenge = Base64.toHex(
-        JSON.parse(
-          Base64.toString(invalidCredential.response.clientDataJSON as string),
-        ).challenge,
+        JSON.parse(Base64.toString(invalidCredential.response.clientDataJSON as string)).challenge,
       )
       await kv.set(`challenge:${challenge}`, '1')
 
@@ -982,8 +908,7 @@ describe('keyManager', () => {
       })
 
       const challenge = Base64.toHex(
-        JSON.parse(Base64.toString(credential.response.clientDataJSON))
-          .challenge,
+        JSON.parse(Base64.toString(credential.response.clientDataJSON)).challenge,
       )
       await kv.set(`challenge:${challenge}`, '1')
 
@@ -1010,8 +935,7 @@ describe('keyManager', () => {
       })
 
       const challenge = Base64.toHex(
-        JSON.parse(Base64.toString(credential.response.clientDataJSON))
-          .challenge,
+        JSON.parse(Base64.toString(credential.response.clientDataJSON)).challenge,
       )
       await kv.set(`challenge:${challenge}`, '1')
 
@@ -1031,9 +955,7 @@ describe('keyManager', () => {
 
     test('behavior: returns 400 when user not present flag is not set', async () => {
       // Create credential with UP flag not set (bit 0 = 0)
-      const authenticatorDataBytes = Base64.toBytes(
-        credential.response.authenticatorData,
-      )
+      const authenticatorDataBytes = Base64.toBytes(credential.response.authenticatorData)
       // Clear the UP flag (bit 0) in byte 32
       authenticatorDataBytes[32] = authenticatorDataBytes[32]! & ~0x01
 
@@ -1046,8 +968,7 @@ describe('keyManager', () => {
       }
 
       const challenge = Base64.toHex(
-        JSON.parse(Base64.toString(credential.response.clientDataJSON))
-          .challenge,
+        JSON.parse(Base64.toString(credential.response.clientDataJSON)).challenge,
       )
       await kv.set(`challenge:${challenge}`, '1')
 

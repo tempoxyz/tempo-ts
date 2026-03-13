@@ -6,8 +6,7 @@ export const addresses = {
 
 export const id =
   (typeof process !== 'undefined' &&
-    Number(process.env.VITEST_POOL_ID ?? 1) +
-      Math.floor(Math.random() * 10_000)) ||
+    Number(process.env.VITEST_POOL_ID ?? 1) + Math.floor(Math.random() * 10_000)) ||
   1 + Math.floor(Math.random() * 10_000)
 
 export const nodeEnv = import.meta.env.VITE_NODE_ENV || 'localnet'
