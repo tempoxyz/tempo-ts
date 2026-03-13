@@ -559,6 +559,12 @@ export function feePayer(options: feePayer.Options) {
 
       if ((request as any).method === 'eth_signRawTransaction') {
         const serialized = request.params?.[0] as `0x76${string}`
+
+        if (!serialized?.startsWith('0x76'))
+          throw new RpcResponse.InvalidParamsError({
+            message: 'Only Tempo (0x76) transactions are supported.',
+          })
+
         const transaction = Transaction.deserialize(serialized) as any
 
         if (!transaction.signature || !transaction.from)
@@ -583,6 +589,12 @@ export function feePayer(options: feePayer.Options) {
         request.method === 'eth_sendRawTransactionSync'
       ) {
         const serialized = request.params?.[0] as `0x76${string}`
+
+        if (!serialized?.startsWith('0x76'))
+          throw new RpcResponse.InvalidParamsError({
+            message: 'Only Tempo (0x76) transactions are supported.',
+          })
+
         const transaction = Transaction.deserialize(serialized) as any
 
         if (!transaction.signature || !transaction.from)
