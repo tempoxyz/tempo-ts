@@ -21,6 +21,7 @@
 		"@changesets/changelog-github": "^0.6.0",
 		"@changesets/cli": "^2.30.0",
 		"@types/express": "^5.0.6",
+		"@types/http-proxy": "^1.17.17",
 		"@types/node": "^25.3.3",
 		"@types/react": "catalog:default",
 		"@types/react-dom": "catalog:default",

@@ -9,28 +9,20 @@ import {
   type Account as viem_Account,
   http as viem_http,
 } from 'viem'
-import {
-  type Address,
-  english,
-  generateMnemonic,
-  type JsonRpcAccount,
-} from 'viem/accounts'
+import { type Address, english, generateMnemonic, type JsonRpcAccount } from 'viem/accounts'
 import { tempoLocalnet, tempoTestnet } from 'viem/chains'
 import {
   // biome-ignore lint/correctness/noUnusedImports: This is needed to ensure TypeScript can reference viem/tempo types portably
   type z_TokenId as _,
   Account,
-  Actions,
-  Addresses,
-  Tick,
 } from 'viem/tempo'
+
 import { rpcUrl } from '../config.js'
 
 export const nodeEnv = import.meta.env.VITE_NODE_ENV || 'localnet'
 
 const accountsMnemonic = (() => {
-  if (nodeEnv === 'localnet')
-    return 'test test test test test test test test test test test junk'
+  if (nodeEnv === 'localnet') return 'test test test test test test test test test test test junk'
   return generateMnemonic(english)
 })()
 
@@ -51,11 +43,7 @@ export const chain = (() => {
   return tempoLocalnet
 })()
 
-export function debugOptions({
-  rpcUrl,
-}: {
-  rpcUrl: string
-}): HttpTransportConfig | undefined {
+export function debugOptions({ rpcUrl }: { rpcUrl: string }): HttpTransportConfig | undefined {
   if (import.meta.env.VITE_HTTP_LOG !== 'true') return undefined
   return {
     async onFetchRequest(_, init) {
@@ -83,17 +71,12 @@ export function getClient<
   accountOrAddress extends viem_Account | Address | undefined = undefined,
 >(
   parameters: Partial<
-    Pick<
-      ClientConfig<Transport, chain, accountOrAddress>,
-      'account' | 'chain' | 'transport'
-    >
+    Pick<ClientConfig<Transport, chain, accountOrAddress>, 'account' | 'chain' | 'transport'>
   > = {},
 ): Client<
   Transport,
   chain,
-  accountOrAddress extends Address
-    ? JsonRpcAccount<accountOrAddress>
-    : accountOrAddress
+  accountOrAddress extends Address ? JsonRpcAccount<accountOrAddress> : accountOrAddress
 > {
   return createClient({
     pollingInterval: 100,
@@ -114,6 +97,4 @@ type FixedArray<
   type,
   count extends number,
   result extends readonly type[] = [],
-> = result['length'] extends count
-  ? result
-  : FixedArray<type, count, readonly [...result, type]>
+> = result['length'] extends count ? result : FixedArray<type, count, readonly [...result, type]>

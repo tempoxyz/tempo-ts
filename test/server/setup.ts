@@ -1,6 +1,7 @@
 import { parseUnits } from 'viem'
 import { Actions, Addresses } from 'viem/tempo'
 import { afterAll, beforeAll } from 'vitest'
+
 import { rpcUrl } from '../config.js'
 import { accounts, getClient, nodeEnv } from './config.js'
 
