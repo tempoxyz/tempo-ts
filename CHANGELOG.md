@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.14.1
+
+### Patch Changes
+
+- [#148](https://github.com/tempoxyz/tempo-ts/pull/148) [`7f5428f`](https://github.com/tempoxyz/tempo-ts/commit/7f5428f749fc63788214a41cdc5c64333a47fd9c) Thanks [@struong](https://github.com/struong)! - Security patch in feePayer handler
+
 ## 0.14.0
 
 ### Minor Changes
@@ -180,12 +186,14 @@
 - [#105](https://github.com/tempoxyz/tempo-ts/pull/105) [`c6a57d8`](https://github.com/tempoxyz/tempo-ts/commit/c6a57d82f2c736596553857190edbe675181dfec) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed all "AA" references to "Tempo".
 
   ### `tempo.ts/ox`
+
   - `TransactionEnvelopeAA` → `TransactionEnvelopeTempo`
   - `Transaction.AA` → `Transaction.Tempo`
   - `Transaction.AARpc` → `Transaction.TempoRpc`
   - `type: 'aa'` → `type: 'tempo'`
 
   ### `tempo.ts/viem`
+
   - `TransactionAA` → `TransactionTempo`
   - `TransactionRequestAA` → `TransactionRequestTempo`
   - `TransactionSerializableAA` → `TransactionSerializableTempo`
@@ -326,6 +334,7 @@
 - [#88](https://github.com/tempoxyz/tempo-ts/pull/88) [`f6da019`](https://github.com/tempoxyz/tempo-ts/commit/f6da019ddcef6eb5c492e6bf853d2fc4e15fac64) Thanks [@jxom](https://github.com/jxom)! - Removed the following APIs:
 
   #### `tempo.ts/viem`
+
   - `Actions.amm.rebalanceSwap`
   - `Actions.amm.rebalanceSwapSync`
   - `Actions.amm.watchRebalanceSwap`
@@ -336,6 +345,7 @@
   - `Actions.reward.getStream`
 
   #### `tempo.ts/wagmi`
+
   - `Actions.amm.rebalanceSwap`
   - `Actions.amm.rebalanceSwapSync`
   - `Actions.amm.burn`
@@ -606,6 +616,7 @@
 - [#43](https://github.com/tempoxyz/tempo-ts/pull/43) [`e932099`](https://github.com/tempoxyz/tempo-ts/commit/e9320992d29e26d59646251a3bccc099a002e7a2) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `Addresses.defaultFeeToken` and `Addresses.defaultQuoteToken`.
 
 - [`899c120`](https://github.com/tempoxyz/tempo-ts/commit/899c1201a563121bd08f08b012d84439e9d1b816) Thanks [@jxom](https://github.com/jxom)! - **Breaking:**
+
   - Renamed `updateQuoteToken` to `prepareUpdateQuoteToken`.
   - Renamed `finalizeUpdateQuoteToken` to `updateQuoteToken`.
 
@@ -740,6 +751,7 @@
 - [#4](https://github.com/tempoxyz/tempo-ts/pull/4) [`528aa00`](https://github.com/tempoxyz/tempo-ts/commit/528aa0019876bf166724378de877a7acfd4a3013) Thanks [@jxom](https://github.com/jxom)! - `tempo.ts/ox`: Added `TransactionEnvelopeAA` and `SignatureEnvelope`.
 
 - [#4](https://github.com/tempoxyz/tempo-ts/pull/4) [`528aa00`](https://github.com/tempoxyz/tempo-ts/commit/528aa0019876bf166724378de877a7acfd4a3013) Thanks [@jxom](https://github.com/jxom)! - Added **Stablecoin Exchange** actions:
+
   - `dex.buy`
   - `dex.buySync`
   - `dex.cancel`
@@ -767,6 +779,7 @@
 - [#4](https://github.com/tempoxyz/tempo-ts/pull/4) [`528aa00`](https://github.com/tempoxyz/tempo-ts/commit/528aa0019876bf166724378de877a7acfd4a3013) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed support for deprecated `tempoLento` chain. Update to use `tempoAndante` instead.
 
 - [#4](https://github.com/tempoxyz/tempo-ts/pull/4) [`528aa00`](https://github.com/tempoxyz/tempo-ts/commit/528aa0019876bf166724378de877a7acfd4a3013) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Refactored structure to use PascalCased namespaces to future-proof against naming conflicts, excessive imports, and future versions of Viem.
+
   - Renamed `actions` import to `Actions`.
 
   ```diff
