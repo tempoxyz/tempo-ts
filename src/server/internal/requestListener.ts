@@ -98,8 +98,8 @@ function internalServerError(): Response {
   return new Response(
     // "Internal Server Error"
     new Uint8Array([
-      73, 110, 116, 101, 114, 110, 97, 108, 32, 83, 101, 114, 118, 101, 114, 32,
-      69, 114, 114, 111, 114,
+      73, 110, 116, 101, 114, 110, 97, 108, 32, 83, 101, 114, 118, 101, 114, 32, 69, 114, 114, 111,
+      114,
     ]),
     {
       headers: {
@@ -137,8 +137,7 @@ export function createRequest(
   const headers = createHeaders(req)
 
   const protocol =
-    options?.protocol ??
-    ('encrypted' in req.socket && req.socket.encrypted ? 'https:' : 'http:')
+    options?.protocol ?? ('encrypted' in req.socket && req.socket.encrypted ? 'https:' : 'http:')
   const host = options?.host ?? headers.get('Host') ?? 'localhost'
   const url = new URL(req.url!, `${protocol}//${host}`)
 
@@ -148,9 +147,7 @@ export function createRequest(
     init.body = new ReadableStream({
       start(controller) {
         req.on('data', (chunk) => {
-          controller.enqueue(
-            new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength),
-          )
+          controller.enqueue(new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength))
         })
         req.on('end', () => {
           controller.close()
@@ -175,9 +172,7 @@ export function createRequest(
  * @param req The incoming request object.
  * @returns A headers object.
  */
-export function createHeaders(
-  req: http.IncomingMessage | http2.Http2ServerRequest,
-): Headers {
+export function createHeaders(req: http.IncomingMessage | http2.Http2ServerRequest): Headers {
   const headers = new Headers()
 
   const rawHeaders = req.rawHeaders
@@ -229,9 +224,7 @@ export async function sendResponse(
   res.end()
 }
 
-export async function* readStream(
-  stream: ReadableStream<Uint8Array>,
-): AsyncIterable<Uint8Array> {
+export async function* readStream(stream: ReadableStream<Uint8Array>): AsyncIterable<Uint8Array> {
   const reader = stream.getReader()
 
   while (true) {
@@ -268,9 +261,7 @@ export interface ClientAddress {
  *
  * [MDN `Response` Reference](https://developer.mozilla.org/en-US/docs/Web/API/Response)
  */
-export type ErrorHandler = (
-  error: unknown,
-) => undefined | Response | Promise<undefined | Response>
+export type ErrorHandler = (error: unknown) => undefined | Response | Promise<undefined | Response>
 
 /**
  * A function that handles an incoming request and returns a response.
@@ -279,7 +270,4 @@ export type ErrorHandler = (
  *
  * [MDN `Response` Reference](https://developer.mozilla.org/en-US/docs/Web/API/Response)
  */
-export type FetchHandler = (
-  request: Request,
-  client: ClientAddress,
-) => Response | Promise<Response>
+export type FetchHandler = (request: Request, client: ClientAddress) => Response | Promise<Response>

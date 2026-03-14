@@ -21,9 +21,7 @@ export default defineConfig({
           },
           name: 'server',
           root: './src/server',
-          globalSetup: [
-            join(import.meta.dirname, './test/server/setup.global.ts'),
-          ],
+          globalSetup: [join(import.meta.dirname, './test/server/setup.global.ts')],
           sequence: { groupOrder: 2 },
           setupFiles: [join(import.meta.dirname, './test/server/setup.ts')],
         },

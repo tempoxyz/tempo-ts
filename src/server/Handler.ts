@@ -12,6 +12,7 @@ import { type Chain, type Client, createClient, type Transport } from 'viem'
 import type { LocalAccount } from 'viem/accounts'
 import { signTransaction } from 'viem/actions'
 import { Transaction } from 'viem/tempo'
+
 import type { OneOf } from '../internal/types.js'
 import * as RequestListener from './internal/requestListener.js'
 import type * as Kv from './Kv.js'
@@ -20,18 +21,14 @@ export type Handler = Router & {
   listener: (req: any, res: any) => void
 }
 
-export function compose(
-  handlers: Handler[],
-  options: compose.Options = {},
-): Handler {
+export function compose(handlers: Handler[], options: compose.Options = {}): Handler {
   const path = options.path ?? '/'
 
   return from({
     ...options,
     async defaultHandler(context) {
       const url = new URL(context.request.url)
-      if (!url.pathname.startsWith(path))
-        return new Response('Not Found', { status: 404 })
+      if (!url.pathname.startsWith(path)) return new Response('Not Found', { status: 404 })
 
       url.pathname = url.pathname.replace(path, '')
       for (const handler of handlers) {
@@ -216,8 +213,7 @@ export function keyManager(options: keyManager.Options) {
   const path = options.path ?? ''
 
   const rp = (() => {
-    if (typeof options.rp === 'string')
-      return { id: options.rp, name: options.rp }
+    if (typeof options.rp === 'string') return { id: options.rp, name: options.rp }
     if (options.rp)
       return {
         id: options.rp.id,
@@ -244,7 +240,7 @@ export function keyManager(options: keyManager.Options) {
 
   // Get public key for a credential
   router.get(`${path}/:id`, async ({ params }) => {
-    const { id } = params
+    const { id } = params as { id: string }
 
     const publicKey = await kv.get<Hex.Hex>(`credential:${id}`)
 
@@ -257,13 +253,11 @@ export function keyManager(options: keyManager.Options) {
 
   // Set public key for a credential
   router.post(`${path}/:id`, async ({ params, request }) => {
-    const { id } = params
+    const { id } = params as { id: string }
     const { credential, publicKey } = (await request.json()) as any
 
-    if (!credential)
-      return Response.json({ error: 'Missing `credential`' }, { status: 400 })
-    if (!publicKey)
-      return Response.json({ error: 'Missing `publicKey`' }, { status: 400 })
+    if (!credential) return Response.json({ error: 'Missing `credential`' }, { status: 400 })
+    if (!publicKey) return Response.json({ error: 'Missing `publicKey`' }, { status: 400 })
 
     // Decode and verify clientDataJSON
     const clientDataJSON = JSON.parse(
@@ -274,17 +268,11 @@ export function keyManager(options: keyManager.Options) {
     const challenge = Base64.toHex(clientDataJSON.challenge)
 
     if (!(await kv.get<string>(`challenge:${challenge}`)))
-      return Response.json(
-        { error: 'Invalid or expired `challenge`' },
-        { status: 400 },
-      )
+      return Response.json({ error: 'Invalid or expired `challenge`' }, { status: 400 })
 
     // Verify type
     if (clientDataJSON.type !== 'webauthn.create')
-      return Response.json(
-        { error: 'Invalid `clientDataJSON.type`' },
-        { status: 400 },
-      )
+      return Response.json({ error: 'Invalid `clientDataJSON.type`' }, { status: 400 })
 
     // Verify origin
     if (
@@ -292,28 +280,18 @@ export function keyManager(options: keyManager.Options) {
       !rp.id.includes('localhost') &&
       clientDataJSON.origin !== new URL(`https://${rp.id}`).origin
     )
-      return Response.json(
-        { error: 'Invalid `clientDataJSON.origin`' },
-        { status: 400 },
-      )
+      return Response.json({ error: 'Invalid `clientDataJSON.origin`' }, { status: 400 })
 
     // Parse authenticatorData
-    const authenticatorData = Base64.toBytes(
-      (credential.response as any).authenticatorData,
-    )
+    const authenticatorData = Base64.toBytes((credential.response as any).authenticatorData)
 
     // Parse flags (byte 32)
     const flags = authenticatorData[32]
-    if (!flags)
-      return Response.json(
-        { error: 'Invalid `authenticatorData`' },
-        { status: 400 },
-      )
+    if (!flags) return Response.json({ error: 'Invalid `authenticatorData`' }, { status: 400 })
 
     // Check User Present (UP) flag (bit 0)
     const userPresent = (flags & 0x01) !== 0
-    if (!userPresent)
-      return Response.json({ error: 'User not present' }, { status: 400 })
+    if (!userPresent) return Response.json({ error: 'User not present' }, { status: 400 })
 
     // Consume the challenge (delete it so it can't be reused)
     await kv.delete(`challenge:${challenge}`)
@@ -377,7 +355,7 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempoTestnet.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempoModerato.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -401,7 +379,7 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempoTestnet.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempoModerato.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -424,7 +402,7 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempoTestnet.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempoModerato.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -449,7 +427,7 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempoTestnet.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempoModerato.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -473,7 +451,7 @@ export declare namespace keyManager {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempoTestnet.extend({
+ *   chain: tempoModerato.extend({
  *     feeToken: '0x20c0000000000000000000000000000000000001',
  *   }),
  *   transport: http(),
@@ -497,7 +475,7 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempoTestnet.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempoModerato.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -519,7 +497,7 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   chain: tempoTestnet.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempoModerato.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -585,8 +563,7 @@ export function feePayer(options: feePayer.Options) {
 
       if (!transaction.signature || !transaction.from)
         throw new RpcResponse.InvalidParamsError({
-          message:
-            'Transaction must be signed by the sender before fee payer signing.',
+          message: 'Transaction must be signed by the sender before fee payer signing.',
         })
 
       const serializedTransaction = await signTransaction(client, {
@@ -596,9 +573,7 @@ export function feePayer(options: feePayer.Options) {
       })
 
       if (method === 'eth_signRawTransaction')
-        return Response.json(
-          RpcResponse.from({ result: serializedTransaction }, { request }),
-        )
+        return Response.json(RpcResponse.from({ result: serializedTransaction }, { request }))
 
       const result = await (client as any).request({
         method,
@@ -659,19 +634,12 @@ function corsToHeaders(cors?: boolean | from.Cors): Headers {
   const config = cors === true || cors === undefined ? {} : cors
 
   const headers = new Headers()
-  const origin = Array.isArray(config.origin)
-    ? config.origin.join(', ')
-    : (config.origin ?? '*')
+  const origin = Array.isArray(config.origin) ? config.origin.join(', ') : (config.origin ?? '*')
   headers.set('Access-Control-Allow-Origin', origin)
-  headers.set(
-    'Access-Control-Allow-Methods',
-    config.methods ?? 'GET, POST, PUT, DELETE, OPTIONS',
-  )
+  headers.set('Access-Control-Allow-Methods', config.methods ?? 'GET, POST, PUT, DELETE, OPTIONS')
   headers.set('Access-Control-Allow-Headers', config.headers ?? 'Content-Type')
-  if (config.credentials)
-    headers.set('Access-Control-Allow-Credentials', 'true')
-  if (config.maxAge !== undefined)
-    headers.set('Access-Control-Max-Age', String(config.maxAge))
+  if (config.credentials) headers.set('Access-Control-Allow-Credentials', 'true')
+  if (config.maxAge !== undefined) headers.set('Access-Control-Max-Age', String(config.maxAge))
 
   return headers
 }
@@ -681,8 +649,7 @@ function headers(headers: Headers): Middleware {
   return async (_, next) => {
     const response = await next()
     const responseHeaders = new Headers(response.headers)
-    for (const [key, value] of headers.entries())
-      responseHeaders.set(key, value)
+    for (const [key, value] of headers.entries()) responseHeaders.set(key, value)
     return new Response(response.body, {
       headers: responseHeaders,
       status: response.status,
@@ -694,7 +661,6 @@ function headers(headers: Headers): Middleware {
 /** @internal */
 function preflight(headers: Headers): Middleware {
   return async (context) => {
-    if (context.request.method === 'OPTIONS')
-      return new Response(null, { headers })
+    if (context.request.method === 'OPTIONS') return new Response(null, { headers })
   }
 }

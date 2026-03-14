@@ -21,11 +21,11 @@ jobs:
       - name: Check code
         run: pnpm check
 
+      - name: Check types
+        run: pnpm run check:types
+
       - name: Check build
         run: pnpm build
-
-      - name: Check types
-        run: pnpm check:types
 
   test-localnet:
     name: 'Test Runtime (env: localnet, tag: ${{ matrix.tag }})'
@@ -34,7 +34,7 @@ jobs:
     strategy:
       matrix:
         tag: 
-          - https://rpc.testnet.tempo.xyz
+          - https://rpc.moderato.tempo.xyz
 
     steps:
       - name: Clone repository
