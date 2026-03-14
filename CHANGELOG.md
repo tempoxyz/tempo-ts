@@ -1,5 +1,11 @@
 # tempo.ts
 
+## 0.14.2
+
+### Patch Changes
+
+- [#151](https://github.com/tempoxyz/tempo-ts/pull/151) [`47ca27b`](https://github.com/tempoxyz/tempo-ts/commit/47ca27bdb0173270f5ecc4fb75cd9e4f8a304b20) Thanks [@struong](https://github.com/struong)! - Add 0x78 to fee payer handler validation
+
 ## 0.14.1
 
 ### Patch Changes
