@@ -1147,7 +1147,7 @@ describe('feePayer', () => {
       expect(data.error.name).toBe('RpcResponse.InvalidParamsError')
     })
 
-    test('behavior: eth_sendRawTransaction rejects non-0x76 transaction', async () => {
+    test('behavior: eth_sendRawTransaction rejects non-Tempo transaction', async () => {
       const response = await fetch(server.url, {
         method: 'POST',
         body: JSON.stringify({

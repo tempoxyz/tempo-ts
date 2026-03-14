@@ -554,9 +554,9 @@ export function feePayer(options: feePayer.Options) {
 
       const serialized = request.params?.[0] as `0x76${string}`
 
-      if (!serialized?.startsWith('0x76'))
+      if (!serialized?.startsWith('0x76') && !serialized?.startsWith('0x78'))
         throw new RpcResponse.InvalidParamsError({
-          message: 'Only Tempo (0x76) transactions are supported.',
+          message: 'Only Tempo (0x76/0x78) transactions are supported.',
         })
 
       const transaction = Transaction.deserialize(serialized) as any
