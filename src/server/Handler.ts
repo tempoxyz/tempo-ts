@@ -450,7 +450,6 @@ export declare namespace keyManager {
  * import { Handler } from 'tempo.ts/server'
  *
  * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
  *   chain: tempoModerato.extend({
  *     feeToken: '0x20c0000000000000000000000000000000000001',
  *   }),
