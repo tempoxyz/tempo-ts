@@ -620,6 +620,241 @@ export declare namespace feePayer {
     >
 }
 
+/**
+ * Defines an Authorization Relay request handler that serves an HTML page
+ * for authorizing cross-domain access keys using an existing passkey.
+ *
+ * @param options - Options.
+ * @returns Request handler.
+ */
+export function authorizationRelay(options: authorizationRelay.Options) {
+  const { kv } = options
+
+  const rp = (() => {
+    if (!options.rp) return undefined
+    return {
+      id: options.rp.id,
+      name: options.rp.name ?? options.rp.id,
+    }
+  })()
+
+  const router = from(options)
+
+  // Challenge endpoint for WebAuthn signing
+  router.get('/authorize/challenge', async () => {
+    const challenge = Hex.random(32)
+    await kv.set(`challenge:${challenge}`, '1')
+
+    return Response.json({
+      challenge,
+      ...(rp ? { rp } : {}),
+    })
+  })
+
+  // Serve the authorization HTML page
+  router.get('/authorize', async ({ request }) => {
+    const url = new URL(request.url)
+    const keyAddress = url.searchParams.get('keyAddress') ?? ''
+    const hash = url.searchParams.get('hash') ?? ''
+    const chainId = url.searchParams.get('chainId') ?? ''
+    const expiry = url.searchParams.get('expiry') ?? ''
+    const origin = url.searchParams.get('origin') ?? ''
+    const rpId = rp?.id ?? url.hostname
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Authorize Access Key</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0a0a0a;
+    color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+  }
+  .card {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 420px;
+    width: 100%;
+  }
+  h1 { font-size: 1.25rem; margin-bottom: 1.5rem; color: #fff; }
+  .field { margin-bottom: 1rem; }
+  .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #888; margin-bottom: 0.25rem; }
+  .value { font-size: 0.95rem; font-family: monospace; word-break: break-all; color: #ccc; }
+  .origin-value { color: #6ea8fe; }
+  .actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+  button {
+    flex: 1; padding: 0.75rem 1rem; border: none; border-radius: 8px;
+    font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: opacity 0.15s;
+  }
+  button:hover { opacity: 0.85; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-approve { background: #22c55e; color: #000; }
+  .btn-deny { background: #333; color: #e0e0e0; }
+  .status { margin-top: 1rem; font-size: 0.85rem; color: #888; min-height: 1.2em; }
+  .status.error { color: #f87171; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Authorize Access Key</h1>
+  <div class="field">
+    <div class="label">Access Key</div>
+    <div class="value" id="keyAddress"></div>
+  </div>
+  <div class="field">
+    <div class="label">Expires</div>
+    <div class="value" id="expiry"></div>
+  </div>
+  <div class="field">
+    <div class="label">Requesting Origin</div>
+    <div class="value origin-value" id="origin"></div>
+  </div>
+  <div class="field">
+    <div class="label">Chain ID</div>
+    <div class="value" id="chainId"></div>
+  </div>
+  <div class="actions">
+    <button class="btn-deny" id="denyBtn">Deny</button>
+    <button class="btn-approve" id="approveBtn">Approve</button>
+  </div>
+  <div class="status" id="status"></div>
+</div>
+<script>
+(function() {
+  var params = {
+    keyAddress: ${JSON.stringify(keyAddress)},
+    hash: ${JSON.stringify(hash)},
+    chainId: ${JSON.stringify(chainId)},
+    expiry: ${JSON.stringify(expiry)},
+    origin: ${JSON.stringify(origin)},
+  };
+  var rpId = ${JSON.stringify(rpId)};
+
+  var truncated = params.keyAddress.length > 12
+    ? params.keyAddress.slice(0, 6) + '...' + params.keyAddress.slice(-4)
+    : params.keyAddress;
+  document.getElementById('keyAddress').textContent = truncated;
+
+  var expiryNum = parseInt(params.expiry, 10);
+  document.getElementById('expiry').textContent = expiryNum
+    ? new Date(expiryNum * 1000).toLocaleString()
+    : 'Unknown';
+
+  document.getElementById('origin').textContent = params.origin || 'Unknown';
+  document.getElementById('chainId').textContent = params.chainId || 'Unknown';
+
+  var statusEl = document.getElementById('status');
+
+  function hexToBytes(hex) {
+    var h = hex.startsWith('0x') ? hex.slice(2) : hex;
+    var bytes = new Uint8Array(h.length / 2);
+    for (var i = 0; i < h.length; i += 2)
+      bytes[i / 2] = parseInt(h.substring(i, i + 2), 16);
+    return bytes;
+  }
+
+  function bufferToBase64url(buf) {
+    var bytes = new Uint8Array(buf);
+    var str = '';
+    for (var i = 0; i < bytes.length; i++) str += String.fromCharCode(bytes[i]);
+    return btoa(str).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');
+  }
+
+  function bytesToHex(bytes) {
+    var hex = '0x';
+    for (var i = 0; i < bytes.length; i++) hex += bytes[i].toString(16).padStart(2, '0');
+    return hex;
+  }
+
+  function sendResult(msg) {
+    if (window.opener) {
+      window.opener.postMessage(msg, params.origin || '*');
+    }
+    setTimeout(function() { window.close(); }, 200);
+  }
+
+  document.getElementById('denyBtn').addEventListener('click', function() {
+    sendResult({ type: 'keyAuthorization', error: 'denied' });
+  });
+
+  document.getElementById('approveBtn').addEventListener('click', async function() {
+    var approveBtn = document.getElementById('approveBtn');
+    var denyBtn = document.getElementById('denyBtn');
+    approveBtn.disabled = true;
+    denyBtn.disabled = true;
+    statusEl.textContent = 'Waiting for passkey...';
+    statusEl.className = 'status';
+
+    try {
+      var challenge = hexToBytes(params.hash);
+
+      var assertion = await navigator.credentials.get({
+        publicKey: {
+          challenge: challenge,
+          rpId: rpId,
+          userVerification: 'required',
+        },
+      });
+
+      var response = assertion.response;
+
+      var result = {
+        type: 'keyAuthorization',
+        credential: {
+          id: assertion.id,
+          rawId: bufferToBase64url(assertion.rawId),
+          response: {
+            authenticatorData: bufferToBase64url(response.authenticatorData),
+            clientDataJSON: bufferToBase64url(response.clientDataJSON),
+            signature: bufferToBase64url(response.signature),
+          },
+          type: assertion.type,
+        },
+      };
+
+      sendResult(result);
+    } catch (err) {
+      statusEl.textContent = 'Error: ' + (err.message || 'Passkey signing failed');
+      statusEl.className = 'status error';
+      approveBtn.disabled = false;
+      denyBtn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>`
+
+    return new Response(html, {
+      headers: { 'Content-Type': 'text/html; charset=utf-8' },
+    })
+  })
+
+  return router
+}
+
+export declare namespace authorizationRelay {
+  export type Options = from.Options & {
+    /** The KV store to use for challenge management. */
+    kv: Kv.Kv
+    /** The RP to use for WebAuthn. */
+    rp?: { id: string; name?: string } | undefined
+    /** CORS configuration. */
+    cors?: from.Options['cors'] | undefined
+  }
+}
+
 /** @internal */
 function normalizeHeaders(headers?: Headers | Record<string, string>): Headers {
   if (!headers) return new Headers()
