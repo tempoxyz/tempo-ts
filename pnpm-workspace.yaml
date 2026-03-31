@@ -17,3 +17,5 @@ catalog:
 onlyBuiltDependencies:
   - esbuild
   - simple-git-hooks
+
+minimumReleaseAge: 1440
