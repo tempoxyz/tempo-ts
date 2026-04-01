@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia'
 import express from 'express'
 import { Hono } from 'hono'
-import type { RpcRequest } from 'ox'
+import { type RpcRequest, RpcResponse } from 'ox'
 import * as Base64 from 'ox/Base64'
 import * as Hex from 'ox/Hex'
 import { sendTransactionSync } from 'viem/actions'
@@ -1163,6 +1163,71 @@ describe('feePayer', () => {
       const data = await response.json()
       expect(data.error.code).toBe(-32602)
       expect(data.error.name).toBe('RpcResponse.InvalidParamsError')
+    })
+
+    test('behavior: policy receives parsed transaction context', async () => {
+      let policyContext: Handler.feePayer.PolicyContext | undefined
+      const policyServer = await createServer(
+        Handler.feePayer({
+          account: feePayerAccount,
+          client: getClient(),
+          policy: (context) => {
+            policyContext = context
+          },
+        }).listener,
+      )
+
+      try {
+        const client = getClient({
+          account: userAccount,
+          transport: withFeePayer(http(), http(policyServer.url)),
+        })
+
+        const receipt = await sendTransactionSync(client, {
+          feePayer: true,
+          to: '0x0000000000000000000000000000000000000000',
+        })
+
+        expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+        expect(policyContext?.account.address).toBe(feePayerAccount.address)
+        expect(policyContext?.method).toBe('eth_signRawTransaction')
+        expect(policyContext?.request.method).toBe('eth_signRawTransaction')
+        expect(policyContext?.transaction.from).toBe(userAccount.address.toLowerCase())
+        expect(policyContext?.transaction.to).toBe('0x0000000000000000000000000000000000000000')
+      } finally {
+        policyServer.close()
+      }
+    })
+
+    test('behavior: policy can reject sponsorship with rpc error', async () => {
+      const policyServer = await createServer(
+        Handler.feePayer({
+          account: feePayerAccount,
+          client: getClient(),
+          policy: ({ transaction }) => {
+            if (transaction.to === '0x0000000000000000000000000000000000000000')
+              throw new RpcResponse.InvalidParamsError({
+                message: 'Destination is not sponsorable.',
+              })
+          },
+        }).listener,
+      )
+
+      try {
+        const client = getClient({
+          account: userAccount,
+          transport: withFeePayer(http(), http(policyServer.url)),
+        })
+
+        await expect(
+          sendTransactionSync(client, {
+            feePayer: true,
+            to: '0x0000000000000000000000000000000000000000',
+          }),
+        ).rejects.toThrow('Destination is not sponsorable.')
+      } finally {
+        policyServer.close()
+      }
     })
 
     test('behavior: unsupported method', async () => {
