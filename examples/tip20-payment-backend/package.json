@@ -1,0 +1,12 @@
+{
+  "name": "@tempo-ts-example/tip20-payment-backend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "tempo.ts": "workspace:*",
+    "viem": "catalog:default"
+  }
+}

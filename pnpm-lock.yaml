@@ -116,6 +116,30 @@ importers:
         specifier: ^0.0.22
         version: 0.0.22(@typescript/native-preview@7.0.0-dev.20260303.1)(typescript@5.9.3)
 
+  examples/fee-payer-node:
+    dependencies:
+      tempo.ts:
+        specifier: workspace:*
+        version: link:../..
+      viem:
+        specifier: ^2.47.0
+        version: 2.47.2(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.13)
+
+  examples/key-manager-node:
+    dependencies:
+      tempo.ts:
+        specifier: workspace:*
+        version: link:../..
+
+  examples/tip20-payment-backend:
+    dependencies:
+      tempo.ts:
+        specifier: workspace:*
+        version: link:../..
+      viem:
+        specifier: ^2.47.0
+        version: 2.47.2(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.13)
+
 packages:
 
   '@adraffy/ens-normalize@1.11.1':

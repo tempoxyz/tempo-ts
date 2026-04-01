@@ -1,0 +1,11 @@
+{
+  "name": "@tempo-ts-example/key-manager-node",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "tempo.ts": "workspace:*"
+  }
+}
