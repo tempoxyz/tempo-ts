@@ -13,7 +13,7 @@
 	"devEngines": {
 		"runtime": {
 			"name": "node",
-			"version": "^24.5.1",
+			"version": "^24.14.1",
 			"onFail": "download"
 		}
 	},
@@ -22,25 +22,25 @@
 		"@changesets/cli": "^2.30.0",
 		"@types/express": "^5.0.6",
 		"@types/http-proxy": "^1.17.17",
-		"@types/node": "^25.3.3",
+		"@types/node": "^25.6.0",
 		"@types/react": "catalog:default",
 		"@types/react-dom": "catalog:default",
 		"@typescript/native-preview": "7.0.0-dev.20260303.1",
 		"@vitejs/plugin-react": "catalog:default",
-		"@vitest/coverage-v8": "^4.0.18",
-		"elysia": "^1.4.27",
+		"@vitest/coverage-v8": "^4.1.4",
+		"elysia": "^1.4.28",
 		"express": "^5.2.1",
-		"hono": "^4.12.4",
+		"hono": "^4.12.12",
 		"oxfmt": "^0.35.0",
-		"oxlint": "^1.50.0",
+		"oxlint": "^1.60.0",
 		"prool": "catalog:default",
 		"react": "catalog:default",
 		"react-dom": "catalog:default",
 		"simple-git-hooks": "^2.13.1",
-		"testcontainers": "^11.12.0",
+		"testcontainers": "^11.14.0",
 		"typescript": "catalog:default",
 		"viem": "catalog:default",
-		"vitest": "^4.0.18",
+		"vitest": "^4.1.4",
 		"zile": "^0.0.22"
 	},
 	"simple-git-hooks": {
@@ -48,7 +48,7 @@
 	},
 	"pnpm": {
 		"overrides": {
-			"ox": "~0.14.0",
+			"ox": "~0.14.15",
 			"react": "catalog:default",
 			"react-dom": "catalog:default",
 			"tempo.ts": "workspace:*",
@@ -61,7 +61,7 @@
 	"version": "0.14.2",
 	"dependencies": {
 		"@remix-run/fetch-router": "~0.17.0",
-		"ox": "~0.14.0"
+		"ox": "~0.14.15"
 	},
 	"peerDependencies": {
 		"viem": ">=2.43.3"
