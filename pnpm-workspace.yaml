@@ -1,19 +1,27 @@
 packages:
   - .
 
+blockExoticSubdeps: true
+
 catalog:
   '@tanstack/react-query': 5.90.5
-  '@types/react': ^19.1.16
-  '@types/react-dom': ^19.1.9
-  '@vitejs/plugin-react': ^5.0.4
+  '@types/react': ^19.2.14
+  '@types/react-dom': ^19.2.3
+  '@vitejs/plugin-react': ^5.2.0
   '@wagmi/core': ^3.1.0
-  prool: ~0.2.0
+  prool: ~0.2.4
   react: ^19.1.1
   react-dom: ^19.1.1
   typescript: ^5.9.3
   viem: ^2.47.0
   wagmi: ^3.4.2
 
+minimumReleaseAge: 1440
+
 onlyBuiltDependencies:
   - esbuild
   - simple-git-hooks
+
+strictDepBuilds: true
+
+trustPolicy: no-downgrade
