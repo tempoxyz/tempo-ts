@@ -17,3 +17,8 @@ catalog:
 onlyBuiltDependencies:
   - esbuild
   - simple-git-hooks
+
+strictDepBuilds: true
+blockExoticSubdeps: true
+minimumReleaseAge: 1440
+trustPolicy: no-downgrade
