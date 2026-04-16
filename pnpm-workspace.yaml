@@ -15,8 +15,13 @@ catalog:
   wagmi: ^3.4.2
 
 onlyBuiltDependencies:
+  - bufferutil
+  - cpu-features
   - esbuild
+  - protobufjs
   - simple-git-hooks
+  - ssh2
+  - utf-8-validate
 
 strictDepBuilds: true
 blockExoticSubdeps: true
