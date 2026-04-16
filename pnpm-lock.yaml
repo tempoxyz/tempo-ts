@@ -671,6 +671,12 @@ packages:
     cpu: [x64]
     os: [darwin]
 
+  '@oxlint/binding-freebsd-x64@1.60.0':
+    resolution: {integrity: sha512-YCyQzsQtusQw+gNRW9rRTifSO+Dt/+dtCl2NHoDMZqJlRTEZ/Oht9YnuporI9yiTx7+cB+eqzX3MtHHVHGIWhg==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [x64]
+    os: [freebsd]
+
   '@oxlint/binding-linux-arm-gnueabihf@1.60.0':
     resolution: {integrity: sha512-c7dxM2Zksa45Qw16i2iGY3Fti2NirJ38FrsBsKw+qcJ0OtqTsBgKJLF0xV+yLG56UH01Z8WRPgsw31e0MoRoGQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -724,6 +730,20 @@ packages:
     cpu: [s390x]
     os: [linux]
     libc: [glibc]
+
+  '@oxlint/binding-linux-x64-gnu@1.60.0':
+    resolution: {integrity: sha512-XjKHdFVCpZZZSWBCKyyqCq65s2AKXykMXkjLoKYODrD+f5toLhlwsMESscu8FbgnJQ4Y/dpR/zdazsahmgBJIA==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@oxlint/binding-linux-x64-musl@1.60.0':
+    resolution: {integrity: sha512-js29ZWIuPhNWzY8NC7KoffEMEeWG105vbmm+8EOJsC+T/jHBiKIJEUF78+F/IrgEWMMP9N0kRND4Pp75+xAhKg==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
 
   '@oxlint/binding-openharmony-arm64@1.60.0':
     resolution: {integrity: sha512-H+PUITKHk04stFpWj3x3Kg08Afp/bcXSBi0EhasR5a0Vw7StXHTzdl655PUI0fB4qdh2Wsu6Dsi+3ACxPoyQnA==}
@@ -3410,6 +3430,9 @@ snapshots:
   '@oxlint/binding-darwin-x64@1.60.0':
     optional: true
 
+  '@oxlint/binding-freebsd-x64@1.60.0':
+    optional: true
+
   '@oxlint/binding-linux-arm-gnueabihf@1.60.0':
     optional: true
 
@@ -3432,6 +3455,12 @@ snapshots:
     optional: true
 
   '@oxlint/binding-linux-s390x-gnu@1.60.0':
+    optional: true
+
+  '@oxlint/binding-linux-x64-gnu@1.60.0':
+    optional: true
+
+  '@oxlint/binding-linux-x64-musl@1.60.0':
     optional: true
 
   '@oxlint/binding-openharmony-arm64@1.60.0':
@@ -4747,6 +4776,7 @@ snapshots:
       '@oxlint/binding-android-arm64': 1.60.0
       '@oxlint/binding-darwin-arm64': 1.60.0
       '@oxlint/binding-darwin-x64': 1.60.0
+      '@oxlint/binding-freebsd-x64': 1.60.0
       '@oxlint/binding-linux-arm-gnueabihf': 1.60.0
       '@oxlint/binding-linux-arm-musleabihf': 1.60.0
       '@oxlint/binding-linux-arm64-gnu': 1.60.0
@@ -4755,6 +4785,8 @@ snapshots:
       '@oxlint/binding-linux-riscv64-gnu': 1.60.0
       '@oxlint/binding-linux-riscv64-musl': 1.60.0
       '@oxlint/binding-linux-s390x-gnu': 1.60.0
+      '@oxlint/binding-linux-x64-gnu': 1.60.0
+      '@oxlint/binding-linux-x64-musl': 1.60.0
       '@oxlint/binding-openharmony-arm64': 1.60.0
       '@oxlint/binding-win32-arm64-msvc': 1.60.0
       '@oxlint/binding-win32-ia32-msvc': 1.60.0
