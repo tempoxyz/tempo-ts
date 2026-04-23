@@ -1,6 +1,8 @@
 packages:
   - .
 
+blockExoticSubdeps: true
+
 catalog:
   '@tanstack/react-query': 5.90.5
   '@types/react': ^19.2.14
@@ -14,26 +16,23 @@ catalog:
   viem: ^2.47.16
   wagmi: ^3.4.2
 
-supportedArchitectures:
-  os:
-    - current
-    - linux
-    - darwin
-  cpu:
-    - current
-    - x64
-    - arm64
+ignoredBuiltDependencies:
+  - protobufjs
+
+minimumReleaseAge: 1440
 
 onlyBuiltDependencies:
   - bufferutil
   - cpu-features
   - esbuild
-  - protobufjs
   - simple-git-hooks
   - ssh2
   - utf-8-validate
 
 strictDepBuilds: true
-blockExoticSubdeps: true
-minimumReleaseAge: 1440
+
+supportedArchitectures:
+  cpu: [current, x64, arm64]
+  os: [current, linux, darwin]
+
 trustPolicy: no-downgrade
