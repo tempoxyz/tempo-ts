@@ -51,7 +51,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Setup Docker
-        uses: docker/setup-docker-action@e43656e248c0bd0647d3f5c195d116aacf6fcaf4 # v4.7.0
+        uses: docker/setup-docker-action@b2189fbf2a6592b51fee7cdd93ee2bfaeba733db # v5.1.0
 
       - name: Run tests
         run: pnpm test --bail=1
