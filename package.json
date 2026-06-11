@@ -59,6 +59,7 @@
 	},
 	"[!start-pkg]": "",
 	"name": "tempo.ts",
+	"description": "Archived TypeScript tooling for Tempo. Use accounts, viem, wagmi, ox, or prool for maintained integrations.",
 	"type": "module",
 	"version": "0.14.2",
 	"dependencies": {
