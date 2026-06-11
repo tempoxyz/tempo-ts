@@ -4,11 +4,11 @@ import { Hono } from 'hono'
 import type { RpcRequest } from 'ox'
 import * as Base64 from 'ox/Base64'
 import * as Hex from 'ox/Hex'
-import { sendTransactionSync } from 'viem/actions'
-import { withFeePayer } from 'viem/tempo'
+import { prepareTransactionRequest, sendTransactionSync, signTransaction } from 'viem/actions'
+import { Transaction, withFeePayer } from 'viem/tempo'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 
-import { accounts, getClient, http } from '../../test/server/config.js'
+import { accounts, chain, getClient, http } from '../../test/server/config.js'
 import { createServer, type Server } from '../../test/server/utils.js'
 import * as Handler from './Handler.js'
 import * as Kv from './Kv.js'
@@ -1044,6 +1044,46 @@ describe('feePayer', () => {
           "eth_signRawTransaction",
         ]
       `)
+    })
+
+    test('behavior: eth_signRawTransaction uses configured fee token', async () => {
+      const feeToken = '0x20c0000000000000000000000000000000000001'
+      const chain_ = chain.extend({ feeToken })
+      const client = getClient({
+        account: userAccount,
+        chain: chain_,
+      })
+      const handler = Handler.feePayer({
+        account: feePayerAccount,
+        client: getClient({ chain: chain_ }),
+      })
+      const request = await prepareTransactionRequest(client, {
+        account: userAccount,
+        chain: chain_,
+        feePayer: true,
+        to: '0x0000000000000000000000000000000000000000',
+      })
+      const partial = await signTransaction(client, {
+        ...request,
+        account: userAccount,
+        feePayer: true,
+      } as never)
+
+      const response = await handler.fetch(
+        new Request('http://localhost', {
+          body: JSON.stringify({
+            id: 1,
+            jsonrpc: '2.0',
+            method: 'eth_signRawTransaction',
+            params: [partial],
+          }),
+          method: 'POST',
+        }),
+      )
+      const data = (await response.json()) as { result: `0x76${string}` }
+      const transaction = Transaction.deserialize(data.result)
+
+      expect(transaction.feeToken).toBe(feeToken)
     })
 
     test('behavior: eth_sendRawTransaction', async () => {

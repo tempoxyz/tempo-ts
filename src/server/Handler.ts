@@ -526,6 +526,9 @@ export function feePayer(options: feePayer.Options) {
       })
     throw new Error('No client or chain provided')
   })()
+  const feeToken = (
+    client as unknown as { chain?: (Chain & { feeToken?: `0x${string}` }) | undefined }
+  ).chain?.feeToken
 
   const router = from(options)
 
@@ -569,6 +572,7 @@ export function feePayer(options: feePayer.Options) {
       const serializedTransaction = await signTransaction(client, {
         ...transaction,
         account,
+        ...(feeToken ? { feeToken } : {}),
         feePayer: account,
       })
 
