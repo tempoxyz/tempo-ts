@@ -515,7 +515,7 @@ export declare namespace keyManager {
  * @returns Request handler.
  */
 export function feePayer(options: feePayer.Options) {
-  const { account, onRequest, path = '/' } = options
+  const { account, onRequest, path = '/', policy } = options
 
   const client = (() => {
     if ('client' in options) return options.client!
@@ -566,6 +566,14 @@ export function feePayer(options: feePayer.Options) {
           message: 'Transaction must be signed by the sender before fee payer signing.',
         })
 
+      await policy?.({
+        account,
+        client,
+        method,
+        request,
+        transaction,
+      })
+
       const serializedTransaction = await signTransaction(client, {
         ...transaction,
         account,
@@ -582,6 +590,13 @@ export function feePayer(options: feePayer.Options) {
 
       return Response.json(RpcResponse.from({ result }, { request }))
     } catch (error) {
+      if (
+        error instanceof RpcResponse.InternalError ||
+        error instanceof RpcResponse.InvalidParamsError ||
+        error instanceof RpcResponse.MethodNotSupportedError
+      )
+        return Response.json(RpcResponse.from({ error }, { request }))
+
       return Response.json(
         RpcResponse.from(
           {
@@ -599,11 +614,26 @@ export function feePayer(options: feePayer.Options) {
 }
 
 export declare namespace feePayer {
+  export type PolicyContext = {
+    /** Account used to sponsor the request. */
+    account: LocalAccount
+    /** Client used to sign and forward the request. */
+    client: Client
+    /** Parsed JSON-RPC method. */
+    method: 'eth_signRawTransaction' | 'eth_sendRawTransaction' | 'eth_sendRawTransactionSync'
+    /** Original JSON-RPC request. */
+    request: RpcRequest.RpcRequest
+    /** Parsed Tempo transaction. */
+    transaction: ReturnType<typeof Transaction.deserialize>
+  }
+
   export type Options = from.Options & {
     /** Account to use as the fee payer. */
     account: LocalAccount
     /** Function to call before handling the request. */
     onRequest?: (request: RpcRequest.RpcRequest) => Promise<void>
+    /** Policy hook to validate sponsorship before fee payer signing. */
+    policy?: (context: PolicyContext) => Promise<void> | void
     /** Path to use for the handler. */
     path?: string | undefined
   } & OneOf<
