@@ -4,11 +4,11 @@ import { Hono } from 'hono'
 import type { RpcRequest } from 'ox'
 import * as Base64 from 'ox/Base64'
 import * as Hex from 'ox/Hex'
-import { sendTransactionSync } from 'viem/actions'
+import { sendTransactionSync, signTransaction } from 'viem/actions'
 import { withFeePayer } from 'viem/tempo'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 
-import { accounts, getClient, http } from '../../test/server/config.js'
+import { accounts, addresses, getClient, http } from '../../test/server/config.js'
 import { createServer, type Server } from '../../test/server/utils.js'
 import * as Handler from './Handler.js'
 import * as Kv from './Kv.js'
@@ -1218,5 +1218,57 @@ describe('feePayer', () => {
         }
       `)
     })
+  })
+})
+
+describe('feePayerPreflight', () => {
+  const userAccount = accounts[9]!
+  const feePayerAccount = accounts[0]!
+
+  test('behavior: parses a signed fee payer request', async () => {
+    const client = getClient({ account: userAccount })
+    const serialized = await signTransaction(client, {
+      account: userAccount,
+      feeToken: addresses.alphaUsd,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+
+    const result = await Handler.feePayerPreflight({
+      request: {
+        id: 1,
+        jsonrpc: '2.0',
+        method: 'eth_signRawTransaction',
+        params: [serialized],
+      },
+    })
+
+    expect(result.method).toBe('eth_signRawTransaction')
+    expect(result.request.method).toBe('eth_signRawTransaction')
+    expect(result.transaction.from).toBe(userAccount.address.toLowerCase())
+    expect(result.sponsoredTransaction.feePayer).toBeUndefined()
+  })
+
+  test('behavior: simulates a sponsored transaction', async () => {
+    const client = getClient({ account: userAccount })
+    const serialized = await signTransaction(client, {
+      account: userAccount,
+      feeToken: addresses.alphaUsd,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+
+    const result = await Handler.feePayerPreflight({
+      client: getClient(),
+      feePayer: feePayerAccount,
+      request: {
+        id: 1,
+        jsonrpc: '2.0',
+        method: 'eth_signRawTransaction',
+        params: [serialized],
+      },
+      simulate: true,
+    })
+
+    expect(result.sponsoredTransaction.feePayer).toBe(feePayerAccount.address.toLowerCase())
+    expect(result.estimateGas).toBeGreaterThan(0n)
   })
 })

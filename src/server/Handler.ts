@@ -552,19 +552,9 @@ export function feePayer(options: feePayer.Options) {
           ),
         )
 
-      const serialized = request.params?.[0] as `0x76${string}`
-
-      if (!serialized?.startsWith('0x76') && !serialized?.startsWith('0x78'))
-        throw new RpcResponse.InvalidParamsError({
-          message: 'Only Tempo (0x76/0x78) transactions are supported.',
-        })
-
-      const transaction = Transaction.deserialize(serialized) as any
-
-      if (!transaction.signature || !transaction.from)
-        throw new RpcResponse.InvalidParamsError({
-          message: 'Transaction must be signed by the sender before fee payer signing.',
-        })
+      const { transaction } = await feePayerPreflight({
+        request,
+      })
 
       const serializedTransaction = await signTransaction(client, {
         ...transaction,
@@ -598,6 +588,56 @@ export function feePayer(options: feePayer.Options) {
   return router
 }
 
+export async function feePayerPreflight(options: feePayerPreflight.Options) {
+  const request = RpcRequest.from(options.request as any)
+  const method = request.method as string
+
+  if (
+    method !== 'eth_signRawTransaction' &&
+    method !== 'eth_sendRawTransaction' &&
+    method !== 'eth_sendRawTransactionSync'
+  )
+    throw new RpcResponse.MethodNotSupportedError({
+      message: `Method not supported: ${request.method}`,
+    })
+
+  const serialized = request.params?.[0] as `0x76${string}`
+
+  if (!serialized?.startsWith('0x76') && !serialized?.startsWith('0x78'))
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Only Tempo (0x76/0x78) transactions are supported.',
+    })
+
+  const transaction = Transaction.deserialize(serialized) as any
+
+  if (!transaction.signature || !transaction.from)
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Transaction must be signed by the sender before fee payer signing.',
+    })
+
+  const feePayer =
+    typeof options.feePayer === 'string' ? options.feePayer : options.feePayer?.address
+
+  const sponsoredTransaction = feePayer ? { ...transaction, feePayer } : transaction
+
+  const estimateGas = options.simulate
+    ? BigInt(
+        await (options.client as any).request({
+          method: 'eth_estimateGas',
+          params: [sponsoredTransaction],
+        }),
+      )
+    : undefined
+
+  return {
+    estimateGas,
+    method,
+    request,
+    sponsoredTransaction,
+    transaction,
+  } satisfies feePayerPreflight.Result
+}
+
 export declare namespace feePayer {
   export type Options = from.Options & {
     /** Account to use as the fee payer. */
@@ -618,6 +658,39 @@ export declare namespace feePayer {
           transport: Transport
         }
     >
+}
+
+export declare namespace feePayerPreflight {
+  export type Result = {
+    /** Gas estimate for the parsed request if simulation is enabled. */
+    estimateGas?: bigint | undefined
+    /** Parsed JSON-RPC method. */
+    method: feePayer.PolicyContext['method']
+    /** Original JSON-RPC request. */
+    request: RpcRequest.RpcRequest
+    /** Parsed Tempo transaction. */
+    transaction: ReturnType<typeof Transaction.deserialize>
+    /** Parsed transaction with the provided fee payer attached, if any. */
+    sponsoredTransaction: ReturnType<typeof Transaction.deserialize>
+  }
+
+  export type Options = {
+    /** JSON-RPC request to inspect. */
+    request: RpcRequest.RpcRequest | unknown
+  } & OneOf<
+    | {
+        /** Disable simulation. */
+        simulate?: false | undefined
+      }
+    | {
+        /** Enable `eth_estimateGas` simulation. */
+        simulate: true
+        /** Client used to simulate the request. */
+        client: Client
+        /** Optional fee payer to attach before simulation. */
+        feePayer?: LocalAccount | `0x${string}` | undefined
+      }
+  >
 }
 
 /** @internal */
